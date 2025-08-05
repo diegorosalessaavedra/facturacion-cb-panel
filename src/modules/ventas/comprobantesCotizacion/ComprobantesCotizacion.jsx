@@ -24,6 +24,7 @@ const ComprobantesCotizacion = ({ userData }) => {
   const [exportingExcel, setExportingExcel] = useState(false);
 
   const handleFindComprobantes = () => {
+    setLoading(true);
     const url = `${
       import.meta.env.VITE_URL_API
     }/comprobantes/comprobante-electronico/cotizaciones?tipoFiltro=${selectFiltro}&dataFiltro=${dataFiltro}&fechaInicial=${inicioFecha}&fechaFinal=${finalFecha}`;

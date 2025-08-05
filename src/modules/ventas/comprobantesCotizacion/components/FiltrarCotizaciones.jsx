@@ -10,7 +10,7 @@ const FiltrarCotizaciones = ({
   setSelectFiltro,
   dataFiltro,
   setDataFiltro,
-  handleFindCotizaciones,
+  handleFindComprobantes,
   inicioFecha,
   setInicioFecha,
   finalFecha,
@@ -22,7 +22,7 @@ const FiltrarCotizaciones = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleFindCotizaciones();
+    handleFindComprobantes();
   };
 
   return (
