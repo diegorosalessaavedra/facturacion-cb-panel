@@ -92,10 +92,12 @@ const FormEditarCotizacion = ({ userData, cotizacion }) => {
     const productosAcumulados = cotizacion.productos.map((producto) => ({
       id: producto.id,
       productoId: producto.producto?.id?.toString() || "",
-      descripcion: producto.producto?.nombre || "",
+      nombre: producto.producto?.nombre || "",
       cantidad: producto.cantidad || 0,
       precioUnitario: producto.precioUnitario || 0,
       total: producto.total || 0,
+      descripcion: "",
+      stock: producto.producto?.stock || 0,
     }));
 
     setArrayPagos(pagosAcumulados);

@@ -87,7 +87,7 @@ const TablaEditarProducto = ({
           onOpenChange={onOpenChange}
           isOpen={isOpen}
           setProductos={setProductos}
-          tipo_productos={tipo_productos}
+          tipo_productos={tipo_productos || "Comercialización y servicios"}
           centroCostos={centroCostos}
         />
       )}
@@ -97,7 +97,7 @@ const TablaEditarProducto = ({
           onOpenChange={onOpenChange}
           selectProduct={selectProduct}
           centroCostos={centroCostos}
-          tipo_productos={tipo_productos}
+          tipo_productos={tipo_productos || "Comercialización y servicios"}
           onSave={saveEditedProduct}
         />
       )}
