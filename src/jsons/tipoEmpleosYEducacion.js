@@ -1,23 +1,11 @@
 export const tipoContratos = [
   {
     id: 1,
-    descripcion: "Jornada completa",
+    descripcion: "Necesidad del mercado",
   },
   {
     id: 2,
-    descripcion: "Autónomo",
-  },
-  {
-    id: 3,
-    descripcion: "Profesional independiente",
-  },
-  {
-    id: 4,
-    descripcion: "Contrato temporal",
-  },
-  {
-    id: 5,
-    descripcion: "Contrato de prácticas",
+    descripcion: "Locación de servicios",
   },
 ];
 
