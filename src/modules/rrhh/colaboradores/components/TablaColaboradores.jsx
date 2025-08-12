@@ -23,7 +23,7 @@ const TablaColaboradores = ({
   setSelectModal,
 }) => {
   const parseFecha = (fecha) => {
-    const [dia, mes, anio] = fecha.split("/");
+    const [dia, mes, anio] = fecha?.split("/");
     return new Date(`${anio}-${mes}-${dia}`);
   };
 
@@ -126,14 +126,17 @@ const TablaColaboradores = ({
                         : ""
                     }`}
                   >
-                    {colaborador.contratos[0]?.estado_contrato === "expirado"
-                      ? colaborador.contratos[0]?.estado_contrato
-                      : `${calcularDiasRestantes(
-                          colaborador.contratos[0]?.fecha_inicio,
-                          colaborador.contratos[0]?.fecha_final
-                        )} días restantes`}
+                    {colaborador.contratos.length > 0
+                      ? colaborador.contratos[0]?.estado_contrato === "expirado"
+                        ? colaborador.contratos[0]?.estado_contrato
+                        : `${calcularDiasRestantes(
+                            colaborador.contratos[0]?.fecha_inicio,
+                            colaborador.contratos[0]?.fecha_final
+                          )} días restantes`
+                      : "sin contratos"}
                   </p>
                 </TableCell>
+
                 <TableCell className="text-xs py-2">
                   <Button
                     onPress={() => {
