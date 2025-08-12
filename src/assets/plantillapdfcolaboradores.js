@@ -306,9 +306,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
 
     // Fecha de nacimiento
     if (data.fecha_nacimiento_colaborador) {
-      const fechaNacimiento = new Date(
-        data.fecha_nacimiento_colaborador
-      ).toLocaleDateString("es-ES");
+      const fechaNacimiento = data.fecha_nacimiento_colaborador;
       personalInfoY = drawInfoRow(pdf, {
         icon: icons.cake,
         label: "Fecha de Nacimiento",

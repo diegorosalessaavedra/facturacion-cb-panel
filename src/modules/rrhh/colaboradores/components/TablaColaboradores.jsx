@@ -118,23 +118,21 @@ const TablaColaboradores = ({
                 <TableCell className="text-xs py-2">
                   {colaborador.cargo_laboral?.cargo}
                 </TableCell>
-                <TableCell
-                  className={`"text-xs py-2" ${
-                    colaborador.contratos.length > 0 &&
-                    calcularDiasRestantes(
-                      colaborador.contratos[0]?.fecha_inicio,
-                      colaborador.contratos[0]?.fecha_final
-                    ) < 16
-                      ? "text-red-500"
-                      : ""
-                  }`}
-                >
-                  {colaborador.contratos.length > 0 &&
-                    calcularDiasRestantes(
-                      colaborador.contratos[0]?.fecha_inicio,
-                      colaborador.contratos[0]?.fecha_final
-                    )}{" "}
-                  días restantes
+                <TableCell className="text-xs py-2">
+                  <p
+                    className={`text-xs py-2 ${
+                      colaborador.contratos[0]?.estado_contrato === "expirado"
+                        ? "text-red-500"
+                        : ""
+                    }`}
+                  >
+                    {colaborador.contratos[0]?.estado_contrato === "expirado"
+                      ? colaborador.contratos[0]?.estado_contrato
+                      : `${calcularDiasRestantes(
+                          colaborador.contratos[0]?.fecha_inicio,
+                          colaborador.contratos[0]?.fecha_final
+                        )} días restantes`}
+                  </p>
                 </TableCell>
                 <TableCell className="text-xs py-2">
                   <Button

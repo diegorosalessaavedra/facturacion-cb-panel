@@ -110,12 +110,19 @@ const ModalVerContratos = ({
                     <TableCell className="text-xs py-2">
                       {contrato.fecha_final}
                     </TableCell>
-                    <TableCell className="text-xs py-2">
-                      {calcularDiasRestantes(
-                        contrato.fecha_inicio,
-                        contrato.fecha_final
-                      )}{" "}
-                      días restantes
+                    <TableCell
+                      className={`"text-xs py-2" ${
+                        contrato.estado_contrato === "expirado"
+                          ? "text-red-500"
+                          : ""
+                      }`}
+                    >
+                      {contrato.estado_contrato === "expirado"
+                        ? contrato.estado_contrato
+                        : `${calcularDiasRestantes(
+                            contrato.fecha_inicio,
+                            contrato.fecha_final
+                          )}  días restantes`}
                     </TableCell>
                     <TableCell className="text-xs py-2">
                       <a
