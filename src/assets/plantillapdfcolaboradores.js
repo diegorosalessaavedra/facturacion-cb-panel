@@ -540,7 +540,11 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     pdf.setFont("helvetica", "normal").setFontSize(9);
     if (data.contratos?.length > 0) {
       data.contratos.forEach((c) => {
-        pdf.text(`• ${c.nombre_contrato}`, margin, yColContratos);
+        pdf.text(
+          ` ${c.fecha_inicio} - ${c.fecha_final}`,
+          margin,
+          yColContratos
+        );
         yColContratos += 5;
       });
     } else {
