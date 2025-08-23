@@ -124,6 +124,7 @@ const CamposEditarDatosCliente = ({
         >
           <SelectItem key="Aéreo">Aéreo</SelectItem>
           <SelectItem key="Terrestre">Terrestre</SelectItem>
+          <SelectItem key="Almacen">Almacen</SelectItem>
         </Select>
 
         <Input
