@@ -27,7 +27,7 @@ const TablaVacaciones = ({
           color="default"
           isStriped
           classNames={{
-            base: "min-w-full  overflow-hidden  p-4 ",
+            base: "min-w-full  h-[75vh]  p-4 ",
             wrapper: "p-0",
           }}
           radius="sm"
