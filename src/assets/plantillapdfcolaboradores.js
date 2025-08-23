@@ -10,7 +10,7 @@ const iconsPath = {
   map: "/icons/map.svg",
   point: "/icons/point.svg",
   cake: "/icons/cake.svg",
-  briefcase: "/icons/briefcase.svg",
+  briefcase: "/icons/student.svg",
 };
 
 const iconCache = {};
@@ -334,7 +334,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
 
     if (data.cargo_laboral?.cargo) {
       yPos = drawInfoRow(pdf, {
-        icon: icons.briefcase,
+        icon: icons?.briefcase,
         label: "Cargo",
         text: data.cargo_laboral.cargo,
         x: margin,
@@ -541,7 +541,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     if (data.contratos?.length > 0) {
       data.contratos.forEach((c) => {
         pdf.text(
-          ` ${c.fecha_inicio} - ${c.fecha_final}`,
+          ` ${c.fecha_inicio} - ${c.fecha_final} ${c?.estado_contrato}`,
           margin,
           yColContratos
         );

@@ -9,12 +9,7 @@ import {
   Chip,
 } from "@nextui-org/react";
 import { MdEmail } from "react-icons/md";
-import {
-  FaAddressCard,
-  FaUser,
-  FaBriefcase,
-  FaFileContract,
-} from "react-icons/fa";
+import { FaAddressCard, FaUser, FaBriefcase } from "react-icons/fa";
 import { FaMapLocation, FaSquarePhone, FaBook } from "react-icons/fa6";
 import { BsFillCake2Fill, BsPersonVcardFill } from "react-icons/bs";
 import { RiMapPin5Fill } from "react-icons/ri";
@@ -71,9 +66,6 @@ const ModalVerMasColaborador = ({
     fecha_nacimiento_colaborador,
     cargo_laboral,
     tipo_empleo_colaborador,
-    educacion_colaborador,
-    nombre_institucion_educativa,
-    especializacion_titulo_colaborador,
     cv_colaborador,
     documentos_complementarios = [],
     contratos = [],
@@ -89,7 +81,6 @@ const ModalVerMasColaborador = ({
     telefono_contacto_emergencia2,
   } = selectColaborador;
 
-  // Construye la URL completa de la imagen
   const fotoUrl = `${laravelUrl}/api/colaboradores/${foto_colaborador}`;
 
   return (
@@ -276,7 +267,18 @@ const ModalVerMasColaborador = ({
                     <ul className="list-disc list-inside mt-2">
                       {contratos.length > 0 ? (
                         contratos.map((c) => (
-                          <li key={c.id}>{c.nombre_contrato}</li>
+                          <li key={c.id} className="text-sm">
+                            {c.fecha_inicio} - {c.fecha_final}{" "}
+                            <span
+                              className={`${
+                                c.estado_contrato === "vigente"
+                                  ? "text-blue-600"
+                                  : "text-red-500"
+                              } `}
+                            >
+                              {c.estado_contrato}
+                            </span>
+                          </li>
                         ))
                       ) : (
                         <li className="text-neutral-500">

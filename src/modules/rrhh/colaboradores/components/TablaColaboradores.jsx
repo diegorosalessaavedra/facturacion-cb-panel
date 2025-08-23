@@ -49,7 +49,7 @@ const TablaColaboradores = ({
           color="default"
           isStriped
           classNames={{
-            base: "min-w-full  overflow-hidden  p-4 ",
+            base: "min-w-full  h-[70vh]  p-4 ",
             wrapper: "p-0",
           }}
           radius="sm"
@@ -89,7 +89,7 @@ const TablaColaboradores = ({
               MEMOS
             </TableColumn>
             <TableColumn className=" text-xs text-white  bg-blue-700">
-              VER MAS
+              VER PERFIL
             </TableColumn>
             <TableColumn className=" text-xs text-white  bg-blue-700">
               ACCIONES
@@ -174,7 +174,7 @@ const TablaColaboradores = ({
                     color="primary"
                     className="bg-neutral-900"
                   >
-                    Ver mas
+                    Ver perfil
                   </Button>
                 </TableCell>
                 <TableCell className="text-xs py-2">
