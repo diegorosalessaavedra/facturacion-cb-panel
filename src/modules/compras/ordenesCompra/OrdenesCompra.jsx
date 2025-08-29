@@ -13,6 +13,8 @@ import ModalAnularComprobanteOrdenCompra from "./components/ModalAnularComproban
 import Loading from "../../../hooks/Loading";
 import EditarComprobanteOrdenCompra from "../editarComprobanteOrdenCompra/EditarComprobanteOrdenCompra";
 import ModalAdjuntarSolped from "./components/ModalAdjuntarSolped";
+import ModalCambiarValidacion from "./components/ModalCambiarValidacion";
+import DescargarLayout from "../../../hooks/DescargarTxt";
 
 const OrdenesCompra = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -35,8 +37,6 @@ const OrdenesCompra = () => {
     axios
       .get(url, config)
       .then((res) => {
-        console.log(res);
-
         setOrdenCompras(res.data.ordenesCompras);
       })
       .finally(() => setLoading(false));
@@ -61,11 +61,14 @@ const OrdenesCompra = () => {
             <FaWpforms className="text-2xl" />
             <h2>Status SOLPED</h2>
           </div>
-          <Link to="/compras/nueva-orden-compra">
-            <Button color="primary" variant="solid" startContent={<FaPlus />}>
-              Nuevo
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link to="/compras/nueva-orden-compra">
+              <Button color="primary" variant="solid" startContent={<FaPlus />}>
+                Nuevo
+              </Button>
+            </Link>
+            <DescargarLayout ordenCompras={ordenCompras} />
+          </div>
         </div>
         <FiltrarOrdenesCompra
           selectFiltro={selectFiltro}
@@ -132,6 +135,15 @@ const OrdenesCompra = () => {
           onOpenChange={onOpenChange}
           selectOrdenCompra={selectOrdenCompra}
           handleFindOrdenCompras={handleFindOrdenCompras}
+        />
+      )}
+
+      {selectModal === "cambiar_validacion" && (
+        <ModalCambiarValidacion
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          handleFindOrdenCompras={handleFindOrdenCompras}
+          selectOrdenCompra={selectOrdenCompra}
         />
       )}
     </div>

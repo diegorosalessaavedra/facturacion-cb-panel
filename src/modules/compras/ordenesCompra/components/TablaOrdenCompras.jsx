@@ -10,6 +10,7 @@ import {
 import { formatNumber } from "../../../../assets/formats";
 import { Link } from "react-router-dom";
 import formatDate from "../../../../hooks/FormatDate";
+import { FaCheck } from "react-icons/fa";
 
 const TablaOrdenCompras = ({
   ordenCompras,
@@ -77,6 +78,9 @@ const TablaOrdenCompras = ({
           </TableColumn>
           <TableColumn className="text-xs text-white  bg-blue-700">
             Acciones
+          </TableColumn>
+          <TableColumn className="text-xs text-white  bg-blue-700">
+            Validar
           </TableColumn>
         </TableHeader>
         <TableBody>
@@ -234,6 +238,26 @@ const TablaOrdenCompras = ({
                     Comprobante de Pago
                   </Button>
                 </div>
+              </TableCell>
+              <TableCell className="  text-xs  text-center ">
+                <button
+                  className={`w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
+                    ordenCompra.validacion
+                      ? "border-blue-500"
+                      : "border-neutral-400"
+                  }  rounded-sm`}
+                  onClick={() => {
+                    setSelectModal("cambiar_validacion");
+                    setSelectOrdenCompra(ordenCompra);
+                    onOpen();
+                  }}
+                >
+                  {ordenCompra.validacion ? (
+                    <FaCheck className="text-blue-500" />
+                  ) : (
+                    ""
+                  )}
+                </button>
               </TableCell>
             </TableRow>
           ))}
