@@ -50,19 +50,7 @@ export default function DescargarLayout({ ordenCompras }) {
     sumaCuentas
   ) => {
     const numeroControl = formatWithLeadingZeros(sumaCuentas + 2682922020, 15);
-    return `1${numeroSolpeds}${fecha}C00011912682922020   ${totalFormateado}PAGOS SEMANA ${semana}   N${numeroControl}`;
-  };
-
-  const determinarTipoCuenta = (nroCuenta) => {
-    const longitud = String(nroCuenta).length;
-    switch (longitud) {
-      case 13:
-        return "C";
-      case 14:
-        return "A";
-      default:
-        return "B";
-    }
+    return `1${numeroSolpeds}${fecha}C00011912682922020       ${totalFormateado}PAGOS SEMANA ${semana}                         N${numeroControl}`;
   };
 
   const determinarTipoDocumento = (tipoDoc) => {
@@ -70,14 +58,13 @@ export default function DescargarLayout({ ordenCompras }) {
   };
 
   const generarLineaDetalle = (ordenCompra) => {
-    const { proveedor, nro_cuenta_bco, saldoInicial, moneda } = ordenCompra;
+    const { proveedor, nro_cuenta_bco, saldoInicial } = ordenCompra;
 
     if (!proveedor) {
       console.warn("Orden de compra sin proveedor:", ordenCompra);
       return null;
     }
 
-    const tipoCuenta = determinarTipoCuenta(nro_cuenta_bco);
     const tipoDocIdentidad = determinarTipoDocumento(
       proveedor.tipoDocIdentidad
     );
@@ -85,21 +72,29 @@ export default function DescargarLayout({ ordenCompras }) {
       Number(saldoInicial || 0).toFixed(2),
       17
     );
-    const codigoMoneda = moneda === "Soles" ? "S" : "D";
     const numeroDoc = proveedor.numeroDoc || "";
     const nombreComercial = proveedor.nombreComercial || "";
 
-    return `2${tipoCuenta}${nro_cuenta_bco}   1${tipoDocIdentidad}${numeroDoc}   ${nombreComercial}   Referencia Beneficiario ${numeroDoc}   Ref Emp ${numeroDoc} 0001${montoFormateado}${codigoMoneda}`;
+    return `2D${String(nro_cuenta_bco).padEnd(
+      20,
+      " "
+    )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
+      nombreComercial
+    ).padEnd(75, " ")}${String(ordenCompra.observacion).padEnd(
+      40,
+      " "
+    )}Ref Emp ${String(numeroDoc).padEnd(12, " ")}0001${montoFormateado}S`;
   };
 
-  const descargarArchivo = (contenido, nombreArchivo = "layout_pago.txt") => {
+  const descargarArchivo = (contenido) => {
     try {
       const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
 
       const enlace = document.createElement("a");
+      const { fechaFormateada } = obtenerFechaActual();
       enlace.href = url;
-      enlace.download = nombreArchivo;
+      enlace.download = `${fechaFormateada}_soles.txt`;
       enlace.style.display = "none";
 
       document.body.appendChild(enlace);
@@ -144,11 +139,7 @@ export default function DescargarLayout({ ordenCompras }) {
         .filter((linea) => linea !== null); // Filtrar líneas inválidas
 
       // Construir contenido final
-      const contenido = [
-        lineaEncabezado,
-        "",
-        ...lineasDetalle.flatMap((linea) => [linea, ""]),
-      ].join("\n");
+      const contenido = [lineaEncabezado, ...lineasDetalle].join("\n");
 
       // Descargar archivo
       descargarArchivo(contenido);
