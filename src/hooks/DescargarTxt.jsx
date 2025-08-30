@@ -18,6 +18,18 @@ export default function DescargarLayout({ ordenCompras }) {
     return { today, fechaFormateada: `${year}${month}${day}` };
   };
 
+  const determinarTipoCuenta = (nroCuenta) => {
+    const longitud = String(nroCuenta).length;
+    switch (longitud) {
+      case 13:
+        return "C";
+      case 14:
+        return "A";
+      default:
+        return "B";
+    }
+  };
+
   const calcularSemanaDelAno = (fecha) => {
     const inicioAno = new Date(fecha.getFullYear(), 0, 1);
     const diferenciaDias =
@@ -74,16 +86,21 @@ export default function DescargarLayout({ ordenCompras }) {
     );
     const numeroDoc = proveedor.numeroDoc || "";
     const nombreComercial = proveedor.nombreComercial || "";
+    const tipoDeCuenta = determinarTipoCuenta(ordenCompra.nro_cuenta_bco);
 
-    return `2D${String(nro_cuenta_bco).padEnd(
+    return `2${tipoDeCuenta}${String(nro_cuenta_bco).padEnd(
       20,
       " "
     )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
       nombreComercial
-    ).padEnd(75, " ")}${String(ordenCompra.observacion).padEnd(
-      40,
+    )
+      .slice(0, 75)
+      .padEnd(75, " ")}${String(ordenCompra.observacion)
+      .slice(0, 40)
+      .padEnd(40, " ")}Ref Emp ${String(numeroDoc).padEnd(
+      12,
       " "
-    )}Ref Emp ${String(numeroDoc).padEnd(12, " ")}0001${montoFormateado}S`;
+    )}0001${montoFormateado}S`;
   };
 
   const descargarArchivo = (contenido) => {
