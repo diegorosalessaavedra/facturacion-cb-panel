@@ -396,7 +396,7 @@ const CampoDatosProveedorOrdenCompra = ({
           {...register("prioridad_solped")}
           color="primary"
           errorMessage="La prioridad solped es obligatoria."
-          description="prioridad solped Alta, mediana o baja"
+          description="Prioridad solped Alta, mediana o baja"
           variant="bordered"
           defaultSelectedKeys={["Al Contado"]}
           radius="sm"

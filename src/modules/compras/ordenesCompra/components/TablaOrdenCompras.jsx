@@ -79,25 +79,16 @@ const TablaOrdenCompras = ({
           <TableColumn className="text-xs text-white  bg-blue-700">
             Acciones
           </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Validar TXT
+          <TableColumn className="text-xs text-white  bg-blue-700 text-center">
+            Agregar a pago <br /> masivo
           </TableColumn>
           <TableColumn className="text-xs text-white  bg-blue-700">
-            Validado Ingrid
+            Validacion Judit
           </TableColumn>
         </TableHeader>
         <TableBody>
           {ordenCompras?.map((ordenCompra, index) => (
-            <TableRow
-              key={ordenCompra.id}
-              className={`${
-                ordenCompra.prioridad_solped === "Alta"
-                  ? "bg-red-50"
-                  : ordenCompra.prioridad_solped === "Mediana"
-                  ? "bg-amber-50"
-                  : "bg-green-50"
-              }`}
-            >
+            <TableRow key={ordenCompra.id}>
               <TableCell className=" text-xs  ">{index + 1}</TableCell>
               <TableCell className=" min-w-[90px]   text-xs  ">
                 {formatDate(ordenCompra.fechaEmision)}
@@ -151,7 +142,13 @@ const TablaOrdenCompras = ({
               <TableCell className="  text-xs  ">
                 <div className="flex gap-2">
                   <Button
-                    className="scale-85"
+                    className={` scale-85 ${
+                      ordenCompra.prioridad_solped === "Alta"
+                        ? "bg-red-500"
+                        : ordenCompra.prioridad_solped === "Mediana"
+                        ? "bg-amber-500"
+                        : "bg-green-500"
+                    }`}
                     size="sm"
                     color="danger"
                     onPress={() => {
