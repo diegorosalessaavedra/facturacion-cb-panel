@@ -68,8 +68,6 @@ const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
     };
     setLoading(true);
 
-    console.log(newData);
-
     const url = `${import.meta.env.VITE_URL_API}/compras/orden-compra/${
       ordenCompra.id
     }`;

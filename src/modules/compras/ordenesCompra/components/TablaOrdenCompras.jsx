@@ -80,12 +80,24 @@ const TablaOrdenCompras = ({
             Acciones
           </TableColumn>
           <TableColumn className="text-xs text-white  bg-blue-700">
-            Validar
+            Validar TXT
+          </TableColumn>
+          <TableColumn className="text-xs text-white  bg-blue-700">
+            Validado Ingrid
           </TableColumn>
         </TableHeader>
         <TableBody>
           {ordenCompras?.map((ordenCompra, index) => (
-            <TableRow key={ordenCompra.id}>
+            <TableRow
+              key={ordenCompra.id}
+              className={`${
+                ordenCompra.prioridad_solped === "Alta"
+                  ? "bg-red-50"
+                  : ordenCompra.prioridad_solped === "Mediana"
+                  ? "bg-amber-50"
+                  : "bg-green-50"
+              }`}
+            >
               <TableCell className=" text-xs  ">{index + 1}</TableCell>
               <TableCell className=" min-w-[90px]   text-xs  ">
                 {formatDate(ordenCompra.fechaEmision)}
@@ -241,7 +253,7 @@ const TablaOrdenCompras = ({
               </TableCell>
               <TableCell className="  text-xs  text-center ">
                 <button
-                  className={`w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
+                  className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
                     ordenCompra.validacion
                       ? "border-blue-500"
                       : "border-neutral-400"
@@ -254,6 +266,22 @@ const TablaOrdenCompras = ({
                 >
                   {ordenCompra.validacion ? (
                     <FaCheck className="text-blue-500" />
+                  ) : (
+                    ""
+                  )}
+                </button>
+              </TableCell>
+              <TableCell className="  text-xs  text-center ">
+                <button
+                  disabled
+                  className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
+                    ordenCompra.validacion
+                      ? "border-green-500"
+                      : "border-neutral-400"
+                  }  rounded-sm`}
+                >
+                  {ordenCompra.validacion_ingrid ? (
+                    <FaCheck className="text-green-500" />
                   ) : (
                     ""
                   )}

@@ -3,7 +3,8 @@ import React, { useMemo } from "react";
 import { formatWithLeadingZeros } from "../assets/formats";
 
 export default function DescargarLayout({ ordenCompras }) {
-  // Memoizar las órdenes validadas para evitar recálculos innecesarios
+  console.log(ordenCompras);
+
   const ordenComprasValidadas = useMemo(
     () => ordenCompras.filter((orden) => orden.validacion === true),
     [ordenCompras]
@@ -39,7 +40,7 @@ export default function DescargarLayout({ ordenCompras }) {
 
   const calcularTotalSaldos = (ordenes) => {
     const total = ordenes.reduce(
-      (suma, orden) => suma + Number(orden.saldoInicial || 0),
+      (suma, orden) => suma + Number(orden.monto_txt || 0),
       0
     );
     return formatWithLeadingZeros(total.toFixed(2), 17);
@@ -70,7 +71,7 @@ export default function DescargarLayout({ ordenCompras }) {
   };
 
   const generarLineaDetalle = (ordenCompra) => {
-    const { proveedor, nro_cuenta_bco, saldoInicial } = ordenCompra;
+    const { proveedor, nro_cuenta_bco, monto_txt } = ordenCompra;
 
     if (!proveedor) {
       console.warn("Orden de compra sin proveedor:", ordenCompra);
@@ -81,7 +82,7 @@ export default function DescargarLayout({ ordenCompras }) {
       proveedor.tipoDocIdentidad
     );
     const montoFormateado = formatWithLeadingZeros(
-      Number(saldoInicial || 0).toFixed(2),
+      Number(monto_txt || 0).toFixed(2),
       17
     );
     const numeroDoc = proveedor.numeroDoc || "";

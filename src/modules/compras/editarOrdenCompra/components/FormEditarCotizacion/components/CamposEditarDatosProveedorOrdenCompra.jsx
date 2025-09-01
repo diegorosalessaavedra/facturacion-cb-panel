@@ -428,6 +428,26 @@ const CamposEditarDatosProveedorOrdenCompra = ({
             </SelectItem>
           ))}
         </Select>
+        <Select
+          isRequired
+          className="min-w-72 max-w-72"
+          label="Prioridad Solped"
+          placeholder="..."
+          labelPlacement="outside"
+          {...register("prioridad_solped")}
+          color="primary"
+          errorMessage="La prioridad solped es obligatoria."
+          description="prioridad solped Alta, mediana o baja"
+          variant="bordered"
+          defaultSelectedKeys={[ordenCompra.prioridad_solped]}
+          radius="sm"
+          size="sm"
+          classNames={selectClassNames}
+        >
+          <SelectItem key="Alta">Alta</SelectItem>
+          <SelectItem key="Mediana">Mediana</SelectItem>
+          <SelectItem key="Baja">Baja</SelectItem>
+        </Select>
       </div>
 
       <Textarea
