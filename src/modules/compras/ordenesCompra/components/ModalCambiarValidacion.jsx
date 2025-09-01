@@ -37,6 +37,7 @@ const ModalCambiarValidacion = ({
         toast.success(`El SOLPED se actualizó correctamente`);
         handleFindOrdenCompras();
         onOpenChange(false);
+        setMontoTxt();
       })
       .catch((err) => {
         console.log(err);
