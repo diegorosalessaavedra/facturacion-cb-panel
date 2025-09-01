@@ -19,13 +19,13 @@ const TablaOrdenCompras = ({
   setSelectOrdenCompra,
 }) => {
   return (
-    <div className="w-full flex items-center">
+    <div className="w-full flex ">
       <Table
         aria-label="Tabla de itinerarios"
         color="default"
         isStriped
         classNames={{
-          base: "min-w-full  max-h-[80vh] overflow-scroll  p-4 ",
+          base: "w-full  max-h-[70vh] overflow-auto p-4 ",
           wrapper: "p-0",
         }}
         radius="sm"
@@ -79,11 +79,11 @@ const TablaOrdenCompras = ({
           <TableColumn className="text-xs text-white  bg-blue-700">
             Acciones
           </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700 text-center">
-            Agregar a pago <br /> masivo
-          </TableColumn>
           <TableColumn className="text-xs text-white  bg-blue-700">
             Validacion Judit
+          </TableColumn>
+          <TableColumn className="text-xs text-white  bg-blue-700 text-center">
+            Agregar a pago <br /> masivo
           </TableColumn>
         </TableHeader>
         <TableBody>
@@ -250,6 +250,22 @@ const TablaOrdenCompras = ({
               </TableCell>
               <TableCell className="  text-xs  text-center ">
                 <button
+                  disabled
+                  className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
+                    ordenCompra.validacion
+                      ? "border-green-500"
+                      : "border-neutral-400"
+                  }  rounded-sm`}
+                >
+                  {ordenCompra.validacion_ingrid ? (
+                    <FaCheck className="text-green-500" />
+                  ) : (
+                    ""
+                  )}
+                </button>
+              </TableCell>
+              <TableCell className="  text-xs  text-center ">
+                <button
                   className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
                     ordenCompra.validacion
                       ? "border-blue-500"
@@ -263,22 +279,6 @@ const TablaOrdenCompras = ({
                 >
                   {ordenCompra.validacion ? (
                     <FaCheck className="text-blue-500" />
-                  ) : (
-                    ""
-                  )}
-                </button>
-              </TableCell>
-              <TableCell className="  text-xs  text-center ">
-                <button
-                  disabled
-                  className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
-                    ordenCompra.validacion
-                      ? "border-green-500"
-                      : "border-neutral-400"
-                  }  rounded-sm`}
-                >
-                  {ordenCompra.validacion_ingrid ? (
-                    <FaCheck className="text-green-500" />
                   ) : (
                     ""
                   )}
