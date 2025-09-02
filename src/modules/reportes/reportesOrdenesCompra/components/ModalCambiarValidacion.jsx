@@ -19,9 +19,13 @@ const ModalCambiarValidacion = ({
   const deletePost = () => {
     const url = `${
       import.meta.env.VITE_URL_API
-    }/compras/orden-compra/validacion/${selectOrdenCompra.id}`;
+    }/compras/orden-compra/validacion-ingrid/${selectOrdenCompra.id}`;
     axios
-      .patch(url, { validacion: !selectOrdenCompra.validacion }, config)
+      .patch(
+        url,
+        { validacion_ingrid: !selectOrdenCompra.validacion_ingrid },
+        config
+      )
       .then((res) => {
         toast.success(`El SOLPED se actualizo correctamente`);
         handleFindoOrdenesCompra();

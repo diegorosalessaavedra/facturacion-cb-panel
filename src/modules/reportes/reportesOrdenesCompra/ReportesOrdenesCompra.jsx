@@ -38,8 +38,6 @@ const ReportesOrdenesCompra = () => {
     handleFindoOrdenesCompra();
   }, []);
 
-  console.log(selectOrdenCompra);
-
   return (
     <div className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
       <div className="w-full h-full bg-white flex flex-col gap-4 py-4 rounded-md overflow-hidden">

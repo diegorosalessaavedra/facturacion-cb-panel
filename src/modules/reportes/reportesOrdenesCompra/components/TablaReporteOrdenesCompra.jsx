@@ -12,8 +12,14 @@ import {
   formatNumberSinDecimales,
 } from "../../../../assets/formats";
 import formatDate from "../../../../hooks/FormatDate";
+import { FaCheck } from "react-icons/fa";
 
-const TablaReporteOrdenesCompra = ({ ordenesCompra, loading }) => {
+const TablaReporteOrdenesCompra = ({
+  ordenesCompra,
+  loading,
+  setSelectOrdenCompra,
+  onOpen,
+}) => {
   return (
     <div className="w-full flex items-center">
       {loading ? (
@@ -73,9 +79,9 @@ const TablaReporteOrdenesCompra = ({ ordenesCompra, loading }) => {
               <TableColumn className="text-xs text-white bg-blue-700">
                 Nro cuenta
               </TableColumn>
-              {/* <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-blue-700">
                 Validación
-              </TableColumn> */}
+              </TableColumn>
             </TableHeader>
             <TableBody>
               {ordenesCompra?.map((ordenCompra, index) => (
@@ -124,10 +130,10 @@ const TablaReporteOrdenesCompra = ({ ordenesCompra, loading }) => {
                   <TableCell className="  text-xs  ">
                     {ordenCompra.nro_cuenta_bco || "-"}
                   </TableCell>
-                  {/* <TableCell className="  text-xs  text-center ">
+                  <TableCell className="  text-xs  text-center ">
                     <button
                       className={`w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
-                        ordenCompra.validacion
+                        ordenCompra.validacion_ingrid
                           ? "border-blue-500"
                           : "border-neutral-400"
                       }  rounded-sm`}
@@ -136,13 +142,13 @@ const TablaReporteOrdenesCompra = ({ ordenesCompra, loading }) => {
                         onOpen();
                       }}
                     >
-                      {ordenCompra.validacion ? (
+                      {ordenCompra.validacion_ingrid ? (
                         <FaCheck className="text-blue-500" />
                       ) : (
                         ""
                       )}
                     </button>
-                  </TableCell> */}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
