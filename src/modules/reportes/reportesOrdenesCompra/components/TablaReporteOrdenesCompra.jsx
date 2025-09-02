@@ -20,6 +20,8 @@ const TablaReporteOrdenesCompra = ({
   setSelectOrdenCompra,
   onOpen,
 }) => {
+  console.log(ordenesCompra);
+
   return (
     <div className="w-full flex items-center">
       {loading ? (
@@ -55,23 +57,25 @@ const TablaReporteOrdenesCompra = ({
                 Proveedor
               </TableColumn>
               <TableColumn className="text-xs text-white bg-blue-700">
-                Descripción
-              </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
                 Forma de Pago
-              </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
-                Estado de <br /> pago
               </TableColumn>
               <TableColumn className="text-xs text-white bg-blue-700">
                 Moneda
               </TableColumn>
-
+              <TableColumn className="text-xs text-white bg-blue-700">
+                Descripción
+              </TableColumn>
+              <TableColumn className="text-xs text-white bg-blue-700">
+                Precio Unitario
+              </TableColumn>
               <TableColumn className="text-xs text-white bg-blue-700">
                 Total
               </TableColumn>
               <TableColumn className="text-xs text-white bg-blue-700">
                 Saldo
+              </TableColumn>
+              <TableColumn className="text-xs text-white bg-blue-700">
+                Estado de <br /> pago
               </TableColumn>
               <TableColumn className="text-xs text-white bg-blue-700">
                 Banco
@@ -97,6 +101,12 @@ const TablaReporteOrdenesCompra = ({
                     {ordenCompra.proveedor.nombreApellidos ||
                       ordenCompra.proveedor.nombreComercial}
                   </TableCell>
+                  <TableCell className="  text-xs  ">
+                    {ordenCompra.formaPago}
+                  </TableCell>
+                  <TableCell className="  text-xs  ">
+                    {ordenCompra.moneda}
+                  </TableCell>
                   <TableCell className="  text-xs   text-nowrap">
                     <ul>
                       {ordenCompra.productos.map((producto) => (
@@ -109,20 +119,22 @@ const TablaReporteOrdenesCompra = ({
                       ))}
                     </ul>
                   </TableCell>
-                  <TableCell className="  text-xs  ">
-                    {ordenCompra.formaPago}
+                  <TableCell className="  text-xs   text-nowrap">
+                    <ul>
+                      {ordenCompra.productos.map((producto) => (
+                        <li>S/ {producto.precioUnitario}</li>
+                      ))}
+                    </ul>
                   </TableCell>
-                  <TableCell className="  text-xs  ">
-                    {ordenCompra.estadoPago}
-                  </TableCell>
-                  <TableCell className="  text-xs  ">
-                    {ordenCompra.moneda}
-                  </TableCell>
+
                   <TableCell className=" min-w-[110px]  text-xs  ">
                     S/. {formatNumber(ordenCompra.saldoInicial)}
                   </TableCell>
                   <TableCell className="min-w-[110px]  text-xs  ">
                     S/. {formatNumber(ordenCompra.saldo)}
+                  </TableCell>
+                  <TableCell className="  text-xs  ">
+                    {ordenCompra.estadoPago}
                   </TableCell>
                   <TableCell className="  text-xs  ">
                     {ordenCompra.banco_beneficiario || "-"}
