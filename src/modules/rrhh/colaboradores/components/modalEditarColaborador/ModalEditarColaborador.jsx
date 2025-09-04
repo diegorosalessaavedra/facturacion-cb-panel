@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Button,
+  Checkbox,
   Input,
   Modal,
   ModalBody,
@@ -11,12 +12,13 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import config from "../../../../../utils/getToken";
-import EducacionCargoLaboral from "./components/EditarEducacionCargoLaboral";
 import Loading from "../../../../../hooks/Loading";
-import { FaPlus, FaTrash } from "react-icons/fa"; // Importamos FaTrash para el botón de eliminar
+import { FaPlus, FaTrash, FaTrashAlt } from "react-icons/fa"; // Importamos FaTrash para el botón de eliminar
 import { inputClassNames } from "../../../../../assets/classNames";
 import EditarDatosPesonalesColaborador from "./components/EditarDatosPesonalesColaborador";
 import EditarEducacionCargoLaboral from "./components/EditarEducacionCargoLaboral";
+
+const laravelUrl = import.meta.env.VITE_LARAVEL_URL;
 
 const ModalEditarColaborador = ({
   isOpen,
@@ -31,6 +33,7 @@ const ModalEditarColaborador = ({
   const [archivosComplementarios, setArchivosComplementarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [foto, setfoto] = useState();
+  const [deletesDocsId, setDeletesDocsId] = useState([]);
 
   const handleAddArchivo = () => {
     setArchivosComplementarios([
@@ -118,7 +121,9 @@ const ModalEditarColaborador = ({
     formData.append("distrito_colaborador", distrito.Distrito);
 
     formData.append("cargo_laboral_id", data.cargo_laboral_id);
-
+    deletesDocsId.forEach((id) => {
+      formData.append("deletesDocsId[]", id);
+    });
     if (foto) {
       formData.append("foto_colaborador", foto);
     }
@@ -162,6 +167,8 @@ const ModalEditarColaborador = ({
       });
   };
 
+  console.log(deletesDocsId);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -193,6 +200,44 @@ const ModalEditarColaborador = ({
                 selectColaborador={selectColaborador}
               />
 
+              <h3>Documentos complementarios</h3>
+              <div className="w-full max-w-2xl ">
+                {selectColaborador?.documentos_complementarios?.map((doc) => (
+                  <div key={doc.id} className="w-full flex justify-between">
+                    <a
+                      href={`${laravelUrl}/colaboradores/${doc.link_doc_complementario}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {doc.nombre_doc_complementario}
+                    </a>
+
+                    <div className="flex gap-2">
+                      <button type="button">
+                        <FaTrashAlt
+                          className="text-lg text-red-500 cursor-pointer"
+                          onClick={() => {
+                            if (deletesDocsId.some((d) => d === doc.id)) {
+                              setDeletesDocsId((prev) =>
+                                prev.filter((d) => d !== doc.id)
+                              );
+                            } else {
+                              setDeletesDocsId((prev) => [...prev, doc.id]);
+                            }
+                          }}
+                        />
+                      </button>
+                      <Checkbox
+                        isDisabled
+                        color="danger"
+                        isSelected={deletesDocsId.includes(doc.id)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <h3>Agregar documentos complementarios</h3>
               {/* Botón para agregar nuevos campos de archivo */}
               <Button
@@ -203,7 +248,6 @@ const ModalEditarColaborador = ({
                 <FaPlus /> Agregar Archivo
               </Button>
 
-              {/* --- Renderizar los campos de archivos complementarios --- */}
               {archivosComplementarios.map((archivo) => (
                 <div
                   key={archivo.id}
@@ -260,7 +304,8 @@ const ModalEditarColaborador = ({
                   onPress={() => {
                     onOpenChange();
                     reset();
-                    setArchivosComplementarios([]); // Limpiar archivos complementarios al cancelar
+                    setArchivosComplementarios([]);
+                    setDeletesDocsId([]);
                   }}
                 >
                   Cancelar
