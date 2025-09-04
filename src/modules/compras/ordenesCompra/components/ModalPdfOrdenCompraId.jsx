@@ -92,7 +92,7 @@ const ModalPdfOrdenCompraId = ({ onOpenChange, isOpen, id }) => {
 
                       <li>Comprador:</li>
 
-                      <li>Observación:</li>
+                      <li>Referencia:</li>
                     </ul>
                     <ul className="flex flex-col text-[11px]">
                       <li>

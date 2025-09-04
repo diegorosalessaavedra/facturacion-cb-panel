@@ -1,16 +1,14 @@
 import { Button } from "@nextui-org/react";
-import React, { useMemo } from "react";
 import { formatWithLeadingZeros } from "../assets/formats";
+import axios from "axios";
+import config from "../utils/getToken";
 
-export default function DescargarLayout({ ordenCompras }) {
-  console.log(ordenCompras);
+export default function DescargarLayout({
+  txtSolpeds,
+  handleFindOrdenCompras,
+}) {
+  console.log(txtSolpeds);
 
-  const ordenComprasValidadas = useMemo(
-    () => ordenCompras.filter((orden) => orden.validacion === true),
-    [ordenCompras]
-  );
-
-  // Funciones utilitarias para mejorar la legibilidad
   const obtenerFechaActual = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -126,21 +124,34 @@ export default function DescargarLayout({ ordenCompras }) {
     }
   };
 
+  const updateValidacionMasivo = () => {
+    const url = `${
+      import.meta.env.VITE_URL_API
+    }/compras/orden-compra/validacion-masivo`;
+
+    axios
+      .patch(url, { ordenesCompras: txtSolpeds }, config)
+      .then((res) => {
+        console.log(res);
+        handleFindOrdenCompras();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const handleDownload = () => {
-    if (ordenComprasValidadas.length === 0) {
+    if (txtSolpeds.length === 0) {
       alert("No hay órdenes de compra validadas para descargar.");
       return;
     }
 
     try {
       const { today, fechaFormateada } = obtenerFechaActual();
-      const numeroSolpeds = formatWithLeadingZeros(
-        ordenComprasValidadas.length,
-        6
-      );
-      const totalFormateado = calcularTotalSaldos(ordenComprasValidadas);
+      const numeroSolpeds = formatWithLeadingZeros(txtSolpeds.length, 6);
+      const totalFormateado = calcularTotalSaldos(txtSolpeds);
       const semanaDelAno = calcularSemanaDelAno(today);
-      const sumaNroCuenta = calcularSumaNroCuenta(ordenComprasValidadas);
+      const sumaNroCuenta = calcularSumaNroCuenta(txtSolpeds);
 
       // Generar línea de encabezado
       const lineaEncabezado = generarLineaEncabezado(
@@ -152,7 +163,7 @@ export default function DescargarLayout({ ordenCompras }) {
       );
 
       // Generar líneas de detalle
-      const lineasDetalle = ordenComprasValidadas
+      const lineasDetalle = txtSolpeds
         .map(generarLineaDetalle)
         .filter((linea) => linea !== null); // Filtrar líneas inválidas
 
@@ -161,6 +172,8 @@ export default function DescargarLayout({ ordenCompras }) {
 
       // Descargar archivo
       descargarArchivo(contenido);
+
+      updateValidacionMasivo();
     } catch (error) {
       console.error("Error al procesar las órdenes de compra:", error);
       alert(
@@ -173,10 +186,10 @@ export default function DescargarLayout({ ordenCompras }) {
     <Button
       onPress={handleDownload}
       className=" text-white"
-      disabled={ordenComprasValidadas.length === 0}
+      disabled={txtSolpeds.length === 0}
       color="success"
     >
-      {ordenComprasValidadas.length === 0 ? "Sin datos" : `Descargar TXT`}
+      {txtSolpeds.length === 0 ? "Sin datos" : `Descargar TXT`}
     </Button>
   );
 }

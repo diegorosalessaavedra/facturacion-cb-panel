@@ -20,10 +20,8 @@ const TablaReporteOrdenesCompra = ({
   setSelectOrdenCompra,
   onOpen,
 }) => {
-  console.log(ordenesCompra);
-
   return (
-    <div className="w-full flex items-center">
+    <div className="w-full h-full flex items-center">
       {loading ? (
         <Spinner className="m-auto" label="Cargando..." color="success" />
       ) : (
@@ -33,7 +31,7 @@ const TablaReporteOrdenesCompra = ({
             color="default"
             isStriped
             classNames={{
-              base: "min-w-full  max-h-[80vh] overflow-scroll  p-4 ",
+              base: "min-w-full  h-[70vh] overflow-auto  p-4 ",
               wrapper: "p-0",
             }}
             radius="sm"

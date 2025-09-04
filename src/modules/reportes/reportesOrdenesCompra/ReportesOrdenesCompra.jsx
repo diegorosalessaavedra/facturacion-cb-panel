@@ -40,7 +40,7 @@ const ReportesOrdenesCompra = () => {
 
   return (
     <div className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
-      <div className="w-full h-full bg-white flex flex-col gap-4 py-4 rounded-md overflow-hidden">
+      <div className="w-full h-full bg-white flex flex-col  py-4 rounded-md overflow-hidden">
         <div className="flex items-center justify-between px-4 ">
           <div className="flex items-center gap-2 text-slate-600">
             <FaWpforms className="text-2xl" />

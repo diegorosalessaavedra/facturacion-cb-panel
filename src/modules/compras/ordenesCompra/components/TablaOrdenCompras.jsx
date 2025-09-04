@@ -80,10 +80,11 @@ const TablaOrdenCompras = ({
             Acciones
           </TableColumn>
           <TableColumn className="text-xs text-white  bg-blue-700">
-            Validacion Judit
+            Validacion
           </TableColumn>
           <TableColumn className="text-xs text-white  bg-blue-700 text-center">
-            Agregar a pago <br /> masivo
+            Enviar a Pago
+            <br /> Masivo
           </TableColumn>
         </TableHeader>
         <TableBody>

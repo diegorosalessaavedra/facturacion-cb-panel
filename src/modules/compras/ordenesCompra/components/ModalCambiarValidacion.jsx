@@ -20,7 +20,7 @@ const ModalCambiarValidacion = ({
   handleFindOrdenCompras,
   selectOrdenCompra,
 }) => {
-  const [montoTxt, setMontoTxt] = useState("");
+  const [montoTxt, setMontoTxt] = useState(0);
 
   const updateValidacion = () => {
     const url = `${
@@ -60,6 +60,9 @@ const ModalCambiarValidacion = ({
                   ? "¿Está seguro de que quiere desactivar validación?"
                   : "¿Está seguro de confirmar la validación?"}
               </p>
+              {selectOrdenCompra.validacion && (
+                <span>monto: S/ {selectOrdenCompra.monto_txt}</span>
+              )}
               {!selectOrdenCompra.validacion && (
                 <Input
                   isRequired

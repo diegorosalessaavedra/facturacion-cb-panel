@@ -26,6 +26,7 @@ const OrdenesCompra = () => {
   const [dataFiltro, setDataFiltro] = useState("");
   const [inicioFecha, setInicioFecha] = useState(getTodayDate2());
   const [finalFecha, setFinalFecha] = useState(getTodayDate());
+  const [txtSolpeds, setTxtSolpeds] = useState([]);
   const [estadoPago, setEstadoPago] = useState("TODOS");
 
   const handleFindOrdenCompras = () => {
@@ -38,6 +39,9 @@ const OrdenesCompra = () => {
       .get(url, config)
       .then((res) => {
         setOrdenCompras(res.data.ordenesCompras);
+        setTxtSolpeds(
+          res.data.ordenesCompras.filter((o) => o.validacion === true)
+        );
       })
       .finally(() => setLoading(false));
   };
@@ -67,7 +71,10 @@ const OrdenesCompra = () => {
                 Nuevo
               </Button>
             </Link>
-            <DescargarLayout ordenCompras={ordenCompras} />
+            <DescargarLayout
+              txtSolpeds={txtSolpeds}
+              handleFindOrdenCompras={handleFindOrdenCompras}
+            />
           </div>
         </div>
         <FiltrarOrdenesCompra
@@ -82,6 +89,7 @@ const OrdenesCompra = () => {
           handleFindOrdenCompras={handleFindOrdenCompras}
           setEstadoPago={setEstadoPago}
           estadoPago={estadoPago}
+          txtSolpeds={txtSolpeds}
         />
         <TablaOrdenCompras
           ordenCompras={ordenCompras}
@@ -144,6 +152,7 @@ const OrdenesCompra = () => {
           onOpenChange={onOpenChange}
           handleFindOrdenCompras={handleFindOrdenCompras}
           selectOrdenCompra={selectOrdenCompra}
+          setTxtSolpeds={setTxtSolpeds}
         />
       )}
     </div>

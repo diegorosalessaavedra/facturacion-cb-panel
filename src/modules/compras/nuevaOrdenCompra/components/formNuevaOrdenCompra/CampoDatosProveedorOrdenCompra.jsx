@@ -411,7 +411,7 @@ const CampoDatosProveedorOrdenCompra = ({
 
       <Textarea
         variant="bordered"
-        label="Observación"
+        label="Referencia"
         labelPlacement="outside"
         placeholder="Ingrese observaciones adicionales..."
         {...register("observacion")}
