@@ -14,6 +14,10 @@ import Dasbhoard from "./modules/dashboard/Dasbhoard";
 import LoadingSpinner from "./components/LoadingSpinner"; // Componente de carga
 
 // Lazy loading de componentes por módulo
+//Despacho
+const DespachoTiempoReal = lazy(() =>
+  import("./modules/despachos/tiempoReal/DespachoTiempoReal")
+);
 // Ventas
 const Cotizaciones = lazy(() =>
   import("./modules/ventas/cotizaciones/Cotizaciones")
@@ -194,6 +198,16 @@ function App() {
 
         <Route element={<ProtectedRoutes />}>
           <Route path="/" element={<Dasbhoard />} />
+          {/* Rutas de despacho */}
+
+          <Route
+            path="/despacho/tiempo-real"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <DespachoTiempoReal userData={userData} />
+              </ProtectedRouteWrapper>
+            }
+          />
 
           {/* Rutas de Ventas */}
           <Route

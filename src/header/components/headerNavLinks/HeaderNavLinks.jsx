@@ -11,6 +11,7 @@ import NavReportesLinks from "./components/NavReportesLinks";
 import NavComprobantesLinks from "./components/NavComprobantesLinks";
 import NavInventarioLinks from "./components/NavInventarioLinks";
 import NavRRHHLinks from "./components/NavRRHHLinks";
+import NavDespachoLinks from "./components/NavDespachoLinks";
 
 // Constantes para roles
 const ROLES = {
@@ -101,7 +102,11 @@ const HeaderNavLinks = ({
         <GrDocumentPerformance className="text-xl" />
         <p className="text-base">Dashboard</p>
       </Link>
-
+      {userPermissions.isAdmin && (
+        <>
+          <NavDespachoLinks {...sharedNavProps} />
+        </>
+      )}
       {/* Ventas */}
       <ConditionalNavLink condition={userPermissions.canAccessVentas}>
         <NavVentasLinks {...sharedNavProps} userData={userData} />

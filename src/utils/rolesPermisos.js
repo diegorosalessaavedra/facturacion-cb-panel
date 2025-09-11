@@ -7,6 +7,13 @@ export const ROLES = {
 };
 
 export const ROUTE_PERMISSIONS = {
+  // Rutas de Despacho
+  "/despacho/tiempo-real": [
+    ROLES.ADMINISTRADOR,
+    ROLES.VENDEDOR,
+    ROLES.COMPRADOR_VENDEDOR,
+  ],
+
   // Rutas de Ventas
   "/ventas/comprobantes-cotizacion": [
     ROLES.ADMINISTRADOR,
