@@ -34,8 +34,6 @@ const ComprobanteElectronico = ({ userData }) => {
     tipoComprobante: "NOTA DE VENTA",
   });
 
-  console.log(dataSelects);
-
   const [monto, setMonto] = useState();
   const [porcentaje, setPorcentaje] = useState(10);
 
@@ -79,7 +77,6 @@ const ComprobanteElectronico = ({ userData }) => {
 
     setLoading(true);
 
-    console.log(newData);
     const url = `${
       import.meta.env.VITE_URL_API
     }/comprobantes/comprobante-electronico`;
@@ -97,8 +94,7 @@ const ComprobanteElectronico = ({ userData }) => {
       })
       .catch((err) => {
         toast.error(
-          err.response.data.error ||
-            "hubo un error al registrar el comprobante por favor verifique bien los campos"
+          "hubo un error al registrar el comprobante por favor verifique bien los campos"
         );
       })
       .finally(() => {
