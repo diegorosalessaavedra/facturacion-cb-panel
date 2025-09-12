@@ -127,9 +127,8 @@ const CamposClienteComprobanteElectronico = ({
             {...register("cliente", {
               required: "El cliente es obligatorio.",
             })}
-            isInvalid={!!errors?.cliente}
-            color={errors?.cliente ? "danger" : "primary"}
-            errorMessage={errors?.cliente?.message}
+            isRequired
+            errorMessage="El cliente es obligatorio."
             id="cliente"
             radius="sm"
             innerWrapper

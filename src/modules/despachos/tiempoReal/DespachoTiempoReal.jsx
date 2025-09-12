@@ -4,10 +4,10 @@ import config from "../../../utils/getToken";
 import NuevoBloque from "./components/bloque/components/NuevoBloque";
 import { FaBoxOpen } from "react-icons/fa";
 import CardBloque from "./components/bloque/CardBloque";
-import useSocket from "../../../hooks/useSocket";
+import { useSocketContext } from "../../../context/SocketContext";
 
 export default function DespachoTiempoReal() {
-  const socket = useSocket();
+  const socket = useSocketContext();
 
   const [bloquesDespacho, setBloquesDespacho] = useState([]);
 

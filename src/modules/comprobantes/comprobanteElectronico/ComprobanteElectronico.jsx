@@ -30,9 +30,12 @@ const ComprobanteElectronico = ({ userData }) => {
   const [idComprobante, setIdComprobante] = useState(null);
   const [dataSelects, setDataSelects] = useState({
     vendedor: "",
-    tipoOperacion: "",
+    tipoOperacion: "VENTA INTERNA",
     tipoComprobante: "NOTA DE VENTA",
   });
+
+  console.log(dataSelects);
+
   const [monto, setMonto] = useState();
   const [porcentaje, setPorcentaje] = useState(10);
 
@@ -59,6 +62,7 @@ const ComprobanteElectronico = ({ userData }) => {
 
     const newData = {
       ...data,
+      tipoComprobante: dataSelects.tipoComprobante,
       clienteId: selectCliente,
       usuarioId: userData.id,
       arrayPagos: arrayPagos,
@@ -75,6 +79,7 @@ const ComprobanteElectronico = ({ userData }) => {
 
     setLoading(true);
 
+    console.log(newData);
     const url = `${
       import.meta.env.VITE_URL_API
     }/comprobantes/comprobante-electronico`;

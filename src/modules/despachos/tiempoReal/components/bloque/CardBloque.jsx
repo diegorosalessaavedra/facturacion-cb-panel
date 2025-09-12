@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import config from "../../../../../utils/getToken";
 import axios from "axios";
-import useSocket from "../../../../../hooks/useSocket";
 import NuevoDespacho from "../despacho/components/NuevoDespacho";
 import DespachoGrid from "../despacho/DespachoGrid";
+import { useSocketContext } from "../../../../../context/SocketContext";
 
 const CardBloque = ({ bloque, index }) => {
-  const socket = useSocket();
+  const socket = useSocketContext();
 
   const [despachos, setDespachos] = useState([]);
 
@@ -29,9 +29,9 @@ const CardBloque = ({ bloque, index }) => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("despacho:created", (nuevoGrupo) => {
-      if (nuevoGrupo.bloque_id === bloque.id) {
-        setDespachos((prev) => [...prev, nuevoGrupo]);
+    socket.on("despacho:created", (despacho) => {
+      if (despacho.bloque_id === bloque.id) {
+        setDespachos((prev) => [...prev, despacho]);
       }
     });
 
@@ -40,10 +40,10 @@ const CardBloque = ({ bloque, index }) => {
     };
   }, [socket]);
 
-  const classHeader = `w-[150px] bg-green-600 flex items-center justify-center text-center p-2 px-4 text-xs`;
+  const classHeader = `w-[150px] bg-green-600 flex items-center justify-center text-center p-2 px-4 text-[11px]`;
 
   return (
-    <div className="w-fit bg-slate-50 p-4 rounded-md shadow">
+    <div className="w-fit bg-slate-50 p-4 pl-10 rounded-md shadow">
       <div className="flex items-center gap-4">
         <h3 className="px-6 py-1.5 bg-blue-600 text-white rounded-lg text-lg font-medium">
           Bloque {index + 1}
@@ -56,7 +56,7 @@ const CardBloque = ({ bloque, index }) => {
             <p>VENDEDORA</p>
           </article>
           <article
-            className={`w-[250px] bg-green-600 flex items-center justify-center text-center p-2 px-4 text-xs`}
+            className={`w-[250px] bg-green-600 flex items-center justify-center text-center p-2 px-4 text-[11px]`}
           >
             <p>CLIENTE A COTIZAR</p>
           </article>
@@ -74,7 +74,7 @@ const CardBloque = ({ bloque, index }) => {
             <p>OBSERVACION</p>
           </article>
           <div className=" flex flex-col gap-[1px] bg-white text-center">
-            <article className="w-full bg-green-600 flex items-center justify-center text-center p-2 px-4 text-xs">
+            <article className="w-full bg-green-600 flex items-center justify-center text-center p-2 px-4 text-[11px]">
               <h3>CONSIGNATARIO 1</h3>
             </article>
 
@@ -88,7 +88,7 @@ const CardBloque = ({ bloque, index }) => {
             </div>
           </div>
           <div className="grid-cols-2 flex flex-col gap-[1px] bg-white text-center">
-            <article className="w-full bg-green-600 flex items-center justify-center text-center p-2 px-4 text-xs">
+            <article className="w-full bg-green-600 flex items-center justify-center text-center p-2 px-4 text-[11px]">
               <h3>CONSIGNATARIO 2</h3>
             </article>
 
