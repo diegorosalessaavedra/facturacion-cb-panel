@@ -284,6 +284,22 @@ const CamposClienteComprobanteElectronico = ({
             </SelectItem>
           ))}
         </Select>
+        <Select
+          isRequired
+          label="Tipo de factura"
+          labelPlacement="outside"
+          {...register("tipo_factura")}
+          errorMessage="El  tipo de factura es obligatorio."
+          variant="bordered"
+          radius="sm"
+          size="sm"
+          defaultSelectedKeys={["VENTA"]}
+          classNames={selectClassNames}
+        >
+          <SelectItem key="VENTA">VENTA</SelectItem>
+
+          <SelectItem key="GRATUITA">GRATUITA</SelectItem>
+        </Select>
       </div>
       {dataSelects.tipoOperacion === "OPERACIÓN SUJETA A DETRACCIÓN" && (
         <div className="flex flex-col gap-2">
