@@ -1,7 +1,6 @@
-import { useState } from "react";
 import NuevoProductoDespacho from "./NuevoProductoDespacho";
-import { div } from "framer-motion/client";
 import EliminarProductoDespacho from "./EliminarProductoDespacho";
+import useEncargadosStore from "../../../../../../../stores/encargados.store";
 
 export default function ProductosDespacho({
   producto,
@@ -10,17 +9,18 @@ export default function ProductosDespacho({
   onDespachoChange,
   onProductoChange,
   despacho,
+  setFocusInput,
 }) {
-  const [focusInput, setFocusInput] = useState("");
+  const { encargados } = useEncargadosStore();
 
   const inputStyles = `
-    w-full h-8 px-2 text-xs border-0 bg-transparent text-gray-900 
+    w-full h-8 px-2 text-[11px] border-0 bg-transparent text-gray-900 
     focus:outline-none focus:bg-green-50 focus:ring-1 focus:ring-green-300
     placeholder-gray-400
   `;
 
   const readOnlyInputStyles = `
-    w-full h-8 px-2 text-xs border-0  text-gray-600 
+    w-full h-8 px-2 text-[11px] border-0  text-gray-600 
     cursor-not-allowed
   `;
 
@@ -42,61 +42,63 @@ export default function ProductosDespacho({
     <section className="grid grid-cols-[repeat(21,1fr)] gap-[1px] bg-gray-100 hover:bg-gray-100 transition-colors relative">
       {isFirstProduct && (
         <div className="absolute -left-8">
-          <NuevoProductoDespacho depachoId={despacho.id} />{" "}
+          <NuevoProductoDespacho depachoId={despacho.id} />
         </div>
       )}
       {!isFirstProduct && (
-        <div className="absolute -left-8">
-          <EliminarProductoDespacho productoId={producto.id} />{" "}
+        <div className="absolute -left-7">
+          <EliminarProductoDespacho productoId={producto.id} />
         </div>
       )}
+      {/* Vendedora */}
       <article className={cellStyles}>
         <select
-          value={despachoData.vendedora}
-          onChange={(e) => handleDespachoChange("vendedora", e.target.value)}
+          value={despachoData.vendedora_id}
+          onChange={(e) => handleDespachoChange("vendedora_id", e.target.value)}
+          onFocus={() => setFocusInput("vendedora_id")}
           className={`${
             isFirstProduct ? inputStyles : readOnlyInputStyles
           } cursor-pointer`}
           disabled={!isFirstProduct}
         >
           <option value="">Seleccionar</option>
-          <option value="IRIS">IRIS</option>
-          <option value="MERY">MERY</option>
-          <option value="JUDIT">JUDIT</option>
+          {encargados.map((encargado) => (
+            <option value={encargado.id} key={encargado.id}>
+              {encargado.nombre}
+            </option>
+          ))}
         </select>
       </article>
 
-      {/* Cliente - Solo editable en el primer producto */}
-      <article
-        className={`w-[250px] flex bg-white items-center justify-center text-center text-xs`}
-      >
+      {/* Cliente */}
+      <article className="w-[250px] flex bg-white items-center justify-center text-center text-xs">
         <input
           type="text"
           value={despachoData.cliente}
           onChange={(e) => handleDespachoChange("cliente", e.target.value)}
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="Cliente"
-          onFocus={() => setFocusInput("Cliente")}
+          onFocus={() => setFocusInput("cliente")}
           readOnly={!isFirstProduct}
         />
       </article>
 
-      {/* DNI/RUC Cliente - Solo editable en el primer producto */}
+      {/* DNI/RUC Cliente */}
       <article className={cellStyles}>
         <input
           type="text"
-          value={despachoData.dni_ruc_cliente}
+          value={despachoData.documento_cliente}
           onChange={(e) =>
-            handleDespachoChange("dni_ruc_cliente", e.target.value)
+            handleDespachoChange("documento_cliente", e.target.value)
           }
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="DNI/RUC"
-          onFocus={() => setFocusInput("Cliente")}
+          onFocus={() => setFocusInput("documento_cliente")}
           readOnly={!isFirstProduct}
         />
       </article>
 
-      {/* Número de contacto - Solo editable en el primer producto */}
+      {/* Número de contacto */}
       <article className={cellStyles}>
         <input
           type="tel"
@@ -106,12 +108,12 @@ export default function ProductosDespacho({
           }
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="Teléfono"
-          onFocus={() => setFocusInput("Cliente")}
+          onFocus={() => setFocusInput("numero_contacto")}
           readOnly={!isFirstProduct}
         />
       </article>
 
-      {/* Observación - Solo editable en el primer producto */}
+      {/* Observación */}
       <article className={cellStyles}>
         <input
           type="text"
@@ -119,25 +121,27 @@ export default function ProductosDespacho({
           onChange={(e) => handleDespachoChange("observacion", e.target.value)}
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="Observación"
+          onFocus={() => setFocusInput("observacion")}
           readOnly={!isFirstProduct}
         />
       </article>
 
-      {/* Consignatario 1 - DNI - Solo editable en el primer producto */}
+      {/* Consignatario 1 - DNI */}
       <article className={cellStyles}>
         <input
           type="text"
-          value={despachoData.consignatario1_dni}
+          value={despachoData.consignatario1_documento}
           onChange={(e) =>
-            handleDespachoChange("consignatario1_dni", e.target.value)
+            handleDespachoChange("consignatario1_documento", e.target.value)
           }
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="DNI/RUC"
+          onFocus={() => setFocusInput("consignatario1_documento")}
           readOnly={!isFirstProduct}
         />
       </article>
 
-      {/* Consignatario 1 - Nombre - Solo editable en el primer producto */}
+      {/* Consignatario 1 - Nombre */}
       <article className={cellStyles}>
         <input
           type="text"
@@ -147,25 +151,27 @@ export default function ProductosDespacho({
           }
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="Nombre"
+          onFocus={() => setFocusInput("consignatario1_nombre")}
           readOnly={!isFirstProduct}
         />
       </article>
 
-      {/* Consignatario 2 - DNI - Solo editable en el primer producto */}
+      {/* Consignatario 2 - DNI */}
       <article className={cellStyles}>
         <input
           type="text"
-          value={despachoData.consignatario2_dni}
+          value={despachoData.consignatario2_documento}
           onChange={(e) =>
-            handleDespachoChange("consignatario2_dni", e.target.value)
+            handleDespachoChange("consignatario2_documento", e.target.value)
           }
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="DNI/RUC"
+          onFocus={() => setFocusInput("consignatario2_documento")}
           readOnly={!isFirstProduct}
         />
       </article>
 
-      {/* Consignatario 2 - Nombre - Solo editable en el primer producto */}
+      {/* Consignatario 2 - Nombre */}
       <article className={cellStyles}>
         <input
           type="text"
@@ -175,11 +181,12 @@ export default function ProductosDespacho({
           }
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="Nombre"
+          onFocus={() => setFocusInput("consignatario2_nombre")}
           readOnly={!isFirstProduct}
         />
       </article>
 
-      {/* Cantidad - Siempre editable para cada producto */}
+      {/* Cantidad */}
       <article className={cellStyles}>
         <input
           type="number"
@@ -189,10 +196,11 @@ export default function ProductosDespacho({
           placeholder="0"
           min="0"
           step="1"
+          onFocus={() => setFocusInput("cantidad")}
         />
       </article>
 
-      {/* Centro de costos - Siempre editable para cada producto */}
+      {/* Centro de costos */}
       <article className={cellStyles}>
         <input
           type="text"
@@ -202,10 +210,11 @@ export default function ProductosDespacho({
           }
           className={inputStyles}
           placeholder="Centro"
+          onFocus={() => setFocusInput("centro_costos")}
         />
       </article>
 
-      {/* Línea - Siempre editable para cada producto */}
+      {/* Línea */}
       <article className={cellStyles}>
         <input
           type="text"
@@ -213,10 +222,11 @@ export default function ProductosDespacho({
           onChange={(e) => handleProductoChange("linea", e.target.value)}
           className={inputStyles}
           placeholder="Línea"
+          onFocus={() => setFocusInput("linea")}
         />
       </article>
 
-      {/* Destino - Siempre editable para cada producto */}
+      {/* Destino */}
       <article className={cellStyles}>
         <input
           type="text"
@@ -224,14 +234,16 @@ export default function ProductosDespacho({
           onChange={(e) => handleProductoChange("destino", e.target.value)}
           className={inputStyles}
           placeholder="Destino"
+          onFocus={() => setFocusInput("destino")}
         />
       </article>
 
-      {/* Tipo de envío - Siempre editable para cada producto */}
+      {/* Tipo de envío */}
       <article className={cellStyles}>
         <select
           value={producto.tipo_envio || ""}
           onChange={(e) => handleProductoChange("tipo_envio", e.target.value)}
+          onFocus={() => setFocusInput("tipo_envio")}
           className={`${inputStyles} cursor-pointer`}
         >
           <option value="">Seleccionar</option>
@@ -241,7 +253,7 @@ export default function ProductosDespacho({
         </select>
       </article>
 
-      {/* OS/Transporte - Siempre editable para cada producto */}
+      {/* OS/Transporte */}
       <article className={cellStyles}>
         <input
           type="text"
@@ -251,10 +263,11 @@ export default function ProductosDespacho({
           }
           className={inputStyles}
           placeholder="OS/Transport"
+          onFocus={() => setFocusInput("os_transporte")}
         />
       </article>
 
-      {/* Precio unitario - Siempre editable para cada producto */}
+      {/* Precio unitario */}
       <article className={cellStyles}>
         <input
           type="number"
@@ -266,10 +279,11 @@ export default function ProductosDespacho({
           placeholder="0.00"
           min="0"
           step="0.01"
+          onFocus={() => setFocusInput("precio_unitario")}
         />
       </article>
 
-      {/* Agregado extra - Siempre editable para cada producto */}
+      {/* Agregado extra */}
       <article className={cellStyles}>
         <input
           type="number"
@@ -281,10 +295,11 @@ export default function ProductosDespacho({
           placeholder="0.00"
           min="0"
           step="0.01"
+          onFocus={() => setFocusInput("agregado_extra")}
         />
       </article>
 
-      {/* Total a cobrar - Siempre editable para cada producto */}
+      {/* Total a cobrar */}
       <article className={`${cellStyles} bg-yellow-50`}>
         <input
           type="number"
@@ -294,14 +309,16 @@ export default function ProductosDespacho({
           placeholder="0.00"
           min="0"
           step="0.01"
+          onFocus={() => setFocusInput("total_cobrar")}
         />
       </article>
 
-      {/* Estado - Solo editable en el primer producto */}
+      {/* Estado */}
       <article className={cellStyles}>
         <select
           value={despachoData.estado}
           onChange={(e) => handleDespachoChange("estado", e.target.value)}
+          onFocus={() => setFocusInput("estado")}
           className={`${
             isFirstProduct ? inputStyles : readOnlyInputStyles
           } cursor-pointer`}
@@ -316,7 +333,7 @@ export default function ProductosDespacho({
         </select>
       </article>
 
-      {/* Total cobrado - Solo editable en el primer producto */}
+      {/* Total cobrado */}
       <article className={`${cellStyles} bg-green-50`}>
         <input
           type="number"
@@ -330,22 +347,24 @@ export default function ProductosDespacho({
           placeholder="0.00"
           min="0"
           step="0.01"
+          onFocus={() => setFocusInput("total_cobrado")}
           readOnly={!isFirstProduct}
         />
       </article>
 
-      {/* Aplicación anticipo - Solo editable en el primer producto */}
+      {/* Aplicación anticipo */}
       <article className={cellStyles}>
         <input
           type="number"
-          value={despachoData.aplicacion_anticipo}
+          value={despachoData.anticipo_aplicado}
           onChange={(e) =>
-            handleDespachoChange("aplicacion_anticipo", e.target.value)
+            handleDespachoChange("anticipo_aplicado", e.target.value)
           }
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="0.00"
           min="0"
           step="0.01"
+          onFocus={() => setFocusInput("anticipo_aplicado")}
           readOnly={!isFirstProduct}
         />
       </article>

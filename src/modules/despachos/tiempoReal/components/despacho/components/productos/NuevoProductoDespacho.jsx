@@ -32,7 +32,7 @@ export default function NuevoProductoDespacho({ depachoId }) {
         className="w-7 h-7 bg-amber-500  flex items-center justify-center rounded-md "
         onClick={handleNuevoProductoDespacho}
       >
-        <FaPlus className="text-white text-sm" />
+        <FaPlus className="text-white text-xs" />
       </button>
     </>
   );

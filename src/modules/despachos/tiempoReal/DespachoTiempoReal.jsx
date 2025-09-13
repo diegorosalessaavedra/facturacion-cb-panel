@@ -5,11 +5,13 @@ import NuevoBloque from "./components/bloque/components/NuevoBloque";
 import { FaBoxOpen } from "react-icons/fa";
 import CardBloque from "./components/bloque/CardBloque";
 import { useSocketContext } from "../../../context/SocketContext";
+import useEncargadosStore from "../../../stores/encargados.store";
 
 export default function DespachoTiempoReal() {
   const socket = useSocketContext();
 
   const [bloquesDespacho, setBloquesDespacho] = useState([]);
+  const { fetchEncargados } = useEncargadosStore();
 
   const handleFindBloquesDespacho = () => {
     const url = `${import.meta.env.VITE_URL_API}/bloque-despacho`;
@@ -21,6 +23,7 @@ export default function DespachoTiempoReal() {
 
   useEffect(() => {
     handleFindBloquesDespacho();
+    fetchEncargados();
   }, []);
 
   useEffect(() => {

@@ -6,39 +6,43 @@ import { useSocketContext } from "../../../../../context/SocketContext";
 
 export default function DespachoGrid({ despacho }) {
   const socket = useSocketContext();
+  const [focusInput, setFocusInput] = useState("_");
+
   const [productos, setProductos] = useState([]);
   const [formData, setFormData] = useState({
-    vendedora: "",
+    vendedora_id: null,
     cliente: "",
-    dni_ruc_cliente: "",
+    documento_cliente: "",
     numero_contacto: "",
     observacion: "",
-    consignatario1_dni: "",
+    consignatario1_documento: "",
     consignatario1_nombre: "",
-    consignatario2_dni: "",
+    consignatario2_documento: "",
     consignatario2_nombre: "",
     estado: "",
-    total_cobrado: "",
-    aplicacion_anticipo: "",
+    total_cobrado: null,
+    anticipo_aplicado: null,
   });
+
+  console.log(formData);
 
   // Inicializar datos del despacho
   useEffect(() => {
     if (despacho) {
       setFormData((prevData) => ({
         ...prevData,
-        vendedora: despacho.vendedora || "",
-        cliente: despacho.cliente || "",
-        dni_ruc_cliente: despacho.dni_ruc_cliente || "",
-        numero_contacto: despacho.numero_contacto || "",
-        observacion: despacho.observacion || "",
-        consignatario1_dni: despacho.consignatario1_dni || "",
-        consignatario1_nombre: despacho.consignatario1_nombre || "",
-        consignatario2_dni: despacho.consignatario2_dni || "",
-        consignatario2_nombre: despacho.consignatario2_nombre || "",
-        estado: despacho.estado || "",
-        total_cobrado: despacho.total_cobrado || "",
-        aplicacion_anticipo: despacho.aplicacion_anticipo || "",
+        vendedora_id: despacho.vendedora_id ?? null,
+        cliente: despacho.cliente || null,
+        documento_cliente: despacho.documento_cliente || null,
+        numero_contacto: despacho.numero_contacto || null,
+        observacion: despacho.observacion || null,
+        consignatario1_documento: despacho.consignatario1_documento || null,
+        consignatario1_nombre: despacho.consignatario1_nombre || null,
+        consignatario2_documento: despacho.consignatario2_documento || null,
+        consignatario2_nombre: despacho.consignatario2_nombre || null,
+        estado: despacho.estado || null,
+        total_cobrado: despacho.total_cobrado || null,
+        anticipo_aplicado: despacho.anticipo_aplicado || null,
       }));
     }
   }, [despacho]);
@@ -60,7 +64,7 @@ export default function DespachoGrid({ despacho }) {
     if (despacho.id) {
       handleFindProductos();
     }
-  }, [despacho]);
+  }, [despacho.id]);
 
   // Socket para nuevos productos
   useEffect(() => {
@@ -91,12 +95,8 @@ export default function DespachoGrid({ despacho }) {
       ...prev,
       [field]: value,
     }));
-
-    // Aquí puedes agregar lógica para guardar en la base de datos
-    // Por ejemplo, hacer un debounced API call
   };
 
-  // Manejar cambios en los datos de los productos
   const handleProductoChange = (productoId, field, value) => {
     setProductos((prev) =>
       prev.map((producto) =>
@@ -104,7 +104,6 @@ export default function DespachoGrid({ despacho }) {
       )
     );
 
-    // Calcular totales automáticamente si es necesario
     if (
       field === "precio_unitario" ||
       field === "cantidad" ||
@@ -137,6 +136,16 @@ export default function DespachoGrid({ despacho }) {
     );
   };
 
+  useEffect(() => {
+    if (focusInput !== "_") {
+      console.log(focusInput);
+
+      const url = `${import.meta.env.VITE_URL_API}/despacho/${despacho.id}`;
+
+      axios.patch(url, formData, config).then((res) => {});
+    }
+  }, [focusInput]);
+
   // No renderizar nada si no hay productos
   if (!productos || productos.length === 0) {
     return null;
@@ -153,6 +162,8 @@ export default function DespachoGrid({ despacho }) {
           onDespachoChange={handleDespachoChange}
           onProductoChange={handleProductoChange}
           despacho={despacho}
+          focusInput={focusInput}
+          setFocusInput={setFocusInput}
         />
       ))}
     </>

@@ -27,20 +27,36 @@ const CardBloque = ({ bloque, index }) => {
   }, [bloque]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !bloque?.id) return;
 
-    socket.on("despacho:created", (despacho) => {
+    const handleDespachoCreated = (despacho) => {
       if (despacho.bloque_id === bloque.id) {
         setDespachos((prev) => [...prev, despacho]);
       }
-    });
-
-    return () => {
-      socket.off("despacho:created");
     };
-  }, [socket]);
 
-  const classHeader = `w-[150px] bg-green-600 flex items-center justify-center text-center p-2 px-4 text-[11px]`;
+    const handleDespachoUpdate = (updatedDespacho) => {
+      console.log(updatedDespacho);
+
+      if (updatedDespacho.bloque_id === bloque.id) {
+        setDespachos((prev) =>
+          prev.map((d) => (d.id === updatedDespacho.id ? updatedDespacho : d))
+        );
+      }
+    };
+
+    // Agregar listeners
+    socket.on("despacho:created", handleDespachoCreated);
+    socket.on("despacho:update", handleDespachoUpdate);
+
+    // Cleanup
+    return () => {
+      socket.off("despacho:created", handleDespachoCreated);
+      socket.off("despacho:update", handleDespachoUpdate);
+    };
+  }, [socket, bloque?.id]);
+
+  const classHeader = `w-[150px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`;
 
   return (
     <div className="w-fit bg-slate-50 p-4 pl-10 rounded-md shadow">
@@ -56,7 +72,7 @@ const CardBloque = ({ bloque, index }) => {
             <p>VENDEDORA</p>
           </article>
           <article
-            className={`w-[250px] bg-green-600 flex items-center justify-center text-center p-2 px-4 text-[11px]`}
+            className={`w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`}
           >
             <p>CLIENTE A COTIZAR</p>
           </article>
@@ -74,7 +90,7 @@ const CardBloque = ({ bloque, index }) => {
             <p>OBSERVACION</p>
           </article>
           <div className=" flex flex-col gap-[1px] bg-white text-center">
-            <article className="w-full bg-green-600 flex items-center justify-center text-center p-2 px-4 text-[11px]">
+            <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
               <h3>CONSIGNATARIO 1</h3>
             </article>
 
@@ -88,7 +104,7 @@ const CardBloque = ({ bloque, index }) => {
             </div>
           </div>
           <div className="grid-cols-2 flex flex-col gap-[1px] bg-white text-center">
-            <article className="w-full bg-green-600 flex items-center justify-center text-center p-2 px-4 text-[11px]">
+            <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
               <h3>CONSIGNATARIO 2</h3>
             </article>
 

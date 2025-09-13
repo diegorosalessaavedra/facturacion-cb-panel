@@ -28,10 +28,10 @@ export default function EliminarProductoDespacho({ productoId }) {
     <>
       {loading && <Loading />}
       <button
-        className="w-7 h-7 bg-red-500  flex items-center justify-center rounded-md "
+        className="w-6 h-6 bg-red-500  flex items-center justify-center rounded-md "
         onClick={handleEliminarProductoDespacho}
       >
-        <FaMinus className="text-white text-sm" />
+        <FaMinus className="text-white text-xs" />
       </button>
     </>
   );
