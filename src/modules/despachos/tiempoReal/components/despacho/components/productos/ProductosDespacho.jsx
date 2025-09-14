@@ -1,6 +1,20 @@
+import { useState, useEffect, useCallback } from "react";
 import NuevoProductoDespacho from "./NuevoProductoDespacho";
 import EliminarProductoDespacho from "./EliminarProductoDespacho";
 import useEncargadosStore from "../../../../../../../stores/encargados.store";
+import axios from "axios";
+import config from "../../../../../../../utils/getToken";
+
+// Función debounce fuera del componente
+function debounce(func, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+}
 
 export default function ProductosDespacho({
   producto,
@@ -10,8 +24,14 @@ export default function ProductosDespacho({
   onProductoChange,
   despacho,
   setFocusInput,
+  focusInput,
 }) {
   const { encargados } = useEncargadosStore();
+  const [dataProducto, setDataProducto] = useState();
+
+  useEffect(() => {
+    setDataProducto(producto);
+  }, [producto]);
 
   const inputStyles = `
     w-full h-8 px-2 text-[11px] border-0 bg-transparent text-gray-900 
@@ -26,6 +46,19 @@ export default function ProductosDespacho({
 
   const cellStyles = `w-[150px] bg-white border-r border-gray-200`;
 
+  // Guardar cambios del producto con debounce
+  const saveProductChange = useCallback(
+    debounce((productoId, updatedData) => {
+      const url = `${
+        import.meta.env.VITE_URL_API
+      }/producto-despacho/${productoId}`;
+      axios
+        .patch(url, updatedData, config)
+        .catch((err) => console.error("Error guardando producto:", err));
+    }, 800), // espera 800ms antes de enviar
+    []
+  );
+
   const handleDespachoChange = (field, value) => {
     if (isFirstProduct && onDespachoChange) {
       onDespachoChange(field, value);
@@ -33,8 +66,45 @@ export default function ProductosDespacho({
   };
 
   const handleProductoChange = (field, value) => {
+    // Crear el objeto con los datos actualizados
+    const updatedProducto = {
+      ...dataProducto,
+      [field]: value,
+    };
+
+    // Si es un campo que afecta al total, calcularlo
+    if (
+      field === "precio_unitario" ||
+      field === "cantidad" ||
+      field === "agregado_extra"
+    ) {
+      const cantidad =
+        parseFloat(field === "cantidad" ? value : updatedProducto.cantidad) ||
+        0;
+      const precioUnitario =
+        parseFloat(
+          field === "precio_unitario" ? value : updatedProducto.precio_unitario
+        ) || 0;
+      const agregadoExtra =
+        parseFloat(
+          field === "agregado_extra" ? value : updatedProducto.agregado_extra
+        ) || 0;
+
+      const total = cantidad * precioUnitario + agregadoExtra;
+      updatedProducto.total_cobrar = total.toFixed(2);
+    }
+
+    // Actualizar el estado local
+    setDataProducto(updatedProducto);
+
+    // Llamar al callback del padre
     if (onProductoChange) {
       onProductoChange(producto.id, field, value);
+    }
+
+    // Guardar en el backend con debounce
+    if (producto.id) {
+      saveProductChange(producto.id, updatedProducto);
     }
   };
 
@@ -50,6 +120,7 @@ export default function ProductosDespacho({
           <EliminarProductoDespacho productoId={producto.id} />
         </div>
       )}
+
       {/* Vendedora */}
       <article className={cellStyles}>
         <select
@@ -190,7 +261,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="number"
-          value={producto.cantidad || ""}
+          value={dataProducto?.cantidad || ""}
           onChange={(e) => handleProductoChange("cantidad", e.target.value)}
           className={inputStyles}
           placeholder="0"
@@ -204,7 +275,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="text"
-          value={producto.centro_costos || ""}
+          value={dataProducto?.centro_costos || ""}
           onChange={(e) =>
             handleProductoChange("centro_costos", e.target.value)
           }
@@ -218,7 +289,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="text"
-          value={producto.linea || ""}
+          value={dataProducto?.linea || ""}
           onChange={(e) => handleProductoChange("linea", e.target.value)}
           className={inputStyles}
           placeholder="Línea"
@@ -230,7 +301,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="text"
-          value={producto.destino || ""}
+          value={dataProducto?.destino || ""}
           onChange={(e) => handleProductoChange("destino", e.target.value)}
           className={inputStyles}
           placeholder="Destino"
@@ -241,15 +312,15 @@ export default function ProductosDespacho({
       {/* Tipo de envío */}
       <article className={cellStyles}>
         <select
-          value={producto.tipo_envio || ""}
+          value={dataProducto?.tipo_envio || ""}
           onChange={(e) => handleProductoChange("tipo_envio", e.target.value)}
           onFocus={() => setFocusInput("tipo_envio")}
           className={`${inputStyles} cursor-pointer`}
         >
           <option value="">Seleccionar</option>
-          <option value="express">Express</option>
-          <option value="normal">Normal</option>
-          <option value="economico">Económico</option>
+          <option value="ALMACEN">ALMACEN</option>
+          <option value="TERRESTRE">TERRESTRE</option>
+          <option value="AEREO">AEREO</option>
         </select>
       </article>
 
@@ -257,7 +328,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="text"
-          value={producto.os_transporte || ""}
+          value={dataProducto?.os_transporte || ""}
           onChange={(e) =>
             handleProductoChange("os_transporte", e.target.value)
           }
@@ -271,7 +342,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="number"
-          value={producto.precio_unitario || ""}
+          value={dataProducto?.precio_unitario || ""}
           onChange={(e) =>
             handleProductoChange("precio_unitario", e.target.value)
           }
@@ -287,7 +358,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="number"
-          value={producto.agregado_extra || ""}
+          value={dataProducto?.agregado_extra || ""}
           onChange={(e) =>
             handleProductoChange("agregado_extra", e.target.value)
           }
@@ -303,7 +374,7 @@ export default function ProductosDespacho({
       <article className={`${cellStyles} bg-yellow-50`}>
         <input
           type="number"
-          value={producto.total_cobrar || ""}
+          value={dataProducto?.total_cobrar || ""}
           onChange={(e) => handleProductoChange("total_cobrar", e.target.value)}
           className={`${inputStyles} bg-yellow-50 font-semibold`}
           placeholder="0.00"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import config from "../../../../../utils/getToken";
 import ProductosDespacho from "./components/productos/ProductosDespacho";
@@ -9,51 +9,18 @@ export default function DespachoGrid({ despacho }) {
   const [focusInput, setFocusInput] = useState("_");
 
   const [productos, setProductos] = useState([]);
-  const [formData, setFormData] = useState({
-    vendedora_id: null,
-    cliente: "",
-    documento_cliente: "",
-    numero_contacto: "",
-    observacion: "",
-    consignatario1_documento: "",
-    consignatario1_nombre: "",
-    consignatario2_documento: "",
-    consignatario2_nombre: "",
-    estado: "",
-    total_cobrado: null,
-    anticipo_aplicado: null,
-  });
-
-  console.log(formData);
+  const [formData, setFormData] = useState({});
 
   // Inicializar datos del despacho
   useEffect(() => {
-    if (despacho) {
-      setFormData((prevData) => ({
-        ...prevData,
-        vendedora_id: despacho.vendedora_id ?? null,
-        cliente: despacho.cliente || null,
-        documento_cliente: despacho.documento_cliente || null,
-        numero_contacto: despacho.numero_contacto || null,
-        observacion: despacho.observacion || null,
-        consignatario1_documento: despacho.consignatario1_documento || null,
-        consignatario1_nombre: despacho.consignatario1_nombre || null,
-        consignatario2_documento: despacho.consignatario2_documento || null,
-        consignatario2_nombre: despacho.consignatario2_nombre || null,
-        estado: despacho.estado || null,
-        total_cobrado: despacho.total_cobrado || null,
-        anticipo_aplicado: despacho.anticipo_aplicado || null,
-      }));
-    }
+    setFormData(despacho);
   }, [despacho]);
 
-  // Obtener productos del despacho
   const handleFindProductos = () => {
     if (despacho.id) {
       const url = `${import.meta.env.VITE_URL_API}/producto-despacho/${
         despacho.id
       }`;
-
       axios.get(url, config).then((res) => {
         setProductos(res.data.productosDespacho);
       });
@@ -66,7 +33,7 @@ export default function DespachoGrid({ despacho }) {
     }
   }, [despacho.id]);
 
-  // Socket para nuevos productos
+  // Socket para productos
   useEffect(() => {
     if (!socket) return;
 
@@ -80,21 +47,43 @@ export default function DespachoGrid({ despacho }) {
       setProductos((prev) => prev.filter((p) => p.id !== productoDespacho.id));
     };
 
+    const handleUpdated = (productoDespacho) => {
+      setProductos((prev) =>
+        prev.map((p) => (p.id === productoDespacho.id ? productoDespacho : p))
+      );
+    };
+
     socket.on("productoDespacho:created", handleCreated);
     socket.on("productoDespacho:delete", handleDeleted);
+    socket.on("productoDespacho:update", handleUpdated);
 
     return () => {
       socket.off("productoDespacho:created", handleCreated);
       socket.off("productoDespacho:delete", handleDeleted);
+      socket.off("productoDespacho:update", handleUpdated);
     };
   }, [socket, despacho.id]);
 
-  // Manejar cambios en los datos del despacho
+  // Guardar cambios del despacho con debounce
+  const saveFieldChange = useCallback(
+    debounce((id, field, value) => {
+      const url = `${import.meta.env.VITE_URL_API}/despacho/${id}`;
+      axios
+        .patch(url, { [field]: value }, config)
+        .catch((err) => console.error("Error guardando despacho:", err));
+    }, 800), // espera 800ms antes de enviar
+    []
+  );
+
   const handleDespachoChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+
+    if (despacho.id) {
+      saveFieldChange(despacho.id, field, value);
+    }
   };
 
   const handleProductoChange = (productoId, field, value) => {
@@ -111,12 +100,8 @@ export default function DespachoGrid({ despacho }) {
     ) {
       calculateTotalForProduct(productoId);
     }
-
-    // Aquí puedes agregar lógica para guardar en la base de datos
-    // Por ejemplo, hacer un debounced API call
   };
 
-  // Función para calcular el total de un producto específico
   const calculateTotalForProduct = (productoId) => {
     setProductos((prev) =>
       prev.map((producto) => {
@@ -135,16 +120,6 @@ export default function DespachoGrid({ despacho }) {
       })
     );
   };
-
-  useEffect(() => {
-    if (focusInput !== "_") {
-      console.log(focusInput);
-
-      const url = `${import.meta.env.VITE_URL_API}/despacho/${despacho.id}`;
-
-      axios.patch(url, formData, config).then((res) => {});
-    }
-  }, [focusInput]);
 
   // No renderizar nada si no hay productos
   if (!productos || productos.length === 0) {
@@ -168,4 +143,15 @@ export default function DespachoGrid({ despacho }) {
       ))}
     </>
   );
+}
+
+// ---- Utilidad debounce ----
+function debounce(func, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
 }
