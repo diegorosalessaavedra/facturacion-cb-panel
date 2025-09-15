@@ -14,9 +14,7 @@ const NuevoDespacho = ({ bloqueId }) => {
 
     axios
       .post(url, {}, config)
-      .then((res) => {
-        console.log(res.data);
-      })
+      .then((res) => {})
       .finally(() => {
         setLoading(false);
       });
@@ -25,7 +23,7 @@ const NuevoDespacho = ({ bloqueId }) => {
   return (
     <>
       {loading && <Loading />}
-      <Button color="success" onPress={handleNuevoBloque}>
+      <Button color="success" size="sm" onPress={handleNuevoBloque}>
         <FaPlus /> Despacho
       </Button>
     </>

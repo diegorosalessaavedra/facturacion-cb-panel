@@ -6,12 +6,14 @@ import { FaBoxOpen } from "react-icons/fa";
 import CardBloque from "./components/bloque/CardBloque";
 import { useSocketContext } from "../../../context/SocketContext";
 import useEncargadosStore from "../../../stores/encargados.store";
+import useClientesStore from "../../../stores/clientes.store";
 
-export default function DespachoTiempoReal() {
+const DespachoTiempoReal = () => {
   const socket = useSocketContext();
 
   const [bloquesDespacho, setBloquesDespacho] = useState([]);
   const { fetchEncargados } = useEncargadosStore();
+  const { fetchClientes } = useClientesStore();
 
   const handleFindBloquesDespacho = () => {
     const url = `${import.meta.env.VITE_URL_API}/bloque-despacho`;
@@ -24,19 +26,28 @@ export default function DespachoTiempoReal() {
   useEffect(() => {
     handleFindBloquesDespacho();
     fetchEncargados();
+    fetchClientes();
   }, []);
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("bloque:created", (bloque) => {
+    const handleCreated = (bloque) => {
       if (bloque) {
         setBloquesDespacho((prev) => [...prev, bloque]);
       }
-    });
+    };
+
+    const handleDeleted = (bloque) => {
+      setBloquesDespacho((prev) => prev.filter((p) => p.id !== bloque.id));
+    };
+
+    socket.on("bloque:created", handleCreated);
+    socket.on("bloque:delete", handleDeleted);
 
     return () => {
-      socket.off("bloque:created");
+      socket.off("bloque:created", handleCreated);
+      socket.off("bloque:delete", handleDeleted);
     };
   }, [socket]);
 
@@ -56,10 +67,17 @@ export default function DespachoTiempoReal() {
         </div>
         <div className="w-full flex flex-col gap-4 px-4 overflow-y-auto">
           {bloquesDespacho.map((bloque, index) => (
-            <CardBloque key={bloque.id} bloque={bloque} index={index} />
+            <CardBloque
+              key={bloque.id}
+              bloque={bloque}
+              index={index}
+              handleFindBloquesDespacho={handleFindBloquesDespacho}
+            />
           ))}
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default DespachoTiempoReal;

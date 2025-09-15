@@ -2,34 +2,31 @@ import { create } from "zustand";
 import axios from "axios";
 import config from "../utils/getToken";
 
-const useEncargadosStore = create((set) => ({
-  encargados: [],
+const useClientesStore = create((set) => ({
+  clientes: [],
   isLoading: false,
 
-  // Obtener encargados del backend
-  fetchEncargados: async () => {
+  fetchClientes: async () => {
     set({ isLoading: true });
     try {
-      const url = `${
-        import.meta.env.VITE_URL_API
-      }/ajustes/encargado?cargo=Vendedor`;
+      const url = `${import.meta.env.VITE_URL_API}/clientes`;
       const res = await axios.get(url, config);
-      set({ encargados: res.data.encargados, isLoading: false });
+      set({ clientes: res.data.clientes, isLoading: false });
     } catch (error) {
-      console.error("Error al cargar encargados:", error);
+      console.error("Error al cargar clientes:", error);
       set({ isLoading: false });
     }
   },
 
-  // Opcional: agregar encargados locales
+  // Opcional: agregar clientes locales
   addEncargado: (nuevo) =>
-    set((state) => ({ encargados: [...state.encargados, nuevo] })),
+    set((state) => ({ clientes: [...state.clientes, nuevo] })),
 
   // Opcional: eliminar encargado
   removeEncargado: (id) =>
     set((state) => ({
-      encargados: state.encargados.filter((e) => e.id !== id),
+      clientes: state.clientes.filter((e) => e.id !== id),
     })),
 }));
 
-export default useEncargadosStore;
+export default useClientesStore;

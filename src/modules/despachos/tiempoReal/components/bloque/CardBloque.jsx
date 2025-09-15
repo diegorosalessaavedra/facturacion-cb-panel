@@ -4,8 +4,9 @@ import axios from "axios";
 import NuevoDespacho from "../despacho/components/NuevoDespacho";
 import DespachoGrid from "../despacho/DespachoGrid";
 import { useSocketContext } from "../../../../../context/SocketContext";
+import EliminarBloque from "./components/EliminarBloque";
 
-const CardBloque = ({ bloque, index }) => {
+const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
   const socket = useSocketContext();
 
   const [despachos, setDespachos] = useState([]);
@@ -36,8 +37,6 @@ const CardBloque = ({ bloque, index }) => {
     };
 
     const handleDespachoUpdate = (updatedDespacho) => {
-      console.log(updatedDespacho);
-
       if (updatedDespacho.bloque_id === bloque.id) {
         setDespachos((prev) =>
           prev.map((d) => (d.id === updatedDespacho.id ? updatedDespacho : d))
@@ -45,14 +44,20 @@ const CardBloque = ({ bloque, index }) => {
       }
     };
 
+    const handleDeleted = (despacho) => {
+      setDespachos((prev) => prev.filter((p) => p.id !== despacho.id));
+    };
+
     // Agregar listeners
     socket.on("despacho:created", handleDespachoCreated);
     socket.on("despacho:update", handleDespachoUpdate);
+    socket.on("despacho:delete", handleDeleted);
 
     // Cleanup
     return () => {
       socket.off("despacho:created", handleDespachoCreated);
       socket.off("despacho:update", handleDespachoUpdate);
+      socket.off("despacho:delete", handleDeleted);
     };
   }, [socket, bloque?.id]);
 
@@ -60,10 +65,15 @@ const CardBloque = ({ bloque, index }) => {
 
   return (
     <div className="w-fit bg-slate-50 p-4 pl-10 rounded-md shadow">
-      <div className="flex items-center gap-4">
+      <div className="flex items-end gap-4">
         <h3 className="px-6 py-1.5 bg-blue-600 text-white rounded-lg text-lg font-medium">
           Bloque {index + 1}
         </h3>
+        <EliminarBloque
+          bloque={bloque}
+          index={index}
+          handleFindBloquesDespacho={handleFindBloquesDespacho}
+        />
         <NuevoDespacho bloqueId={bloque.id} />
       </div>
       <div className="grid grid-flow-row mt-4">

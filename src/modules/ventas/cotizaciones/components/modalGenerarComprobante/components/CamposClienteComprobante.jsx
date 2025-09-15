@@ -139,15 +139,8 @@ const CamposClienteComprobante = ({
           size="sm"
           classNames={selectClassNames}
         >
-          {cliente?.tipoDocIdentidad === "RUC" && (
-            <SelectItem key="FACTURA ELECTRÓNICA">
-              FACTURA ELECTRÓNICA
-            </SelectItem>
-          )}
-          {cliente?.tipoDocIdentidad === "DNI" && (
-            <SelectItem key="BOLETA DE VENTA">BOLETA DE VENTA</SelectItem>
-          )}
-
+          <SelectItem key="FACTURA ELECTRÓNICA">FACTURA ELECTRÓNICA</SelectItem>
+          <SelectItem key="BOLETA DE VENTA">BOLETA DE VENTA</SelectItem>
           <SelectItem key="NOTA DE VENTA">NOTA DE VENTA</SelectItem>
         </Select>
         <Select

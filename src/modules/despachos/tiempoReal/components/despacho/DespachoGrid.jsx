@@ -4,9 +4,8 @@ import config from "../../../../../utils/getToken";
 import ProductosDespacho from "./components/productos/ProductosDespacho";
 import { useSocketContext } from "../../../../../context/SocketContext";
 
-export default function DespachoGrid({ despacho }) {
+const DespachoGrid = ({ despacho }) => {
   const socket = useSocketContext();
-  const [focusInput, setFocusInput] = useState("_");
 
   const [productos, setProductos] = useState([]);
   const [formData, setFormData] = useState({});
@@ -137,13 +136,13 @@ export default function DespachoGrid({ despacho }) {
           onDespachoChange={handleDespachoChange}
           onProductoChange={handleProductoChange}
           despacho={despacho}
-          focusInput={focusInput}
-          setFocusInput={setFocusInput}
         />
       ))}
     </>
   );
-}
+};
+
+export default DespachoGrid;
 
 // ---- Utilidad debounce ----
 function debounce(func, delay) {
