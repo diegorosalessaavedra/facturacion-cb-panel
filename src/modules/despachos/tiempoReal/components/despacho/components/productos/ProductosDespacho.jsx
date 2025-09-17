@@ -37,7 +37,7 @@ export default function ProductosDespacho({
 
   const inputStyles = `
     w-full h-8 px-2 text-[11px] border-0 bg-transparent text-gray-900  ${
-      isFirstProduct ? "bg-amber-50" : "bg-white"
+      isFirstProduct ? "bg-green-50" : "bg-white"
     }
     focus:outline-none focus:bg-green-50 focus:ring-1 focus:ring-green-300
     placeholder-gray-400
@@ -45,13 +45,13 @@ export default function ProductosDespacho({
 
   const readOnlyInputStyles = `
     w-full h-8 px-2 text-[11px] border-0  text-gray-600   ${
-      isFirstProduct ? "bg-amber-50" : "bg-white"
+      isFirstProduct ? "bg-green-50" : "bg-white"
     }
     cursor-not-allowed
   `;
 
   const cellStyles = `w-[150px]  ${
-    isFirstProduct ? "bg-amber-50" : "bg-white"
+    isFirstProduct ? "bg-green-50" : "bg-white"
   } border-r border-gray-200`;
 
   // Guardar cambios del producto con debounce
@@ -186,7 +186,7 @@ export default function ProductosDespacho({
             classNames: {
               input: "text-xs rounded-none",
               inputWrapper: `  border-0  ${
-                isFirstProduct ? "bg-amber-50" : "bg-white"
+                isFirstProduct ? "bg-green-50" : "bg-white"
               } rounded-none `,
               label: "hidden",
             },
@@ -422,12 +422,12 @@ export default function ProductosDespacho({
       </article>
 
       {/* Total a cobrar */}
-      <article className={`${cellStyles} bg-yellow-50`}>
+      <article className={`${cellStyles} bg-green-50`}>
         <input
           type="number"
           value={dataProducto?.total_cobrar || ""}
           onChange={(e) => handleProductoChange("total_cobrar", e.target.value)}
-          className={`${inputStyles} bg-yellow-50 font-semibold`}
+          className={`${inputStyles}`}
           placeholder="0.00"
           min="0"
           step="0.01"
