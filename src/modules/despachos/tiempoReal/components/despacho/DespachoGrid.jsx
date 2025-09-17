@@ -10,7 +10,6 @@ const DespachoGrid = ({ despacho }) => {
   const [productos, setProductos] = useState([]);
   const [formData, setFormData] = useState({});
 
-  // Inicializar datos del despacho
   useEffect(() => {
     setFormData(despacho);
   }, [despacho]);
@@ -37,6 +36,8 @@ const DespachoGrid = ({ despacho }) => {
     if (!socket) return;
 
     const handleCreated = (productoDespacho) => {
+      console.log(productoDespacho);
+
       if (productoDespacho.despacho_id === despacho.id) {
         setProductos((prev) => [...prev, productoDespacho]);
       }
@@ -52,14 +53,14 @@ const DespachoGrid = ({ despacho }) => {
       );
     };
 
-    socket.on("productoDespacho:created", handleCreated);
-    socket.on("productoDespacho:delete", handleDeleted);
-    socket.on("productoDespacho:update", handleUpdated);
+    socket.on(`productoDespacho:created:${despacho.id}`, handleCreated);
+    socket.on(`productoDespacho:delete:${despacho.id}`, handleDeleted);
+    socket.on(`productoDespacho:update:${despacho.id}`, handleUpdated);
 
     return () => {
-      socket.off("productoDespacho:created", handleCreated);
-      socket.off("productoDespacho:delete", handleDeleted);
-      socket.off("productoDespacho:update", handleUpdated);
+      socket.off(`productoDespacho:created:${despacho.id}`, handleCreated);
+      socket.off(`productoDespacho:delete:${despacho.id}`, handleDeleted);
+      socket.off(`productoDespacho:update:${despacho.id}`, handleUpdated);
     };
   }, [socket, despacho.id]);
 
@@ -67,10 +68,11 @@ const DespachoGrid = ({ despacho }) => {
   const saveFieldChange = useCallback(
     debounce((id, field, value) => {
       const url = `${import.meta.env.VITE_URL_API}/despacho/${id}`;
+
       axios
         .patch(url, { [field]: value }, config)
         .catch((err) => console.error("Error guardando despacho:", err));
-    }, 800), // espera 800ms antes de enviar
+    }, 1000),
     []
   );
 

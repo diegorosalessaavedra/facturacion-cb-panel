@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import NuevoProductoDespacho from "./NuevoProductoDespacho";
-import EliminarProductoDespacho from "./EliminarProductoDespacho";
 import useEncargadosStore from "../../../../../../../stores/encargados.store";
 import axios from "axios";
 import config from "../../../../../../../utils/getToken";
 import EliminarDespacho from "../EliminarDespacho";
+import useClientesStore from "../../../../../../../stores/clientes.store";
+import { Autocomplete, AutocompleteItem, Checkbox } from "@nextui-org/react";
+import { lineaProducto } from "../../../../../../../jsons/lineaProducto";
 
 // Función debounce fuera del componente
 function debounce(func, delay) {
@@ -26,7 +27,7 @@ export default function ProductosDespacho({
   despacho,
 }) {
   const { encargados } = useEncargadosStore();
-  const { clientes } = useEncargadosStore();
+  const { clientes } = useClientesStore();
 
   const [dataProducto, setDataProducto] = useState();
 
@@ -35,17 +36,23 @@ export default function ProductosDespacho({
   }, [producto]);
 
   const inputStyles = `
-    w-full h-8 px-2 text-[11px] border-0 bg-transparent text-gray-900 
+    w-full h-8 px-2 text-[11px] border-0 bg-transparent text-gray-900  ${
+      isFirstProduct ? "bg-amber-50" : "bg-white"
+    }
     focus:outline-none focus:bg-green-50 focus:ring-1 focus:ring-green-300
     placeholder-gray-400
   `;
 
   const readOnlyInputStyles = `
-    w-full h-8 px-2 text-[11px] border-0  text-gray-600 
+    w-full h-8 px-2 text-[11px] border-0  text-gray-600   ${
+      isFirstProduct ? "bg-amber-50" : "bg-white"
+    }
     cursor-not-allowed
   `;
 
-  const cellStyles = `w-[150px] bg-white border-r border-gray-200`;
+  const cellStyles = `w-[150px]  ${
+    isFirstProduct ? "bg-amber-50" : "bg-white"
+  } border-r border-gray-200`;
 
   // Guardar cambios del producto con debounce
   const saveProductChange = useCallback(
@@ -109,18 +116,33 @@ export default function ProductosDespacho({
     }
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      const cliente = clientes.find(
+        (c) => c.numeroDoc === despacho.documento_cliente
+      );
+
+      handleDespachoChange(
+        "cliente",
+        cliente?.nombreApellidos || cliente?.nombreComercial
+      );
+    }, 200);
+  }, [despacho.documento_cliente]);
+
   return (
-    <section className="grid grid-cols-[repeat(21,1fr)] border-t-1 gap-[1px] bg-gray-100 hover:bg-gray-100 transition-colors relative">
+    <section
+      className={`grid grid-cols-[repeat(21,1fr)] border-t-1 gap-[1px] bg-gray-100 hover:bg-gray-100 transition-colors relative`}
+    >
       {isFirstProduct && (
         <div className="absolute -left-8 flex">
           <EliminarDespacho despachoId={despacho.id} />
         </div>
       )}
-      {!isFirstProduct && (
+      {/* {!isFirstProduct && (
         <div className="absolute -left-7">
           <EliminarProductoDespacho productoId={producto.id} />
         </div>
-      )}
+      )} */}
 
       {/* Vendedora */}
       <article className={cellStyles}>
@@ -142,53 +164,64 @@ export default function ProductosDespacho({
       </article>
 
       {/* Cliente */}
-      <article className="w-[250px] flex bg-white items-center justify-center text-center text-xs">
+      <article
+        className={`w-[250px] flex ${
+          isFirstProduct ? "bg-green-100" : "bg-white"
+        } items-center justify-center text-center text-xs`}
+      >
         <input
           type="text"
-          value={despachoData.cliente}
-          onChange={(e) => handleDespachoChange("cliente", e.target.value)}
+          value={despachoData.cliente || ""}
           className={readOnlyInputStyles}
           placeholder="Cliente"
-          readOnly={true}
+          readOnly
         />
       </article>
 
       {/* DNI/RUC Cliente */}
-      <article className={cellStyles}>
-        <select
-          value={despachoData.vendedora_id}
-          onChange={(e) =>
-            handleDespachoChange("documento_cliente", e.target.value)
-          }
-          className={`${
-            isFirstProduct ? inputStyles : readOnlyInputStyles
-          } cursor-pointer`}
-          disabled={!isFirstProduct}
+      <article className="w-[200px] flex bg-white items-center justify-center text-center text-xs">
+        <Autocomplete
+          isDisabled={!isFirstProduct}
+          inputProps={{
+            classNames: {
+              input: "text-xs rounded-none",
+              inputWrapper: `  border-0  ${
+                isFirstProduct ? "bg-amber-50" : "bg-white"
+              } rounded-none `,
+              label: "hidden",
+            },
+          }}
+          defaultItems={clientes}
+          onSelectionChange={(key) => {
+            // Aquí key será el numeroDoc porque lo ponemos en key
+            const cliente = clientes.find((c) => c.numeroDoc === key);
+
+            if (cliente) {
+              handleDespachoChange("documento_cliente", cliente.numeroDoc);
+            }
+          }}
+          selectedKey={despachoData.documento_cliente}
+          size="sm"
+          aria-labelledby=""
+          maxListboxHeight={200}
         >
-          <option value="">Seleccionar</option>
-          {clientes.map((cliente) => (
-            <option value={cliente.id} key={cliente.id}>
-              {cliente.numeroDoc}
-            </option>
-          ))}
-        </select>
-        <input
-          type="text"
-          value={despachoData.documento_cliente}
-          onChange={(e) =>
-            handleDespachoChange("documento_cliente", e.target.value)
-          }
-          className={isFirstProduct ? inputStyles : readOnlyInputStyles}
-          placeholder="DNI/RUC"
-          readOnly={!isFirstProduct}
-        />
+          {(item) => (
+            <AutocompleteItem
+              key={item.numeroDoc} // 👈 clave es numeroDoc, no id
+              value={item.numeroDoc} // 👈 value también numeroDoc
+              textValue={item.numeroDoc}
+            >
+              {item.numeroDoc}
+            </AutocompleteItem>
+          )}
+        </Autocomplete>
       </article>
 
       {/* Número de contacto */}
       <article className={cellStyles}>
         <input
           type="tel"
-          value={despachoData.numero_contacto}
+          value={despachoData.numero_contacto || ""}
           onChange={(e) =>
             handleDespachoChange("numero_contacto", e.target.value)
           }
@@ -214,7 +247,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="text"
-          value={despachoData.consignatario1_documento}
+          value={despachoData.consignatario1_documento || ""}
           onChange={(e) =>
             handleDespachoChange("consignatario1_documento", e.target.value)
           }
@@ -225,10 +258,10 @@ export default function ProductosDespacho({
       </article>
 
       {/* Consignatario 1 - Nombre */}
-      <article className={cellStyles}>
+      <article className="w-[250px] flex bg-white items-center justify-center text-center text-xs">
         <input
           type="text"
-          value={despachoData.consignatario1_nombre}
+          value={despachoData.consignatario1_nombre || ""}
           onChange={(e) =>
             handleDespachoChange("consignatario1_nombre", e.target.value)
           }
@@ -242,7 +275,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="text"
-          value={despachoData.consignatario2_documento}
+          value={despachoData.consignatario2_documento || ""}
           onChange={(e) =>
             handleDespachoChange("consignatario2_documento", e.target.value)
           }
@@ -253,10 +286,10 @@ export default function ProductosDespacho({
       </article>
 
       {/* Consignatario 2 - Nombre */}
-      <article className={cellStyles}>
+      <article className="w-[250px] flex bg-white items-center justify-center text-center text-xs">
         <input
           type="text"
-          value={despachoData.consignatario2_nombre}
+          value={despachoData.consignatario2_nombre || ""}
           onChange={(e) =>
             handleDespachoChange("consignatario2_nombre", e.target.value)
           }
@@ -284,23 +317,27 @@ export default function ProductosDespacho({
         <input
           type="text"
           value={dataProducto?.centro_costos || ""}
-          onChange={(e) =>
-            handleProductoChange("centro_costos", e.target.value)
-          }
-          className={inputStyles}
+          className={readOnlyInputStyles}
+          readOnly={true}
           placeholder="Centro"
         />
       </article>
 
       {/* Línea */}
       <article className={cellStyles}>
-        <input
-          type="text"
+        <select
           value={dataProducto?.linea || ""}
           onChange={(e) => handleProductoChange("linea", e.target.value)}
-          className={inputStyles}
-          placeholder="Línea"
-        />
+          className={`${inputStyles} cursor-pointer`}
+          disabled={!isFirstProduct}
+        >
+          <option value="">Seleccionar</option>
+          {lineaProducto.map((linea) => (
+            <option key={linea.id} value={linea.id}>
+              {linea.descripcion}
+            </option>
+          ))}
+        </select>
       </article>
 
       {/* Destino */}
@@ -357,18 +394,31 @@ export default function ProductosDespacho({
       </article>
 
       {/* Agregado extra */}
-      <article className={cellStyles}>
-        <input
-          type="number"
-          value={dataProducto?.agregado_extra || ""}
-          onChange={(e) =>
-            handleProductoChange("agregado_extra", e.target.value)
-          }
-          className={inputStyles}
-          placeholder="0.00"
-          min="0"
-          step="0.01"
-        />
+      <article
+        className={`${cellStyles} flex gap-4 items-center justify-center`}
+      >
+        {isFirstProduct && (
+          <>
+            <Checkbox
+              isSelected={despachoData.caja}
+              onChange={(e) => handleDespachoChange("caja", e.target.checked)}
+              size="sm"
+              color="success"
+            >
+              <p className="text-xs text-gray-600">Caja</p>
+            </Checkbox>
+
+            <Checkbox
+              isSelected={despachoData.vacuna}
+              onChange={(e) => handleDespachoChange("vacuna", e.target.checked)}
+              size="sm"
+              color="success"
+            >
+              {" "}
+              <p className="text-xs text-gray-600">Vacuna</p>
+            </Checkbox>
+          </>
+        )}
       </article>
 
       {/* Total a cobrar */}
@@ -425,7 +475,7 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="number"
-          value={despachoData.anticipo_aplicado}
+          value={despachoData.anticipo_aplicado || ""}
           onChange={(e) =>
             handleDespachoChange("anticipo_aplicado", e.target.value)
           }

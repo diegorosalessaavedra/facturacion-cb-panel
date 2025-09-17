@@ -61,11 +61,6 @@ const ModalGenerarComprobante = ({
   }, [selectCotizacion]);
 
   const submit = (data) => {
-    if (!arrayPagos || arrayPagos.length === 0) {
-      toast.error("Debes agregar al menos un método de pago en la cotización.");
-      return;
-    }
-
     const total = selectCotizacion?.productos.reduce(
       (acc, producto) => acc + Number(producto.total),
       0

@@ -2,18 +2,21 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import config from "../../../utils/getToken";
 import NuevoBloque from "./components/bloque/components/NuevoBloque";
-import { FaBoxOpen } from "react-icons/fa";
+import { FaBoxOpen, FaPlus } from "react-icons/fa";
 import CardBloque from "./components/bloque/CardBloque";
 import { useSocketContext } from "../../../context/SocketContext";
 import useEncargadosStore from "../../../stores/encargados.store";
 import useClientesStore from "../../../stores/clientes.store";
+import { Button, useDisclosure } from "@nextui-org/react";
+import ModalNuevoCliente from "../../clientesProveedores/tusClientes/components/ModalNuevoCliente/ModalNuevoCliente";
 
 const DespachoTiempoReal = () => {
   const socket = useSocketContext();
-
-  const [bloquesDespacho, setBloquesDespacho] = useState([]);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { fetchEncargados } = useEncargadosStore();
   const { fetchClientes } = useClientesStore();
+
+  const [bloquesDespacho, setBloquesDespacho] = useState([]);
 
   const handleFindBloquesDespacho = () => {
     const url = `${import.meta.env.VITE_URL_API}/bloque-despacho`;
@@ -60,6 +63,17 @@ const DespachoTiempoReal = () => {
             <h2>Despachos</h2>
           </div>
           <div className="flex gap-2">
+            <Button
+              className="bg-amber-500"
+              size="sm"
+              color="primary"
+              onPress={() => {
+                onOpen();
+              }}
+            >
+              <FaPlus />
+              Cliente
+            </Button>
             <NuevoBloque
               handleFindBloquesDespacho={handleFindBloquesDespacho}
             />
@@ -76,6 +90,11 @@ const DespachoTiempoReal = () => {
           ))}
         </div>
       </div>
+      <ModalNuevoCliente
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        findClients={fetchClientes}
+      />
     </div>
   );
 };

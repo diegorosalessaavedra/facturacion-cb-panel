@@ -83,8 +83,6 @@ const CamposClienteComprobante = ({
     setPorcentaje((value * 100) / total);
   };
 
-  const cliente = clientes.find((cliente) => cliente.id === selectCliente);
-
   return (
     <div className="w-full flex flex-col gap-3">
       <Autocomplete

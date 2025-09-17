@@ -86,7 +86,10 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
           >
             <p>CLIENTE A COTIZAR</p>
           </article>
-          <article className={classHeader}>
+          <article
+            className={`w-[200px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`}
+          >
+            {" "}
             <p>
               DNI O RUC DEL CLIENTE <br /> A COTIZAR{" "}
             </p>
@@ -108,7 +111,7 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
               <article className={classHeader}>
                 <p>DNI O RUC</p>
               </article>
-              <article className={classHeader}>
+              <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
                 <p>NOMBRE Y APELLIDOS</p>
               </article>
             </div>
@@ -122,7 +125,7 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
               <article className={classHeader}>
                 <p>DNI O RUC</p>
               </article>
-              <article className={classHeader}>
+              <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
                 <p>NOMBRE Y APELLIDOS</p>
               </article>
             </div>

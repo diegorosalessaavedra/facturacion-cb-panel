@@ -53,7 +53,7 @@ const CamposDatosCliente = ({
             className="absolute top-[-12px] right-0 scale-85"
             size="sm"
             color="primary"
-            onClick={() => {
+            onPress={() => {
               onOpen();
               setSelectModal("cliente");
             }}
