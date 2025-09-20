@@ -25,6 +25,7 @@ export default function ProductosDespacho({
   onDespachoChange,
   onProductoChange,
   despacho,
+  cobros,
 }) {
   const { encargados } = useEncargadosStore();
   const { clientes } = useClientesStore();
@@ -80,7 +81,6 @@ export default function ProductosDespacho({
       [field]: value,
     };
 
-    // Si es un campo que afecta al total, calcularlo
     if (
       field === "precio_unitario" ||
       field === "cantidad" ||
@@ -131,7 +131,7 @@ export default function ProductosDespacho({
 
   return (
     <section
-      className={`grid grid-cols-[repeat(21,1fr)] border-t-1 gap-[1px] bg-gray-100 hover:bg-gray-100 transition-colors relative`}
+      className={`grid grid-flow-col border-t-1 gap-[1px] bg-gray-100 hover:bg-gray-100 transition-colors relative`}
     >
       {isFirstProduct && (
         <div className="absolute -left-8 flex">
@@ -221,24 +221,13 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="tel"
+          maxLength={9}
           value={despachoData.numero_contacto || ""}
           onChange={(e) =>
             handleDespachoChange("numero_contacto", e.target.value)
           }
           className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="Teléfono"
-          readOnly={!isFirstProduct}
-        />
-      </article>
-
-      {/* Observación */}
-      <article className={cellStyles}>
-        <input
-          type="text"
-          value={despachoData.observacion}
-          onChange={(e) => handleDespachoChange("observacion", e.target.value)}
-          className={isFirstProduct ? inputStyles : readOnlyInputStyles}
-          placeholder="Observación"
           readOnly={!isFirstProduct}
         />
       </article>
@@ -258,7 +247,7 @@ export default function ProductosDespacho({
       </article>
 
       {/* Consignatario 1 - Nombre */}
-      <article className="w-[250px] flex bg-white items-center justify-center text-center text-xs">
+      <article className="w-[250px] flex bg-green-50 items-center justify-center text-center text-xs">
         <input
           type="text"
           value={despachoData.consignatario1_nombre || ""}
@@ -286,7 +275,7 @@ export default function ProductosDespacho({
       </article>
 
       {/* Consignatario 2 - Nombre */}
-      <article className="w-[250px] flex bg-white items-center justify-center text-center text-xs">
+      <article className="w-[250px] flex bg-green-50 items-center justify-center text-center text-xs">
         <input
           type="text"
           value={despachoData.consignatario2_nombre || ""}
@@ -344,19 +333,23 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="text"
-          value={dataProducto?.destino || ""}
-          onChange={(e) => handleProductoChange("destino", e.target.value)}
-          className={inputStyles}
+          value={despachoData?.destino || ""}
+          onChange={(e) => handleDespachoChange("destino", e.target.value)}
+          className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="Destino"
+          readOnly={!isFirstProduct}
+          disabled={!isFirstProduct}
         />
       </article>
 
       {/* Tipo de envío */}
       <article className={cellStyles}>
         <select
-          value={dataProducto?.tipo_envio || ""}
-          onChange={(e) => handleProductoChange("tipo_envio", e.target.value)}
-          className={`${inputStyles} cursor-pointer`}
+          value={despachoData?.tipo_envio || ""}
+          onChange={(e) => handleDespachoChange("tipo_envio", e.target.value)}
+          className={isFirstProduct ? inputStyles : readOnlyInputStyles}
+          readOnly={!isFirstProduct}
+          disabled={!isFirstProduct}
         >
           <option value="">Seleccionar</option>
           <option value="ALMACEN">ALMACEN</option>
@@ -369,12 +362,14 @@ export default function ProductosDespacho({
       <article className={cellStyles}>
         <input
           type="text"
-          value={dataProducto?.os_transporte || ""}
+          value={despachoData?.os_transporte || ""}
           onChange={(e) =>
-            handleProductoChange("os_transporte", e.target.value)
+            handleDespachoChange("os_transporte", e.target.value)
           }
-          className={inputStyles}
+          className={isFirstProduct ? inputStyles : readOnlyInputStyles}
           placeholder="OS/Transport"
+          readOnly={!isFirstProduct}
+          disabled={!isFirstProduct}
         />
       </article>
 
@@ -392,7 +387,17 @@ export default function ProductosDespacho({
           step="0.01"
         />
       </article>
-
+      {/* Observación */}
+      <article className={cellStyles}>
+        <input
+          type="text"
+          value={despachoData.observacion}
+          onChange={(e) => handleDespachoChange("observacion", e.target.value)}
+          className={isFirstProduct ? inputStyles : readOnlyInputStyles}
+          placeholder="Observación"
+          readOnly={!isFirstProduct}
+        />
+      </article>
       {/* Agregado extra */}
       <article
         className={`${cellStyles} flex gap-4 items-center justify-center`}
@@ -445,11 +450,9 @@ export default function ProductosDespacho({
           disabled={!isFirstProduct}
         >
           <option value="">Estado</option>
-          <option value="pendiente">Pendiente</option>
-          <option value="procesando">Procesando</option>
-          <option value="enviado">Enviado</option>
-          <option value="entregado">Entregado</option>
-          <option value="cancelado">Cancelado</option>
+          <option value="CANCELADO">CANCELADO</option>
+          <option value="PENDIENTE">PENDIENTE</option>
+          <option value="ANTICIPO">ANTICIPO</option>
         </select>
       </article>
 
@@ -486,6 +489,65 @@ export default function ProductosDespacho({
           readOnly={!isFirstProduct}
         />
       </article>
+      {cobros.map((cobro) => (
+        <>
+          <article className={cellStyles}>
+            <input
+              type="number"
+              value={despachoData.anticipo_aplicado || ""}
+              className={isFirstProduct ? inputStyles : readOnlyInputStyles}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              readOnly={!isFirstProduct}
+            />
+          </article>{" "}
+          <article className={cellStyles}>
+            <input
+              type="number"
+              value={despachoData.anticipo_aplicado || ""}
+              className={isFirstProduct ? inputStyles : readOnlyInputStyles}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              readOnly={!isFirstProduct}
+            />
+          </article>
+          <article className={cellStyles}>
+            <input
+              type="number"
+              value={despachoData.anticipo_aplicado || ""}
+              className={isFirstProduct ? inputStyles : readOnlyInputStyles}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              readOnly={!isFirstProduct}
+            />
+          </article>
+          <article className={cellStyles}>
+            <input
+              type="number"
+              value={despachoData.anticipo_aplicado || ""}
+              className={isFirstProduct ? inputStyles : readOnlyInputStyles}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              readOnly={!isFirstProduct}
+            />
+          </article>
+          <article className={cellStyles}>
+            <input
+              type="number"
+              value={despachoData.anticipo_aplicado || ""}
+              className={isFirstProduct ? inputStyles : readOnlyInputStyles}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              readOnly={!isFirstProduct}
+            />
+          </article>
+        </>
+      ))}
     </section>
   );
 }

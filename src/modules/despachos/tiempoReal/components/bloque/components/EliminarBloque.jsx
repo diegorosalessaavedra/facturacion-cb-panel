@@ -45,9 +45,9 @@ const EliminarBloque = ({ bloque, index }) => {
               </ModalHeader>
               <ModalBody>
                 <p>
-                  ¿Está seguro de que desea eliminar el bloque {index + 1}? Esta
-                  acción es irreversible y el cargo laboral será eliminada
-                  permanentemente
+                  ¿Está seguro de que desea eliminar el bloque{" "}
+                  {bloque.nombre_bloque}? Esta acción es irreversible y el
+                  bloque será eliminada permanentemente
                 </p>{" "}
               </ModalBody>
               <ModalFooter>

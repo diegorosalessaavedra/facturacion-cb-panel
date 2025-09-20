@@ -4,7 +4,7 @@ import config from "../../../../../utils/getToken";
 import ProductosDespacho from "./components/productos/ProductosDespacho";
 import { useSocketContext } from "../../../../../context/SocketContext";
 
-const DespachoGrid = ({ despacho }) => {
+const DespachoGrid = ({ despacho, cobros }) => {
   const socket = useSocketContext();
 
   const [productos, setProductos] = useState([]);
@@ -134,10 +134,11 @@ const DespachoGrid = ({ despacho }) => {
           key={producto.id}
           producto={producto}
           despachoData={formData}
-          isFirstProduct={index === 0}
+          isFirstProduct={producto.tipo_producto === "PRODUCTO"}
           onDespachoChange={handleDespachoChange}
           onProductoChange={handleProductoChange}
           despacho={despacho}
+          cobros={cobros}
         />
       ))}
     </>
