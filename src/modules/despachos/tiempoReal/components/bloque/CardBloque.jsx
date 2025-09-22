@@ -5,8 +5,7 @@ import NuevoDespacho from "../despacho/components/NuevoDespacho";
 import DespachoGrid from "../despacho/DespachoGrid";
 import { useSocketContext } from "../../../../../context/SocketContext";
 import EliminarBloque from "./components/EliminarBloque";
-import { FaPlus } from "react-icons/fa";
-import { Button } from "@nextui-org/react";
+
 import NuevoCobroDespachoItem from "../despacho/components/NuevoCobroDespachoItem";
 
 const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
@@ -94,8 +93,6 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
 
   const classHeader = `w-[150px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`;
 
-  console.log(cobros.length);
-
   return (
     <div className="w-fit bg-slate-50 p-4 pl-10 rounded-md shadow">
       <div className="flex items-end gap-4">
@@ -150,7 +147,7 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
           </div>
           <div className=" flex flex-col gap-[1px] bg-white text-center">
             <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
-              <h3>CONSIGNATARIO 1</h3>
+              <h3>CONSIGNATARIO 2</h3>
             </article>
 
             <div className="flex gap-[1px]">
@@ -190,21 +187,24 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
             <p>AGREGADO EXTRA</p>
           </article>
           <article className={classHeader}>
+            <p>PRECIO TOTAL</p>
+          </article>
+          <article className={classHeader}>
             <p>TOTAL A COBRAR</p>
           </article>
           <article className={classHeader}>
             <p>ESTADO</p>
-          </article>{" "}
+          </article>
           <article className={classHeader}>
             <p>TOTAL COBRADO</p>
-          </article>{" "}
+          </article>
           <article className={`${classHeader} relative`}>
-            <p>APLICACIÓN ANTICIPO</p>
+            <p>SALDO DEL CLIENTE</p>
             <NuevoCobroDespachoItem bloque={bloque} />
           </article>
           {cobros.map((cobro, index) => (
             <div
-              key={cobro.id}
+              key={index}
               className=" flex flex-col gap-[1px] bg-white text-center"
             >
               <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
@@ -233,10 +233,10 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
         </section>
         {despachos?.map((despacho, index) => (
           <DespachoGrid
-            key={despacho.id}
+            key={index}
             despacho={despacho}
             index={index}
-            cobros={cobros}
+            cobrosItem={cobros}
           />
         ))}
       </div>{" "}

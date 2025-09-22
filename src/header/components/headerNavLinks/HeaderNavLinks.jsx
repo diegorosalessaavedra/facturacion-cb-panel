@@ -25,7 +25,7 @@ const ROLES = {
 // Estilos compartidos
 const SHARED_STYLES = {
   navLink:
-    "text-stone-700 flex items-center gap-4 p-4 px-6 w-full hover:bg-blue-700 hover:text-white transition-all duration-300 border-b-1 border-zinc-300 hover:scale-105",
+    "text-stone-700 flex items-center gap-4 p-4 px-6 w-[280px] hover:bg-blue-700 hover:text-white transition-all duration-300 border-b-1 border-zinc-300 hover:scale-105",
 };
 
 const HeaderNavLinks = ({
@@ -92,7 +92,11 @@ const HeaderNavLinks = ({
   };
 
   return (
-    <nav className="w-full flex flex-col items-start overflow-x-hidden">
+    <nav
+      className="w-[60px] flex flex-col items-start justify-start overflow-x-hidden
+    group-hover:w-[280px] overflow-hidden  duration-300
+    "
+    >
       {/* Dashboard - Siempre visible */}
       <Link
         className={SHARED_STYLES.navLink}

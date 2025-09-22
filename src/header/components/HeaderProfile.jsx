@@ -16,8 +16,9 @@ const HeaderProfile = ({ userData }) => {
 
   return (
     <div
-      className="left-[280px] top-0 absolute h-[65px] bg-blue-700 p-4 flex justify-between items-center z-30 "
-      style={{ width: "calc(100vw - 280px)" }}
+      className="left-[60px] w-[calc(100vw-60px)] top-0 absolute h-[65px] bg-blue-700 p-4 flex justify-between items-center z-30 
+       group-hover:left-[280px]  group-hover:w-[calc(100vw-280px)] duration-300
+      "
     >
       <div className="flex items-center gap-2 text-white ">
         <button className="h-10 w-10 rounded-full hover:bg-blue-600 cursor-pointer flex items-center justify-center">

@@ -30,10 +30,18 @@ const Header = ({ userData }) => {
   }, []);
 
   return (
-    <div className="relative min-w-[280px] max-w-[280px] h-[100vh] bg-white shadow-lg shadow-slate-400 flex flex-col items-center py-6  gap-5 menu-container">
+    <div
+      className="group relative min-w-[60px] max-w-[60px] h-[100vh] bg-white shadow-lg shadow-slate-400 flex flex-col items-center py-6  gap-5 menu-container
+    hover:min-w-[280px] hover:max-w-[280px] duration-300
+    "
+    >
       <HeaderProfile userData={userData} />
-      <Link to="/">
-        <img className="w-28" src={import.meta.env.VITE_LOGO} alt="" />
+      <Link className=" h-28" to="/">
+        <img
+          className="w-28  opacity-0 group-hover:opacity-100 duration-300"
+          src={import.meta.env.VITE_LOGO}
+          alt=""
+        />
       </Link>
       <HeaderNavLinks
         openListModule={openListModule}

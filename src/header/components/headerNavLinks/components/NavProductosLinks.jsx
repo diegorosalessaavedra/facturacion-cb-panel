@@ -7,7 +7,7 @@ const NavProductosLinks = ({ openListModule, setOpenListModule }) => {
   return (
     <>
       <div
-        className={` flex items-center p-4 px-6   hover:bg-blue-700 hover:text-white w-full cursor-pointer ${
+        className={`w-[280px] flex items-center p-4 px-6   hover:bg-blue-700 hover:text-white cursor-pointer ${
           openListModule === "productos"
             ? "bg-blue-700 text-white hover:bg-blue-700"
             : " text-stone-700  "

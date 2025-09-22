@@ -12,7 +12,7 @@ const NavComprasLinks = ({
   return (
     <>
       <div
-        className="w-full text-stone-700 flex items-center p-4  px-6 cursor-pointer hover:bg-blue-700 hover:text-white transition-all duration-300  border-b-1 border-zinc-300  hover:scale-105"
+        className="w-[280px] text-stone-700 flex items-center p-4  px-6 cursor-pointer hover:bg-blue-700 hover:text-white transition-all duration-300  border-b-1 border-zinc-300  hover:scale-105"
         to="/"
         onClick={() => {
           openListModule === "compras"
