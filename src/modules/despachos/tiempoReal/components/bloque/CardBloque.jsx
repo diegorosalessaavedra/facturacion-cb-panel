@@ -138,7 +138,7 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
 
             <div className="flex gap-[1px]">
               <article className={classHeader}>
-                <p>DNI O RUC</p>
+                <p>DNI </p>
               </article>
               <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
                 <p>NOMBRE Y APELLIDOS</p>
@@ -152,7 +152,7 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
 
             <div className="flex gap-[1px]">
               <article className={classHeader}>
-                <p>DNI O RUC</p>
+                <p>DNI </p>
               </article>
               <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
                 <p>NOMBRE Y APELLIDOS</p>
@@ -184,11 +184,11 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
             <p>OBSERVACION</p>
           </article>
           <article className={classHeader}>
-            <p>AGREGADO EXTRA</p>
+            <p>AGREGADOS</p>
           </article>
-          <article className={classHeader}>
+          {/* <article className={classHeader}>
             <p>PRECIO TOTAL</p>
-          </article>
+          </article> */}
           <article className={classHeader}>
             <p>TOTAL A COBRAR</p>
           </article>

@@ -256,7 +256,6 @@ const DespachoGrid = ({ despacho, cobrosItem }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       // Limpiar actualizaciones optimistas que han estado activas por más de 5 segundos
-      const now = Date.now();
       const keysToDelete = [];
 
       optimisticUpdatesRef.current.forEach((key) => {
@@ -276,10 +275,6 @@ const DespachoGrid = ({ despacho, cobrosItem }) => {
   if (!productos || productos.length === 0) {
     return null;
   }
-
-  const totalCobrar = productos.reduce((acc, p) => {
-    return acc + Number(p.total_cobrar || 0);
-  }, 0);
 
   const existCobros =
     cobros.reduce((acc, p) => {
@@ -313,7 +308,6 @@ const DespachoGrid = ({ despacho, cobrosItem }) => {
               onProductoChange={handleProductoChange}
               despacho={despacho}
               cobrosItem={cobrosItem}
-              totalCobrar={totalCobrar}
               clienteDespacho={cliente}
               existCobros={existCobros}
             />
