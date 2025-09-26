@@ -326,11 +326,7 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
           <article className="w-[150px] py-4 bg-green-600  text-white  text-center  text-sm font-semibold  mt-2">
             Programar Compras
           </article>
-          <EliminarBloque
-            bloque={bloque}
-            index={index}
-            handleFindBloquesDespacho={handleFindBloquesDespacho}
-          />
+
           <NuevaCompra bloqueId={bloque.id} />
         </div>
         <div className="grid grid-flow-row mt-4">
