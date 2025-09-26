@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
 import config from "../../../../../utils/getToken";
 import axios from "axios";
-import NuevoDespacho from "../despacho/components/NuevoDespacho";
-import DespachoGrid from "../despacho/DespachoGrid";
+import NuevoDespacho from "../ventas/components/NuevoDespacho";
+import DespachoGrid from "../ventas/DespachoGrid";
 import { useSocketContext } from "../../../../../context/SocketContext";
 import EliminarBloque from "./components/EliminarBloque";
 
-import NuevoCobroDespachoItem from "../despacho/components/NuevoCobroDespachoItem";
+import NuevoCobroDespachoItem from "../ventas/components/NuevoCobroDespachoItem";
+import CompraGrid from "../compras/CompraGrid";
+import NuevaCompra from "../compras/components/NuevaCompra";
+import NuevoPagoDespachoItem from "../compras/components/NuevoPagoDespachoItem";
 
 const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
   const socket = useSocketContext();
 
   const [despachos, setDespachos] = useState([]);
+  const [compras, setCompras] = useState([]);
   const [cobros, setCobros] = useState([]);
+  const [pagos, setPagos] = useState([]);
 
   const handleFinddespachos = () => {
     if (bloque.id) {
@@ -20,6 +25,18 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
 
       axios.get(url, config).then((res) => {
         setDespachos(res.data.despachos);
+      });
+    }
+  };
+
+  const handleFindCompra = () => {
+    if (bloque.id) {
+      const url = `${import.meta.env.VITE_URL_API}/compra-despacho/${
+        bloque.id
+      }`;
+
+      axios.get(url, config).then((res) => {
+        setCompras(res.data.compraDespachos);
       });
     }
   };
@@ -36,10 +53,24 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
     }
   };
 
+  const handleFindPagos = () => {
+    if (bloque.id) {
+      const url = `${import.meta.env.VITE_URL_API}/pago-despacho-item/bloque/${
+        bloque.id
+      }`;
+
+      axios.get(url, config).then((res) => {
+        setPagos(res.data.pagoDespachoItems);
+      });
+    }
+  };
+
   useEffect(() => {
     if (bloque.id) {
       handleFinddespachos();
       handleFindCobros();
+      handleFindCompra();
+      handleFindPagos();
     }
   }, [bloque]);
 
@@ -68,10 +99,40 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
       setCobros((prev) => [...prev, cobroDespachoItem]);
     };
 
+    // compras
+
+    const handleCompraDespachoCreated = (compraDespacho) => {
+      if (compraDespacho.bloque_id === bloque.id) {
+        setCompras((prev) => [...prev, compraDespacho]);
+      }
+    };
+
+    const handleCompraDespachoUpdate = (compraDespacho) => {
+      if (compraDespacho.bloque_id === bloque.id) {
+        setCompras((prev) =>
+          prev.map((d) => (d.id === compraDespacho.id ? compraDespacho : d))
+        );
+      }
+    };
+
+    const handleCompraDespachoDeleted = (compraDespacho) => {
+      setCompras((prev) => prev.filter((p) => p.id !== compraDespacho.id));
+    };
+
     // Agregar listeners
     socket.on(`despacho:created:${bloque.id}`, handleDespachoCreated);
     socket.on(`despacho:update:${bloque.id}`, handleDespachoUpdate);
     socket.on(`despacho:delete:${bloque.id}`, handleDeleted);
+
+    socket.on(
+      `compraDespacho:created:${bloque.id}`,
+      handleCompraDespachoCreated
+    );
+    socket.on(`compraDespacho:update:${bloque.id}`, handleCompraDespachoUpdate);
+    socket.on(
+      `compraDespacho:delete:${bloque.id}`,
+      handleCompraDespachoDeleted
+    );
 
     socket.on(
       `cobroDespachoItem:created:${bloque.id}`,
@@ -83,6 +144,19 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
       socket.off(`despacho:created:${bloque.id}`, handleDespachoCreated);
       socket.off(`despacho:update:${bloque.id}`, handleDespachoUpdate);
       socket.off(`despacho:delete:${bloque.id}`, handleDeleted);
+
+      socket.off(
+        `compraDespacho:created:${bloque.id}`,
+        handleCompraDespachoCreated
+      );
+      socket.off(
+        `compraDespacho:update:${bloque.id}`,
+        handleCompraDespachoUpdate
+      );
+      socket.off(
+        `compraDespacho:delete:${bloque.id}`,
+        handleCompraDespachoDeleted
+      );
 
       socket.off(
         `cobroDespachoItem:created:${bloque.id}`,
@@ -99,147 +173,306 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
         <h3 className="px-6 py-1.5 bg-blue-600 text-white rounded-lg text-lg font-medium">
           {bloque.nombre_bloque}
         </h3>
-        <EliminarBloque
-          bloque={bloque}
-          index={index}
-          handleFindBloquesDespacho={handleFindBloquesDespacho}
-        />
-        <NuevoDespacho bloqueId={bloque.id} />
       </div>
-      <div className="grid grid-flow-row mt-4">
-        <section
-          className={`grid grid-flow-col  gap-[1px] bg-white text-white text-nowrap font-bold`}
-        >
-          <article className={classHeader}>
-            <p>VENDEDORA</p>
+      <section className="w-fit">
+        <div className="flex items-center gap-2 -mb-3">
+          <article className="w-[150px] py-4 bg-green-600  text-white  text-center  text-sm font-semibold  mt-2">
+            Programar Ventas
           </article>
-          <article
-            className={`w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`}
+          <EliminarBloque
+            bloque={bloque}
+            index={index}
+            handleFindBloquesDespacho={handleFindBloquesDespacho}
+          />
+          <NuevoDespacho bloqueId={bloque.id} />
+        </div>
+        <div className="grid grid-flow-row mt-4">
+          <section
+            className={`grid grid-flow-col  gap-[1px] bg-white text-white text-nowrap font-bold`}
           >
-            <p>CLIENTE A COTIZAR</p>
-          </article>
-          <article
-            className={`w-[200px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`}
-          >
-            {" "}
-            <p>
-              DNI O RUC DEL CLIENTE <br /> A COTIZAR{" "}
-            </p>
-          </article>
-          <article className={classHeader}>
-            <p>
-              NUMERO DE <br /> CONTACTO
-            </p>
-          </article>
-          <div className=" flex flex-col gap-[1px] bg-white text-center">
-            <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
-              <h3>CONSIGNATARIO 1</h3>
+            <article className={classHeader}>
+              <p>VENDEDORA</p>
             </article>
-
-            <div className="flex gap-[1px]">
-              <article className={classHeader}>
-                <p>DNI </p>
-              </article>
-              <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
-                <p>NOMBRE Y APELLIDOS</p>
-              </article>
-            </div>
-          </div>
-          <div className=" flex flex-col gap-[1px] bg-white text-center">
-            <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
-              <h3>CONSIGNATARIO 2</h3>
-            </article>
-
-            <div className="flex gap-[1px]">
-              <article className={classHeader}>
-                <p>DNI </p>
-              </article>
-              <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
-                <p>NOMBRE Y APELLIDOS</p>
-              </article>
-            </div>
-          </div>
-          <article className={classHeader}>
-            <p>CANTIDAD</p>
-          </article>
-          <article className={classHeader}>
-            <p>CENTRO DE COSTOS </p>
-          </article>
-          <article className={classHeader}>
-            <p>LINEA</p>
-          </article>
-          <article className={classHeader}>
-            <p>DESTINO</p>
-          </article>
-          <article className={classHeader}>
-            <p>TIPO DE ENVIO</p>
-          </article>
-          <article className={classHeader}>
-            <p>OS / TRANSPORTE</p>
-          </article>{" "}
-          <article className={classHeader}>
-            <p>P.U </p>
-          </article>{" "}
-          <article className={classHeader}>
-            <p>OBSERVACION</p>
-          </article>
-          <article className={classHeader}>
-            <p>AGREGADOS</p>
-          </article>
-          {/* <article className={classHeader}>
-            <p>PRECIO TOTAL</p>
-          </article> */}
-          <article className={classHeader}>
-            <p>TOTAL A COBRAR</p>
-          </article>
-          <article className={classHeader}>
-            <p>ESTADO</p>
-          </article>
-          <article className={classHeader}>
-            <p>TOTAL COBRADO</p>
-          </article>
-          <article className={`${classHeader} relative`}>
-            <p>SALDO DEL CLIENTE</p>
-            <NuevoCobroDespachoItem bloque={bloque} />
-          </article>
-          {cobros.map((cobro, index) => (
-            <div
-              key={index}
-              className=" flex flex-col gap-[1px] bg-white text-center"
+            <article
+              className={`w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`}
             >
+              <p>CLIENTE A COTIZAR</p>
+            </article>
+            <article
+              className={`w-[200px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`}
+            >
+              {" "}
+              <p>
+                DNI O RUC DEL CLIENTE <br /> A COTIZAR{" "}
+              </p>
+            </article>
+            <article className={classHeader}>
+              <p>
+                NUMERO DE <br /> CONTACTO
+              </p>
+            </article>
+            <div className=" flex flex-col gap-[1px] bg-white text-center">
               <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
-                <h3>COBRO {index + 1}</h3>
+                <h3>CONSIGNATARIO 1</h3>
               </article>
 
               <div className="flex gap-[1px]">
                 <article className={classHeader}>
-                  <p>METOD. PAGO</p>
+                  <p>DNI </p>
                 </article>
-                <article className={classHeader}>
-                  <p>BCO</p>
-                </article>
-                <article className={classHeader}>
-                  <p>FECHA PGO</p>
-                </article>
-                <article className={classHeader}>
-                  <p>OP</p>
-                </article>
-                <article className={classHeader}>
-                  <p>MONTO</p>
+                <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
+                  <p>NOMBRE Y APELLIDOS</p>
                 </article>
               </div>
             </div>
+            <div className=" flex flex-col gap-[1px] bg-white text-center">
+              <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
+                <h3>CONSIGNATARIO 2</h3>
+              </article>
+
+              <div className="flex gap-[1px]">
+                <article className={classHeader}>
+                  <p>DNI </p>
+                </article>
+                <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
+                  <p>NOMBRE Y APELLIDOS</p>
+                </article>
+              </div>
+            </div>
+            <article className={classHeader}>
+              <p>CANTIDAD</p>
+            </article>
+            <article className={classHeader}>
+              <p>CENTRO DE COSTOS </p>
+            </article>
+            <article className={classHeader}>
+              <p>LINEA</p>
+            </article>
+            <article className={classHeader}>
+              <p>P.U </p>
+            </article>
+            <article className={classHeader}>
+              <p>AGREGADOS</p>
+            </article>
+            {/* <article className={classHeader}>
+            <p>PRECIO TOTAL</p>
+          </article> */}
+            <article className={classHeader}>
+              <p>TOTAL A COBRAR</p>
+            </article>
+            <article className={classHeader}>
+              <p>DESTINO</p>
+            </article>
+            <article className={classHeader}>
+              <p>TIPO DE ENVIO</p>
+            </article>
+            <article className={classHeader}>
+              <p>OS / TRANSPORTE</p>
+            </article>{" "}
+            <article className={classHeader}>
+              <p>OBSERVACION</p>
+            </article>
+            <article className={classHeader}>
+              <p>ESTADO</p>
+            </article>
+            <article className={classHeader}>
+              <p>TOTAL COBRADO</p>
+            </article>
+            <article className={`${classHeader} relative`}>
+              <p>SALDO DEL CLIENTE</p>
+              <NuevoCobroDespachoItem bloque={bloque} />
+            </article>
+            {cobros.map((cobro, index) => (
+              <div
+                key={index}
+                className=" flex flex-col gap-[1px] bg-white text-center"
+              >
+                <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
+                  <h3>COBRO {index + 1}</h3>
+                </article>
+
+                <div className="flex gap-[1px]">
+                  <article className={classHeader}>
+                    <p>METOD. PAGO</p>
+                  </article>
+                  <article className={classHeader}>
+                    <p>BCO</p>
+                  </article>
+                  <article className={classHeader}>
+                    <p>FECHA PGO</p>
+                  </article>
+                  <article className={classHeader}>
+                    <p>OP</p>
+                  </article>
+                  <article className={classHeader}>
+                    <p>MONTO</p>
+                  </article>
+                </div>
+              </div>
+            ))}
+          </section>
+          {despachos?.map((despacho, index) => (
+            <DespachoGrid
+              key={index}
+              despacho={despacho}
+              index={index}
+              cobrosItem={cobros}
+            />
           ))}
-        </section>
-        {despachos?.map((despacho, index) => (
-          <DespachoGrid
-            key={index}
-            despacho={despacho}
+        </div>{" "}
+      </section>
+      <section className="w-fit mt-6">
+        <div className="flex items-center gap-2 -mb-3">
+          <article className="w-[150px] py-4 bg-green-600  text-white  text-center  text-sm font-semibold  mt-2">
+            Programar Compras
+          </article>
+          <EliminarBloque
+            bloque={bloque}
             index={index}
-            cobrosItem={cobros}
+            handleFindBloquesDespacho={handleFindBloquesDespacho}
           />
-        ))}
-      </div>{" "}
+          <NuevaCompra bloqueId={bloque.id} />
+        </div>
+        <div className="grid grid-flow-row mt-4">
+          <section
+            className={`grid grid-flow-col  gap-[1px] bg-white text-white text-nowrap font-bold`}
+          >
+            <article className={classHeader}>
+              <p>COMPRADORA</p>
+            </article>
+            <article
+              className={`w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`}
+            >
+              <p>PROVEEDOR A COTIZAR</p>
+            </article>
+            <article
+              className={`w-[200px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]`}
+            >
+              <p>
+                DNI O RUC DEL <br /> PROVEEDOR A COTIZAR
+              </p>
+            </article>
+            <article className={classHeader}>
+              <p>
+                NUMERO DE <br /> CONTACTO
+              </p>
+            </article>
+            <div className=" flex flex-col gap-[1px] bg-white text-center">
+              <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
+                <h3>CHOFER PRINCIPAL</h3>
+              </article>
+
+              <div className="flex gap-[1px]">
+                <article className={classHeader}>
+                  <p>DNI </p>
+                </article>
+                <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
+                  <p>NOMBRE Y APELLIDOS</p>
+                </article>
+              </div>
+            </div>
+            <div className=" flex flex-col gap-[1px] bg-white text-center">
+              <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
+                <h3>CHOFER SECUNDARIO</h3>
+              </article>
+
+              <div className="flex gap-[1px]">
+                <article className={classHeader}>
+                  <p>DNI </p>
+                </article>
+                <article className="w-[250px] bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
+                  <p>NOMBRE Y APELLIDOS</p>
+                </article>
+              </div>
+            </div>
+            <article className={classHeader}>
+              <p>CANTIDAD</p>
+            </article>
+            <article className={classHeader}>
+              <p>CENTRO DE COSTOS </p>
+            </article>
+            <article className={classHeader}>
+              <p>LINEA</p>
+            </article>
+            <article className={classHeader}>
+              <p>P.U </p>
+            </article>
+            <article className={classHeader}>
+              <p>AGREGADOS</p>
+            </article>
+            {/* <article className={classHeader}>
+            <p>PRECIO TOTAL</p>
+          </article> */}
+            <article className={classHeader}>
+              <p>TOTAL A COBRAR</p>
+            </article>
+            <article className={classHeader}>
+              <p>
+                DESTINO DE <br />
+                RECOJO
+              </p>
+            </article>
+            <article className={classHeader}>
+              <p>TIPO DE RECOGO</p>
+            </article>
+            <article className={classHeader}>
+              <p>OS / TRANSPORTE</p>
+            </article>{" "}
+            <article className={classHeader}>
+              <p>OBSERVACION</p>
+            </article>
+            <article className={classHeader}>
+              <p>ESTADO</p>
+            </article>
+            <article className={classHeader}>
+              <p>TOTAL COBRADO</p>
+            </article>
+            <article className={`${classHeader} relative`}>
+              <p>
+                SALDO DEL <br />
+                PROVEEDOR
+              </p>
+              <NuevoPagoDespachoItem bloque={bloque} />
+            </article>
+            {pagos.map((cobro, index) => (
+              <div
+                key={index}
+                className=" flex flex-col gap-[1px] bg-white text-center"
+              >
+                <article className="w-full bg-green-600 flex items-center justify-center text-center p-1 px-2 text-[10px]">
+                  <h3>PAGO {index + 1}</h3>
+                </article>
+
+                <div className="flex gap-[1px]">
+                  <article className={classHeader}>
+                    <p>METOD. PAGO</p>
+                  </article>
+                  <article className={classHeader}>
+                    <p>BCO</p>
+                  </article>
+                  <article className={classHeader}>
+                    <p>FECHA PGO</p>
+                  </article>
+                  <article className={classHeader}>
+                    <p>OP</p>
+                  </article>
+                  <article className={classHeader}>
+                    <p>MONTO</p>
+                  </article>
+                </div>
+              </div>
+            ))}
+          </section>
+          {compras?.map((compra, index) => (
+            <CompraGrid
+              key={index}
+              compra={compra}
+              index={index}
+              pagosItem={pagos}
+            />
+          ))}
+        </div>{" "}
+      </section>
     </div>
   );
 };

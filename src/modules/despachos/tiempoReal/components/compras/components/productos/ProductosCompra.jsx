@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useEncargadosStore from "../../../../../../../stores/encargados.store";
-import useClientesStore from "../../../../../../../stores/clientes.store";
 import axios from "axios";
 import config from "../../../../../../../utils/getToken";
-import EliminarDespacho from "../EliminarDespacho";
+import EliminarCompra from "../EliminarCompra";
 import { Autocomplete, AutocompleteItem, Checkbox } from "@nextui-org/react";
 import { lineaProducto } from "../../../../../../../jsons/lineaProducto";
 import { onInputPrice } from "../../../../../../../assets/onInputs";
 import { useForm } from "react-hook-form";
 import { IoSearchOutline } from "react-icons/io5";
 import { toast } from "sonner";
+import useProveedoresStore from "../../../../../../../stores/proveedores.store";
 
 // ✅ Hook personalizado para debounce optimizado
 function useDebounce(callback, delay) {
@@ -54,7 +54,7 @@ function useOptimisticState() {
       if (field) {
         delete newState[fieldKey];
       } else {
-        // Limpiar todos los campos de un producto/despacho específico
+        // Limpiar todos los campos de un producto/compra específico
         Object.keys(newState).forEach((key) => {
           if (key.startsWith(`${type}_${id}_`)) {
             delete newState[key];
@@ -95,19 +95,19 @@ function useOptimisticState() {
   };
 }
 
-export default function ProductosDespacho({
+export default function ProductosCompra({
   producto,
-  despachoData,
+  compraData,
   isFirstProduct = false,
-  onDespachoChange,
+  onCompraChange,
   onProductoChange,
-  despacho,
-  clienteDespacho,
-  existCobros,
+  compra,
+  proveedorCompra,
+  existPagos,
 }) {
   const { register, handleSubmit } = useForm();
   const { encargados } = useEncargadosStore();
-  const { clientes } = useClientesStore();
+  const { proveedores } = useProveedoresStore();
 
   const [dataProducto, setDataProducto] = useState(producto);
   const {
@@ -160,7 +160,7 @@ export default function ProductosDespacho({
 
       const url = `${
         import.meta.env.VITE_URL_API
-      }/producto-despacho/${productoId}`;
+      }/producto-compra-despacho/${productoId}`;
       await axios.patch(url, payload, config);
 
       // ✅ Limpiar estados optimistas exitosos
@@ -178,19 +178,19 @@ export default function ProductosDespacho({
     }
   }, 500);
 
-  const saveDespachoChange = useDebounce(async (despachoId, field, value) => {
-    const fieldKey = `despacho_${despachoId}_${field}`;
+  const saveCompraChange = useDebounce(async (compraId, field, value) => {
+    const fieldKey = `compra_${compraId}_${field}`;
 
     try {
       setPending(fieldKey, true);
 
-      const url = `${import.meta.env.VITE_URL_API}/despacho/${despachoId}`;
+      const url = `${import.meta.env.VITE_URL_API}/compra-despacho/${compraId}`;
       await axios.patch(url, { [field]: value }, config);
 
-      clearOptimisticValue("despacho", despachoId, field);
+      clearOptimisticValue("compra", compraId, field);
     } catch (err) {
       console.error(`Error guardando ${field}:`, err);
-      clearOptimisticValue("despacho", despachoId, field);
+      clearOptimisticValue("compra", compraId, field);
       toast.error(`Error al guardar ${field}. Se revirtió el cambio.`);
     } finally {
       setPending(fieldKey, false);
@@ -198,25 +198,25 @@ export default function ProductosDespacho({
   }, 1000);
 
   // ✅ Handlers optimizados
-  const handleDespachoChange = useCallback(
+  const handleCompraChange = useCallback(
     (field, value) => {
-      if (!isFirstProduct || !onDespachoChange) return;
+      if (!isFirstProduct || !onCompraChange) return;
 
       // Actualización optimista inmediata
-      onDespachoChange(field, value);
-      setOptimisticValue("despacho", despacho.id, field, value);
+      onCompraChange(field, value);
+      setOptimisticValue("compra", compra.id, field, value);
 
       // Guardar en backend
-      if (despacho.id) {
-        saveDespachoChange(despacho.id, field, value);
+      if (compra.id) {
+        saveCompraChange(compra.id, field, value);
       }
     },
     [
       isFirstProduct,
-      onDespachoChange,
-      despacho.id,
+      onCompraChange,
+      compra.id,
       setOptimisticValue,
-      saveDespachoChange,
+      saveCompraChange,
     ]
   );
 
@@ -276,83 +276,83 @@ export default function ProductosDespacho({
 
         if (res.data?.data?.nombre_completo) {
           setTimeout(() => {
-            handleDespachoChange(field, res.data.data.nombre_completo);
+            handleCompraChange(field, res.data.data.nombre_completo);
           }, 200);
         } else {
           toast.error(`No se encontró ningún registro con el DNI ${dni}`);
           setTimeout(() => {
-            handleDespachoChange(field, "");
+            handleCompraChange(field, "");
           }, 200);
         }
       } catch (err) {
         toast.error(`No se encontró ningún registro con el DNI ${dni}`);
         setTimeout(() => {
-          handleDespachoChange(field, "");
+          handleCompraChange(field, "");
         }, 200);
       }
     },
-    [handleDespachoChange]
+    [handleCompraChange]
   );
 
   const submit = useCallback(
     (data) => {
-      searchDNI(data.dni, "consignatario1_nombre");
+      searchDNI(data.dni, "chofer_principal_nombre");
     },
     [searchDNI]
   );
 
   const submit2 = useCallback(
     (data) => {
-      searchDNI(data.dni2, "consignatario2_nombre");
+      searchDNI(data.dni2, "chofer_secundario_nombre");
     },
     [searchDNI]
   );
 
-  // ✅ Auto-completado de cliente optimizado
+  // ✅ Auto-completado de proveedor optimizado
   useEffect(() => {
-    if (!despacho.documento_cliente) return;
+    if (!compra.documento_proveedor) return;
 
     const timer = setTimeout(() => {
-      const cliente = clientes.find(
-        (c) => c.numeroDoc === despacho.documento_cliente
+      const proveedor = proveedores.find(
+        (c) => c.numeroDoc === compra.documento_proveedor
       );
-      if (cliente) {
-        handleDespachoChange(
-          "cliente",
-          cliente?.nombreApellidos || cliente?.nombreComercial
+      if (proveedor) {
+        handleCompraChange(
+          "proveedor",
+          proveedor?.nombreApellidos || proveedor?.nombreComercial
         );
       }
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [despacho.documento_cliente, clientes, handleDespachoChange]);
+  }, [compra.documento_proveedor, proveedores]);
 
-  // ✅ Handler para cambio de cliente con validaciones
-  const handleClienteChange = useCallback(
+  // ✅ Handler para cambio de proveedor con validaciones
+  const handleProveedorChange = useCallback(
     (key) => {
-      const cliente = clientes.find((c) => c.numeroDoc === key);
-      if (!cliente) return;
+      const proveedor = proveedores.find((c) => c.numeroDoc === key);
+      if (!proveedor) return;
 
-      const mismoCliente = String(cliente.id) === String(clienteDespacho);
-      const totalCobrado = Number(despachoData.total_cobrado || 0);
+      const mismoproveedor = String(proveedor.id) === String(proveedorCompra);
+      const totalCobrado = Number(compraData.total_cobrado || 0);
 
-      if (existCobros && !mismoCliente) {
-        alert("Solo puedes cambiar de cliente si los cobros son 0.");
+      if (existPagos && !mismoproveedor) {
+        alert("Solo puedes cambiar de proveedor si los cobros son 0.");
         return;
       }
-      if (totalCobrado !== 0 && !mismoCliente) {
-        alert("Solo puedes cambiar de cliente si el total cobrado son 0.");
+      if (totalCobrado !== 0 && !mismoproveedor) {
+        alert("Solo puedes cambiar de proveedor si el total cobrado son 0.");
         return;
       }
 
-      handleDespachoChange("documento_cliente", cliente.numeroDoc);
+      handleCompraChange("documento_proveedor", proveedor.numeroDoc);
     },
     [
-      clientes,
-      clienteDespacho,
-      despachoData.total_cobrado,
-      existCobros,
-      handleDespachoChange,
+      proveedores,
+      proveedorCompra,
+      compraData.total_cobrado,
+      existPagos,
+      handleCompraChange,
     ]
   );
 
@@ -360,7 +360,7 @@ export default function ProductosDespacho({
   const handleTotalCobradoChange = useCallback(
     (e) => {
       const total = Number(e.target.value);
-      const saldo = Number(clienteDespacho?.saldo || 0);
+      const saldo = Number(proveedorCompra?.saldo || 0);
 
       if (isNaN(total)) return;
 
@@ -368,17 +368,16 @@ export default function ProductosDespacho({
         alert("El total cobrado no debe ser mayor al saldo");
         return;
       }
-
-      handleDespachoChange("total_cobrado", e.target.value);
+      handleCompraChange("total_cobrado", e.target.value);
     },
-    [clienteDespacho?.saldo, handleDespachoChange]
+    [proveedorCompra?.saldo, handleCompraChange]
   );
 
   return (
     <>
       {isFirstProduct && (
         <div className="absolute -left-8 flex">
-          <EliminarDespacho despachoId={despacho.id} />
+          <EliminarCompra compraId={compra.id} />
         </div>
       )}
 
@@ -387,18 +386,14 @@ export default function ProductosDespacho({
         {isFirstProduct && (
           <select
             value={getOptimisticValue(
-              "despacho",
-              despacho.id,
-              "vendedora_id",
-              despachoData.vendedora_id || ""
+              "compra",
+              compra.id,
+              "comprador_id",
+              compraData.comprador_id || ""
             )}
-            onChange={(e) =>
-              handleDespachoChange("vendedora_id", e.target.value)
-            }
+            onChange={(e) => handleCompraChange("comprador_id", e.target.value)}
             className={`${styles.inputStyles} cursor-pointer ${
-              isPending("despacho", despacho.id, "vendedora_id")
-                ? "opacity-70"
-                : ""
+              isPending("compra", compra.id, "comprador_id") ? "opacity-70" : ""
             }`}
           >
             <option value="">Seleccionar</option>
@@ -411,7 +406,7 @@ export default function ProductosDespacho({
         )}
       </article>
 
-      {/* Cliente */}
+      {/* proveedor */}
       <article
         className={`w-[250px] flex ${
           isFirstProduct ? "bg-green-100" : "bg-white"
@@ -421,43 +416,43 @@ export default function ProductosDespacho({
           <input
             type="text"
             value={getOptimisticValue(
-              "despacho",
-              despacho.id,
-              "cliente",
-              despachoData.cliente || ""
+              "compra",
+              compra.id,
+              "proveedor",
+              compraData.proveedor || ""
             )}
             className={styles.readOnlyInputStyles}
-            placeholder="Cliente"
+            placeholder="proveedor"
             readOnly
           />
         )}
       </article>
 
-      {/* DNI Cliente */}
+      {/* DNI proveedor */}
       <article className="w-[200px] flex bg-white items-center justify-center text-center text-xs">
         {isFirstProduct && (
           <Autocomplete
-            aria-label="Seleccione un cliente"
+            aria-label="Seleccione un proveedor"
             inputProps={{
               classNames: {
                 input: "text-xs rounded-none",
                 inputWrapper: `border-0 ${
                   isFirstProduct ? "bg-green-50" : "bg-white"
                 } rounded-none ${
-                  isPending("despacho", despacho.id, "documento_cliente")
+                  isPending("compra", compra.id, "documento_proveedor")
                     ? "opacity-70"
                     : ""
                 }`,
                 label: "hidden",
               },
             }}
-            defaultItems={clientes}
-            onSelectionChange={handleClienteChange}
+            defaultItems={proveedores}
+            onSelectionChange={handleProveedorChange}
             selectedKey={getOptimisticValue(
-              "despacho",
-              despacho.id,
-              "documento_cliente",
-              despachoData.documento_cliente
+              "compra",
+              compra.id,
+              "documento_proveedor",
+              compraData.documento_proveedor
             )}
             size="sm"
             maxListboxHeight={200}
@@ -482,16 +477,16 @@ export default function ProductosDespacho({
             type="tel"
             maxLength={9}
             value={getOptimisticValue(
-              "despacho",
-              despacho.id,
+              "compra",
+              compra.id,
               "numero_contacto",
-              despachoData.numero_contacto || ""
+              compraData.numero_contacto || ""
             )}
             onChange={(e) =>
-              handleDespachoChange("numero_contacto", e.target.value)
+              handleCompraChange("numero_contacto", e.target.value)
             }
             className={`${styles.inputStyles} ${
-              isPending("despacho", despacho.id, "numero_contacto")
+              isPending("compra", compra.id, "numero_contacto")
                 ? "opacity-70"
                 : ""
             }`}
@@ -508,16 +503,16 @@ export default function ProductosDespacho({
               type="text"
               {...register("dni")}
               value={getOptimisticValue(
-                "despacho",
-                despacho.id,
-                "consignatario1_documento",
-                despachoData.consignatario1_documento || ""
+                "compra",
+                compra.id,
+                "chofer_principal_documento",
+                compraData.chofer_principal_documento || ""
               )}
               onChange={(e) =>
-                handleDespachoChange("consignatario1_documento", e.target.value)
+                handleCompraChange("chofer_principal_documento", e.target.value)
               }
               className={`${styles.inputStyles} ${
-                isPending("despacho", despacho.id, "consignatario1_documento")
+                isPending("compra", compra.id, "chofer_principal_documento")
                   ? "opacity-70"
                   : ""
               }`}
@@ -542,16 +537,16 @@ export default function ProductosDespacho({
           <input
             type="text"
             value={getOptimisticValue(
-              "despacho",
-              despacho.id,
-              "consignatario1_nombre",
-              despachoData.consignatario1_nombre || ""
+              "compra",
+              compra.id,
+              "chofer_principal_nombre",
+              compraData.chofer_principal_nombre || ""
             )}
             onChange={(e) =>
-              handleDespachoChange("consignatario1_nombre", e.target.value)
+              handleCompraChange("chofer_principal_nombre", e.target.value)
             }
             className={`${styles.inputStyles} ${
-              isPending("despacho", despacho.id, "consignatario1_nombre")
+              isPending("compra", compra.id, "chofer_principal_nombre")
                 ? "opacity-70"
                 : ""
             }`}
@@ -568,16 +563,19 @@ export default function ProductosDespacho({
               type="text"
               {...register("dni2")}
               value={getOptimisticValue(
-                "despacho",
-                despacho.id,
-                "consignatario2_documento",
-                despachoData.consignatario2_documento || ""
+                "compra",
+                compra.id,
+                "chofer_secundario_documento",
+                compraData.chofer_secundario_documento || ""
               )}
               onChange={(e) =>
-                handleDespachoChange("consignatario2_documento", e.target.value)
+                handleCompraChange(
+                  "chofer_secundario_documento",
+                  e.target.value
+                )
               }
               className={`${styles.inputStyles} ${
-                isPending("despacho", despacho.id, "consignatario2_documento")
+                isPending("compra", compra.id, "chofer_secundario_documento")
                   ? "opacity-70"
                   : ""
               }`}
@@ -602,16 +600,16 @@ export default function ProductosDespacho({
           <input
             type="text"
             value={getOptimisticValue(
-              "despacho",
-              despacho.id,
-              "consignatario2_nombre",
-              despachoData.consignatario2_nombre || ""
+              "compra",
+              compra.id,
+              "chofer_secundario_nombre",
+              compraData.chofer_secundario_nombre || ""
             )}
             onChange={(e) =>
-              handleDespachoChange("consignatario2_nombre", e.target.value)
+              handleCompraChange("chofer_secundario_nombre", e.target.value)
             }
             className={`${styles.inputStyles} ${
-              isPending("despacho", despacho.id, "consignatario2_nombre")
+              isPending("compra", compra.id, "chofer_secundario_nombre")
                 ? "opacity-70"
                 : ""
             }`}
@@ -660,9 +658,12 @@ export default function ProductosDespacho({
             dataProducto?.linea || ""
           )}
           onChange={(e) => handleProductoChange("linea", e.target.value)}
-          className={`${styles.inputStyles} cursor-pointer ${
-            isPending("producto", producto.id, "linea") ? "opacity-70" : ""
-          }`}
+          className={
+            isFirstProduct
+              ? `${styles.inputStyles} cursor-pointer`
+              : styles.readOnlyInputStyles
+          }
+          disabled={!isFirstProduct}
         >
           <option value="">Seleccionar</option>
           {lineaProducto.map((linea) => (
@@ -671,75 +672,6 @@ export default function ProductosDespacho({
             </option>
           ))}
         </select>
-      </article>
-
-      {/* Destino */}
-      <article className={styles.cellStyles}>
-        {isFirstProduct && (
-          <input
-            type="text"
-            value={getOptimisticValue(
-              "despacho",
-              despacho.id,
-              "destino",
-              despachoData?.destino || ""
-            )}
-            onChange={(e) => handleDespachoChange("destino", e.target.value)}
-            className={`${styles.inputStyles} ${
-              isPending("despacho", despacho.id, "destino") ? "opacity-70" : ""
-            }`}
-            placeholder="Destino"
-          />
-        )}
-      </article>
-
-      {/* Tipo de envío */}
-      <article className={styles.cellStyles}>
-        {isFirstProduct && (
-          <select
-            value={getOptimisticValue(
-              "despacho",
-              despacho.id,
-              "tipo_envio",
-              despachoData?.tipo_envio || ""
-            )}
-            onChange={(e) => handleDespachoChange("tipo_envio", e.target.value)}
-            className={`${styles.inputStyles} ${
-              isPending("despacho", despacho.id, "tipo_envio")
-                ? "opacity-70"
-                : ""
-            }`}
-          >
-            <option value="">Seleccionar</option>
-            <option value="ALMACEN">ALMACEN</option>
-            <option value="TERRESTRE">TERRESTRE</option>
-            <option value="AEREO">AEREO</option>
-          </select>
-        )}
-      </article>
-
-      {/* OS/Transporte */}
-      <article className={styles.cellStyles}>
-        {isFirstProduct && (
-          <input
-            type="text"
-            value={getOptimisticValue(
-              "despacho",
-              despacho.id,
-              "os_transporte",
-              despachoData?.os_transporte || ""
-            )}
-            onChange={(e) =>
-              handleDespachoChange("os_transporte", e.target.value)
-            }
-            className={`${styles.inputStyles} ${
-              isPending("despacho", despacho.id, "os_transporte")
-                ? "opacity-70"
-                : ""
-            }`}
-            placeholder="OS/Transport"
-          />
-        )}
       </article>
 
       {/* Precio unitario */}
@@ -765,30 +697,6 @@ export default function ProductosDespacho({
         />
       </article>
 
-      {/* Observación */}
-      <article className={styles.cellStyles}>
-        {isFirstProduct && (
-          <input
-            type="text"
-            value={getOptimisticValue(
-              "despacho",
-              despacho.id,
-              "observacion",
-              despachoData.observacion || ""
-            )}
-            onChange={(e) =>
-              handleDespachoChange("observacion", e.target.value)
-            }
-            className={`${styles.inputStyles} ${
-              isPending("despacho", despacho.id, "observacion")
-                ? "opacity-70"
-                : ""
-            }`}
-            placeholder="Observación"
-          />
-        )}
-      </article>
-
       {/* Vacuna */}
       <article
         className={`${styles.cellStyles} flex gap-4 items-center justify-center`}
@@ -796,12 +704,12 @@ export default function ProductosDespacho({
         {isFirstProduct && (
           <Checkbox
             isSelected={getOptimisticValue(
-              "despacho",
-              despacho.id,
+              "compra",
+              compra.id,
               "vacuna",
-              despachoData.vacuna
+              compraData.vacuna
             )}
-            onChange={(e) => handleDespachoChange("vacuna", e.target.checked)}
+            onChange={(e) => handleCompraChange("vacuna", e.target.checked)}
             size="sm"
             color="success"
           >
@@ -816,9 +724,100 @@ export default function ProductosDespacho({
           <input
             type="text"
             className={`${styles.readOnlyInputStyles} text-green-700 font-bold`}
-            value={despachoData.total}
+            value={compraData.total}
             placeholder="0.00"
             disabled
+          />
+        )}
+      </article>
+
+      {/* destino_recogo */}
+      <article className={styles.cellStyles}>
+        {isFirstProduct && (
+          <input
+            type="text"
+            value={getOptimisticValue(
+              "compra",
+              compra.id,
+              "destino_recogo",
+              compraData?.destino_recogo || ""
+            )}
+            onChange={(e) =>
+              handleCompraChange("destino_recogo", e.target.value)
+            }
+            className={`${styles.inputStyles} ${
+              isPending("compra", compra.id, "destino_recogo")
+                ? "opacity-70"
+                : ""
+            }`}
+            placeholder="destino recogo"
+          />
+        )}
+      </article>
+
+      {/* Tipo de envío */}
+      <article className={styles.cellStyles}>
+        {isFirstProduct && (
+          <select
+            value={getOptimisticValue(
+              "compra",
+              compra.id,
+              "tipo_envio",
+              compraData?.tipo_envio || ""
+            )}
+            onChange={(e) => handleCompraChange("tipo_envio", e.target.value)}
+            className={`${styles.inputStyles} ${
+              isPending("compra", compra.id, "tipo_envio") ? "opacity-70" : ""
+            }`}
+          >
+            <option value="">Seleccionar</option>
+            <option value="ALMACEN">ALMACEN</option>
+            <option value="TERRESTRE">TERRESTRE</option>
+            <option value="AEREO">AEREO</option>
+          </select>
+        )}
+      </article>
+
+      {/* OS/Transporte */}
+      <article className={styles.cellStyles}>
+        {isFirstProduct && (
+          <input
+            type="text"
+            value={getOptimisticValue(
+              "compra",
+              compra.id,
+              "os_transporte",
+              compraData?.os_transporte || ""
+            )}
+            onChange={(e) =>
+              handleCompraChange("os_transporte", e.target.value)
+            }
+            className={`${styles.inputStyles} ${
+              isPending("compra", compra.id, "os_transporte")
+                ? "opacity-70"
+                : ""
+            }`}
+            placeholder="OS/Transport"
+          />
+        )}
+      </article>
+
+      {/* Observación */}
+      <article className={styles.cellStyles}>
+        {isFirstProduct && (
+          <input
+            type="text"
+            value={getOptimisticValue(
+              "compra",
+              compra.id,
+              "observacion",
+              compraData.observacion || ""
+            )}
+            onChange={(e) => handleCompraChange("observacion", e.target.value)}
+            className={`${styles.inputStyles} ${
+              isPending("compra", compra.id, "observacion") ? "opacity-70" : ""
+            }`}
+            placeholder="Observación"
           />
         )}
       </article>
@@ -828,14 +827,14 @@ export default function ProductosDespacho({
         {isFirstProduct && (
           <select
             value={getOptimisticValue(
-              "despacho",
-              despacho.id,
+              "compra",
+              compra.id,
               "estado",
-              despachoData.estado
+              compraData.estado
             )}
-            onChange={(e) => handleDespachoChange("estado", e.target.value)}
+            onChange={(e) => handleCompraChange("estado", e.target.value)}
             className={`${styles.inputStyles} cursor-pointer ${
-              isPending("despacho", despacho.id, "estado") ? "opacity-70" : ""
+              isPending("compra", compra.id, "estado") ? "opacity-70" : ""
             }`}
           >
             <option value="">Estado</option>
@@ -852,10 +851,10 @@ export default function ProductosDespacho({
           <input
             type="text"
             value={getOptimisticValue(
-              "despacho",
-              despacho.id,
+              "compra",
+              compra.id,
               "total_cobrado",
-              despachoData.total_cobrado || ""
+              compraData.total_cobrado || ""
             )}
             onChange={handleTotalCobradoChange}
             className="w-full h-8 px-2 text-[11px] border-0 bg-transparent text-amber-600 font-semibold"
@@ -865,12 +864,12 @@ export default function ProductosDespacho({
         )}
       </article>
 
-      {/* Saldo cliente */}
+      {/* Saldo proveedor */}
       <article className={styles.cellStyles}>
         {isFirstProduct && (
           <input
             type="text"
-            value={clienteDespacho?.saldo || 0}
+            value={proveedorCompra?.saldo || 0}
             className="w-full h-8 px-2 text-[11px] border-0 bg-transparent text-blue-600 font-semibold"
             placeholder="0.00"
             disabled

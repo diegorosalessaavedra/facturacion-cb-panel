@@ -36,6 +36,14 @@ export const lineaProducto = [
     descripcion: "GALLINA",
   },
   {
+    id: "VACUNA",
+    descripcion: "VACUNA",
+  },
+  {
+    id: "CAJA",
+    descripcion: "CAJA",
+  },
+  {
     id: "PAVO NEG",
     descripcion: "PAVO NEG",
   },

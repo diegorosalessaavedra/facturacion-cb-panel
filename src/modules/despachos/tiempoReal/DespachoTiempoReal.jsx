@@ -11,12 +11,14 @@ import { Button, useDisclosure } from "@nextui-org/react";
 import ModalNuevoCliente from "../../clientesProveedores/tusClientes/components/ModalNuevoCliente/ModalNuevoCliente";
 import useCuentasBancariasStore from "../../../stores/cuentasBancarias.store";
 import useMetodosPagosStore from "../../../stores/metodosPagos.store";
+import useProveedoresStore from "../../../stores/proveedores.store";
 
 const DespachoTiempoReal = () => {
   const socket = useSocketContext();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { fetchEncargados } = useEncargadosStore();
   const { fetchClientes } = useClientesStore();
+  const { fetchProveedores } = useProveedoresStore();
   const { fetchCuentasBancarias } = useCuentasBancariasStore();
   const { fetchMetodosPagos } = useMetodosPagosStore();
 
@@ -34,6 +36,7 @@ const DespachoTiempoReal = () => {
     handleFindBloquesDespacho();
     fetchEncargados();
     fetchClientes();
+    fetchProveedores();
     fetchCuentasBancarias();
     fetchMetodosPagos();
   }, []);
