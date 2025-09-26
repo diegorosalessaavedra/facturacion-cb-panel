@@ -173,17 +173,18 @@ const CardBloque = ({ handleFindBloquesDespacho, bloque, index }) => {
         <h3 className="px-6 py-1.5 bg-blue-600 text-white rounded-lg text-lg font-medium">
           {bloque.nombre_bloque}
         </h3>
+        <EliminarBloque
+          bloque={bloque}
+          index={index}
+          handleFindBloquesDespacho={handleFindBloquesDespacho}
+        />
       </div>
       <section className="w-fit">
         <div className="flex items-center gap-2 -mb-3">
           <article className="w-[150px] py-4 bg-green-600  text-white  text-center  text-sm font-semibold  mt-2">
             Programar Ventas
           </article>
-          <EliminarBloque
-            bloque={bloque}
-            index={index}
-            handleFindBloquesDespacho={handleFindBloquesDespacho}
-          />
+
           <NuevoDespacho bloqueId={bloque.id} />
         </div>
         <div className="grid grid-flow-row mt-4">
