@@ -106,11 +106,11 @@ const HeaderNavLinks = ({
         <GrDocumentPerformance className="text-xl" />
         <p className="text-base">Dashboard</p>
       </Link>
-      {userPermissions.isAdmin && (
+      {/* {userPermissions.isAdmin && (
         <>
           <NavDespachoLinks {...sharedNavProps} />
         </>
-      )}
+      )} */}
       {/* Ventas */}
       <ConditionalNavLink condition={userPermissions.canAccessVentas}>
         <NavVentasLinks {...sharedNavProps} userData={userData} />
