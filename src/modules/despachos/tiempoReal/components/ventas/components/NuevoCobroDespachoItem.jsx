@@ -14,14 +14,9 @@ const NuevoCobroDespachoItem = ({ bloque }) => {
       bloque.id
     }`;
 
-    axios
-      .post(url, {}, config)
-      .then((res) => {
-        console.log(res.data);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    axios.post(url, {}, config).finally(() => {
+      setLoading(false);
+    });
   };
 
   return (

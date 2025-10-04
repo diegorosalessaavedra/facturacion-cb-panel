@@ -167,8 +167,6 @@ const ModalEditarColaborador = ({
       });
   };
 
-  console.log(deletesDocsId);
-
   return (
     <Modal
       isOpen={isOpen}

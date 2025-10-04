@@ -38,7 +38,7 @@ const NavVentasLinks = ({
         } w-full bg-blue-700 text-white  transition-all duration-300  `}
       >
         <Link
-          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-full transition-all duration-300"
+          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/ventas/crear-cotizacion"
           onClick={() => setIsMenuOpen(false)}
         >
@@ -46,7 +46,7 @@ const NavVentasLinks = ({
           <p className="text-sm">Nueva Cotización</p>
         </Link>
         <Link
-          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-full transition-all duration-300"
+          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/ventas/comprobantes-cotizacion"
           onClick={() => setIsMenuOpen(false)}
         >
@@ -54,7 +54,7 @@ const NavVentasLinks = ({
           <p className="text-sm">Facturas y boletas emitidas</p>
         </Link>
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/ventas/cotizaciones"
         >
           <MdOutlineCircle className="text-sm" />

@@ -78,6 +78,14 @@ const HeaderProfile = ({ userData }) => {
             <p className="text-xs">Facturación Diego Rosales</p>
           </DropdownItem>
           <DropdownItem
+            key="Chicken"
+            color="primary"
+            href="https://facturacion-granjas-peruanas.netlify.app"
+            startContent={<img className="w-7" src="/gp.png" alt="" />}
+          >
+            <p className="text-xs">Facturación Granjas Peruanas</p>
+          </DropdownItem>
+          <DropdownItem
             key="logout"
             color="danger"
             onPress={logOut}

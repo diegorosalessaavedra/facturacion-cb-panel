@@ -16,9 +16,7 @@ const NuevoPagoDespachoItem = ({ bloque }) => {
 
     axios
       .post(url, {}, config)
-      .then((res) => {
-        console.log(res.data);
-      })
+
       .finally(() => {
         setLoading(false);
       });

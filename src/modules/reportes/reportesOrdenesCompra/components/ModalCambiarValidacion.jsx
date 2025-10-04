@@ -32,8 +32,6 @@ const ModalCambiarValidacion = ({
         onOpenChange(false);
       })
       .catch((err) => {
-        console.log(err);
-
         toast.error("Hubo un error al actualizar el SOLPED");
         onOpenChange(false);
       });

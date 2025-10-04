@@ -39,7 +39,6 @@ const ModalNuevoCentroCostos = ({
         toast.success("El centro de costos se agrego correctamente");
       })
       .catch((err) => {
-        console.log(err);
         toast.error("Hubo un error al agregar el centro de costos");
       })
       .finally(() => {

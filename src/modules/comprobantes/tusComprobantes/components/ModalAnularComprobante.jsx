@@ -31,7 +31,7 @@ const ModalAnularComprobante = ({
         onOpenChange(false);
       })
       .catch((err) => {
-        console.log(err);
+        err;
 
         toast.error("Hubo un error al anular el comprobante");
         onOpenChange(false);

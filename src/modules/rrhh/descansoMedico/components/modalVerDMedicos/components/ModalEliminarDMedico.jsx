@@ -34,8 +34,6 @@ const ModalEliminarDMedico = ({
         onOpenChange(false);
       })
       .catch((err) => {
-        console.log(err);
-
         toast.error(
           err?.response?.data?.error ||
             "Hubo un error al eliminar el descanzo medico"

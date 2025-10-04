@@ -42,7 +42,6 @@ const ModalEditarCentroCostos = ({
         toast.success("El centro de costos se edito correctamente");
       })
       .catch((err) => {
-        console.log(err);
         toast.error("Hubo un error al editar el centro de costos");
       })
       .finally(() => {

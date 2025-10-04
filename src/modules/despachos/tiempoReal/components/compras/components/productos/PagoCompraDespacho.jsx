@@ -35,8 +35,6 @@ const PagoCompraDespacho = ({
     }
   }, [pago]);
 
-  console.log(proveedor);
-
   const inputStyles = `
     w-full h-8 px-2 text-[11px] border-0 bg-transparent text-gray-900  
     ${isFirstProduct ? "bg-green-50" : "bg-white"}

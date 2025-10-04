@@ -38,7 +38,7 @@ const NavComprobantesLinks = ({
       >
         {" "}
         <Link
-          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-full transition-all duration-300"
+          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/comprobantes/comprobante-electronico"
           onClick={() => setIsMenuOpen(false)}
         >
@@ -46,7 +46,7 @@ const NavComprobantesLinks = ({
           <p className="text-sm">Emitir comprobantes de venta sin cotización</p>
         </Link>
         <Link
-          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-full transition-all duration-300"
+          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/comprobantes/tus-comprobantes"
           onClick={() => setIsMenuOpen(false)}
         >

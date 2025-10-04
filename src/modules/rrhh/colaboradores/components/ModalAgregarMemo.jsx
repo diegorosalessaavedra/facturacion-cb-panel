@@ -44,8 +44,6 @@ const ModalAgregarMemo = ({
         toast.success(`El memo se registro correctamente`);
       })
       .catch((err) => {
-        console.log(err);
-
         toast.error(
           err?.response?.data?.message ||
             "Hubo un error al registrar el contrato  "

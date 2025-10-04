@@ -40,7 +40,6 @@ const ModalCambiarValidacion = ({
         setMontoTxt();
       })
       .catch((err) => {
-        console.log(err);
         toast.error("Hubo un error al actualizar el SOLPED");
         onOpenChange(false);
       });

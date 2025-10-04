@@ -21,7 +21,7 @@ const NavClientesLinks = ({
         }}
       >
         <div className="w-full flex gap-4 items-center">
-          <FaUserGroup className="text-lg" />
+          <FaUserGroup className="text-xl" />
           <p className="text-base">Clientes / Proveedores</p>
         </div>
         <IoMdArrowDropdown className="text-2xl" />
@@ -29,17 +29,17 @@ const NavClientesLinks = ({
       <div
         className={`${
           openListModule === "clientes" ? "h-[100px]" : "h-[0px]"
-        } w-full bg-blue-700 text-white  transition-all duration-300  `}
+        } min-w-full bg-blue-700 text-white  transition-all duration-300  `}
       >
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className="w-[280px] h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600  transition-all duration-300"
           to="/clientes/tus-clientes"
         >
           <MdOutlineCircle className="text-sm" />
           <p className="text-sm">Tus clientes</p>
         </Link>
         <Link
-          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-full transition-all duration-300"
+          className="w-[280px] h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600  transition-all duration-300"
           to="/clientes/tus-proveedores"
           onClick={() => setIsMenuOpen(false)}
         >

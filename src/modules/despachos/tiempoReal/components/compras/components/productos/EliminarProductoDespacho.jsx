@@ -16,9 +16,7 @@ export default function EliminarProductoDespacho({ productoId }) {
 
     axios
       .delete(url, config)
-      .then((res) => {
-        console.log(res.data);
-      })
+
       .finally(() => {
         setLoading(false);
       });

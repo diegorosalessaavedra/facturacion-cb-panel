@@ -32,7 +32,7 @@ const NavInventarioLinks = ({ openListModule, setOpenListModule }) => {
         } w-full bg-blue-700 text-white  transition-all duration-300  overflow-hidden `}
       >
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/inventario/reporte-kardex"
         >
           <MdOutlineCircle className="text-sm" />

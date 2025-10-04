@@ -33,8 +33,6 @@ const ModalQuitarBajaColaborador = ({
         toast.success(`La baja se quito  correctamente`);
       })
       .catch((err) => {
-        console.log(err);
-
         toast.error(
           err?.response?.data?.message ||
             "Hubo un error al quitar la baja al colaborador  "

@@ -43,8 +43,6 @@ const ModalEditarUsuario = ({
         toast.success(`Los datos del usuario se edito correctamente`);
       })
       .catch((err) => {
-        console.log(err);
-
         toast.error("Hubo un error en editar el usuario ");
       });
   };

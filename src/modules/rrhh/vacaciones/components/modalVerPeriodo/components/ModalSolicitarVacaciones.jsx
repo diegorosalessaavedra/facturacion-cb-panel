@@ -64,8 +64,6 @@ const ModalSolicitarVacaciones = ({
         toast.success(`La solicitud de vacaciones se registro correctamente`);
       })
       .catch((err) => {
-        console.log(err);
-
         toast.error(
           err?.response?.data?.message ||
             "Hubo un error al registrar la solicitud de vacaciones"

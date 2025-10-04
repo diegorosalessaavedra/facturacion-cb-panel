@@ -32,7 +32,7 @@ const NavComprasLinks = ({
         } w-full bg-blue-700 text-white  transition-all duration-300  `}
       >
         <Link
-          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-full transition-all duration-300"
+          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/compras/nueva-orden-compra"
           onClick={() => setIsMenuOpen(false)}
         >
@@ -40,7 +40,7 @@ const NavComprasLinks = ({
           <p className="text-sm">SOLPED</p>
         </Link>
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/compras/ordenes-compra"
         >
           <MdOutlineCircle className="text-sm" />

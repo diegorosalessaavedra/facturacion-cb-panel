@@ -17,9 +17,7 @@ export default function NuevoProductoDespacho({ depachoId }) {
 
     axios
       .post(url, {}, config)
-      .then((res) => {
-        console.log(res.data);
-      })
+
       .finally(() => {
         setLoading(false);
       });

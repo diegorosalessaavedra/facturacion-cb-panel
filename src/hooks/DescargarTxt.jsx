@@ -7,8 +7,6 @@ export default function DescargarLayout({
   txtSolpeds,
   handleFindOrdenCompras,
 }) {
-  console.log(txtSolpeds);
-
   const obtenerFechaActual = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -129,15 +127,9 @@ export default function DescargarLayout({
       import.meta.env.VITE_URL_API
     }/compras/orden-compra/validacion-masivo`;
 
-    axios
-      .patch(url, { ordenesCompras: txtSolpeds }, config)
-      .then((res) => {
-        console.log(res);
-        handleFindOrdenCompras();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    axios.patch(url, { ordenesCompras: txtSolpeds }, config).then((res) => {
+      handleFindOrdenCompras();
+    });
   };
 
   const handleDownload = () => {

@@ -66,8 +66,6 @@ const CamposEditarMetodosDePago = ({ arrayPagos, setArrayPagos }) => {
     validateField(index, field, value);
   };
 
-  console.log(arrayPagos);
-
   // Función para eliminar un campo de pago
   const handleDeletePago = (index) => {
     const updatedPagos = arrayPagos.filter((_, i) => i !== index);

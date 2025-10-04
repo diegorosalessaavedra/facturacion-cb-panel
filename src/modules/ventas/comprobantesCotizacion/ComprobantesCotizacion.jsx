@@ -58,9 +58,8 @@ const ComprobantesCotizacion = ({ userData }) => {
         inicioFecha,
         finalFecha
       );
-      console.log("Excel exportado exitosamente");
+      ("Excel exportado exitosamente");
     } catch (error) {
-      console.error("Error al exportar Excel:", error);
       // Aquí puedes agregar una notificación de error
     } finally {
       setExportingExcel(false);

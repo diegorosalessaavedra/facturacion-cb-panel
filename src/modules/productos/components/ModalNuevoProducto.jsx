@@ -52,8 +52,6 @@ const ModalNuevoProducto = ({
         toast.success("El producto  se agrego correctamente");
       })
       .catch((err) => {
-        console.log(err);
-
         toast.error("Hubo un error al agregar el producto ");
       });
   };

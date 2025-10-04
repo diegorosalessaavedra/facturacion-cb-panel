@@ -33,8 +33,6 @@ const ModalEliminarColaborador = ({
         toast.success(`El colaborador  se elimino correctamente`);
       })
       .catch((err) => {
-        console.log(err);
-
         toast.error(
           err?.response?.data?.message ||
             "Hubo un error al eliminar al colaborador "

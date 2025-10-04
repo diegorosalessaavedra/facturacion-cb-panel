@@ -35,8 +35,6 @@ const ModalElminarContrato = ({
         onOpenChange(false);
       })
       .catch((err) => {
-        console.log(err);
-
         toast.error(
           err?.response?.data?.message ||
             "Hubo un error al eliminar el contrato "

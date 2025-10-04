@@ -28,28 +28,28 @@ const NavRRHHLinks = ({ openListModule, setOpenListModule, userData }) => {
         } w-full bg-blue-700 text-white  transition-all duration-300  overflow-hidden `}
       >
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/rrhh/colaboradores"
         >
           <MdOutlineCircle className="text-sm" />
           <p className="text-sm">Colaboradores </p>
         </Link>
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/rrhh/colaboradores-baja"
         >
           <MdOutlineCircle className="text-sm" />
           <p className="text-sm">Colaboradores de baja </p>
         </Link>
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/rrhh/cargo-laboral"
         >
           <MdOutlineCircle className="text-sm" />
           <p className="text-sm">Cargo Laboral </p>
         </Link>
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/rrhh/descanso-medicos"
         >
           <MdOutlineCircle className="text-sm" />
@@ -57,7 +57,7 @@ const NavRRHHLinks = ({ openListModule, setOpenListModule, userData }) => {
         </Link>
         {userData?.role === "ADMINISTRADOR" && (
           <Link
-            className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+            className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
             to="/rrhh/solicitudes-descansos-medicos"
           >
             <MdOutlineCircle className="text-sm" />
@@ -65,7 +65,7 @@ const NavRRHHLinks = ({ openListModule, setOpenListModule, userData }) => {
           </Link>
         )}
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
           to="/rrhh/vacaciones"
         >
           <MdOutlineCircle className="text-sm" />
@@ -73,7 +73,7 @@ const NavRRHHLinks = ({ openListModule, setOpenListModule, userData }) => {
         </Link>
         {userData?.role === "ADMINISTRADOR" && (
           <Link
-            className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+            className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
             to="/rrhh/solicitudes-vacaciones"
           >
             <MdOutlineCircle className="text-sm" />

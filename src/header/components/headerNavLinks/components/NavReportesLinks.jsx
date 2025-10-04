@@ -36,14 +36,14 @@ const NavReportesLinks = ({
         } w-full bg-blue-700 text-white  transition-all duration-300  `}
       >
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-max transition-all duration-300"
           to="/reportes/reporte-cotizaciones"
         >
           <MdOutlineCircle className="text-sm" />
           <p className="text-sm">Reporte de cotizaciones</p>
         </Link>
         <Link
-          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-full transition-all duration-300"
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-max transition-all duration-300"
           to="/reportes/reporte-solped"
         >
           <MdOutlineCircle className="text-sm" />

@@ -43,8 +43,6 @@ const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
     findProveedores();
   }, []);
 
-  console.log(arrayPagos);
-
   const submit = (data) => {
     if (productos.length === 0) {
       toast.error("Debes agregar al menos un producto en la cotización.");

@@ -62,8 +62,6 @@ const FormEditarCotizacion = ({ userData, cotizacion }) => {
     axios
       .patch(url, newData, config)
       .then((res) => {
-        console.log(res);
-
         toast.success("La cotizacion se registro correctamente");
         resetDatos();
       })
