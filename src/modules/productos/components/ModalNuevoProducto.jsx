@@ -47,7 +47,8 @@ const ModalNuevoProducto = ({
         config
       )
       .then(() => {
-        handleFindProductos(), reset();
+        handleFindProductos();
+        reset();
         onOpenChange(false);
         toast.success("El producto  se agrego correctamente");
       })
@@ -75,6 +76,7 @@ const ModalNuevoProducto = ({
             >
               <div className="w-full flex gap-4">
                 <Input
+                  isRequired
                   className="w-full"
                   classNames={inputClassNames}
                   labelPlacement="outside"
@@ -85,9 +87,8 @@ const ModalNuevoProducto = ({
                   {...register("nombre", {
                     required: "El  nombre del Producto es obligatorio.",
                   })}
-                  isInvalid={!!errors.nombre}
-                  color={errors.nombre ? "danger" : "primary"}
-                  errorMessage={errors.nombre?.message}
+                  color="primary"
+                  errorMessage="El  nombre del Producto es obligatorio."
                   radius="sm"
                   size="sm"
                   id="nombreProducto"
@@ -106,6 +107,7 @@ const ModalNuevoProducto = ({
 
               <div className="w-full flex gap-4">
                 <Input
+                  isRequired
                   className="w-full"
                   classNames={inputClassNames}
                   labelPlacement="outside"
@@ -113,13 +115,9 @@ const ModalNuevoProducto = ({
                   variant="bordered"
                   label="Precio Unitario"
                   placeholder="..."
-                  {...register("precioUnitario", {
-                    required:
-                      "El  precio unitario del Producto es obligatorio.",
-                  })}
-                  isInvalid={!!errors.precioUnitario}
-                  color={errors.precioUnitario ? "danger" : "primary"}
-                  errorMessage={errors.precioUnitario?.message}
+                  {...register("precioUnitario")}
+                  color="primary"
+                  errorMessage="El  precio unitario del Producto es obligatorio."
                   radius="sm"
                   size="sm"
                   id="precioUnitario"
@@ -128,6 +126,7 @@ const ModalNuevoProducto = ({
 
                 {!costos_gastos && (
                   <Input
+                    isRequired
                     className="w-full"
                     classNames={inputClassNames}
                     labelPlacement="outside"
@@ -135,18 +134,16 @@ const ModalNuevoProducto = ({
                     variant="bordered"
                     label="Código Sunat"
                     placeholder="..."
-                    {...register("codigoSunat", {
-                      required: "El codigo sunat del Producto es obligatorio.",
-                    })}
-                    isInvalid={!!errors.codigoSunat}
-                    color={errors.codigoSunat ? "danger" : "primary"}
-                    errorMessage={errors.codigoSunat?.message}
+                    {...register("codigoSunat")}
+                    color="primary"
+                    errorMessage="El codigo sunat del Producto es obligatorio."
                     radius="sm"
                     size="sm"
                     id="codigoSunat"
                   />
                 )}
                 <Input
+                  isRequired
                   className="w-full"
                   classNames={inputClassNames}
                   labelPlacement="outside"
@@ -154,12 +151,9 @@ const ModalNuevoProducto = ({
                   variant="bordered"
                   label="Código interno"
                   placeholder="..."
-                  {...register("codigoInterno", {
-                    required: "El codigo interno del Producto es obligatorio.",
-                  })}
-                  isInvalid={!!errors.codigoInterno}
-                  color={errors.codigoInterno ? "danger" : "primary"}
-                  errorMessage={errors.codigoInterno?.message}
+                  {...register("codigoInterno")}
+                  color="primary"
+                  errorMessage="El codigo interno del Producto es obligatorio."
                   radius="sm"
                   size="sm"
                   id="codigoInterno"
@@ -172,12 +166,9 @@ const ModalNuevoProducto = ({
                     isRequired
                     label="UNIDAD"
                     labelPlacement="outside"
-                    {...register("codUnidad", {
-                      required: "La unidad es obligatorio.",
-                    })}
-                    isInvalid={!!errors.codUnidad}
-                    color={errors.codUnidad ? "danger" : "primary"}
-                    errorMessage={errors.codUnidad?.message}
+                    {...register("codUnidad")}
+                    color="primary"
+                    errorMessage="La unidad es obligatorio."
                     variant="bordered"
                     radius="sm"
                     size="sm"
@@ -193,6 +184,7 @@ const ModalNuevoProducto = ({
                     ))}
                   </Select>
                   <Input
+                    isRequired
                     className="w-full"
                     classNames={inputClassNames}
                     labelPlacement="outside"
@@ -200,13 +192,9 @@ const ModalNuevoProducto = ({
                     variant="bordered"
                     label="Código Compra"
                     placeholder="..."
-                    {...register("codigoCompra", {
-                      required:
-                        "El codigo de compra del Producto es obligatorio.",
-                    })}
-                    isInvalid={!!errors.codigoCompra}
-                    color={errors.codigoCompra ? "danger" : "primary"}
-                    errorMessage={errors.codigoCompra?.message}
+                    {...register("codigoCompra")}
+                    color="primary"
+                    errorMessage="El codigo de compra del Producto es obligatorio."
                     radius="sm"
                     size="sm"
                     id="codigoCompra"
@@ -219,13 +207,9 @@ const ModalNuevoProducto = ({
                     variant="bordered"
                     label="Código Venta"
                     placeholder="..."
-                    {...register("codigoVenta", {
-                      required:
-                        "El codigo de venta del Producto es obligatorio.",
-                    })}
-                    isInvalid={!!errors.codigoVenta}
-                    color={errors.codigoVenta ? "danger" : "primary"}
-                    errorMessage={errors.codigoVenta?.message}
+                    {...register("codigoVenta")}
+                    color="primary"
+                    errorMessage="El codigo de venta del Producto es obligatorio."
                     radius="sm"
                     size="sm"
                     id="codigoVenta"
