@@ -78,7 +78,7 @@ const HeaderProfile = ({ userData }) => {
             <p className="text-xs">Facturación Diego Rosales</p>
           </DropdownItem>
           <DropdownItem
-            key="Chicken"
+            key="Granjas Peruanas"
             color="primary"
             href="https://facturacion-granjas-peruanas.netlify.app"
             startContent={<img className="w-7" src="/gp.png" alt="" />}
