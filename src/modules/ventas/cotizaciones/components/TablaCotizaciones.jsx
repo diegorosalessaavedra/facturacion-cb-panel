@@ -174,7 +174,7 @@ const TablaCotizaciones = ({
                             className="scale-85"
                             size="sm"
                             color="primary"
-                            onClick={() => {
+                            onPress={() => {
                               setSelectCotizacion(cotizacion);
                               setSelectModal("comprobante");
                               onOpen();
@@ -190,11 +190,11 @@ const TablaCotizaciones = ({
                             className="scale-85"
                             size="sm"
                             color="primary"
-                            onClick={() => {
-                              setSelectCotizacion(cotizacion);
-                              setSelectModal("comprobante");
-                              onOpen();
-                            }}
+                            // onClick={() => {
+                            //   setSelectCotizacion(cotizacion);
+                            //   setSelectModal("comprobante");
+                            //   onOpen();
+                            // }}
                           >
                             Editar
                           </Button>
