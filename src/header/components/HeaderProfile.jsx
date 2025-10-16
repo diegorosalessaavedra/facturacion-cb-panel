@@ -5,7 +5,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@nextui-org/react";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaBoxOpen } from "react-icons/fa";
 import { IoLogOutSharp } from "react-icons/io5";
 
 const HeaderProfile = ({ userData }) => {
@@ -84,6 +84,14 @@ const HeaderProfile = ({ userData }) => {
             startContent={<img className="w-7" src="/gp.png" alt="" />}
           >
             <p className="text-xs">Facturación Granjas Peruanas</p>
+          </DropdownItem>
+          <DropdownItem
+            key="Despacho En Tiempo Real"
+            color="primary"
+            href="https://despacho-en-tiempo-real.netlify.app"
+            startContent={<FaBoxOpen className="w-7 text-lg text-blue-600 " />}
+          >
+            <p className="text-xs">Despacho En Tiempo Real</p>
           </DropdownItem>
           <DropdownItem
             key="logout"
