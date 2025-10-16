@@ -109,6 +109,7 @@ const ModalPdfCotizacion = ({ onOpenChange, isOpen, idCotizacion }) => {
                       <li>{cotizacion?.cliente.numeroDoc}</li>
                       <li>{cotizacion?.direccionEnvio}</li>
                       <li>{cotizacion?.vendedor}</li>
+                      <li>{cotizacion?.observacion}</li>
                     </ul>
                   </div>
                   <div className="flex gap-6">
