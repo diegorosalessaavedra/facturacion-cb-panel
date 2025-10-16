@@ -15,6 +15,8 @@ const FiltrarCotizaciones = ({
   setInicioFecha,
   finalFecha,
   setFinalFecha,
+  setEstadoCotizacion,
+  estadoCotizacion,
 }) => {
   const handleSelectFiltro = (e) => {
     setSelectFiltro(e.target.value);
@@ -26,10 +28,14 @@ const FiltrarCotizaciones = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 px-2 items-end">
+    <form
+      onSubmit={handleSubmit}
+      className="flex gap-2 px-2 items-end flex-wrap"
+    >
+      {/* Select principal */}
       <Select
-        className="w-[100%] max-w-[300px]"
-        label="Filtrar por: "
+        className="w-[100%] max-w-[200px]"
+        label="Filtrar por:"
         labelPlacement="outside"
         variant="bordered"
         selectedKeys={[selectFiltro]}
@@ -44,48 +50,71 @@ const FiltrarCotizaciones = ({
         <SelectItem key="vendedor">Vendedor</SelectItem>
       </Select>
 
+      {/* Filtros por fecha */}
       {(selectFiltro === "fechaEmision" || selectFiltro === "fechaEntrega") && (
-        <Input
-          className="w-[100%] max-w-[300px]"
-          classNames={inputClassNames}
-          value={inicioFecha}
-          onChange={(e) => setInicioFecha(e.target.value)}
-          labelPlacement="outside"
-          type="date"
-          variant="bordered"
-          label="Fecha inicial"
-          radius="sm"
-          size="sm"
-        />
+        <>
+          <Input
+            className="w-[100%] max-w-[200px]"
+            classNames={inputClassNames}
+            value={inicioFecha}
+            onChange={(e) => setInicioFecha(e.target.value)}
+            labelPlacement="outside"
+            type="date"
+            variant="bordered"
+            label="Fecha inicial"
+            radius="sm"
+            size="sm"
+          />
+          <Input
+            className="w-[100%] max-w-[200px]"
+            classNames={inputClassNames}
+            value={finalFecha}
+            onChange={(e) => setFinalFecha(e.target.value)}
+            labelPlacement="outside"
+            type="date"
+            variant="bordered"
+            label="Fecha final"
+            radius="sm"
+            size="sm"
+          />
+        </>
       )}
 
-      {selectFiltro === "fechaEmision" || selectFiltro === "fechaEntrega" ? (
-        <Input
-          className="w-[100%] max-w-[300px]"
-          classNames={inputClassNames}
-          value={finalFecha}
-          onChange={(e) => setFinalFecha(e.target.value)}
-          labelPlacement="outside"
-          type="date"
-          variant="bordered"
-          label="Fecha Final"
-          radius="sm"
-          size="sm"
-        />
-      ) : (
-        <Input
-          className="w-[100%] max-w-[300px]"
-          classNames={inputClassNames}
-          value={dataFiltro}
-          onChange={(e) => setDataFiltro(e.target.value)}
-          labelPlacement="outside"
-          type="text"
-          variant="bordered"
-          label="Datos"
-          radius="sm"
-          size="sm"
-        />
-      )}
+      {/* Input de texto general */}
+      {selectFiltro !== "estado" &&
+        selectFiltro !== "fechaEmision" &&
+        selectFiltro !== "fechaEntrega" && (
+          <Input
+            className="w-[100%] max-w-[200px]"
+            classNames={inputClassNames}
+            value={dataFiltro}
+            onChange={(e) => setDataFiltro(e.target.value)}
+            labelPlacement="outside"
+            type="text"
+            variant="bordered"
+            label="Datos"
+            radius="sm"
+            size="sm"
+          />
+        )}
+
+      {/* Select de estado */}
+      <Select
+        className="w-[100%] max-w-[200px]"
+        label="Estado"
+        labelPlacement="outside"
+        variant="bordered"
+        selectedKeys={[estadoCotizacion]}
+        radius="sm"
+        size="sm"
+        onChange={(e) => setEstadoCotizacion(e.target.value)}
+        classNames={selectClassNames}
+      >
+        <SelectItem key="todos">Todos</SelectItem>
+        <SelectItem key="Activo">Activo</SelectItem>
+        <SelectItem key="Anulado">Anulado</SelectItem>
+        <SelectItem key="Facturar">Facturar</SelectItem>
+      </Select>
 
       <Button color="primary" type="submit">
         Filtrar

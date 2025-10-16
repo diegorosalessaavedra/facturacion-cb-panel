@@ -21,13 +21,14 @@ const Cotizaciones = ({ userData }) => {
   const [loading, setLoading] = useState(true);
   const [selectFiltro, setSelectFiltro] = useState("fechaEmision");
   const [dataFiltro, setDataFiltro] = useState("");
+  const [estadoCotizacion, setEstadoCotizacion] = useState("todos");
   const [inicioFecha, setInicioFecha] = useState(getTodayDate2());
   const [finalFecha, setFinalFecha] = useState(getTodayDate());
 
   const handleFindCotizaciones = () => {
     const url = `${
       import.meta.env.VITE_URL_API
-    }/ventas/cotizaciones?tipoFiltro=${selectFiltro}&dataFiltro=${dataFiltro}&fechaInicial=${inicioFecha}&fechaFinal=${finalFecha}`;
+    }/ventas/cotizaciones?tipoFiltro=${selectFiltro}&dataFiltro=${dataFiltro}&fechaInicial=${inicioFecha}&fechaFinal=${finalFecha}&estado=${estadoCotizacion}`;
 
     axios
       .get(url, config)
@@ -75,6 +76,8 @@ const Cotizaciones = ({ userData }) => {
           setInicioFecha={setInicioFecha}
           finalFecha={finalFecha}
           setFinalFecha={setFinalFecha}
+          setEstadoCotizacion={setEstadoCotizacion}
+          estadoCotizacion={estadoCotizacion}
           handleFindCotizaciones={handleFindCotizaciones}
         />
         <TablaCotizaciones
