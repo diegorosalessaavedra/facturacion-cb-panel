@@ -55,7 +55,7 @@ const NavRRHHLinks = ({ openListModule, setOpenListModule, userData }) => {
           <MdOutlineCircle className="text-sm" />
           <p className="text-sm">Descanso Medicos </p>
         </Link>
-        {userData?.role === "ADMINISTRADOR" && (
+        {userData?.role === "GERENTE" && (
           <Link
             className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
             to="/rrhh/solicitudes-descansos-medicos"
@@ -71,7 +71,7 @@ const NavRRHHLinks = ({ openListModule, setOpenListModule, userData }) => {
           <MdOutlineCircle className="text-sm" />
           <p className="text-sm">Vacaciones </p>
         </Link>
-        {userData?.role === "ADMINISTRADOR" && (
+        {userData?.role === "GERENTE" && (
           <Link
             className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
             to="/rrhh/solicitudes-vacaciones"

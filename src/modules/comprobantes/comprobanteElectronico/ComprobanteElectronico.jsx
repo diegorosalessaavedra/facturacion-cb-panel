@@ -62,7 +62,7 @@ const ComprobanteElectronico = ({ userData }) => {
       ...data,
       tipoComprobante: dataSelects.tipoComprobante,
       clienteId: selectCliente,
-      usuarioId: userData.id,
+      usuarioId: userData?.id,
       arrayPagos: arrayPagos,
       productos: productos,
       vendedor: dataSelects.vendedor,

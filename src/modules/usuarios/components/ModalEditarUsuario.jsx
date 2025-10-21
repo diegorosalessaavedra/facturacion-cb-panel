@@ -159,9 +159,12 @@ const ModalEditarUsuario = ({
                     })
                   }
                 >
-                  <SelectItem key="ADMINISTRADOR">ADMINISTRADOR</SelectItem>
+                  <SelectItem key="GERENTE">GERENTE</SelectItem>
                   <SelectItem key="VENDEDOR">VENDEDOR</SelectItem>
-                  <SelectItem key="COMPRADOR">COMPRADOR</SelectItem>
+                  <SelectItem key="CONTADOR">CONTADOR</SelectItem>
+                  <SelectItem key="PRACTICANTE CONTABLE">
+                    PRACTICANTE CONTABLE
+                  </SelectItem>
                   <SelectItem key="COMPRADOR/VENDEDOR">
                     COMPRADOR/VENDEDOR
                   </SelectItem>

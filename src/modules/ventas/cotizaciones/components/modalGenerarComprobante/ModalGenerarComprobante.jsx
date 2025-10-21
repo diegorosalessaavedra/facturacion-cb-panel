@@ -26,8 +26,7 @@ const ModalGenerarComprobante = ({
   const {
     register,
     handleSubmit,
-    reset,
-    watch,
+
     formState: { errors },
   } = useForm();
   const [loading, setLoading] = useState(false);
@@ -69,7 +68,7 @@ const ModalGenerarComprobante = ({
     const newData = {
       ...data,
       clienteId: selectCliente || cotizacion.clienteId,
-      usuarioId: userData.id,
+      usuarioId: userData?.id,
       arrayPagos: arrayPagos,
       productos: selectCotizacion.productos,
       vendedor: dataSelects.vendedor,

@@ -1,7 +1,8 @@
 export const ROLES = {
-  ADMINISTRADOR: "ADMINISTRADOR",
+  GERENTE: "GERENTE",
   VENDEDOR: "VENDEDOR",
-  COMPRADOR: "COMPRADOR",
+  CONTADOR: "CONTADOR",
+  PRACTICANTE_CONTABLE: "PRACTICANTE CONTABLE",
   COMPRADOR_VENDEDOR: "COMPRADOR/VENDEDOR",
   RRHH: "RRHH",
 };
@@ -9,239 +10,245 @@ export const ROLES = {
 export const ROUTE_PERMISSIONS = {
   // Rutas de Despacho
   "/despacho/tiempo-real": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
 
   // Rutas de Ventas
   "/ventas/comprobantes-cotizacion": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/ventas/cotizaciones": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/ventas/crear-cotizacion": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/ventas/editar-cotizacion/:id": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/ventas/editar/venta-huevo/:id": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/ventas/huevos": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/ventas/nueva-venta-huevos": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
 
   // Rutas de Compras
   "/compras/ordenes-compra": [
-    ROLES.ADMINISTRADOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/compras/nueva-orden-compra": [
-    ROLES.ADMINISTRADOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/compras/comprobante-orden-compra/:id": [
-    ROLES.ADMINISTRADOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/compras/editar/orden-compra/:id": [
-    ROLES.ADMINISTRADOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/compras/ingreso-huevos": [
-    ROLES.ADMINISTRADOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/compras/nuevo-ingreso-huevos": [
-    ROLES.ADMINISTRADOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/compras/editar/ingreso-huevo/:id": [
-    ROLES.ADMINISTRADOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
 
   // Rutas de Productos
   "/productos/comercializacion-servicios": [
-    ROLES.ADMINISTRADOR,
-    ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
-    ROLES.COMPRADOR_VENDEDOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
   ],
 
   "/productos/costos-gastos": [
-    ROLES.ADMINISTRADOR,
-    ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
-    ROLES.COMPRADOR_VENDEDOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
   ],
 
   "/productos/huevos": [
-    ROLES.ADMINISTRADOR,
-    ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
-    ROLES.COMPRADOR_VENDEDOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
   ],
 
   // Rutas de Costos
   "/costos/costos-produccion": [
-    ROLES.ADMINISTRADOR,
-    ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
 
   // Rutas de Clientes
   "/clientes/tus-clientes": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/clientes/tus-proveedores": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/clientes/nueva-orden-compra": [
-    ROLES.ADMINISTRADOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/clientes/origen": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
 
   // Rutas de Reportes
   "/reportes/reporte-cotizaciones": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/reportes/reporte-solped": [
-    ROLES.ADMINISTRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
 
   // Rutas de Comprobantes
   "/comprobantes/comprobante-electronico": [
-    ROLES.ADMINISTRADOR,
-    ROLES.VENDEDOR,
-    ROLES.COMPRADOR_VENDEDOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
   ],
   "/comprobantes/tus-comprobantes": [
-    ROLES.ADMINISTRADOR,
-    ROLES.VENDEDOR,
-    ROLES.COMPRADOR_VENDEDOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
   ],
   "/comprobantes/nota-credito-debito/:id": [
-    ROLES.ADMINISTRADOR,
-    ROLES.VENDEDOR,
-    ROLES.COMPRADOR_VENDEDOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
   ],
 
   // Rutas de Inventario
   "/inventario/reporte-kardex": [
-    ROLES.ADMINISTRADOR,
-    ROLES.VENDEDOR,
-    ROLES.COMPRADOR,
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
 
   // Rutas de RRHH
-  "/rrhh/colaboradores": [ROLES.ADMINISTRADOR, ROLES.RRHH],
-  "/rrhh/colaboradores-baja": [ROLES.ADMINISTRADOR, ROLES.RRHH],
-  "/rrhh/cargo-laboral": [ROLES.ADMINISTRADOR, ROLES.RRHH],
-  "/rrhh/descanso-medicos": [ROLES.ADMINISTRADOR, ROLES.RRHH],
-  "/rrhh/solicitudes-descansos-medicos": [ROLES.ADMINISTRADOR, ROLES.RRHH],
+  "/rrhh/colaboradores": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/rrhh/colaboradores-baja": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/rrhh/cargo-laboral": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/rrhh/descanso-medicos": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/rrhh/solicitudes-descansos-medicos": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.RRHH,
+  ],
 
-  "/rrhh/vacaciones": [ROLES.ADMINISTRADOR, ROLES.RRHH],
-  "/rrhh/solicitudes-vacaciones": [ROLES.ADMINISTRADOR, ROLES.RRHH],
+  "/rrhh/vacaciones": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/rrhh/solicitudes-vacaciones": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
 
-  // Rutas de Administrador únicamente
-  "/usuarios": [ROLES.ADMINISTRADOR],
-  "/ajustes/metodo-pago-gasto": [ROLES.ADMINISTRADOR],
-  "/ajustes/cuentas-bancarias": [ROLES.ADMINISTRADOR],
-  "/ajustes/bancos-cuentas-bancarias": [ROLES.ADMINISTRADOR],
+  // Rutas de GERENTE únicamente
+  "/usuarios": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/ajustes/metodo-pago-gasto": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
+  "/ajustes/cuentas-bancarias": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
+  "/ajustes/bancos-cuentas-bancarias": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
 
-  "/ajustes/encargados": [ROLES.ADMINISTRADOR],
-  "/ajustes/centro-costos": [ROLES.ADMINISTRADOR],
-};
-
-export const getUserPermissions = (userRole) => {
-  if (!userRole) return {};
-
-  return {
-    isAdmin: userRole === ROLES.ADMINISTRADOR,
-    canAccessVentas: [
-      ROLES.ADMINISTRADOR,
-      ROLES.VENDEDOR,
-      ROLES.COMPRADOR_VENDEDOR,
-    ].includes(userRole),
-    canAccessCompras: [
-      ROLES.ADMINISTRADOR,
-      ROLES.COMPRADOR,
-      ROLES.COMPRADOR_VENDEDOR,
-    ].includes(userRole),
-    canAccessComprobantes: [
-      ROLES.ADMINISTRADOR,
-      ROLES.VENDEDOR,
-      ROLES.COMPRADOR_VENDEDOR,
-    ].includes(userRole),
-    canAccessProductos: [
-      ROLES.ADMINISTRADOR,
-      ROLES.VENDEDOR,
-      ROLES.COMPRADOR,
-      ROLES.COMPRADOR_VENDEDOR,
-    ].includes(userRole),
-    canAccessReportes: [
-      ROLES.ADMINISTRADOR,
-      ROLES.VENDEDOR,
-      ROLES.COMPRADOR,
-      ROLES.COMPRADOR_VENDEDOR,
-    ].includes(userRole),
-    canAccessClientes: [
-      ROLES.ADMINISTRADOR,
-      ROLES.VENDEDOR,
-      ROLES.COMPRADOR,
-      ROLES.COMPRADOR_VENDEDOR,
-    ].includes(userRole),
-    canAccessRrhh: [ROLES.ADMINISTRADOR, ROLES.RRHH].includes(userRole),
-  };
+  "/ajustes/encargados": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
+  "/ajustes/centro-costos": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
 };
 
 export const hasPermissionForRoute = (userRole, routePath) => {

@@ -53,7 +53,7 @@ const FormNuevaOrdenCompra = ({ userData }) => {
       productos: productos,
       arrayPagos: arrayPagos,
       proveedorId: selectProveedor,
-      usuarioId: userData.id,
+      usuarioId: userData?.id,
       banco_beneficiario: dataSelects.banco_beneficiario,
       nro_cuenta_bco: dataSelects.nro_cuenta_bco,
     };

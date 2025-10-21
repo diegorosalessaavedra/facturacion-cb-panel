@@ -54,7 +54,7 @@ const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
       productos: productos,
       arrayPagos: arrayPagos,
       proveedorId: selectProveedor,
-      usuarioId: userData.id,
+      usuarioId: userData?.id,
       moneda: dataSelects.moneda,
       autorizado: dataSelects.autorizado,
       comprador: dataSelects.comprador,

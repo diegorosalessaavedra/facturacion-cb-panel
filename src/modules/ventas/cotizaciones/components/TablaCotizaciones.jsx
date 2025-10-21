@@ -135,7 +135,7 @@ const TablaCotizaciones = ({
                       className="scale-85"
                       size="sm"
                       color="danger"
-                      onClick={() => {
+                      onPress={() => {
                         setSelectCotizacion(cotizacion);
                         setSelectModal("pdf");
                         onOpen();
@@ -154,22 +154,24 @@ const TablaCotizaciones = ({
                     {cotizacion?.status}
                   </TableCell>
                   <TableCell className=" min-w-[80px] text-xs    bg-white ">
-                    <div className="flex flex-col  items-center">
-                      {cotizacion.comprobanteElectronicoId ? (
-                        <Button
-                          className="scale-85 text-white"
-                          size="sm"
-                          color="warning"
-                          onClick={() => {
-                            setSelectCotizacion(cotizacion);
-                            setSelectModal("verComprobante");
-                            onOpen();
-                          }}
-                        >
-                          Ver Comprobante
-                        </Button>
-                      ) : (
-                        userData?.role !== "VENDEDOR" && (
+                    {(userData?.role === "GERENTE" ||
+                      userData?.role === "CONTADOR" ||
+                      userData?.role === "PRACTICANTE CONTABLE") && (
+                      <div className="flex flex-col  items-center">
+                        {cotizacion.comprobanteElectronicoId ? (
+                          <Button
+                            className="scale-85 text-white"
+                            size="sm"
+                            color="warning"
+                            onPress={() => {
+                              setSelectCotizacion(cotizacion);
+                              setSelectModal("verComprobante");
+                              onOpen();
+                            }}
+                          >
+                            Ver Comprobante
+                          </Button>
+                        ) : (
                           <Button
                             className="scale-85"
                             size="sm"
@@ -182,40 +184,42 @@ const TablaCotizaciones = ({
                           >
                             Generar Comprobante
                           </Button>
-                        )
-                      )}
-                      <div>
-                        <Link to={`/ventas/editar-cotizacion/${cotizacion.id}`}>
-                          <Button
-                            className="scale-85"
-                            size="sm"
-                            color="primary"
-                            // onClick={() => {
-                            //   setSelectCotizacion(cotizacion);
-                            //   setSelectModal("comprobante");
-                            //   onOpen();
-                            // }}
+                        )}
+                        <div>
+                          <Link
+                            to={`/ventas/editar-cotizacion/${cotizacion.id}`}
                           >
-                            Editar
-                          </Button>
-                        </Link>
-                        {!cotizacion.comprobanteElectronicoId &&
-                          cotizacion.status === "Activo" && (
                             <Button
                               className="scale-85"
                               size="sm"
-                              color="danger"
-                              onClick={() => {
-                                setSelectCotizacion(cotizacion);
-                                setSelectModal("anular");
-                                onOpen();
-                              }}
+                              color="primary"
+                              // onClick={() => {
+                              //   setSelectCotizacion(cotizacion);
+                              //   setSelectModal("comprobante");
+                              //   onOpen();
+                              // }}
                             >
-                              Anular
+                              Editar
                             </Button>
-                          )}
+                          </Link>
+                          {!cotizacion.comprobanteElectronicoId &&
+                            cotizacion.status === "Activo" && (
+                              <Button
+                                className="scale-85"
+                                size="sm"
+                                color="danger"
+                                onClick={() => {
+                                  setSelectCotizacion(cotizacion);
+                                  setSelectModal("anular");
+                                  onOpen();
+                                }}
+                              >
+                                Anular
+                              </Button>
+                            )}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

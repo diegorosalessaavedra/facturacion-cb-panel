@@ -48,7 +48,7 @@ const FormCrearCotizacion = ({ userData }) => {
     const newData = {
       ...data,
       clienteId: selectCliente,
-      usuarioId: userData.id,
+      usuarioId: userData?.id,
       arrayPagos: arrayPagos,
       productos: productos,
     };

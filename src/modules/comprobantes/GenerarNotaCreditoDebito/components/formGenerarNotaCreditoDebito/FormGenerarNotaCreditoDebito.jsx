@@ -37,7 +37,7 @@ const FormGenerarNotaCreditoDebito = ({ userData, comprobanteElectronico }) => {
 
     const newData = {
       ...data,
-      usuarioId: userData.id,
+      usuarioId: userData?.id,
       productos: productos,
       dataSelects: dataSelects,
       tipo_nota: dataSelects.tipo_comprobante,

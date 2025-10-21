@@ -17,6 +17,7 @@ const TablaOrdenCompras = ({
   onOpen,
   setSelectModal,
   setSelectOrdenCompra,
+  userData,
 }) => {
   return (
     <div className="w-full flex ">
@@ -176,114 +177,126 @@ const TablaOrdenCompras = ({
                 </div>
               </TableCell>
               <TableCell>
-                <div className="flex flex-col  items-center">
-                  {ordenCompra.comprobanteOrdenCompraId === null ? (
-                    <Link
-                      to={`/compras/comprobante-orden-compra/${ordenCompra.id}`}
-                    >
-                      <Button className="scale-85" size="sm" color="primary">
-                        Generar Comprobante
-                      </Button>
-                    </Link>
-                  ) : (
-                    <div className="flex ">
-                      <Button
-                        className="scale-85 text-white"
-                        size="sm"
-                        color="success"
-                        onPress={() => {
-                          setSelectOrdenCompra(ordenCompra);
-                          setSelectModal("verComprobante");
-                          onOpen();
-                        }}
+                {(userData?.role === "GERENTE" ||
+                  userData?.role === "CONTADOR" ||
+                  userData?.role === "PRACTICANTE CONTABLE") && (
+                  <div className="flex flex-col  items-center">
+                    {ordenCompra.comprobanteOrdenCompraId === null ? (
+                      <Link
+                        to={`/compras/comprobante-orden-compra/${ordenCompra.id}`}
                       >
-                        Ver Comprobante
-                      </Button>
-                      <Button
-                        className="scale-85 text-white"
-                        size="sm"
-                        color="warning"
-                        onPress={() => {
-                          setSelectOrdenCompra(ordenCompra);
-                          setSelectModal("editarComprobante");
-                          onOpen();
-                        }}
-                      >
-                        Editar C.
-                      </Button>
-                    </div>
-                  )}
-                  <div className="flex">
-                    <Link to={`/compras/editar/orden-compra/${ordenCompra.id}`}>
-                      <Button className="scale-85" size="sm" color="primary">
-                        Editar
-                      </Button>
-                    </Link>
-                    {ordenCompra.comprobanteOrdenCompraId !== null &&
-                      ordenCompra.comprobante.status === "Activo" && (
+                        <Button className="scale-85" size="sm" color="primary">
+                          Generar Comprobante
+                        </Button>
+                      </Link>
+                    ) : (
+                      <div className="flex ">
+                        <Button
+                          className="scale-85 text-white"
+                          size="sm"
+                          color="success"
+                          onPress={() => {
+                            setSelectOrdenCompra(ordenCompra);
+                            setSelectModal("verComprobante");
+                            onOpen();
+                          }}
+                        >
+                          Ver Comprobante
+                        </Button>
                         <Button
                           className="scale-85 text-white"
                           size="sm"
                           color="warning"
                           onPress={() => {
-                            setSelectOrdenCompra(ordenCompra.comprobante);
+                            setSelectOrdenCompra(ordenCompra);
+                            setSelectModal("editarComprobante");
                             onOpen();
-                            setSelectModal("anular");
                           }}
                         >
-                          Anular
+                          Editar C.
                         </Button>
-                      )}
+                      </div>
+                    )}
+                    <div className="flex">
+                      <Link
+                        to={`/compras/editar/orden-compra/${ordenCompra.id}`}
+                      >
+                        <Button className="scale-85" size="sm" color="primary">
+                          Editar
+                        </Button>
+                      </Link>
+                      {ordenCompra.comprobanteOrdenCompraId !== null &&
+                        ordenCompra.comprobante.status === "Activo" && (
+                          <Button
+                            className="scale-85 text-white"
+                            size="sm"
+                            color="warning"
+                            onPress={() => {
+                              setSelectOrdenCompra(ordenCompra.comprobante);
+                              onOpen();
+                              setSelectModal("anular");
+                            }}
+                          >
+                            Anular
+                          </Button>
+                        )}
+                    </div>
+                    <Button
+                      className="scale-85 text-white"
+                      size="sm"
+                      color="danger"
+                      onPress={() => {
+                        setSelectOrdenCompra(ordenCompra);
+                        setSelectModal("adjuntar_solped");
+                        onOpen();
+                      }}
+                    >
+                      Comprobante de Pago
+                    </Button>
                   </div>
-                  <Button
-                    className="scale-85 text-white"
-                    size="sm"
-                    color="danger"
-                    onPress={() => {
+                )}
+              </TableCell>
+              <TableCell className="  text-xs  text-center ">
+                {(userData?.role === "GERENTE" ||
+                  userData?.role === "CONTADOR" ||
+                  userData?.role === "PRACTICANTE CONTABLE") && (
+                  <button
+                    disabled
+                    className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
+                      ordenCompra.validacion
+                        ? "border-green-500"
+                        : "border-neutral-400"
+                    }  rounded-sm`}
+                  >
+                    {ordenCompra.validacion_ingrid ? (
+                      <FaCheck className="text-green-500" />
+                    ) : (
+                      ""
+                    )}
+                  </button>
+                )}
+              </TableCell>
+              <TableCell className="  text-xs  text-center ">
+                {userData?.role === "GERENTE" || (
+                  <button
+                    className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
+                      ordenCompra.validacion
+                        ? "border-blue-500"
+                        : "border-neutral-400"
+                    }  rounded-sm`}
+                    onClick={() => {
+                      setSelectModal("cambiar_validacion");
                       setSelectOrdenCompra(ordenCompra);
-                      setSelectModal("adjuntar_solped");
                       onOpen();
                     }}
                   >
-                    Comprobante de Pago
-                  </Button>
-                </div>
-              </TableCell>
-              <TableCell className="  text-xs  text-center ">
-                <button
-                  disabled
-                  className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
-                    ordenCompra.validacion
-                      ? "border-green-500"
-                      : "border-neutral-400"
-                  }  rounded-sm`}
-                >
-                  {ordenCompra.validacion_ingrid ? (
-                    <FaCheck className="text-green-500" />
-                  ) : (
-                    ""
-                  )}
-                </button>
-              </TableCell>
-              <TableCell className="  text-xs  text-center ">
-                <button
-                  className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
-                    ordenCompra.validacion
-                      ? "border-blue-500"
-                      : "border-neutral-400"
-                  }  rounded-sm`}
-                  onClick={() => {
-                    setSelectModal("cambiar_validacion");
-                    setSelectOrdenCompra(ordenCompra);
-                    onOpen();
-                  }}
-                >
-                  {ordenCompra.validacion ? (
-                    <FaCheck className="text-blue-500" />
-                  ) : (
-                    ""
-                  )}
-                </button>
+                    {ordenCompra.validacion ? (
+                      <FaCheck className="text-blue-500" />
+                    ) : (
+                      ""
+                    )}
+                  </button>
+                )}
               </TableCell>
             </TableRow>
           ))}

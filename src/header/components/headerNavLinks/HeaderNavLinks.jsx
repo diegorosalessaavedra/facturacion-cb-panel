@@ -11,13 +11,13 @@ import NavReportesLinks from "./components/NavReportesLinks";
 import NavComprobantesLinks from "./components/NavComprobantesLinks";
 import NavInventarioLinks from "./components/NavInventarioLinks";
 import NavRRHHLinks from "./components/NavRRHHLinks";
-import NavDespachoLinks from "./components/NavDespachoLinks";
 
 // Constantes para roles
 const ROLES = {
-  ADMINISTRADOR: "ADMINISTRADOR",
+  GERENTE: "GERENTE",
   VENDEDOR: "VENDEDOR",
-  COMPRADOR: "COMPRADOR",
+  CONTADOR: "CONTADOR",
+  PRACTICANTE_CONTABLE: "PRACTICANTE CONTABLE",
   COMPRADOR_VENDEDOR: "COMPRADOR/VENDEDOR",
   RRHH: "RRHH",
 };
@@ -40,41 +40,49 @@ const HeaderNavLinks = ({
     if (!role) return {};
 
     return {
-      isAdmin: role === ROLES.ADMINISTRADOR,
+      isAdmin: role === ROLES.GERENTE || role === ROLES.CONTADOR,
       canAccessVentas: [
-        ROLES.ADMINISTRADOR,
+        ROLES.GERENTE,
+        ROLES.CONTADOR,
+        ROLES.PRACTICANTE_CONTABLE,
         ROLES.VENDEDOR,
         ROLES.COMPRADOR_VENDEDOR,
       ].includes(role),
       canAccessCompras: [
-        ROLES.ADMINISTRADOR,
+        ROLES.GERENTE,
+        ROLES.CONTADOR,
+        ROLES.PRACTICANTE_CONTABLE,
         ROLES.COMPRADOR,
         ROLES.COMPRADOR_VENDEDOR,
       ].includes(role),
       canAccessComprobantes: [
-        ROLES.ADMINISTRADOR,
-        ROLES.VENDEDOR,
-        ROLES.COMPRADOR_VENDEDOR,
+        ROLES.GERENTE,
+        ROLES.CONTADOR,
+        ROLES.PRACTICANTE_CONTABLE,
       ].includes(role),
       canAccessProductos: [
-        ROLES.ADMINISTRADOR,
-        ROLES.VENDEDOR,
+        ROLES.GERENTE,
+        ROLES.CONTADOR,
+        ROLES.PRACTICANTE_CONTABLE,
         ROLES.COMPRADOR,
-        ROLES.COMPRADOR_VENDEDOR,
       ].includes(role),
       canAccessReportes: [
-        ROLES.ADMINISTRADOR,
+        ROLES.GERENTE,
+        ROLES.CONTADOR,
+        ROLES.PRACTICANTE_CONTABLE,
         ROLES.VENDEDOR,
         ROLES.COMPRADOR,
         ROLES.COMPRADOR_VENDEDOR,
       ].includes(role),
       canAccessClientes: [
-        ROLES.ADMINISTRADOR,
+        ROLES.GERENTE,
+        ROLES.CONTADOR,
+        ROLES.PRACTICANTE_CONTABLE,
         ROLES.VENDEDOR,
         ROLES.COMPRADOR,
         ROLES.COMPRADOR_VENDEDOR,
       ].includes(role),
-      canAccessRrhh: [ROLES.ADMINISTRADOR, ROLES.RRHH].includes(role),
+      canAccessRrhh: [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH].includes(role),
     };
   }, [userData?.role]);
 

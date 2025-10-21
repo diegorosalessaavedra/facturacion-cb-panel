@@ -46,7 +46,7 @@ const FormEditarCotizacion = ({ userData, cotizacion }) => {
     const newData = {
       ...data,
       clienteId: selectCliente || cotizacion.clienteId,
-      usuarioId: userData.id,
+      usuarioId: userData?.id,
       arrayPagos: arrayPagos,
       productos: productos,
       tipoEnvio: dataSelects.tipoEnvio,

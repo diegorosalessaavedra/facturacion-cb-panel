@@ -16,7 +16,7 @@ import ModalAdjuntarSolped from "./components/ModalAdjuntarSolped";
 import ModalCambiarValidacion from "./components/ModalCambiarValidacion";
 import DescargarLayout from "../../../hooks/DescargarTxt";
 
-const OrdenesCompra = () => {
+const OrdenesCompra = ({ userData }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectOrdenCompra, setSelectOrdenCompra] = useState();
   const [selectModal, setSelectModal] = useState();
@@ -97,6 +97,7 @@ const OrdenesCompra = () => {
           onOpen={onOpen}
           setSelectModal={setSelectModal}
           setSelectOrdenCompra={setSelectOrdenCompra}
+          userData={userData}
         />
       </div>
       {selectOrdenCompra?.id && selectModal === "pdf" && (

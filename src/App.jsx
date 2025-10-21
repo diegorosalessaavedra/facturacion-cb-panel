@@ -267,7 +267,7 @@ function App() {
             path="/compras/ordenes-compra"
             element={
               <ProtectedRouteWrapper userRole={userRole}>
-                <OrdenesCompra />
+                <OrdenesCompra userData={userData} />
               </ProtectedRouteWrapper>
             }
           />

@@ -87,7 +87,7 @@ const FormComprobanteOrdenCompra = ({ ordenCompra, userData, id }) => {
       productos: productos,
       arrayPagos: arrayPagos,
       proveedorId: selectProveedor,
-      usuarioId: userData.id,
+      usuarioId: userData?.id,
       autorizado: dataSelects.autorizado,
       comprador: dataSelects.comprador,
       moneda: dataSelects.moneda,
