@@ -26,7 +26,6 @@ const ModalGenerarComprobante = ({
   const {
     register,
     handleSubmit,
-
     formState: { errors },
   } = useForm();
   const [loading, setLoading] = useState(false);
