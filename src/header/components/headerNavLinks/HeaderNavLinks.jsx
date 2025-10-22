@@ -101,8 +101,8 @@ const HeaderNavLinks = ({
 
   return (
     <nav
-      className="w-[60px] flex flex-col items-start justify-start overflow-x-hidden
-    group-hover:w-[280px] overflow-hidden  duration-300
+      className="w-[60px] h-fit flex flex-col items-start justify-start overflow-x-hidden overflow-y-auto
+    group-hover:w-[280px] duration-300
     "
     >
       {/* Dashboard - Siempre visible */}
