@@ -35,6 +35,8 @@ export const ROUTE_PERMISSIONS = {
   "/ventas/crear-cotizacion": [
     ROLES.GERENTE,
     ROLES.VENDEDOR,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
     ROLES.COMPRADOR_VENDEDOR,
   ],
   "/ventas/editar-cotizacion/:id": [
