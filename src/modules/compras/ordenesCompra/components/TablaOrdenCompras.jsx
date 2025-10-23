@@ -257,9 +257,7 @@ const TablaOrdenCompras = ({
                 )}
               </TableCell>
               <TableCell className="  text-xs  text-center ">
-                {(userData?.role === "GERENTE" ||
-                  userData?.role === "CONTADOR" ||
-                  userData?.role === "PRACTICANTE CONTABLE") && (
+                {userData?.role !== "VENDEDOR" && (
                   <button
                     disabled
                     className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${

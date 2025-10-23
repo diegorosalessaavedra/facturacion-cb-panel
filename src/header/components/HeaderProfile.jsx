@@ -85,14 +85,18 @@ const HeaderProfile = ({ userData }) => {
           >
             <p className="text-xs">Facturación Granjas Peruanas</p>
           </DropdownItem>
-          <DropdownItem
-            key="Despacho En Tiempo Real"
-            color="primary"
-            href="https://despacho-en-tiempo-real.netlify.app"
-            startContent={<FaBoxOpen className="w-7 text-lg text-blue-600 " />}
-          >
-            <p className="text-xs">Despacho En Tiempo Real</p>
-          </DropdownItem>
+          {userData.role !== "RRHH" && (
+            <DropdownItem
+              key="Despacho En Tiempo Real"
+              color="primary"
+              href="https://despacho-en-tiempo-real.netlify.app"
+              startContent={
+                <FaBoxOpen className="w-7 text-lg text-blue-600 " />
+              }
+            >
+              <p className="text-xs">Despacho En Tiempo Real</p>
+            </DropdownItem>
+          )}
           <DropdownItem
             key="logout"
             color="danger"
