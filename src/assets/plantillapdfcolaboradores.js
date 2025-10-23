@@ -126,8 +126,6 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     let yPos = 20;
 
     // Mostrar indicador de carga
-    console.log("Generando PDF del colaborador...");
-
     // --- Cargar iconos con manejo de errores ---
     const iconPromises = Object.entries(iconsPath).map(async ([key, path]) => {
       const icon = await loadIcon(path);
@@ -577,8 +575,6 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
       data.apellidos_colaborador || "SinApellido"
     }_${data.nombre_colaborador || "SinNombre"}.pdf`;
     pdf.save(filename);
-
-    console.log("PDF generado exitosamente:", filename);
   } catch (error) {
     console.error("Error al generar el PDF:", error);
 
