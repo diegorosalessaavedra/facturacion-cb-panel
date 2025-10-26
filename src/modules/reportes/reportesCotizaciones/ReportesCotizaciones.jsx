@@ -20,7 +20,7 @@ const ReportesCotizaciones = () => {
     setLoading(true);
     const url = `${
       import.meta.env.VITE_URL_API
-    }/ventas/cotizaciones?tipoFiltro=fechaEmision&fechaInicial=${fechaInicio}&fechaFinal=${fechaFinal}`;
+    }/ventas/cotizaciones?tipoFiltro=fechaEmision&fechaInicial=${fechaInicio}&fechaFinal=${fechaFinal}&estado=todos`;
 
     axios
       .get(url, config)

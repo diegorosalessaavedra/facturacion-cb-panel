@@ -108,11 +108,12 @@ const TablaReporteOrdenesCompra = ({
                   <TableCell className="  text-xs   text-nowrap">
                     <ul>
                       {ordenCompra.productos.map((producto) => (
-                        <li>
-                          {formatNumberSinDecimales(producto.cantidad)} -{" "}
-                          {producto.producto.tipo_producto === "Costos y gastos"
-                            ? producto.descripcion_producto
-                            : producto.producto.nombre}
+                        <li key={producto?.id}>
+                          {formatNumberSinDecimales(producto?.cantidad)} -{" "}
+                          {producto?.producto?.tipo_producto ===
+                          "Costos y gastos"
+                            ? producto?.descripcion_producto
+                            : producto?.producto.nombre}
                         </li>
                       ))}
                     </ul>
@@ -120,7 +121,9 @@ const TablaReporteOrdenesCompra = ({
                   <TableCell className="  text-xs   text-nowrap">
                     <ul>
                       {ordenCompra.productos.map((producto) => (
-                        <li>S/ {producto.precioUnitario}</li>
+                        <li key={producto?.id}>
+                          S/ {producto?.precioUnitario}
+                        </li>
                       ))}
                     </ul>
                   </TableCell>
