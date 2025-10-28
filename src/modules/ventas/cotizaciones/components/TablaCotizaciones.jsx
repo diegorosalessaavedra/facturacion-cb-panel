@@ -208,7 +208,7 @@ const TablaCotizaciones = ({
                                 className="scale-85"
                                 size="sm"
                                 color="danger"
-                                onClick={() => {
+                                onPress={() => {
                                   setSelectCotizacion(cotizacion);
                                   setSelectModal("anular");
                                   onOpen();

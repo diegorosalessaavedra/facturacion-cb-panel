@@ -61,22 +61,32 @@ const HeaderProfile = ({ userData }) => {
           >
             <p className="text-xs">Facturación Chicken baby</p>
           </DropdownItem>
-          <DropdownItem
-            key="Multinacional"
-            color="primary"
-            href="https://facturacion-multinacional.netlify.app/#/log-in"
-            startContent={<img className="w-7" src="/logoM.jpeg" alt="" />}
-          >
-            <p className="text-xs">Facturación Multinacional</p>
-          </DropdownItem>
-          <DropdownItem
-            key="Diego"
-            color="primary"
-            href="https://facturacion-diego.netlify.app"
-            startContent={<img className="w-7" src="/logoDiego.jpeg" alt="" />}
-          >
-            <p className="text-xs">Facturación Diego Rosales</p>
-          </DropdownItem>
+
+          {(userData.role !== "VENDEDOR" ||
+            userData.role !== "COMPRADOR/VENDEDOR") && (
+            <DropdownItem
+              key="Multinacional"
+              color="primary"
+              href="https://facturacion-multinacional.netlify.app/#/log-in"
+              startContent={<img className="w-7" src="/logoM.jpeg" alt="" />}
+            >
+              <p className="text-xs">Facturación Multinacional</p>
+            </DropdownItem>
+          )}
+          {(userData.role !== "VENDEDOR" ||
+            userData.role !== "COMPRADOR/VENDEDOR") && (
+            <DropdownItem
+              key="Diego"
+              color="primary"
+              href="https://facturacion-diego.netlify.app"
+              startContent={
+                <img className="w-7" src="/logoDiego.jpeg" alt="" />
+              }
+            >
+              <p className="text-xs">Facturación Diego Rosales</p>
+            </DropdownItem>
+          )}
+
           <DropdownItem
             key="Granjas Peruanas"
             color="primary"

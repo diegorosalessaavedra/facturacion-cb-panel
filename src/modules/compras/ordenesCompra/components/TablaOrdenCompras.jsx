@@ -178,7 +178,8 @@ const TablaOrdenCompras = ({
               <TableCell>
                 {(userData?.role === "GERENTE" ||
                   userData?.role === "CONTADOR" ||
-                  userData?.role === "PRACTICANTE CONTABLE") && (
+                  userData?.role === "PRACTICANTE CONTABLE" ||
+                  userData?.role === "COMPRADOR/VENDEDOR") && (
                   <div className="flex flex-col  items-center">
                     {ordenCompra.comprobanteOrdenCompraId === null ? (
                       <Link
