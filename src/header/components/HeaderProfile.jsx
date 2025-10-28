@@ -13,11 +13,6 @@ const HeaderProfile = ({ userData }) => {
     localStorage.clear();
     window.location.reload();
   };
-  console.log(
-    userData.role,
-    (userData.role !== "RRHH" || userData.role !== "PRACTICANTE CONTABLE") &&
-      "qwq"
-  );
 
   return (
     <div
