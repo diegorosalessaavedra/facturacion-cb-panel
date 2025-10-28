@@ -71,8 +71,7 @@ const TablaOrdenCompras = ({
             Estado de <br /> Pago
           </TableColumn>
           <TableColumn className="text-xs text-white  bg-blue-700">
-            Estado del <br />
-            Comprobante
+            Estado SOLPED
           </TableColumn>
           <TableColumn className="text-xs text-center text-white  bg-blue-700">
             PDF
@@ -134,12 +133,12 @@ const TablaOrdenCompras = ({
               </TableCell>
               <TableCell
                 className={`${
-                  ordenCompra.comprobante?.status === "Activo"
+                  ordenCompra.status === "Activo"
                     ? "text-green-600"
                     : "text-red-500"
                 }  text-xs  font-semibold `}
               >
-                {ordenCompra.comprobante?.status}
+                {ordenCompra.status}
               </TableCell>
               <TableCell className="  text-xs  ">
                 <div className="flex gap-2">
