@@ -95,7 +95,8 @@ const HeaderProfile = ({ userData }) => {
           >
             <p className="text-xs">Facturación Granjas Peruanas</p>
           </DropdownItem>
-          {userData.role !== "RRHH" && (
+          {(userData.role !== "RRHH" ||
+            userData?.role !== "PRACTICANTE CONTABLE") && (
             <DropdownItem
               key="Despacho En Tiempo Real"
               color="primary"
