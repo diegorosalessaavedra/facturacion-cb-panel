@@ -132,7 +132,11 @@ const FiltrarOrdenesCompra = ({
           <p>Suma</p>
           <span className="text-blue-500">
             {" "}
-            S/ {Number(sumaTotal).toFixed(2).toLocaleString("es-PE")}
+            S/{" "}
+            {Number(sumaTotal).toLocaleString("es-PE", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </span>
         </article>
       </div>
