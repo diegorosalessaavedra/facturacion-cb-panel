@@ -115,8 +115,8 @@ const ModalPdfOrdenCompraId = ({ onOpenChange, isOpen, id }) => {
                       <li>Tiempo de vencimiento:</li>
                     </ul>
                     <ul className="flex flex-col text-[12px] gap-4">
-                      <li>{ordenCompra?.fechaEmision}</li>
-                      <li>{ordenCompra?.fechaVencimiento}</li>
+                      <li>{formatDate(ordenCompra?.fechaEmision)}</li>
+                      <li>{formatDate(ordenCompra?.fechaVencimiento)}</li>
                     </ul>
                   </div>
                 </div>
