@@ -13,6 +13,11 @@ const HeaderProfile = ({ userData }) => {
     localStorage.clear();
     window.location.reload();
   };
+  console.log(
+    userData.role,
+    (userData.role !== "RRHH" || userData.role !== "PRACTICANTE CONTABLE") &&
+      "qwq"
+  );
 
   return (
     <div
@@ -95,19 +100,20 @@ const HeaderProfile = ({ userData }) => {
           >
             <p className="text-xs">Facturación Granjas Peruanas</p>
           </DropdownItem>
-          {(userData.role !== "RRHH" ||
-            userData?.role !== "PRACTICANTE CONTABLE") && (
-            <DropdownItem
-              key="Despacho En Tiempo Real"
-              color="primary"
-              href="https://despacho-en-tiempo-real.netlify.app"
-              startContent={
-                <FaBoxOpen className="w-7 text-lg text-blue-600 " />
-              }
-            >
-              <p className="text-xs">Despacho En Tiempo Real</p>
-            </DropdownItem>
-          )}
+          {userData.role !== "RRHH" &&
+            userData.role !== "PRACTICANTE CONTABLE" && (
+              <DropdownItem
+                key="Despacho En Tiempo Real"
+                color="primary"
+                href="https://despacho-en-tiempo-real.netlify.app"
+                startContent={
+                  <FaBoxOpen className="w-7 text-lg text-blue-600" />
+                }
+              >
+                <p className="text-xs">Despacho En Tiempo Real</p>
+              </DropdownItem>
+            )}
+
           <DropdownItem
             key="logout"
             color="danger"
