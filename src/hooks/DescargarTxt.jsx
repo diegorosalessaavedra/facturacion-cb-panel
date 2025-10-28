@@ -60,7 +60,7 @@ export default function DescargarLayout({
   ) => {
     const cuentaBancaria =
       import.meta.env.VITE_EMPRESA === "GPCB"
-        ? "1937211891082"
+        ? "11937211891082"
         : "11912682922020";
     const numeroControl = formatWithLeadingZeros(sumaCuentas + 2682922020, 15);
     return `1${numeroSolpeds}${fecha}C000${cuentaBancaria}       ${totalFormateado}PAGOS SEMANA ${semana}                         N${numeroControl}`;
