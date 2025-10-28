@@ -93,24 +93,34 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     "V.UNIT",
     "SUB TOTAL",
   ];
-  const productsData = selectCotizacion.productos.map((producto) => {
-    const precioUnitario =
-      typeof producto.precioUnitario === "number"
-        ? producto.precioUnitario
-        : parseFloat(producto.precioUnitario) || 0;
-    const total =
-      typeof producto.total === "number"
-        ? producto.total
-        : parseFloat(producto.total) || 0;
+  const productsData = selectCotizacion?.productos
+    ?.slice() // copia el array para no mutarlo
+    .sort((a, b) => {
+      const nombreA = a.producto?.nombre?.toLowerCase() || "";
+      const nombreB = b.producto?.nombre?.toLowerCase() || "";
+      // mover "caja" al final
+      if (nombreA.includes("cajas") && !nombreB.includes("cajas")) return 1;
+      if (!nombreA.includes("cajas") && nombreB.includes("cajas")) return -1;
+      return 0;
+    })
+    .map((producto) => {
+      const precioUnitario =
+        typeof producto.precioUnitario === "number"
+          ? producto.precioUnitario
+          : parseFloat(producto.precioUnitario) || 0;
+      const total =
+        typeof producto.total === "number"
+          ? producto.total
+          : parseFloat(producto.total) || 0;
 
-    return [
-      producto.cantidad || 0,
-      producto.producto?.codUnidad,
-      producto.producto?.nombre || "N/A",
-      precioUnitario.toFixed(2), // Aplicar .toFixed solo a números válidos
-      formatNumber(total),
-    ];
-  });
+      return [
+        producto.cantidad || 0,
+        producto.producto?.codUnidad,
+        producto.producto?.nombre || "N/A",
+        precioUnitario.toFixed(2), // Aplicar .toFixed solo a números válidos
+        formatNumber(total),
+      ];
+    });
 
   doc.autoTable({
     startY: 76,

@@ -121,8 +121,10 @@ const ModalPdfComprobanteElectronico = ({
                     <li>FECHA DE VENCIMIENTO :</li>
                   </ul>
                   <ul className="flex flex-col text-[10px]">
-                    <li>{comprobanteElectronico?.fechaEmision}</li>
-                    <li>{comprobanteElectronico?.fechaVencimiento}</li>
+                    <li>{formatDate(comprobanteElectronico?.fechaEmision)}</li>
+                    <li>
+                      {formatDate(comprobanteElectronico?.fechaVencimiento)}
+                    </li>
                   </ul>
                 </div>
 

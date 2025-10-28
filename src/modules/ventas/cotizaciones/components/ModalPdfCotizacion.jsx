@@ -118,8 +118,8 @@ const ModalPdfCotizacion = ({ onOpenChange, isOpen, idCotizacion }) => {
                       <li>Tiempo de Entrega:</li>
                     </ul>
                     <ul className="flex flex-col text-[12px] gap-4">
-                      <li>{cotizacion?.fechaEntrega}</li>
-                      <li>{cotizacion?.fechaEmision}</li>
+                      <li>{formatDate(cotizacion?.fechaEntrega)}</li>
+                      <li>{formatDate(cotizacion?.fechaEmision)}</li>
                     </ul>
                   </div>
                 </div>
@@ -137,18 +137,41 @@ const ModalPdfCotizacion = ({ onOpenChange, isOpen, idCotizacion }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {cotizacion?.productos.map((producto) => (
-                        <tr
-                          className="border-b-1 border-black text-[11px]"
-                          key={producto.id}
-                        >
-                          <td className="px-2 py-[3px]">{producto.cantidad}</td>
-                          <td>{producto.producto?.codUnidad}</td>
-                          <td>{producto.producto.nombre}</td>
-                          <td>{formatNumber(producto.precioUnitario)}</td>
-                          <td>{formatNumber(producto.total)}</td>
-                        </tr>
-                      ))}
+                      {cotizacion?.productos
+                        ?.slice() // copia el array para no mutarlo
+                        .sort((a, b) => {
+                          const nombreA =
+                            a.producto?.nombre?.toLowerCase() || "";
+                          const nombreB =
+                            b.producto?.nombre?.toLowerCase() || "";
+                          // mover "caja" al final
+                          if (
+                            nombreA.includes("cajas") &&
+                            !nombreB.includes("cajas")
+                          )
+                            return 1;
+                          if (
+                            !nombreA.includes("cajas") &&
+                            nombreB.includes("cajas")
+                          )
+                            return -1;
+                          return 0;
+                        })
+                        .map((producto) => (
+                          <tr
+                            className="border-b-1 border-black text-[11px]"
+                            key={producto.id}
+                          >
+                            <td className="px-2 py-[3px]">
+                              {producto.cantidad}
+                            </td>
+                            <td>{producto.producto?.codUnidad}</td>
+                            <td>{producto.producto.nombre}</td>
+                            <td>{formatNumber(producto.precioUnitario)}</td>
+                            <td>{formatNumber(producto.total)}</td>
+                          </tr>
+                        ))}
+
                       <tr className="text-[13px] font-semibold">
                         <td colSpan={2}></td>
                         <td className="text-end px-2" colSpan={2}>
