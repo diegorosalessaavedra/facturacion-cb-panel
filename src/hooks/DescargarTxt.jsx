@@ -28,10 +28,13 @@ export default function DescargarLayout({
   };
 
   const calcularSemanaDelAno = (fecha) => {
-    const inicioAno = new Date(fecha.getFullYear(), 0, 1);
-    const diferenciaDias =
-      Math.floor((fecha - inicioAno) / (1000 * 60 * 60 * 24)) + 1;
-    return Math.ceil(diferenciaDias / 7);
+    const f = new Date(
+      Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate())
+    );
+    f.setUTCDate(f.getUTCDate() + 4 - (f.getUTCDay() || 7));
+    const inicioAno = new Date(Date.UTC(f.getUTCFullYear(), 0, 1));
+    const numeroSemana = Math.ceil(((f - inicioAno) / 86400000 + 1) / 7);
+    return numeroSemana;
   };
 
   const calcularTotalSaldos = (ordenes) => {
