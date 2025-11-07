@@ -19,6 +19,8 @@ const TablaOrdenCompras = ({
   setSelectOrdenCompra,
   userData,
 }) => {
+  console.log(ordenCompras);
+
   return (
     <div className="w-full flex ">
       <Table
@@ -124,12 +126,16 @@ const TablaOrdenCompras = ({
               </TableCell>
               <TableCell
                 className={`${
-                  ordenCompra.estadoPago === "PENDIENTE"
+                  Number(ordenCompra.validacion ? ordenCompra.monto_txt : 0) > 0
+                    ? "text-amber-500"
+                    : ordenCompra.estadoPago === "PENDIENTE"
                     ? "text-red-500"
                     : "text-blue-500"
                 }  text-xs  font-semibold `}
               >
-                {ordenCompra.estadoPago}
+                {Number(ordenCompra.validacion ? ordenCompra.monto_txt : 0) > 0
+                  ? "ENVIADO A PAGO"
+                  : ordenCompra.estadoPago}
               </TableCell>
               <TableCell
                 className={`${
@@ -291,7 +297,7 @@ const TablaOrdenCompras = ({
                 )}
               </TableCell>
               <TableCell className="  text-xs  text-center ">
-                {userData?.role === "GERENTE" || (
+                {userData?.role === "GERENTE" && (
                   <button
                     className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
                       ordenCompra.validacion
