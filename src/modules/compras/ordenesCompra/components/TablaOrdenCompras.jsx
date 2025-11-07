@@ -186,8 +186,7 @@ const TablaOrdenCompras = ({
                   {ordenCompra.comprobanteOrdenCompraId === null
                     ? (userData?.role === "GERENTE" ||
                         userData?.role === "CONTADOR" ||
-                        userData?.role === "PRACTICANTE CONTABLE" ||
-                        userData?.role === "COMPRADOR/VENDEDOR") && (
+                        userData?.role === "PRACTICANTE CONTABLE") && (
                         <Link
                           to={`/compras/comprobante-orden-compra/${ordenCompra.id}`}
                         >
@@ -233,48 +232,47 @@ const TablaOrdenCompras = ({
                   {(userData?.role === "GERENTE" ||
                     userData?.role === "CONTADOR" ||
                     userData?.role === "PRACTICANTE CONTABLE") && (
-                    <>
-                      <div className="flex">
-                        <Link
-                          to={`/compras/editar/orden-compra/${ordenCompra.id}`}
-                        >
-                          <Button
-                            className="scale-85"
-                            size="sm"
-                            color="primary"
-                          >
-                            Editar
-                          </Button>
-                        </Link>
-                        {ordenCompra.comprobanteOrdenCompraId !== null &&
-                          ordenCompra.comprobante.status === "Activo" && (
-                            <Button
-                              className="scale-85 text-white"
-                              size="sm"
-                              color="warning"
-                              onPress={() => {
-                                setSelectOrdenCompra(ordenCompra.comprobante);
-                                onOpen();
-                                setSelectModal("anular");
-                              }}
-                            >
-                              Anular
-                            </Button>
-                          )}
-                      </div>
-                      <Button
-                        className="scale-85 text-white"
-                        size="sm"
-                        color="danger"
-                        onPress={() => {
-                          setSelectOrdenCompra(ordenCompra);
-                          setSelectModal("adjuntar_solped");
-                          onOpen();
-                        }}
+                    <div className="flex">
+                      <Link
+                        to={`/compras/editar/orden-compra/${ordenCompra.id}`}
                       >
-                        Comprobante de Pago
-                      </Button>
-                    </>
+                        <Button className="scale-85" size="sm" color="primary">
+                          Editar
+                        </Button>
+                      </Link>
+                      {ordenCompra.comprobanteOrdenCompraId !== null &&
+                        ordenCompra.comprobante.status === "Activo" && (
+                          <Button
+                            className="scale-85 text-white"
+                            size="sm"
+                            color="warning"
+                            onPress={() => {
+                              setSelectOrdenCompra(ordenCompra.comprobante);
+                              onOpen();
+                              setSelectModal("anular");
+                            }}
+                          >
+                            Anular
+                          </Button>
+                        )}
+                    </div>
+                  )}
+                  {(userData?.role === "GERENTE" ||
+                    userData?.role === "CONTADOR" ||
+                    userData?.role === "PRACTICANTE CONTABLE" ||
+                    userData?.role === "COMPRADOR/VENDEDOR") && (
+                    <Button
+                      className="scale-85 text-white"
+                      size="sm"
+                      color="danger"
+                      onPress={() => {
+                        setSelectOrdenCompra(ordenCompra);
+                        setSelectModal("adjuntar_solped");
+                        onOpen();
+                      }}
+                    >
+                      Comprobante de Pago
+                    </Button>
                   )}
                 </div>
               </TableCell>
