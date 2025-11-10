@@ -117,6 +117,7 @@ const FiltrarOrdenesCompra = ({
           <SelectItem key="PENDIENTE">PENDIENTE</SelectItem>
           <SelectItem key="CANCELADO">CANCELADO</SelectItem>
           <SelectItem key="ANTICIPO">ANTICIPO</SelectItem>
+          <SelectItem key="ENVIADO A PAGO">ENVIADO A PAGO</SelectItem>
         </Select>
 
         <Button color="primary" type="submit">

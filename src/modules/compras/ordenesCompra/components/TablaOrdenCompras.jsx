@@ -126,16 +126,14 @@ const TablaOrdenCompras = ({
               </TableCell>
               <TableCell
                 className={`${
-                  Number(ordenCompra.validacion ? ordenCompra.monto_txt : 0) > 0
+                  ordenCompra.estadoPago === "ENVIADO A PAGO"
                     ? "text-amber-500"
                     : ordenCompra.estadoPago === "PENDIENTE"
                     ? "text-red-500"
                     : "text-blue-500"
                 }  text-xs  font-semibold `}
               >
-                {Number(ordenCompra.validacion ? ordenCompra.monto_txt : 0) > 0
-                  ? "ENVIADO A PAGO"
-                  : ordenCompra.estadoPago}
+                {ordenCompra.estadoPago}
               </TableCell>
               <TableCell
                 className={`${
