@@ -99,8 +99,8 @@ const ModalPdfNotaComprobante = ({
                       </li>
                       <li>
                         {" "}
-                        {notaComprobante?.comprobantesElectronico.serie}-
-                        {notaComprobante?.comprobantesElectronico.numeroSerie}
+                        {notaComprobante?.comprobantesElectronico?.serie}-
+                        {notaComprobante?.comprobantesElectronico?.numeroSerie}
                       </li>
 
                       <li>{notaComprobante?.motivo}</li>
