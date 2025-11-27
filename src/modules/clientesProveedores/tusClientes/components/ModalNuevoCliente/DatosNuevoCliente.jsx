@@ -175,6 +175,22 @@ const DatosNuevoCliente = ({
             onChange={handleRuc}
           />
         )}
+        <Input
+          isRequired
+          className="w-1/3"
+          classNames={inputClassNames}
+          labelPlacement="outside"
+          type="text"
+          variant="bordered"
+          label="Teléfono"
+          placeholder="..."
+          {...register("telefono")}
+          color="primary"
+          radius="sm"
+          size="sm"
+          maxLength={9}
+          onInput={onInputNumber}
+        />
       </div>
     </>
   );

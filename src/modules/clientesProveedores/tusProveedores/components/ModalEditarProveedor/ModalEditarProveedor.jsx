@@ -139,6 +139,7 @@ const ModalEditarProveedor = ({
                 setDataRuc={setDataRuc}
                 nombre={nombre}
                 setNombre={setNombre}
+                selectProveedor={selectProveedor}
               />
               <UbigeoEditarProveedor
                 register={register}

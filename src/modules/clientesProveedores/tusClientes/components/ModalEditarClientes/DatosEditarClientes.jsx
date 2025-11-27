@@ -1,8 +1,7 @@
 import { Button, Select, Input, SelectItem } from "@nextui-org/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   inputClassNames,
-  preventNonNumericInput,
   selectClassNames,
 } from "../../../../../assets/classNames";
 import { IoSearchOutline } from "react-icons/io5";
@@ -19,6 +18,7 @@ const DatosEditarClientes = ({
   setTipoDoc,
   setNombre,
   nombre,
+  selectProveedor,
 }) => {
   const [errorFind, seterrorFind] = useState();
 
@@ -126,7 +126,7 @@ const DatosEditarClientes = ({
               color="primary"
               startContent={<IoSearchOutline className="w-10 text-xl" />}
               type="button"
-              onClick={() => (tipoDoc === "DNI" ? findDni() : findRuc())}
+              onPress={() => (tipoDoc === "DNI" ? findDni() : findRuc())}
             >
               {tipoDoc === "DNI" ? "RENIEC" : "SUNAT"}
             </Button>
@@ -174,6 +174,23 @@ const DatosEditarClientes = ({
             onChange={handleRuc}
           />
         )}
+        <Input
+          isRequired
+          className="w-1/3"
+          classNames={inputClassNames}
+          labelPlacement="outside"
+          type="text"
+          variant="bordered"
+          label="Teléfono"
+          placeholder="..."
+          {...register("telefono")}
+          color="primary"
+          radius="sm"
+          size="sm"
+          maxLength={9}
+          onInput={onInputNumber}
+          defaultValue={selectProveedor.telefono}
+        />
       </div>
     </>
   );
