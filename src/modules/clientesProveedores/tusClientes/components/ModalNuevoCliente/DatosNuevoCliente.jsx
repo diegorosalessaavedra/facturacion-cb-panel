@@ -6,6 +6,7 @@ import {
 } from "../../../../../assets/classNames";
 import { IoSearchOutline } from "react-icons/io5";
 import axios from "axios";
+import { onInputNumber } from "../../../../../assets/onInputs";
 
 const DatosNuevoCliente = ({
   register,
