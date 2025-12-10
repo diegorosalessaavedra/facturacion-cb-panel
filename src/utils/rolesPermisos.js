@@ -154,6 +154,13 @@ export const ROUTE_PERMISSIONS = {
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
+  "/clientes/agencias": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+    ROLES.VENDEDOR,
+    ROLES.COMPRADOR_VENDEDOR,
+  ],
   "/clientes/nueva-orden-compra": [
     ROLES.GERENTE,
     ROLES.CONTADOR,

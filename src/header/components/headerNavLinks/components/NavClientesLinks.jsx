@@ -20,15 +20,18 @@ const NavClientesLinks = ({
             : setOpenListModule("clientes");
         }}
       >
-        <div className="w-full flex gap-4 items-center">
+        <div className="w-full flex gap-4 items-center ">
           <FaUserGroup className="text-xl" />
-          <p className="text-base">Clientes / Proveedores</p>
+          <p className="text-sm">
+            Clientes / Proveedores <br />
+            Agencias
+          </p>
         </div>
         <IoMdArrowDropdown className="text-2xl" />
       </div>
       <div
         className={`${
-          openListModule === "clientes" ? "h-[100px]" : "h-[0px]"
+          openListModule === "clientes" ? "h-[150px]" : "h-[0px]"
         } min-w-full bg-blue-700 text-white  transition-all duration-300  `}
       >
         <Link
@@ -36,7 +39,7 @@ const NavClientesLinks = ({
           to="/clientes/tus-clientes"
         >
           <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Tus clientes</p>
+          <p className="text-sm">Clientes</p>
         </Link>
         <Link
           className="w-[280px] h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600  transition-all duration-300"
@@ -44,7 +47,15 @@ const NavClientesLinks = ({
           onClick={() => setIsMenuOpen(false)}
         >
           <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Tus proveedores</p>
+          <p className="text-sm">Proveedores</p>
+        </Link>
+        <Link
+          className="w-[280px] h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600  transition-all duration-300"
+          to="/clientes/agencias"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <MdOutlineCircle className="text-sm" />
+          <p className="text-sm">Agencias</p>
         </Link>
       </div>
     </>

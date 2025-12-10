@@ -65,6 +65,10 @@ const TusProveedores = lazy(() =>
   import("./modules/clientesProveedores/tusProveedores/TusProveedores")
 );
 
+const Agencias = lazy(() =>
+  import("./modules/clientesProveedores/agencias/Agencias")
+);
+
 // Reportes
 const ReportesCotizaciones = lazy(() =>
   import("./modules/reportes/reportesCotizaciones/ReportesCotizaciones")
@@ -310,6 +314,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <TusProveedores />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/clientes/agencias"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <Agencias />
               </ProtectedRouteWrapper>
             }
           />
