@@ -46,7 +46,13 @@ const TablaTusClientes = ({
               TIPO DE DOCUMENTO
             </TableColumn>
             <TableColumn className=" text-xs text-white  bg-blue-700">
-              NUMERO
+              NUMERO DOC.
+            </TableColumn>
+            <TableColumn className=" text-xs text-white  bg-blue-700">
+              NUMERO TEL.
+            </TableColumn>
+            <TableColumn className=" text-xs text-white  bg-blue-700">
+              EECC
             </TableColumn>
             <TableColumn className=" text-xs text-white  bg-blue-700">
               ACCIONES
@@ -66,6 +72,18 @@ const TablaTusClientes = ({
                 </TableCell>
                 <TableCell className="text-xs py-2">
                   {cliente.numeroDoc}
+                </TableCell>
+                <TableCell className="text-xs py-2">
+                  {cliente.telefono || "-"}
+                </TableCell>
+                <TableCell
+                  className={`text-xs py-2 ${
+                    cliente.eecc === "Inactivo"
+                      ? "text-red-500"
+                      : "text-green-500"
+                  }`}
+                >
+                  {cliente.eecc || "-"}
                 </TableCell>
                 <TableCell className="text-xs py-2">
                   <div className="flex gap-2 items-center">

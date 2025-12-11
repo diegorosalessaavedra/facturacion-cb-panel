@@ -85,7 +85,7 @@ const UbigeoEditarClientes = ({
   const handleDistritos = (e) => setIdDistrito(e.target.value);
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-2">
       <Select
         className="w-full"
         isRequired

@@ -5,12 +5,14 @@ import {
   ModalContent,
   ModalHeader,
   Input,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   inputClassNames,
-  preventNonNumericInput,
+  selectClassNames,
 } from "../../../../../assets/classNames";
 import axios from "axios";
 import config from "../../../../../utils/getToken";
@@ -30,7 +32,6 @@ const ModalEditarClientes = ({
     formState: { errors },
     reset,
     setError,
-    clearErrors,
   } = useForm();
 
   const [idDepartamento, setIdDepartamento] = useState();
@@ -73,6 +74,7 @@ const ModalEditarClientes = ({
       distritoId: idDistrito,
       direccion: dataRuc.direccion,
       telefono: data.telefono,
+      eecc: data.eecc,
     };
 
     const url = `${import.meta.env.VITE_URL_API}/clientes/${
@@ -151,7 +153,7 @@ const ModalEditarClientes = ({
                 dataRuc={dataRuc}
                 selectProveedor={selectProveedor}
               />
-              <div className="w-full flex gap-4">
+              <div className="w-full flex gap-2">
                 <Input
                   className="w-full"
                   classNames={inputClassNames}
@@ -174,13 +176,27 @@ const ModalEditarClientes = ({
                   radius="sm"
                   size="sm"
                 />
+                <Select
+                  className="w-1/3"
+                  label="EECC"
+                  labelPlacement="outside"
+                  variant="bordered"
+                  {...register("eecc")}
+                  radius="sm"
+                  size="sm"
+                  classNames={selectClassNames}
+                  defaultSelectedKeys={[selectProveedor?.eecc]}
+                >
+                  <SelectItem key="Activo">Activo</SelectItem>
+                  <SelectItem key="Inactivo">Inactivo</SelectItem>
+                </Select>
               </div>
               <div className="w-full flex items-center justify-end gap-3 p-4">
                 <Button
                   color="danger"
                   type="button"
-                  onPress={onOpenChange}
-                  onClick={() => {
+                  onPress={() => {
+                    onOpenChange();
                     setNumero("");
                     setDataDni({ nombre_completo: null });
                     setDataRuc({ nombre_o_razon_social: null });

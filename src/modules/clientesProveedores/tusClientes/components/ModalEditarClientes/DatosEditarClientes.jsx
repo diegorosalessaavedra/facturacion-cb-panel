@@ -72,7 +72,7 @@ const DatosEditarClientes = ({
 
   return (
     <>
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <Select
           className="w-full"
           isRequired
@@ -134,7 +134,7 @@ const DatosEditarClientes = ({
           )}
         </div>
       </div>
-      <div className="w-full flex gap-4">
+      <div className="w-full flex gap-2">
         {tipoDoc !== "RUC" && (
           <Input
             className="w-full"
@@ -176,7 +176,6 @@ const DatosEditarClientes = ({
           />
         )}
         <Input
-          isRequired
           className="w-1/3"
           classNames={inputClassNames}
           labelPlacement="outside"
