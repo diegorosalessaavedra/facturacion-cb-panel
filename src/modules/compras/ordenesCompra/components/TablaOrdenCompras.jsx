@@ -229,6 +229,7 @@ const TablaOrdenCompras = ({
                       )}
                   {(userData?.role === "GERENTE" ||
                     userData?.role === "CONTADOR" ||
+                    userData?.role === "COMPRADOR/VENDEDOR" ||
                     userData?.role === "PRACTICANTE CONTABLE") && (
                     <div className="flex">
                       <Link
