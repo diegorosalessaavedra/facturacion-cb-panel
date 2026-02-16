@@ -11,6 +11,7 @@ import NavReportesLinks from "./components/NavReportesLinks";
 import NavComprobantesLinks from "./components/NavComprobantesLinks";
 import NavInventarioLinks from "./components/NavInventarioLinks";
 import NavRRHHLinks from "./components/NavRRHHLinks";
+import NavCajaChicaLinks from "./components/NavCajaChicaLinks";
 
 // Constantes para roles
 const ROLES = {
@@ -83,6 +84,9 @@ const HeaderNavLinks = ({
         ROLES.COMPRADOR_VENDEDOR,
       ].includes(role),
       canAccessRrhh: [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH].includes(role),
+      canAccessCajaChica: [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH].includes(
+        role,
+      ),
     };
   }, [userData?.role]);
 
@@ -158,6 +162,11 @@ const HeaderNavLinks = ({
 
       <ConditionalNavLink condition={userPermissions.canAccessRrhh}>
         <NavRRHHLinks {...sharedNavProps} />
+      </ConditionalNavLink>
+
+      {/* CajaChica */}
+      <ConditionalNavLink condition={userPermissions.canAccessCajaChica}>
+        <NavCajaChicaLinks {...sharedNavProps} />
       </ConditionalNavLink>
 
       {/* Sección de Administrador */}

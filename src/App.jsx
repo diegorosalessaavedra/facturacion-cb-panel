@@ -14,129 +14,145 @@ import Dasbhoard from "./modules/dashboard/Dasbhoard";
 import LoadingSpinner from "./components/LoadingSpinner"; // Componente de carga
 
 // Lazy loading de componentes por módulo
-//Despacho
-const DespachoTiempoReal = lazy(() =>
-  import("./modules/despachos/tiempoReal/DespachoTiempoReal")
-);
+
 // Ventas
-const Cotizaciones = lazy(() =>
-  import("./modules/ventas/cotizaciones/Cotizaciones")
+const Cotizaciones = lazy(
+  () => import("./modules/ventas/cotizaciones/Cotizaciones"),
 );
-const CrearCotizacion = lazy(() =>
-  import("./modules/ventas/creartCotizacion/CrearCotizacion")
+const CrearCotizacion = lazy(
+  () => import("./modules/ventas/creartCotizacion/CrearCotizacion"),
 );
-const EditarCotizacion = lazy(() =>
-  import("./modules/ventas/editarCotizacion/EditarCotizacion")
+const EditarCotizacion = lazy(
+  () => import("./modules/ventas/editarCotizacion/EditarCotizacion"),
 );
-const ComprobantesCotizacion = lazy(() =>
-  import("./modules/ventas/comprobantesCotizacion/ComprobantesCotizacion")
+const ComprobantesCotizacion = lazy(
+  () =>
+    import("./modules/ventas/comprobantesCotizacion/ComprobantesCotizacion"),
 );
 
 // Compras
-const OrdenesCompra = lazy(() =>
-  import("./modules/compras/ordenesCompra/OrdenesCompra")
+const OrdenesCompra = lazy(
+  () => import("./modules/compras/ordenesCompra/OrdenesCompra"),
 );
-const NuevaOrdenCompra = lazy(() =>
-  import("./modules/compras/nuevaOrdenCompra/NuevaOrdenCompra")
+const NuevaOrdenCompra = lazy(
+  () => import("./modules/compras/nuevaOrdenCompra/NuevaOrdenCompra"),
 );
-const ComprobanteOrdenCompra = lazy(() =>
-  import("./modules/compras/comprobanteOrdenCompra/ComprobanteOrdenCompra")
+const ComprobanteOrdenCompra = lazy(
+  () =>
+    import("./modules/compras/comprobanteOrdenCompra/ComprobanteOrdenCompra"),
 );
-const EditarOrdenCompra = lazy(() =>
-  import("./modules/compras/editarOrdenCompra/EditarOrdenCompra")
+const EditarOrdenCompra = lazy(
+  () => import("./modules/compras/editarOrdenCompra/EditarOrdenCompra"),
 );
 
 // Productos
-const ComercializacionServicios = lazy(() =>
-  import(
-    "./modules/productos/comercializacionServicios/ComercializacionServicios"
-  )
+const ComercializacionServicios = lazy(
+  () =>
+    import("./modules/productos/comercializacionServicios/ComercializacionServicios"),
 );
 
-const CostosGastos = lazy(() =>
-  import("./modules/productos/costosGastos/CostosGastos")
+const CostosGastos = lazy(
+  () => import("./modules/productos/costosGastos/CostosGastos"),
 );
 
 // Clientes/Proveedores
-const TusClientes = lazy(() =>
-  import("./modules/clientesProveedores/tusClientes/TusClientes")
+const TusClientes = lazy(
+  () => import("./modules/clientesProveedores/tusClientes/TusClientes"),
 );
-const TusProveedores = lazy(() =>
-  import("./modules/clientesProveedores/tusProveedores/TusProveedores")
+const TusProveedores = lazy(
+  () => import("./modules/clientesProveedores/tusProveedores/TusProveedores"),
 );
 
-const Agencias = lazy(() =>
-  import("./modules/clientesProveedores/agencias/Agencias")
+const Agencias = lazy(
+  () => import("./modules/clientesProveedores/agencias/Agencias"),
 );
 
 // Reportes
-const ReportesCotizaciones = lazy(() =>
-  import("./modules/reportes/reportesCotizaciones/ReportesCotizaciones")
+const ReportesCotizaciones = lazy(
+  () => import("./modules/reportes/reportesCotizaciones/ReportesCotizaciones"),
 );
-const ReportesOrdenesCompra = lazy(() =>
-  import("./modules/reportes/reportesOrdenesCompra/ReportesOrdenesCompra")
+const ReportesOrdenesCompra = lazy(
+  () =>
+    import("./modules/reportes/reportesOrdenesCompra/ReportesOrdenesCompra"),
 );
 
 // Comprobantes
-const TusComprobantes = lazy(() =>
-  import("./modules/comprobantes/tusComprobantes/TusComprobantes")
+const TusComprobantes = lazy(
+  () => import("./modules/comprobantes/tusComprobantes/TusComprobantes"),
 );
-const ComprobanteElectronico = lazy(() =>
-  import("./modules/comprobantes/comprobanteElectronico/ComprobanteElectronico")
+const ComprobanteElectronico = lazy(
+  () =>
+    import("./modules/comprobantes/comprobanteElectronico/ComprobanteElectronico"),
 );
-const GenerarNotaCreditoDebito = lazy(() =>
-  import(
-    "./modules/comprobantes/GenerarNotaCreditoDebito/GenerarNotaCreditoDebito"
-  )
+const GenerarNotaCreditoDebito = lazy(
+  () =>
+    import("./modules/comprobantes/GenerarNotaCreditoDebito/GenerarNotaCreditoDebito"),
 );
 
 // Inventario
-const ReporteKardex = lazy(() =>
-  import("./modules/inventario/reporteKardex/ReporteKardex")
+const ReporteKardex = lazy(
+  () => import("./modules/inventario/reporteKardex/ReporteKardex"),
 );
 
 // RRHH
-const Colaboradores = lazy(() =>
-  import("./modules/rrhh/colaboradores/Colaboradores")
+const Colaboradores = lazy(
+  () => import("./modules/rrhh/colaboradores/Colaboradores"),
 );
 
-const ColaboradoresDeBaja = lazy(() =>
-  import("./modules/rrhh/colaboradoresDeBaja/ColaboradoresDeBaja")
+const ColaboradoresDeBaja = lazy(
+  () => import("./modules/rrhh/colaboradoresDeBaja/ColaboradoresDeBaja"),
 );
-const CargoLaboral = lazy(() =>
-  import("./modules/rrhh/cargoLaboral/CargoLaboral")
+const CargoLaboral = lazy(
+  () => import("./modules/rrhh/cargoLaboral/CargoLaboral"),
 );
-const DescansoMedico = lazy(() =>
-  import("./modules/rrhh/descansoMedico/DescansoMedico")
+const DescansoMedico = lazy(
+  () => import("./modules/rrhh/descansoMedico/DescansoMedico"),
 );
 
-const SolicitudesDescansoMedico = lazy(() =>
-  import("./modules/rrhh/solicitudesDescansoMedico/SolicitudesDescansoMedico")
+const SolicitudesDescansoMedico = lazy(
+  () =>
+    import("./modules/rrhh/solicitudesDescansoMedico/SolicitudesDescansoMedico"),
 );
 
 const Vacaciones = lazy(() => import("./modules/rrhh/vacaciones/Vacaciones"));
-const SolicitudesVacaciones = lazy(() =>
-  import("./modules/rrhh/solicitudesVacaciones/SolicitudesVacaciones")
+const SolicitudesVacaciones = lazy(
+  () => import("./modules/rrhh/solicitudesVacaciones/SolicitudesVacaciones"),
 );
 
 // Ajustes
-const MetodosPagosGastos = lazy(() =>
-  import("./modules/ajustes/metodoPagoGasto/MetodosPagosGastos")
+const MetodosPagosGastos = lazy(
+  () => import("./modules/ajustes/metodoPagoGasto/MetodosPagosGastos"),
 );
 
-const BancosCuentasBancarias = lazy(() =>
-  import("./modules/ajustes/bancosCuentasBancarias/BancosCuentasBancarias")
+const BancosCuentasBancarias = lazy(
+  () =>
+    import("./modules/ajustes/bancosCuentasBancarias/BancosCuentasBancarias"),
 );
-const Encargados = lazy(() =>
-  import("./modules/ajustes/encargados/Encargados")
+const Encargados = lazy(
+  () => import("./modules/ajustes/encargados/Encargados"),
 );
 
-const CentroCostos = lazy(() =>
-  import("./modules/ajustes/centroCostos/CentroCostos")
+const CentroCostos = lazy(
+  () => import("./modules/ajustes/centroCostos/CentroCostos"),
 );
 
 // Usuarios
 const Usuarios = lazy(() => import("./modules/usuarios/Usuarios"));
+
+// caja chica
+const CategoriaConcepto = lazy(
+  () => import("./modules/cajaChica/categoriaConcepto/CategoriaConcepto"),
+);
+const Trabajadores = lazy(
+  () => import("./modules/cajaChica/trabajadores/Trabajadores"),
+);
+const PlantillaApertura = lazy(
+  () => import("./modules/cajaChica/plantillaApertura/PlantillaApertura"),
+);
+const PlantillaDesembolso = lazy(
+  () => import("./modules/cajaChica/plantillaDesembolso/PlantillaDesembolso"),
+);
+// caja chica
 
 // Hook personalizado para manejar la data del usuario
 const useUserData = () => {
@@ -202,16 +218,6 @@ function App() {
 
         <Route element={<ProtectedRoutes />}>
           <Route path="/" element={<Dasbhoard />} />
-          {/* Rutas de despacho */}
-
-          <Route
-            path="/despacho/tiempo-real"
-            element={
-              <ProtectedRouteWrapper userRole={userRole}>
-                <DespachoTiempoReal userData={userData} />
-              </ProtectedRouteWrapper>
-            }
-          />
 
           {/* Rutas de Ventas */}
           <Route
@@ -483,6 +489,41 @@ function App() {
               </ProtectedRouteWrapper>
             }
           />
+
+          {/* Rutas de Usuarios */}
+          <Route
+            path="/caja-chica/categoria-centro-costos"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <CategoriaConcepto />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/caja-chica/trabajadores"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <Trabajadores />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/caja-chica/aperturas"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <PlantillaApertura />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/caja-chica/desembolsos"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <PlantillaDesembolso />
+              </ProtectedRouteWrapper>
+            }
+          />
+          {/* Rutas de Usuarios */}
 
           {/* Ruta por defecto */}
           <Route path="*" element={<Navigate to="/" replace />} />

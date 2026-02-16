@@ -29,3 +29,10 @@ export const onInputPriceCinco = (e) => {
     e.target.value = value; // Dejar el valor si no hay parte decimal
   }
 };
+
+export const numberPeru = (n) => {
+  return Number(n || 0).toLocaleString("es-PE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};

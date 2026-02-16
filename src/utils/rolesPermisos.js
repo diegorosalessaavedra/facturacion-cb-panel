@@ -8,15 +8,6 @@ export const ROLES = {
 };
 
 export const ROUTE_PERMISSIONS = {
-  // Rutas de Despacho
-  "/despacho/tiempo-real": [
-    ROLES.GERENTE,
-    ROLES.CONTADOR,
-    ROLES.PRACTICANTE_CONTABLE,
-    ROLES.VENDEDOR,
-    ROLES.COMPRADOR_VENDEDOR,
-  ],
-
   // Rutas de Ventas
   "/ventas/comprobantes-cotizacion": [
     ROLES.GERENTE,
@@ -258,6 +249,29 @@ export const ROUTE_PERMISSIONS = {
     ROLES.CONTADOR,
     ROLES.PRACTICANTE_CONTABLE,
   ],
+
+  // Rutas Caja Chica
+  "/caja-chica/categoria-centro-costos": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
+  "/caja-chica/trabajadores": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
+  "/caja-chica/aperturas": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
+  "/caja-chica/desembolsos": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
+  // Rutas Caja Chica
 };
 
 export const hasPermissionForRoute = (userRole, routePath) => {
@@ -269,7 +283,7 @@ export const hasPermissionForRoute = (userRole, routePath) => {
   const routeKey = Object.keys(ROUTE_PERMISSIONS).find((route) => {
     // Convertir ruta con parámetros a regex
     const routeRegex = new RegExp(
-      "^" + route.replace(/:[^/]+/g, "[^/]+") + "$"
+      "^" + route.replace(/:[^/]+/g, "[^/]+") + "$",
     );
     return routeRegex.test(routePath);
   });
