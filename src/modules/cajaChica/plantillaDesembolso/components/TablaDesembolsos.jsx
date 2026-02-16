@@ -84,7 +84,7 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
               <div
                 className={`${cellData} justify-start px-3  text-nowrap text-[10px]`}
               >
-                {item.trabajador.nombre_trabajador || "N/A"}
+                {item?.trabajador?.nombre_trabajador || "N/A"}
               </div>
               <div className={cellData}>
                 {formatDate(item.fecha_desembolso) || "--/--/--"}

@@ -80,7 +80,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
               <div
                 className={`${cellData} justify-start px-3  text-nowrap text-[10px]`}
               >
-                {item.trabajador.nombre_trabajador || "N/A"}
+                {item.trabajador?.nombre_trabajador || "N/A"}
               </div>
               <div className={cellData}>
                 {formatDate(item.fecha_dispone) || "--/--/--"}
@@ -93,8 +93,8 @@ const TablaAperturas = ({ aperturas = [] }) => {
               </div>
               {/* Data Yape */}
               <div className={`${cellData} bg-purple-50 text-purple-700`}>
-                {item.ingresos.yape > 0
-                  ? `S/ ${numberPeru(item.ingresos.yape) || 0}`
+                {item.ingresos?.yape > 0
+                  ? `S/ ${numberPeru(item.ingresos?.yape) || 0}`
                   : "-"}
               </div>
 
