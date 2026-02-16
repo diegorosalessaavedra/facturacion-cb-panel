@@ -19,8 +19,6 @@ const TablaOrdenCompras = ({
   setSelectOrdenCompra,
   userData,
 }) => {
-  console.log(ordenCompras);
-
   return (
     <div className="w-full flex ">
       <Table
@@ -129,8 +127,8 @@ const TablaOrdenCompras = ({
                   ordenCompra.estadoPago === "ENVIADO A PAGO"
                     ? "text-amber-500"
                     : ordenCompra.estadoPago === "PENDIENTE"
-                    ? "text-red-500"
-                    : "text-blue-500"
+                      ? "text-red-500"
+                      : "text-blue-500"
                 }  text-xs  font-semibold `}
               >
                 {ordenCompra.estadoPago}
@@ -151,8 +149,8 @@ const TablaOrdenCompras = ({
                       ordenCompra.prioridad_solped === "Alta"
                         ? "bg-red-500"
                         : ordenCompra.prioridad_solped === "Mediana"
-                        ? "bg-amber-500"
-                        : "bg-green-500"
+                          ? "bg-amber-500"
+                          : "bg-green-500"
                     }`}
                     size="sm"
                     color="danger"
