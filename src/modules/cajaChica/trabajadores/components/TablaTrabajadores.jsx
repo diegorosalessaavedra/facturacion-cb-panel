@@ -21,11 +21,10 @@ const TablaTrabajadores = ({
       color="default"
       isStriped
       classNames={{
-        base: "min-w-full min-h-full overflow-y-auto",
-        wrapper: "p-0",
+        base: "min-w-full min-h-full overflow-y-auto pb-8",
+        wrapper: "p-2",
       }}
       radius="sm"
-      isCompact={true}
       isHeaderSticky
       shadow="md"
     >

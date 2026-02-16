@@ -20,9 +20,10 @@ const MONEDAS = [
 ];
 
 const TablaDesembolsos = ({ desembolsos = [] }) => {
-  // --- ESTILOS ---
+  const stickyHeader = "sticky top-0 z-20";
+
   const headerBase =
-    "flex items-center justify-center font-bold text-[10px] uppercase tracking-wider py-2 px-1 text-center  border-r border-b border-slate-400";
+    "flex items-center justify-center font-bold text-[10px] uppercase tracking-wider py-2 px-1 text-center border-r border-b border-slate-400";
   const headerDark = `${headerBase} bg-slate-900 text-white`;
   const headerAmber = `${headerBase} bg-amber-400 text-black`;
   const headerPurple = `${headerBase} bg-purple-900 text-white`;
@@ -33,36 +34,63 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
   const cellTotal = `${cellBase} bg-slate-50 text-slate-900 font-bold`;
 
   return (
-    <div className="w-full overflow-x-auto shadow-md rounded-lg ">
+    // CAMBIO 1: h-fit a h-full para respetar el tamaño del padre
+    <div className="w-full h-full overflow-auto shadow-md rounded-lg bg-white relative">
       <div
-        className="grid"
+        className="grid min-w-[1500px]" // Min-w asegura que haya scroll horizontal si es necesario
         style={{
           gridTemplateColumns:
             "40px 1fr 90px 90px 90px 90px 1fr 90px repeat(10, 70px) 100px",
+          gridAutoRows: "max-content", // Asegura que las filas no se estiren de más
         }}
       >
         {/* === FILA 1: CABECERAS PRINCIPALES === */}
-        <div className={`row-span-2 ${headerDark}`}>N°</div>
-        <div className={`row-span-2 ${headerDark}`}>DESEMBOLSO A</div>
-        <div className={`row-span-2 ${headerDark}`}>FECHA DESEMBOLSO</div>
-        <div className={`row-span-2 ${headerAmber}`}>FECHA RENDIDA</div>
-        <div className={`row-span-2 ${headerAmber}`}>FECHA DIAS</div>
+        {/* Nota: Usamos sticky top-0 para fijarlos */}
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>N°</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          DESEMBOLSO A
+        </div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          FECHA DESEMBOLSO
+        </div>
+        <div className={`row-span-2 ${headerAmber} ${stickyHeader}`}>
+          FECHA RENDIDA
+        </div>
+        <div className={`row-span-2 ${headerAmber} ${stickyHeader}`}>
+          FECHA DIAS
+        </div>
 
-        <div className={`row-span-2 ${headerDark}`}>IMPORTE</div>
-        <div className={`row-span-2 ${headerDark}`}>MOTIVO</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          IMPORTE
+        </div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>MOTIVO</div>
 
-        <div className={`${headerPurple}`}>BILLETERA DIGITAL</div>
-        <div className={`col-span-5 ${headerDark}`}>BILLETES</div>
-        <div className={`col-span-5 ${headerDark}`}>MONEDAS</div>
+        <div className={`${headerPurple} ${stickyHeader}`}>
+          BILLETERA DIGITAL
+        </div>
+        <div className={`col-span-5 ${headerDark} ${stickyHeader}`}>
+          BILLETES
+        </div>
+        <div className={`col-span-5 ${headerDark} ${stickyHeader}`}>
+          MONEDAS
+        </div>
 
-        <div className={`row-span-2 ${headerDark}`}>ESTADO</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>ESTADO</div>
 
-        {/* === FILA 2: SUB-CABECERAS === */}
-        <div className={`${headerPurple} bg-purple-800`}>YAPE</div>
+        {/* === FILA 2: SUB-CABECERAS (Deben estar debajo de la fila 1 visualmente) === */}
+        {/* Como Grid pone todo en orden, estos elementos se colocan automáticamente en los huecos */}
+
+        {/* YAPE (va debajo de Billetera Digital) */}
+        <div
+          className={`${headerPurple} bg-purple-800 top-[47px] sticky z-20 `}
+        >
+          YAPE
+        </div>
+
         {BILLETES.map((b) => (
           <div
             key={`h-${b.key}`}
-            className="bg-slate-800 text-white text-[10px] text-nowrap font-bold flex  items-center justify-center border-r border-slate-400"
+            className="bg-slate-800 text-white text-[10px] text-nowrap font-bold flex items-center justify-center border-r border-slate-400 top-[47px] sticky z-20"
           >
             <span>S/ {b.label}</span>
           </div>
@@ -70,7 +98,7 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
         {MONEDAS.map((m) => (
           <div
             key={`h-${m.key}`}
-            className="bg-slate-800 text-white text-[10px] font-bold flex items-center justify-center border-r border-slate-400"
+            className="bg-slate-800 text-white text-[10px] font-bold flex items-center justify-center border-r border-slate-400 top-[47px] sticky z-20"
           >
             <span>S/ {m.label}</span>
           </div>
@@ -82,19 +110,15 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
             <React.Fragment key={index}>
               <div className={cellData}>{index + 1}</div>
               <div
-                className={`${cellData} justify-start px-3  text-nowrap text-[10px]`}
+                className={`${cellData} justify-start px-3 text-nowrap text-[10px]`}
               >
                 {item?.trabajador?.nombre_trabajador || "N/A"}
               </div>
               <div className={cellData}>
                 {formatDate(item.fecha_desembolso) || "--/--/--"}
               </div>
-              <div className={cellData}>
-                {formatDate(item.ssss) || "--/--/--"}
-              </div>{" "}
-              <div className={cellData}>
-                {formatDate(item.sss) || "--/--/--"}
-              </div>
+              <div className={cellData}>--/--/--</div>
+              <div className={cellData}>--/--/--</div>
               <div className={`${cellTotal} text-blue-700`}>
                 S/ {numberPeru(item.importe_desembolso || 0)}
               </div>
@@ -104,14 +128,16 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
               {/* Data Yape */}
               <div className={`${cellData} bg-purple-50 text-purple-700`}>
                 {item?.egresos?.yape
-                  ? `S/ ${numberPeru(item.egresos.yape) || 0}`
+                  ? `S/ ${numberPeru(item.egresos.yape)}`
                   : "-"}
               </div>
+              {/* Billetes */}
               <div className={cellData}>{item.egresos?.billete_200 || 0}</div>
               <div className={cellData}>{item.egresos?.billete_100 || 0}</div>
               <div className={cellData}>{item.egresos?.billete_50 || 0}</div>
               <div className={cellData}>{item.egresos?.billete_20 || 0}</div>
               <div className={cellData}>{item.egresos?.billete_10 || 0}</div>
+              {/* Monedas */}
               <div className={cellData}>{item.egresos?.moneda_5 || 0}</div>
               <div className={cellData}>{item.egresos?.moneda_2 || 0}</div>
               <div className={cellData}>{item.egresos?.moneda_1 || 0}</div>

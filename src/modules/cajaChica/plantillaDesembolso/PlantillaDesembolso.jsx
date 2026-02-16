@@ -4,9 +4,7 @@ import config from "../../../utils/getToken";
 import axios from "axios";
 import { API } from "../../../utils/api";
 import LoadingSpinner from "../../../components/LoadingSpinner";
-import FormularioApertura from "./components/FormularioDesembolso";
 import { motion } from "framer-motion";
-import TablaAperturas from "./components/TablaDesembolsos";
 import FormularioDesembolso from "./components/FormularioDesembolso";
 import TablaDesembolsos from "./components/TablaDesembolsos";
 
@@ -44,23 +42,19 @@ const PlantillaDesembolso = () => {
     handleFindTrabajadores();
   }, []);
 
-  console.log(desembolsos);
-
   return (
     <main className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
       {loading && <LoadingSpinner />}
 
-      {/* Contenedor Principal con animación de entrada */}
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="max-w-[1600px] h-full  mx-auto bg-white  p-4  rounded-xl flex flex-col "
+        className="max-w-[1600px] h-full mx-auto bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
       >
         {/* HEADER MODERNO */}
-        <header className="relative w-full bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg shadow-xl overflow-hidden p-2 flex items-center justify-between">
-          {/* Elemento decorativo de fondo */}
-
+        {/* flex-none evita que el header se aplaste */}
+        <header className="flex-none relative w-full min-h-[68px] bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg shadow-md overflow-hidden p-2 flex items-center justify-between">
           <div className="flex items-center gap-6 relative z-10">
             <div className="bg-white p-2 rounded-md shadow-md">
               <img
@@ -77,27 +71,29 @@ const PlantillaDesembolso = () => {
           </div>
         </header>
 
-        {/* SECCIÓN DEL FORMULARIO Y TABLA */}
-        <main className="bg-white overflow-hidden min-h-[600px]">
-          {/* Título de sección opcional */}
-          <div className="px-2 pt-6 flex items-center gap-2">
+        {/* SECCIÓN PRINCIPAL (FORMULARIO + TABLA) */}
+        {/* flex-1 min-h-0 es el TRUCO para que el scroll funcione dentro de flex */}
+        <main className="flex-1 min-h-0 flex flex-col gap-4">
+          {/* Título */}
+          <div className="flex-none px-2 pt-2 flex items-center gap-2">
             <div className="w-1 h-6 bg-amber-500 rounded-full"></div>
             <h2 className="text-md font-semibold text-slate-700">
               Datos de Desembolso
             </h2>
           </div>
 
-          <div className="p-4 ">
+          {/* Formulario (flex-none para que ocupe lo que necesita) */}
+          <div className="flex-none">
             <FormularioDesembolso
               trabajadores={trabajadores}
               onSuccess={handleFindDsembolsos}
               saldoTotal={saldoTotal}
             />
+          </div>
 
-            {/* AQUÍ IRÍA TU TABLA EXISTENTE */}
-            <div className="mt-4 border rounded-xl overflow-hidden">
-              <TablaDesembolsos desembolsos={desembolsos} />
-            </div>
+          {/* TABLA (flex-1 para ocupar el resto y permitir scroll) */}
+          <div className="flex-1 min-h-0 border border-slate-200 rounded-xl overflow-hidden shadow-inner bg-slate-50">
+            <TablaDesembolsos desembolsos={desembolsos} />
           </div>
         </main>
       </motion.div>

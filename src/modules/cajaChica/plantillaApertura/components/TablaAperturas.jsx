@@ -20,7 +20,7 @@ const MONEDAS = [
 ];
 
 const TablaAperturas = ({ aperturas = [] }) => {
-  // --- ESTILOS ---
+  const stickyHeader = "sticky top-0 z-20";
   const headerBase =
     "flex items-center justify-center font-bold text-[10px] uppercase tracking-wider py-2 px-1 text-center  border-r border-b border-slate-400";
   const headerDark = `${headerBase} bg-slate-900 text-white`;
@@ -32,33 +32,50 @@ const TablaAperturas = ({ aperturas = [] }) => {
   const cellTotal = `${cellBase} bg-slate-50 text-slate-900 font-bold`;
 
   return (
-    <div className="w-full overflow-x-auto shadow-md rounded-lg ">
+    <div className="w-full h-full overflow-auto shadow-md rounded-lg bg-white relative">
       <div
         className="grid"
         style={{
           gridTemplateColumns:
             "40px 1fr 90px 90px 100px 90px repeat(10, 70px) 100px",
+          gridAutoRows: "max-content", // Asegura que las filas no se estiren de más
         }}
       >
         {/* === FILA 1: CABECERAS PRINCIPALES === */}
-        <div className={`row-span-2 ${headerDark}`}>N°</div>
-        <div className={`row-span-2 ${headerDark}`}>DISPONE CAJA</div>
-        <div className={`row-span-2 ${headerDark}`}>FECHA QUE DISPONE</div>
-        <div className={`row-span-2 ${headerDark}`}>IMPORTE</div>
-        <div className={`row-span-2 ${headerDark}`}>MOTIVO</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>N°</div>
+        <div className={`row-span-2 ${headerDark}  ${stickyHeader}`}>
+          FECHA QUE DISPONE
+        </div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          DISPONE CAJA
+        </div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          IMPORTE
+        </div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>MOTIVO</div>
 
-        <div className={`${headerPurple}`}>BILLETERA DIGITAL</div>
-        <div className={`col-span-5 ${headerDark}`}>BILLETES</div>
-        <div className={`col-span-5 ${headerDark}`}>MONEDAS</div>
+        <div className={`${headerPurple}  ${stickyHeader}`}>
+          BILLETERA DIGITAL
+        </div>
+        <div className={`col-span-5 ${headerDark} ${stickyHeader}`}>
+          BILLETES
+        </div>
+        <div className={`col-span-5 ${headerDark} ${stickyHeader}`}>
+          MONEDAS
+        </div>
 
-        <div className={`row-span-2 ${headerDark}`}>ESTADO</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>ESTADO</div>
 
         {/* === FILA 2: SUB-CABECERAS === */}
-        <div className={`${headerPurple} bg-purple-800`}>YAPE</div>
+        <div
+          className={`${headerPurple} bg-purple-800 top-[47px] sticky z-20 `}
+        >
+          YAPE
+        </div>
         {BILLETES.map((b) => (
           <div
             key={`h-${b.key}`}
-            className="bg-slate-800 text-white text-[10px] text-nowrap font-bold flex  items-center justify-center border-r border-slate-400"
+            className="bg-slate-800 text-white text-[10px] text-nowrap font-bold flex items-center justify-center border-r border-slate-400 top-[47px] sticky z-20"
           >
             <span>S/ {b.label}</span>
           </div>
@@ -66,7 +83,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
         {MONEDAS.map((m) => (
           <div
             key={`h-${m.key}`}
-            className="bg-slate-800 text-white text-[10px] font-bold flex items-center justify-center border-r border-slate-400"
+            className="bg-slate-800 text-white text-[10px] font-bold flex items-center justify-center border-r border-slate-400 top-[47px] sticky z-20"
           >
             <span>S/ {m.label}</span>
           </div>
