@@ -152,6 +152,9 @@ const PlantillaApertura = lazy(
 const PlantillaDesembolso = lazy(
   () => import("./modules/cajaChica/plantillaDesembolso/PlantillaDesembolso"),
 );
+const PlantillaRendicion = lazy(
+  () => import("./modules/cajaChica/plantillaRendicion/PlantillaRendicion"),
+);
 // caja chica
 
 // Hook personalizado para manejar la data del usuario
@@ -520,6 +523,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <PlantillaDesembolso />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/caja-chica/rendicion"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <PlantillaRendicion />
               </ProtectedRouteWrapper>
             }
           />

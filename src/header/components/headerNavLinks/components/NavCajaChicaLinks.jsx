@@ -32,7 +32,7 @@ const NavCajaChicaLinks = ({
       </div>
       <div
         className={`${
-          openListModule === "caja-chica" ? "min-h-[200px]" : "h-[0px]"
+          openListModule === "caja-chica" ? "min-h-[250px]" : "h-[0px]"
         } w-full bg-blue-700 text-white  transition-all duration-300  overflow-hidden `}
       >
         <Link
@@ -68,11 +68,11 @@ const NavCajaChicaLinks = ({
         </Link>
         <Link
           className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
-          to="/caja-chica/centro-costos"
+          to="/caja-chica/rendicion"
           onClick={() => setIsMenuOpen(false)}
         >
           <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Centro costos</p>
+          <p className="text-sm">Plantilla Rendición</p>
         </Link>
       </div>
     </>

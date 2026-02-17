@@ -17,6 +17,7 @@ const MONEDAS = [
   { key: "moneda_1", label: "1.00" },
   { key: "moneda_05", label: "0.50" },
   { key: "moneda_02", label: "0.20" },
+  { key: "moneda_01", label: "0.10" },
 ];
 
 const TablaDesembolsos = ({ desembolsos = [] }) => {
@@ -57,7 +58,7 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
           FECHA RENDIDA
         </div>
         <div className={`row-span-2 ${headerAmber} ${stickyHeader}`}>
-          FECHA DIAS
+          DEMORA DÍAS
         </div>
 
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>

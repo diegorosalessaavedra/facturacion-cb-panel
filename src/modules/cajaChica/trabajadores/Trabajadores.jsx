@@ -49,8 +49,8 @@ const Trabajadores = () => {
           <Button
             className="bg-slate-900"
             onPress={() => {
-              onOpen();
               selectModal("create");
+              onOpen();
             }}
             color="primary"
             startContent={<FaPlus />}

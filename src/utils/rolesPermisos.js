@@ -271,6 +271,11 @@ export const ROUTE_PERMISSIONS = {
     ROLES.CONTADOR,
     ROLES.PRACTICANTE_CONTABLE,
   ],
+  "/caja-chica/rendicion": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+  ],
   // Rutas Caja Chica
 };
 

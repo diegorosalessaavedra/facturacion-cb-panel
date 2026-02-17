@@ -17,6 +17,7 @@ const MONEDAS = [
   { key: "moneda_1", label: "1.00" },
   { key: "moneda_05", label: "0.50" },
   { key: "moneda_02", label: "0.20" },
+  { key: "moneda_01", label: "0.10" },
 ];
 
 const TablaAperturas = ({ aperturas = [] }) => {
@@ -43,11 +44,11 @@ const TablaAperturas = ({ aperturas = [] }) => {
       >
         {/* === FILA 1: CABECERAS PRINCIPALES === */}
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>N°</div>
-        <div className={`row-span-2 ${headerDark}  ${stickyHeader}`}>
-          FECHA QUE DISPONE
-        </div>
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
           DISPONE CAJA
+        </div>
+        <div className={`row-span-2 ${headerDark}  ${stickyHeader}`}>
+          FECHA QUE DISPONE
         </div>
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
           IMPORTE

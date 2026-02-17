@@ -25,6 +25,7 @@ const MONEDAS = [
   { key: "moneda_1", label: "1.00", valor: 1 },
   { key: "moneda_05", label: "0.50", valor: 0.5 },
   { key: "moneda_02", label: "0.20", valor: 0.2 },
+  { key: "moneda_01", label: "0.10", valor: 0.1 },
 ];
 
 const TODAS_DENOMINACIONES = [...BILLETES, ...MONEDAS];
