@@ -270,7 +270,7 @@ const FormularioRendicion = ({
             </div>
           )}
         </motion.div>
-        <div className="flex-1 min-h-0 rounded-xl  relative">
+        <div className="flex-1   min-h-[500px] rounded-xl  relative">
           {selectDesembolso ? (
             <TablaRendicion
               datosRendicion={datosRendicion}

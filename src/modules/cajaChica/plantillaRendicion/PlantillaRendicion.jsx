@@ -67,7 +67,7 @@ const PlantillaRendicion = () => {
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="max-w-[1600px] overflow-hidden h-full mx-auto bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
+        className="max-w-[1600px] overflow-y-auto overflow-x-hidden h-full mx-auto bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
       >
         <header className="flex-none relative w-full min-h-[68px] bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg shadow-md overflow-hidden p-2 flex items-center justify-between">
           <div className="flex items-center gap-6 relative z-10">

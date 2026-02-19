@@ -58,7 +58,7 @@ const PlantillaApertura = () => {
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="max-w-[1600px] h-full mx-auto bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
+        className="max-w-[1600px] h-full mx-auto overflow-y-auto overflow-x-hidden bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
       >
         {/* HEADER (flex-none para que no se aplaste) */}
         <header className="flex-none relative w-full min-h-[68px] bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg shadow-md overflow-hidden p-2 flex items-center justify-between">
@@ -107,7 +107,7 @@ const PlantillaApertura = () => {
               setdataFiltros={setdataFiltros}
               handleFindAperturas={handleFindAperturas}
             />
-            <div className="flex-1 min-h-0 border border-slate-200 rounded-xl overflow-hidden shadow-inner bg-slate-50 relative">
+            <div className="flex-1 min-h-[500px] border border-slate-200 rounded-xl overflow-hidden relative">
               <TablaAperturas aperturas={aperturas} />
             </div>
           </div>

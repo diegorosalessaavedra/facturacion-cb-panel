@@ -73,7 +73,7 @@ const PlantillaDesembolso = () => {
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="max-w-[1600px] h-full mx-auto bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
+        className="max-w-[1600px] h-full mx-auto overflow-y-auto overflow-x-hidden bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
       >
         {/* HEADER MODERNO */}
         {/* flex-none evita que el header se aplaste */}
@@ -120,7 +120,7 @@ const PlantillaDesembolso = () => {
           />
 
           {/* TABLA (flex-1 para ocupar el resto y permitir scroll) */}
-          <div className="flex-1 min-h-0 border border-slate-200 rounded-xl overflow-hidden shadow-inner bg-slate-50">
+          <div className="flex-1 min-h-[500px] border border-slate-200 rounded-xl overflow-hidden relative">
             <TablaDesembolsos desembolsos={desembolsos} />
           </div>
         </main>
