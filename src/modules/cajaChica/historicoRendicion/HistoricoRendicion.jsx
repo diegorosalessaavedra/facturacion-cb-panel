@@ -76,8 +76,6 @@ const HistoricoRendicion = () => {
     handleFindCategoria();
   }, []);
 
-  console.log(rendiciones);
-
   return (
     <main className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
       {loading && <LoadingSpinner />}
