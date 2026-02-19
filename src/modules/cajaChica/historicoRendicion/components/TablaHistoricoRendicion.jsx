@@ -1,5 +1,6 @@
 import React from "react";
 import { numberPeru } from "../../../../assets/onInputs";
+import formatDate from "../../../../hooks/FormatDate";
 
 const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
   const stickyHeader = "sticky top-0 z-20";
@@ -12,7 +13,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
 
   // Añadimos h-full para que cuando haya "rowspan", la celda ocupe toda la altura y quede centrada
   const cellBase =
-    "flex items-center justify-center text-[10px] border-r border-b border-slate-300 min-h-[40px] h-full px-2 text-slate-700 bg-white text-center";
+    "flex items-center justify-center text-[10px] font-medium border-r border-b border-slate-300 min-h-[40px] h-full px-2 text-slate-700 bg-white text-center";
 
   // Sumar el total de gastos usando la propiedad de la API
   const totalGeneralGastos = rendiciones.reduce(
@@ -128,14 +129,16 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                     : "-"}
                 </div>
                 <div className={cellBase} style={spanStyle}>
-                  {item.fecha_recibida || "-"}
+                  {formatDate(item.fecha_recibida) || "-"}
                 </div>
 
                 {/* 2. SECCIÓN DETALLE (A la derecha, se renderizan fila por fila) */}
                 {detalles.length > 0 ? (
                   detalles.map((detalle, dIndex) => (
                     <React.Fragment key={detalle.id || dIndex}>
-                      <div className={cellBase}>{detalle.fecha_uso || "-"}</div>
+                      <div className={cellBase}>
+                        {formatDate(detalle.fecha_uso) || "-"}
+                      </div>
                       <div
                         className={`${cellBase} justify-start uppercase text-[9px]`}
                       >
@@ -143,7 +146,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                       </div>
                       <div className={cellBase}>{detalle.ruc || "-"}</div>
                       <div className={cellBase}>
-                        {detalle.fecha_emision || "-"}
+                        {formatDate(detalle.fecha_emision) || "-"}
                       </div>
                       <div className={`${cellBase} text-[9px]`}>
                         {detalle.tipo_comprobante || "-"}
