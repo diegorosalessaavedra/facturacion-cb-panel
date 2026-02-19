@@ -128,7 +128,7 @@ const FlitroDesembolso = ({
       </motion.div>
       <motion.div variants={itemVariants} className="min-w-[150px]">
         <Select
-          label="Estado Apertura"
+          label="Estado Desembolso"
           labelPlacement="outside"
           variant="bordered"
           startContent={<FiFileText className="text-default-400" size={16} />}
@@ -145,8 +145,11 @@ const FlitroDesembolso = ({
           <SelectItem key="TODOS" value="TODOS">
             TODOS
           </SelectItem>
-          <SelectItem key="APERTURADO" value="APERTURADO">
-            APERTURADO
+          <SelectItem key="POR RENDIR" value="POR RENDIR">
+            POR RENDIR
+          </SelectItem>
+          <SelectItem key="RENDIDO" value="RENDIDO">
+            RENDIDO
           </SelectItem>
           <SelectItem key="ANULADO" value="ANULADO">
             ANULADO
@@ -157,7 +160,7 @@ const FlitroDesembolso = ({
         <Input
           type="text"
           labelPlacement="outside"
-          label="Demora Días"
+          label="Demora Días Max."
           variant="bordered"
           classNames={inputClassNames}
           onChange={(e) =>
