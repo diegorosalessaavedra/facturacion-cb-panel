@@ -8,7 +8,6 @@ import {
 import { FiFileText } from "react-icons/fi";
 import { Search } from "lucide-react";
 const FlitroApertura = ({
-  trabajadores,
   dataFiltros,
   setdataFiltros,
   handleFindAperturas,

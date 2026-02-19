@@ -8,7 +8,7 @@ import FormularioApertura from "./components/FormularioApertura";
 import { motion } from "framer-motion";
 import TablaAperturas from "./components/TablaAperturas";
 import { getTodayDate, getTodayDate2 } from "../../../assets/getTodayDate";
-import FlitroApertura from "./components/flitroApertura";
+import FlitroApertura from "./components/FlitroApertura";
 
 const PlantillaApertura = () => {
   const [loading, setLoading] = useState(false);
