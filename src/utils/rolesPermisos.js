@@ -251,31 +251,12 @@ export const ROUTE_PERMISSIONS = {
   ],
 
   // Rutas Caja Chica
-  "/caja-chica/categoria-centro-costos": [
-    ROLES.GERENTE,
-    ROLES.CONTADOR,
-    ROLES.PRACTICANTE_CONTABLE,
-  ],
-  "/caja-chica/trabajadores": [
-    ROLES.GERENTE,
-    ROLES.CONTADOR,
-    ROLES.PRACTICANTE_CONTABLE,
-  ],
-  "/caja-chica/aperturas": [
-    ROLES.GERENTE,
-    ROLES.CONTADOR,
-    ROLES.PRACTICANTE_CONTABLE,
-  ],
-  "/caja-chica/desembolsos": [
-    ROLES.GERENTE,
-    ROLES.CONTADOR,
-    ROLES.PRACTICANTE_CONTABLE,
-  ],
-  "/caja-chica/rendicion": [
-    ROLES.GERENTE,
-    ROLES.CONTADOR,
-    ROLES.PRACTICANTE_CONTABLE,
-  ],
+  "/caja-chica/categoria-centro-costos": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/caja-chica/trabajadores": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/caja-chica/aperturas": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/caja-chica/desembolsos": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/caja-chica/rendicion": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/caja-chica/historico-rendicion-individual": [ROLES.GERENTE, ROLES.CONTADOR],
   // Rutas Caja Chica
 };
 

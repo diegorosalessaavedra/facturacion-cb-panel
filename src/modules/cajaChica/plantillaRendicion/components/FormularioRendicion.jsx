@@ -11,7 +11,7 @@ import axios from "axios";
 import { API } from "../../../../utils/api";
 import config from "../../../../utils/getToken";
 import { toast } from "sonner";
-import { Save, Wallet, Calendar, User, FileText } from "lucide-react";
+import { Save, Calendar, User, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   inputClassNames,
@@ -19,12 +19,20 @@ import {
 } from "../../../../assets/classNames";
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
 import TablaRendicion from "./TablaRendicion";
+import { getTodayDate } from "../../../../assets/getTodayDate";
 
-const FormularioRendicion = ({ trabajadores, onSuccess, conceptos }) => {
+const FormularioRendicion = ({
+  trabajadores,
+  onSuccess,
+  conceptos,
+  categorias,
+}) => {
   const { register, handleSubmit, reset } = useForm();
   const [loading, setLoading] = useState(false);
   const [selectTrabajador, setSelectTrabajador] = useState(null);
   const [desembolsos, setDesembolsos] = useState([]);
+  const [selectCategoria, setSelectCategoria] = useState(null);
+  const [selectDesembolso, setSelectDesembolso] = useState(null);
   const [datosRendicion, setDatosRendicion] = useState([
     {
       fecha_uso: "",
@@ -40,7 +48,6 @@ const FormularioRendicion = ({ trabajadores, onSuccess, conceptos }) => {
       sugerencias: "",
     },
   ]);
-  const [selectDesembolso, setSelectDesembolso] = useState(null);
 
   const submit = async (data) => {
     setLoading(true);
@@ -89,6 +96,13 @@ const FormularioRendicion = ({ trabajadores, onSuccess, conceptos }) => {
     visible: { opacity: 1, y: 0 },
   };
 
+  useEffect(() => {
+    if (selectCategoria) {
+      const timer = setTimeout(() => setSelectCategoria(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [selectCategoria]);
+
   return (
     <section>
       <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
@@ -109,7 +123,7 @@ const FormularioRendicion = ({ trabajadores, onSuccess, conceptos }) => {
               isRequired
               {...register("trabajador_id")}
               size="sm"
-              selectedKeys={[`${selectTrabajador?.id}`]}
+              selectedKeys={[`${selectTrabajador?.id || ""}`]}
               onChange={(e) =>
                 setSelectTrabajador(
                   trabajadores.find((t) => t.id === Number(e.target.value)),
@@ -153,7 +167,8 @@ const FormularioRendicion = ({ trabajadores, onSuccess, conceptos }) => {
               isRequired
               {...register("concepto_rendicion")}
               size="sm"
-              isDisabled={!selectTrabajador}
+              isDisabled={!selectDesembolso}
+              selectedKeys={[selectDesembolso?.motivo_desembolso || ""]}
             >
               {conceptos?.map((c) => (
                 <SelectItem key={c.conceptos} textValue={c.conceptos}>
@@ -175,7 +190,7 @@ const FormularioRendicion = ({ trabajadores, onSuccess, conceptos }) => {
               color="danger"
               isDisabled={!selectTrabajador}
               size="sm"
-              selectedKeys={[`${selectDesembolso?.id}`]}
+              selectedKeys={[`${selectDesembolso?.id || ""}`]}
               onChange={(e) =>
                 setSelectDesembolso(
                   desembolsos.find((t) => t.id === Number(e.target.value)),
@@ -219,13 +234,14 @@ const FormularioRendicion = ({ trabajadores, onSuccess, conceptos }) => {
               variant="bordered"
               color="success"
               size="sm"
+              value={getTodayDate()}
             />
           </motion.div>
         </motion.div>
 
         {/* BOTONES */}
         <motion.div
-          className="flex justify-end gap-3 pb-4 pt-0 border-b border-amber-300"
+          className="relative flex justify-end gap-3 pb-4 pt-0 "
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -236,23 +252,42 @@ const FormularioRendicion = ({ trabajadores, onSuccess, conceptos }) => {
             isLoading={loading}
             startContent={!loading && <Save size={18} />}
           >
-            Guardar Apertura
+            Guardar Rendición
           </Button>
+
+          {selectCategoria && (
+            <div
+              className="absolute left-1/2 -translate-x-1/2 top-9 z-10
+    bg-amber-300/70 backdrop-blur-md
+    border border-white/40
+    p-1.5 px-6 flex items-center justify-center
+    rounded-xl shadow-2xl shadow-black
+    animate-fadeSlide"
+            >
+              <p className="text-[11px] text-neutral-600 font-semibold">
+                {selectCategoria?.sugerencia_detalle}
+              </p>
+            </div>
+          )}
         </motion.div>
+        <div className="flex-1 min-h-0 rounded-xl  relative">
+          {selectDesembolso ? (
+            <TablaRendicion
+              datosRendicion={datosRendicion}
+              setDatosRendicion={setDatosRendicion}
+              montoRendicion={Math.abs(
+                Number(selectDesembolso.importe_desembolso),
+              )}
+              categorias={categorias}
+              setSelectCategoria={setSelectCategoria}
+            />
+          ) : (
+            <p className=" p-4 border-t-1 border-b-1 border-amber-300 rounded-xl">
+              Seleccione un Monto
+            </p>
+          )}
+        </div>
       </form>
-      <div className="flex-1 min-h-0 border border-slate-200 rounded-xl  relative">
-        {selectDesembolso ? (
-          <TablaRendicion
-            datosRendicion={datosRendicion}
-            setDatosRendicion={setDatosRendicion}
-            montoRendicion={Math.abs(
-              Number(selectDesembolso.importe_desembolso),
-            )}
-          />
-        ) : (
-          <p className=" p-4">Seleccione un Monto</p>
-        )}
-      </div>
     </section>
   );
 };

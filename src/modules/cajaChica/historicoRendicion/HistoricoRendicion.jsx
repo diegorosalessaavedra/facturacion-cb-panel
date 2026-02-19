@@ -5,13 +5,46 @@ import axios from "axios";
 import { API } from "../../../utils/api";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import { motion } from "framer-motion";
-import FormularioRendicion from "./components/FormularioRendicion";
+import FiltroHistoricoRendicion from "./components/FiltroHistoricoRendicion";
+import { getTodayDate, getTodayDate2 } from "../../../assets/getTodayDate";
+import TablaHistoricoRendicion from "./components/TablaHistoricoRendicion";
 
-const PlantillaRendicion = () => {
+const HistoricoRendicion = () => {
   const [loading, setLoading] = useState(false);
   const [trabajadores, setTrabajadores] = useState([]);
-  const [conceptos, setConceptos] = useState([]);
   const [categorias, setCategorias] = useState([]);
+  const [dataFiltros, setdataFiltros] = useState({
+    trabajador_id: "",
+    fecha_inicio: getTodayDate2(),
+    fecha_final: getTodayDate(),
+    categoria_gasto: "",
+  });
+  const [rendiciones, setRendiciones] = useState([]);
+
+  const handleFindRendiciones = () => {
+    setLoading(true);
+
+    const filtrosLimpios = Object.fromEntries(
+      Object.entries(dataFiltros).filter(
+        ([_, value]) => value !== "" && value !== "TODOS",
+      ),
+    );
+
+    const url = `${API}/caja-chica/rendicion`;
+    axios
+      .get(
+        url,
+        {
+          params: filtrosLimpios,
+        },
+        config,
+      )
+      .then((res) => {
+        setRendiciones(res.data.rendiciones);
+      })
+      .catch((err) => handleAxiosError(err))
+      .finally(() => setLoading(false));
+  };
 
   const handleFindTrabajadores = () => {
     setLoading(true);
@@ -21,21 +54,6 @@ const PlantillaRendicion = () => {
       .then((res) => setTrabajadores(res.data.trabajadores))
       .catch((err) => handleAxiosError(err))
       .finally(() => setLoading(false));
-  };
-
-  const handleFindConcepto = () => {
-    setLoading(true);
-    const url = `${API}/caja-chica/conceptos-rendicion`;
-
-    axios
-      .get(url, config)
-      .then((res) => setConceptos(res.data.conceptoRendiciones))
-      .catch((err) => {
-        handleAxiosError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
   };
 
   const handleFindCategoria = () => {
@@ -55,9 +73,10 @@ const PlantillaRendicion = () => {
 
   useEffect(() => {
     handleFindTrabajadores();
-    handleFindConcepto();
     handleFindCategoria();
   }, []);
+
+  console.log(rendiciones);
 
   return (
     <main className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
@@ -80,7 +99,7 @@ const PlantillaRendicion = () => {
             </div>
             <div className="text-white">
               <h1 className="text-xl font-bold tracking-tight">
-                Plantilla de Rendición
+                Historico de Rendición Individual
               </h1>
             </div>
           </div>
@@ -96,16 +115,15 @@ const PlantillaRendicion = () => {
 
           <div className="flex-1 min-h-0 flex flex-col gap-4 px-2 pb-2">
             <div className="flex-none">
-              <FormularioRendicion
+              <FiltroHistoricoRendicion
                 trabajadores={trabajadores}
-                conceptos={conceptos}
-                onSuccess={() => {
-                  handleFindTrabajadores();
-                  handleFindConcepto();
-                }}
                 categorias={categorias}
+                dataFiltros={dataFiltros}
+                setdataFiltros={setdataFiltros}
+                handleFindRendiciones={handleFindRendiciones}
               />
             </div>
+            <TablaHistoricoRendicion rendiciones={rendiciones} />
           </div>
         </main>
       </motion.div>
@@ -113,4 +131,4 @@ const PlantillaRendicion = () => {
   );
 };
 
-export default PlantillaRendicion;
+export default HistoricoRendicion;

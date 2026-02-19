@@ -134,12 +134,12 @@ const ModalIngresoEgresos = ({
             </ModalHeader>
 
             <ModalBody className="bg-slate-100 p-6 overflow-x-auto">
-              <div className="grid grid-cols-[90px_100px_repeat(10,1fr)_100px] gap-px bg-slate-300 border border-slate-300 rounded-lg overflow-hidden shadow-sm">
+              <div className="grid grid-cols-[90px_100px_repeat(11,1fr)_100px] gap-px bg-slate-300 border border-slate-300 rounded-lg overflow-hidden shadow-sm">
                 {/* --- FILA 1: ENCABEZADOS --- */}
                 <div className="bg-white"></div>
                 <div className={headerPurple}>Billetera Digital</div>
                 <div className={`col-span-5 ${headerDark}`}>BILLETES</div>
-                <div className={`col-span-5 ${headerDark}`}>MONEDAS</div>
+                <div className={`col-span-6 ${headerDark}`}>MONEDAS</div>
 
                 {/* TOTAL HEADER */}
                 <div className="row-span-2 bg-slate-900 flex flex-col items-center justify-center text-white font-bold p-2">

@@ -38,7 +38,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
         className="grid"
         style={{
           gridTemplateColumns:
-            "40px 1fr 90px 90px 100px 90px repeat(10, 70px) 100px",
+            "40px 1fr 90px 90px 100px 90px repeat(11, 70px) 100px",
           gridAutoRows: "max-content", // Asegura que las filas no se estiren de más
         }}
       >
@@ -61,7 +61,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
         <div className={`col-span-5 ${headerDark} ${stickyHeader}`}>
           BILLETES
         </div>
-        <div className={`col-span-5 ${headerDark} ${stickyHeader}`}>
+        <div className={`col-span-6 ${headerDark} ${stickyHeader}`}>
           MONEDAS
         </div>
 
@@ -126,6 +126,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
               <div className={cellData}>{item.ingresos?.moneda_1 || 0}</div>
               <div className={cellData}>{item.ingresos?.moneda_05 || 0}</div>
               <div className={cellData}>{item.ingresos?.moneda_02 || 0}</div>
+              <div className={cellData}>{item.ingresos?.moneda_01 || 0}</div>
 
               {/* Estado */}
               <div className={`${cellData} font-bold text-[11px]`}>

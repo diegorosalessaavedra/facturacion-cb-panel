@@ -7,18 +7,41 @@ import LoadingSpinner from "../../../components/LoadingSpinner";
 import { motion } from "framer-motion";
 import FormularioDesembolso from "./components/FormularioDesembolso";
 import TablaDesembolsos from "./components/TablaDesembolsos";
+import FlitroDesembolso from "./components/FlitroDesembolso";
+import { getTodayDate, getTodayDate2 } from "../../../assets/getTodayDate";
 
 const PlantillaDesembolso = () => {
   const [loading, setLoading] = useState(false);
   const [desembolsos, setDesembolsos] = useState([]);
   const [trabajadores, setTrabajadores] = useState([]);
   const [saldoTotal, setSaldoTotal] = useState(0);
+  const [dataFiltros, setdataFiltros] = useState({
+    nombre: "",
+    fecha_inicio: getTodayDate2(),
+    fecha_final: getTodayDate(),
+    motivo: "TODOS",
+    estado: "TODOS",
+    demora_dias: "",
+  });
 
   const handleFindDsembolsos = () => {
     setLoading(true);
+
+    const filtrosLimpios = Object.fromEntries(
+      Object.entries(dataFiltros).filter(
+        ([_, value]) => value !== "" && value !== "TODOS",
+      ),
+    );
+
     const url = `${API}/caja-chica/desembolso`;
     axios
-      .get(url, config)
+      .get(
+        url,
+        {
+          params: filtrosLimpios,
+        },
+        config,
+      )
       .then((res) => {
         setDesembolsos(res.data.desembolsos);
         setSaldoTotal(res.data.saldoTotal);
@@ -90,6 +113,11 @@ const PlantillaDesembolso = () => {
               saldoTotal={saldoTotal}
             />
           </div>
+          <FlitroDesembolso
+            dataFiltros={dataFiltros}
+            setdataFiltros={setdataFiltros}
+            handleFindDsembolsos={handleFindDsembolsos}
+          />
 
           {/* TABLA (flex-1 para ocupar el resto y permitir scroll) */}
           <div className="flex-1 min-h-0 border border-slate-200 rounded-xl overflow-hidden shadow-inner bg-slate-50">

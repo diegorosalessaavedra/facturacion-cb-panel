@@ -1,28 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@nextui-org/react";
 import { numberPeru, onInputNumber } from "../../../../assets/onInputs";
 
 const TIPOS_COMPROBANTE = [
-  { value: "SIN_SUSTENTO", label: "SIN SUSTENTO" },
+  { value: "SIN SUSTENTO", label: "SIN SUSTENTO" },
   { value: "FACTURA", label: "FACTURA" },
   { value: "BOLETA", label: "BOLETA" },
-  { value: "RXH", label: "R. POR HONORARIOS" },
-];
-
-const CATEGORIAS_GASTO = [
-  { value: "REPUESTO", label: "REPUESTO DE VEHICULO" },
-  { value: "COMBUSTIBLE", label: "COMBUSTIBLE" },
-  { value: "ESTIBA", label: "ESTIBA" },
-  { value: "VIATICOS", label: "VIÁTICOS / ALIMENTACIÓN" },
-  { value: "PEAJES", label: "PEAJES" },
-  { value: "OTROS", label: "OTROS" },
 ];
 
 const TablaRendicion = ({
   datosRendicion = [],
   setDatosRendicion,
   montoRendicion,
+  categorias,
+  setSelectCategoria,
 }) => {
   const rows = datosRendicion;
   const setRows = setDatosRendicion;
@@ -55,6 +47,9 @@ const TablaRendicion = ({
     const newRows = [...rows];
     newRows[index][field] = value;
     setRows(newRows);
+
+    const findSelect = categorias.find((c) => c.categoria === value);
+    setSelectCategoria(findSelect);
   };
 
   const stickyHeader = "sticky top-0 z-20";
@@ -88,7 +83,7 @@ const TablaRendicion = ({
             minWidth: "1600px",
 
             gridTemplateColumns:
-              "40px 90px 1fr 100px 90px 110px 100px 140px 1fr 90px 150px 200px 40px",
+              "40px 90px 1fr 100px 90px 110px 100px 140px 1fr 90px 150px 40px",
             gridAutoRows: "max-content",
           }}
         >
@@ -121,9 +116,7 @@ const TablaRendicion = ({
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             OBSERVACIÓN
           </div>
-          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            SUGERENCIAS
-          </div>
+
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}></div>
 
           <div className={`${headerDark} ${stickySubHeader} `}>
@@ -144,6 +137,7 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <input
+                  required
                   type="date"
                   className={inputClass}
                   value={item.fecha_uso}
@@ -155,6 +149,7 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <input
+                  required
                   type="text"
                   className={`${inputClass} text-left pl-2`}
                   placeholder="Ingrese proveedor..."
@@ -167,6 +162,7 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <input
+                  required
                   type="text"
                   maxLength={13}
                   className={inputClass}
@@ -181,6 +177,7 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <input
+                  required
                   type="date"
                   className={inputClass}
                   value={item.fecha_emision}
@@ -192,6 +189,7 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <select
+                  required
                   className={`${inputClass} text-[10px] appearance-none cursor-pointer`}
                   value={item.tipo_comprobante}
                   onChange={(e) =>
@@ -208,6 +206,7 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <input
+                  required
                   type="text"
                   className={inputClass}
                   placeholder="Ej: F001-123"
@@ -220,15 +219,16 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <select
+                  required
                   className={`${inputClass} text-[10px] appearance-none cursor-pointer`}
                   value={item.categoria}
                   onChange={(e) =>
                     handleChange(index, "categoria", e.target.value)
                   }
                 >
-                  {CATEGORIAS_GASTO.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
+                  {categorias.map((opt) => (
+                    <option key={opt.categoria} value={opt.categoria}>
+                      {opt.categoria}
                     </option>
                   ))}
                 </select>
@@ -236,10 +236,11 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <input
+                  required
                   type="text"
                   className={`${inputClass} text-left pl-2`}
                   placeholder="Descripción del gasto"
-                  value={item.detalle}
+                  categoria={item.detalle}
                   onChange={(e) =>
                     handleChange(index, "detalle", e.target.value)
                   }
@@ -249,6 +250,7 @@ const TablaRendicion = ({
               <div className={cellInput}>
                 <span className="text-slate-400 text-[10px] mr-1">S/</span>
                 <input
+                  required
                   type="text"
                   className={`${inputClass} text-right pr-2 font-bold`}
                   placeholder="0.00"
@@ -262,25 +264,14 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <input
+                  required
                   type="text"
                   className={`${inputClass} text-left pl-2`}
                   value={item.observacion}
                   onChange={(e) =>
                     handleChange(index, "observacion", e.target.value)
                   }
-                />
-              </div>
-
-              <div
-                className={`${cellBase}  text-[9px] text-slate-400 italic px-2 leading-tight text-center flex items-center`}
-              >
-                <input
-                  type="text"
-                  className={`${inputClass} text-left pl-2`}
-                  value={item.sugerencias}
-                  onChange={(e) =>
-                    handleChange(index, "sugerencias", e.target.value)
-                  }
+                  placeholder="Colocar Ruta"
                 />
               </div>
 

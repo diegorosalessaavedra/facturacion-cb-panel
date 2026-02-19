@@ -41,7 +41,7 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
         className="grid min-w-[1500px]" // Min-w asegura que haya scroll horizontal si es necesario
         style={{
           gridTemplateColumns:
-            "40px 1fr 90px 90px 90px 90px 1fr 90px repeat(10, 70px) 100px",
+            "40px 1fr 90px 90px 90px 90px 1fr 90px repeat(11, 70px) 100px",
           gridAutoRows: "max-content", // Asegura que las filas no se estiren de más
         }}
       >
@@ -72,16 +72,12 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
         <div className={`col-span-5 ${headerDark} ${stickyHeader}`}>
           BILLETES
         </div>
-        <div className={`col-span-5 ${headerDark} ${stickyHeader}`}>
+        <div className={`col-span-6 ${headerDark} ${stickyHeader}`}>
           MONEDAS
         </div>
 
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>ESTADO</div>
 
-        {/* === FILA 2: SUB-CABECERAS (Deben estar debajo de la fila 1 visualmente) === */}
-        {/* Como Grid pone todo en orden, estos elementos se colocan automáticamente en los huecos */}
-
-        {/* YAPE (va debajo de Billetera Digital) */}
         <div
           className={`${headerPurple} bg-purple-800 top-[47px] sticky z-20 `}
         >
@@ -118,8 +114,12 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
               <div className={cellData}>
                 {formatDate(item.fecha_desembolso) || "--/--/--"}
               </div>
-              <div className={cellData}>--/--/--</div>
-              <div className={cellData}>--/--/--</div>
+              <div className={cellData}>
+                {formatDate(item?.fecha_rendida) || "--/--/--"}
+              </div>
+              <div className={cellData}>
+                {item.demora_dias ? `${item.demora_dias} días` : "-"}
+              </div>
               <div className={`${cellTotal} text-blue-700`}>
                 S/ {numberPeru(item.importe_desembolso || 0)}
               </div>
@@ -144,11 +144,15 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
               <div className={cellData}>{item.egresos?.moneda_1 || 0}</div>
               <div className={cellData}>{item.egresos?.moneda_05 || 0}</div>
               <div className={cellData}>{item.egresos?.moneda_02 || 0}</div>
+              <div className={cellData}>{item.egresos?.moneda_01 || 0}</div>
+
               {/* Estado */}
-              <div className={`${cellData} font-bold text-[10px]`}>
-                {item.estado_desembolso
-                  ? item.estado_desembolso.toUpperCase()
-                  : "APERTURADO"}
+              <div className={`${cellData} `}>
+                <p
+                  className={`text-[10px] font-bold   ${item.estado_desembolso === "RENDIDO" ? "text-green-500" : "text-red-500"}`}
+                >
+                  {item.estado_desembolso}
+                </p>
               </div>
             </React.Fragment>
           ))

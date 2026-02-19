@@ -155,6 +155,9 @@ const PlantillaDesembolso = lazy(
 const PlantillaRendicion = lazy(
   () => import("./modules/cajaChica/plantillaRendicion/PlantillaRendicion"),
 );
+const HistoricoRendicion = lazy(
+  () => import("./modules/cajaChica/historicoRendicion/HistoricoRendicion"),
+);
 // caja chica
 
 // Hook personalizado para manejar la data del usuario
@@ -531,6 +534,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <PlantillaRendicion />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/caja-chica/historico-rendicion-individual"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <HistoricoRendicion />
               </ProtectedRouteWrapper>
             }
           />

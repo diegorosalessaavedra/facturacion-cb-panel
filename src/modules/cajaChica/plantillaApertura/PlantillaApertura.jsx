@@ -7,16 +7,24 @@ import LoadingSpinner from "../../../components/LoadingSpinner";
 import FormularioApertura from "./components/FormularioApertura";
 import { motion } from "framer-motion";
 import TablaAperturas from "./components/TablaAperturas";
+import { getTodayDate, getTodayDate2 } from "../../../assets/getTodayDate";
+import FlitroApertura from "./components/flitroApertura";
 
 const PlantillaApertura = () => {
   const [loading, setLoading] = useState(false);
   const [aperturas, setAperturas] = useState([]);
   const [trabajadores, setTrabajadores] = useState([]);
   const [saldoTotal, setSaldoTotal] = useState(0);
+  const [dataFiltros, setdataFiltros] = useState({
+    nombre: "",
+    fecha_inicio: getTodayDate2(),
+    fecha_final: getTodayDate(),
+    estado: "TODOS",
+  });
 
   const handleFindAperturas = () => {
     setLoading(true);
-    const url = `${API}/caja-chica/apertura`;
+    const url = `${API}/caja-chica/apertura?nombre=${dataFiltros.nombre}&fecha_inicio=${dataFiltros.fecha_inicio}&fecha_final=${dataFiltros.fecha_final}&estado=${dataFiltros.estado}`;
     axios
       .get(url, config)
       .then((res) => {
@@ -94,8 +102,11 @@ const PlantillaApertura = () => {
               />
             </div>
 
-            {/* Contenedor de Tabla (flex-1 min-h-0) */}
-            {/* Esto fuerza al scroll a aparecer AQUÍ y no ocultarse */}
+            <FlitroApertura
+              dataFiltros={dataFiltros}
+              setdataFiltros={setdataFiltros}
+              handleFindAperturas={handleFindAperturas}
+            />
             <div className="flex-1 min-h-0 border border-slate-200 rounded-xl overflow-hidden shadow-inner bg-slate-50 relative">
               <TablaAperturas aperturas={aperturas} />
             </div>
