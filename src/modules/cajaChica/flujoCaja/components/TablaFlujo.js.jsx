@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronRight, TrendingUp, TrendingDown, Wallet } from "lucide-react";
-import { onInputNumber } from "../../../../assets/onInputs";
+import { onInputNumber, onInputPrice } from "../../../../assets/onInputs";
 
 const formatCurrency = (amount) => {
   if (amount === undefined || amount === null || amount === "") return "-";
@@ -191,7 +191,7 @@ const TablaFlujo = ({
                 }
                 className="w-full bg-slate-700 text-right outline-none text-white font-bold rounded px-2 py-0.5 focus:ring-1 focus:ring-blue-400"
                 placeholder="0.00"
-                onInput={onInputNumber}
+                onInput={onInputPrice}
               />
             </div>
           ) : (

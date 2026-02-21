@@ -25,7 +25,14 @@ const PlantillaApertura = () => {
 
   const handleFindAperturas = () => {
     setLoading(true);
-    const url = `${API}/caja-chica/apertura?nombre=${dataFiltros.nombre}&fecha_inicio=${dataFiltros.fecha_inicio}&fecha_final=${dataFiltros.fecha_final}&estado=${dataFiltros.estado}`;
+    const filtrosLimpios = Object.fromEntries(
+      Object.entries(dataFiltros).filter(
+        ([_, value]) => value !== "" && value !== "TODOS",
+      ),
+    );
+
+    const queryParams = new URLSearchParams(filtrosLimpios).toString();
+    const url = `${API}/caja-chica/apertura?${queryParams}`;
     axios
       .get(url, config)
       .then((res) => {
