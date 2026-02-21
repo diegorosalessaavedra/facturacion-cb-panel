@@ -12,10 +12,23 @@ export const generarPDFRendiciones = (rendicion) => {
 
   const margin = 15;
   const pageWidth = doc.internal.pageSize.width;
-  let currentY = 20;
+
+  // Iniciamos un poco más abajo para dar espacio al logo
+  let currentY = 15;
+
+  // --- LOGO (Superior Izquierda) ---
+  // Nota: Asegúrate de que la ruta sea accesible o usa una imagen en base64
+  try {
+    const logoUrl = import.meta.env.VITE_LOGO;
+    doc.addImage(logoUrl, "JPEG", margin, currentY, 20, 18);
+  } catch (error) {
+    console.warn("No se pudo cargar el logo en el PDF", error);
+  }
 
   // --- CABECERA ESTILIZADA ---
-  // Fondo decorativo para el título
+  // Ajustamos el título para que no se superponga con el logo
+  currentY += 30;
+
   doc.setFillColor(15, 23, 42); // slate-900
   doc.rect(margin, currentY, pageWidth - margin * 2, 12, "F");
 
@@ -105,9 +118,9 @@ export const generarPDFRendiciones = (rendicion) => {
 
   const tableRows = detalles.map((det, index) => [
     index + 1,
-    formatDate(det.fecha_emision),
-    `${det.tipo_comprobante}\n${det.numero_comprobante}`,
+    formatDate(det.fecha_uso),
     det.razon_social,
+    `${det.tipo_comprobante}\n${det.numero_comprobante}`,
     det.categoria,
     det.detalle || "-",
     `S/ ${numberPeru(det.importe || 0)}`,
@@ -119,9 +132,9 @@ export const generarPDFRendiciones = (rendicion) => {
     head: [
       [
         "N°",
-        "FECHA",
-        "COMPROBANTE",
+        "FECHA DE USO",
         "PROVEEDOR",
+        "COMPROBANTE",
         "CATEGORÍA",
         "DETALLE",
         "IMPORTE",
@@ -154,18 +167,15 @@ export const generarPDFRendiciones = (rendicion) => {
   const montoRecibido = Number(rendicion.monto_recibido || 0);
   const saldo = montoRecibido - totalGastos;
 
-  // Si el resumen se sale de la página
   if (finalY > 260) {
     doc.addPage();
     finalY = 20;
   }
 
   const resumenX = pageWidth - margin - 60;
-
-  doc.setFontSize(9);
+  doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
 
-  // Línea decorativa
   doc.setDrawColor(15, 23, 42);
   doc.setLineWidth(0.5);
   doc.line(resumenX, finalY, pageWidth - margin, finalY);
