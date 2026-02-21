@@ -1,7 +1,11 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@nextui-org/react";
-import { numberPeru, onInputNumber } from "../../../../assets/onInputs";
+import {
+  numberPeru,
+  onInputNumber,
+  onInputPrice,
+} from "../../../../assets/onInputs";
 
 const TIPOS_COMPROBANTE = [
   { value: "SIN SUSTENTO", label: "SIN SUSTENTO" },
@@ -258,7 +262,7 @@ const TablaRendicion = ({
                   onChange={(e) =>
                     handleChange(index, "importe", e.target.value)
                   }
-                  onInput={onInputNumber}
+                  onInput={onInputPrice}
                 />
               </div>
 

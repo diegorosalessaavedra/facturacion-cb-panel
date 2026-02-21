@@ -91,7 +91,9 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
           IMPORTE
         </div>
-        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>MOTIVO</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          CONCEPTO
+        </div>
 
         <div className={`${headerPurple} ${stickyHeader}`}>
           BILLETERA DIGITAL
