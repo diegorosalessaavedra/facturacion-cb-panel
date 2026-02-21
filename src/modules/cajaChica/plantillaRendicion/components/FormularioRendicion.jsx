@@ -20,6 +20,7 @@ import {
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
 import TablaRendicion from "./TablaRendicion";
 import { getTodayDate } from "../../../../assets/getTodayDate";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 
 const FormularioRendicion = ({
   trabajadores,
@@ -105,6 +106,8 @@ const FormularioRendicion = ({
 
   return (
     <section>
+      {loading && <LoadingSpinner />}
+
       <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
         <motion.div
           className="flex  gap-3 "
