@@ -26,7 +26,7 @@ const MONTHS_NAMES = [
   "Dic",
 ];
 const borderColor = "border-slate-200";
-const cellBase = `border-r border-b ${borderColor} px-2 flex items-center text-[11px] py-2 transition-colors duration-200`;
+const cellBase = `border-r border-b ${borderColor} px-2 flex items-center text-[11px] py-2.5 transition-colors duration-200`;
 const stickyLeft = `sticky left-0 z-10 border-r-2 ${borderColor} bg-white/95 backdrop-blur-sm shadow-[4px_0_10px_-4px_rgba(0,0,0,0.08)]`;
 const headerDark = `bg-slate-900 text-white font-bold tracking-wider`;
 
@@ -151,7 +151,7 @@ const TablaFlujo = ({
         className={`grid border-t border-l ${borderColor} w-fit bg-slate-100 gap-[1px]`}
         style={{
           gridTemplateColumns: `250px repeat(${indicesAMostrar.length}, 100px) 140px`,
-          gridAutoRows: "minmax(40px, auto)",
+          // gridAutoRows: "minmax(40px, auto)",
         }}
       >
         {/* Encabezados */}
@@ -209,8 +209,7 @@ const TablaFlujo = ({
           isBold={true}
         />
 
-        <div className="col-span-full h-2 bg-white"></div>
-
+        <div className="col-span-full h-2 bg-slate-100"></div>
         {/* Ingresos */}
         {renderRow(
           "tot-ing",
@@ -242,7 +241,7 @@ const TablaFlujo = ({
             ),
           )}
 
-        <div className="col-span-full h-2 bg-white"></div>
+        <div className="col-span-full h-2 bg-slate-100"></div>
 
         {/* Egresos */}
         {renderRow(
@@ -301,7 +300,7 @@ const TablaFlujo = ({
           );
         })}
 
-        <div className="col-span-full h-4 bg-white"></div>
+        <div className="col-span-full h-2 bg-slate-100"></div>
 
         {/* Totales Finales */}
         {renderRow(
