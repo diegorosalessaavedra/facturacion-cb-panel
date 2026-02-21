@@ -75,6 +75,34 @@ const FlitroApertura = ({
       </motion.div>
       <motion.div variants={itemVariants} className="min-w-[150px]">
         <Select
+          label="Motivo de Apertura"
+          labelPlacement="outside"
+          variant="bordered"
+          startContent={<FiFileText className="text-default-400" size={16} />}
+          classNames={selectClassNames}
+          onChange={(e) =>
+            setdataFiltros((prev) => ({
+              ...prev,
+              motivo_apertura: e.target.value,
+            }))
+          }
+          selectedKeys={[dataFiltros?.motivo_apertura]}
+          isRequired
+          size="sm"
+        >
+          <SelectItem key="TODOS" value="TODOS">
+            TODOS
+          </SelectItem>
+          <SelectItem key="REPOSICIÓN" value="REPOSICIÓN">
+            REPOSICIÓN
+          </SelectItem>
+          <SelectItem key="DEVOLUCIÓN" value="DEVOLUCIÓN">
+            DEVOLUCIÓN
+          </SelectItem>
+        </Select>
+      </motion.div>
+      <motion.div variants={itemVariants} className="min-w-[150px]">
+        <Select
           label="Estado Apertura"
           labelPlacement="outside"
           variant="bordered"

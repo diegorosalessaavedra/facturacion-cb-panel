@@ -19,6 +19,7 @@ const PlantillaApertura = () => {
     nombre: "",
     fecha_inicio: getTodayDate2(),
     fecha_final: getTodayDate(),
+    motivo_apertura: "TODOS",
     estado: "TODOS",
   });
 
