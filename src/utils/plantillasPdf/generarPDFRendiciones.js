@@ -10,40 +10,45 @@ export const generarPDFRendiciones = (rendicion) => {
     format: "a4",
   });
 
-  const margin = 15;
+  const margin = 10;
   const pageWidth = doc.internal.pageSize.width;
+  let currentY = 10;
 
-  // Iniciamos un poco más abajo para dar espacio al logo
-  let currentY = 15;
-
-  // --- LOGO (Superior Izquierda) ---
-  // Nota: Asegúrate de que la ruta sea accesible o usa una imagen en base64
+  // --- LOGO CENTRADO ---
   try {
     const logoUrl = import.meta.env.VITE_LOGO;
-    doc.addImage(logoUrl, "JPEG", margin, currentY, 20, 18);
+    const logoWidth = 30;
+    const logoHeight = 27;
+    // Cálculo para centrar: (Ancho de página / 2) - (Ancho del logo / 2)
+    const xCentered = pageWidth / 2 - logoWidth / 2;
+    doc.addImage(logoUrl, "JPEG", xCentered, currentY, logoWidth, logoHeight);
   } catch (error) {
-    console.warn("No se pudo cargar el logo en el PDF", error);
+    console.warn("No se pudo cargar el logo", error);
   }
 
-  // --- CABECERA ESTILIZADA ---
-  // Ajustamos el título para que no se superponga con el logo
-  currentY += 30;
+  // --- CABECERA ---
+  currentY += 28; // Bajamos después del logo
 
   doc.setFillColor(15, 23, 42); // slate-900
-  doc.rect(margin, currentY, pageWidth - margin * 2, 12, "F");
+  doc.rect(margin, currentY, pageWidth - margin * 2, 10, "F");
 
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(255, 255, 255);
-  doc.text("COMPROBANTE DE RENDICIÓN DE GASTOS", pageWidth / 2, currentY + 8, {
-    align: "center",
-  });
+  doc.text(
+    "COMPROBANTE DE RENDICIÓN DE GASTOS",
+    pageWidth / 2,
+    currentY + 6.5,
+    {
+      align: "center",
+    },
+  );
 
-  // Fecha de impresión a la derecha
-  currentY += 18;
-  doc.setFontSize(8);
+  // Fecha de impresión
+  currentY += 15;
+  doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
-  doc.setTextColor(100, 116, 139); // slate-500
+  doc.setTextColor(100, 116, 139);
   doc.text(
     `Generado el: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
     pageWidth - margin,
@@ -51,69 +56,83 @@ export const generarPDFRendiciones = (rendicion) => {
     { align: "right" },
   );
 
-  // --- BLOQUE DE INFORMACIÓN (DISEÑO TIPO TARJETA) ---
-  currentY += 5;
-  doc.setDrawColor(226, 232, 240); // slate-200
-  doc.setFillColor(248, 250, 252); // slate-50
-  doc.roundedRect(margin, currentY, pageWidth - margin * 2, 35, 2, 2, "FD");
+  // --- BLOQUE DE INFORMACIÓN (Aumentamos altura a 40 para que quepa todo) ---
+  currentY += 4;
+  doc.setDrawColor(226, 232, 240);
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(margin, currentY, pageWidth - margin * 2, 40, 2, 2, "FD");
 
   doc.setTextColor(15, 23, 42);
-  doc.setFontSize(9);
+  doc.setFontSize(8.5);
 
   const col1 = margin + 5;
   const col2 = pageWidth / 2 + 5;
-  const rowHeight = 7;
+  const rowH = 7; // Altura de fila
 
-  // Columna 1
+  // Columna 1 - Ajuste de coordenadas Y para que no se pisen
   doc.setFont("helvetica", "bold");
-  doc.text("CORRELATIVO:", col1, currentY + 10);
+  doc.text("CORRELATIVO:", col1, currentY + 8);
   doc.setFont("helvetica", "normal");
-  doc.text(rendicion.correlativo_rendicion || "-", col1 + 30, currentY + 10);
+  doc.text(rendicion.correlativo_rendicion || "-", col1 + 32, currentY + 8);
 
   doc.setFont("helvetica", "bold");
-  doc.text("TRABAJADOR:", col1, currentY + 10 + rowHeight);
+  doc.text("TRABAJADOR:", col1, currentY + 8 + rowH);
   doc.setFont("helvetica", "normal");
   doc.text(
     rendicion.trabajador?.nombre_trabajador || "-",
-    col1 + 30,
-    currentY + 10 + rowHeight,
+    col1 + 32,
+    currentY + 8 + rowH,
   );
 
   doc.setFont("helvetica", "bold");
-  doc.text("ÁREA:", col1, currentY + 10 + rowHeight * 2);
+  doc.text("ÁREA:", col1, currentY + 8 + rowH * 2);
+  doc.setFont("helvetica", "normal");
+  doc.text(rendicion.area_rendicion || "-", col1 + 32, currentY + 8 + rowH * 2);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("RUTAS:", col1, currentY + 8 + rowH * 3);
   doc.setFont("helvetica", "normal");
   doc.text(
-    rendicion.area_rendicion || "-",
-    col1 + 30,
-    currentY + 10 + rowHeight * 2,
+    rendicion.rutas_rendicion || "-",
+    col1 + 32,
+    currentY + 8 + rowH * 3,
   );
 
-  // Columna 2
+  // Columna 2 - Ajuste de coordenadas Y
   doc.setFont("helvetica", "bold");
-  doc.text("CONCEPTO:", col2, currentY + 10);
+  doc.text("CONCEPTO:", col2, currentY + 8);
   doc.setFont("helvetica", "normal");
-  doc.text(rendicion.concepto_rendicion || "-", col2 + 25, currentY + 10);
+  doc.text(rendicion.concepto_rendicion || "-", col2 + 28, currentY + 8);
 
   doc.setFont("helvetica", "bold");
-  doc.text("FECHA REND.:", col2, currentY + 10 + rowHeight);
+  doc.text("FECHA REND.:", col2, currentY + 8 + rowH);
   doc.setFont("helvetica", "normal");
   doc.text(
     formatDate(rendicion.fecha_rendida) || "-",
-    col2 + 25,
-    currentY + 10 + rowHeight,
+    col2 + 28,
+    currentY + 8 + rowH,
   );
 
   doc.setFont("helvetica", "bold");
-  doc.text("MONTO RECIB.:", col2, currentY + 10 + rowHeight * 2);
+  doc.text("FECHA RECIB.:", col2, currentY + 8 + rowH * 2);
+  doc.setFont("helvetica", "normal");
+  doc.text(
+    formatDate(rendicion.fecha_recibida) || "-",
+    col2 + 28,
+    currentY + 8 + rowH * 2,
+  );
+
+  doc.setFont("helvetica", "bold");
+  doc.text("MONTO RECIB.:", col2, currentY + 8 + rowH * 3);
   doc.setFont("helvetica", "normal");
   doc.text(
     `S/ ${numberPeru(rendicion.monto_recibido || 0)}`,
-    col2 + 25,
-    currentY + 10 + rowHeight * 2,
+    col2 + 28,
+    currentY + 8 + rowH * 3,
   );
 
   // --- TABLA DE DETALLES ---
-  currentY += 45;
+  currentY += 48;
   const detalles = rendicion.datos_rendicion || [];
 
   const tableRows = detalles.map((det, index) => [
@@ -132,7 +151,7 @@ export const generarPDFRendiciones = (rendicion) => {
     head: [
       [
         "N°",
-        "FECHA DE USO",
+        "FECHA USO",
         "PROVEEDOR",
         "COMPROBANTE",
         "CATEGORÍA",
@@ -143,51 +162,45 @@ export const generarPDFRendiciones = (rendicion) => {
     body: tableRows,
     theme: "striped",
     headStyles: {
-      fillColor: [51, 65, 85], // slate-700
+      fillColor: [51, 65, 85],
       fontSize: 8,
       halign: "center",
       valign: "middle",
     },
-    styles: {
-      fontSize: 7.5,
-      valign: "middle",
-      cellPadding: 3,
-    },
+    styles: { fontSize: 7, valign: "middle", cellPadding: 2.5 },
     columnStyles: {
-      0: { halign: "center", cellWidth: 8 },
-      1: { halign: "center", cellWidth: 20 },
-      2: { cellWidth: 30 },
-      6: { halign: "right", fontStyle: "bold", cellWidth: 25 },
+      0: { halign: "center", cellWidth: 7 },
+      1: { halign: "center", cellWidth: 18 },
+      3: { cellWidth: 25 },
+      6: { halign: "right", fontStyle: "bold", cellWidth: 22 },
     },
   });
 
-  // --- RESUMEN DE TOTALES ---
-  let finalY = doc.lastAutoTable.finalY + 10;
+  // --- RESUMEN ---
+  let finalY = doc.lastAutoTable.finalY + 8;
   const totalGastos = Number(rendicion.total_gastos || 0);
   const montoRecibido = Number(rendicion.monto_recibido || 0);
   const saldo = montoRecibido - totalGastos;
 
-  if (finalY > 260) {
+  if (finalY > 265) {
     doc.addPage();
     finalY = 20;
   }
 
-  const resumenX = pageWidth - margin - 60;
-  doc.setFontSize(8);
-  doc.setTextColor(15, 23, 42);
-
+  const resumenX = pageWidth - margin - 55;
   doc.setDrawColor(15, 23, 42);
-  doc.setLineWidth(0.5);
+  doc.setLineWidth(0.4);
   doc.line(resumenX, finalY, pageWidth - margin, finalY);
 
-  finalY += 6;
+  finalY += 5;
+  doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
   doc.text("TOTAL GASTOS:", resumenX, finalY);
   doc.text(`S/ ${numberPeru(totalGastos)}`, pageWidth - margin, finalY, {
     align: "right",
   });
 
-  finalY += 6;
+  finalY += 5;
   if (saldo < 0) {
     doc.setTextColor(220, 38, 38);
     doc.text("POR REEMBOLSAR:", resumenX, finalY);
