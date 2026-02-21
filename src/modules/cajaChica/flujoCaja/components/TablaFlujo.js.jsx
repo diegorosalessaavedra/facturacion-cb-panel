@@ -25,7 +25,7 @@ const MONTHS_NAMES = [
   "Nov",
   "Dic",
 ];
-const borderColor = "border-slate-200";
+const borderColor = "border-slate-400";
 const cellBase = `border-r border-b ${borderColor} px-2 flex items-center text-[11px] py-2.5 transition-colors duration-200`;
 const stickyLeft = `sticky left-0 z-10 border-r-2 ${borderColor} bg-white/95 backdrop-blur-sm shadow-[4px_0_10px_-4px_rgba(0,0,0,0.08)]`;
 const headerDark = `bg-slate-900 text-white font-bold tracking-wider`;

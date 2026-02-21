@@ -22,6 +22,7 @@ const FlujoCaja = () => {
     concepto: "TODOS",
     categoria: "TODOS",
   });
+  console.log(dataFiltros);
 
   const [filtrosAplicados, setFiltrosAplicados] = useState({ ...dataFiltros });
 

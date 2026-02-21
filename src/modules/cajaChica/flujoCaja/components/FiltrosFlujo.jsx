@@ -124,7 +124,7 @@ const FiltrosFlujo = ({
         <motion.div variants={itemVariants} className="min-w-[150px]">
           <Select
             isRequired
-            name="mes" // Usamos el name para la función genérica
+            name="mes"
             label="Mes"
             labelPlacement="outside"
             placeholder="Seleccionar..."
@@ -148,7 +148,7 @@ const FiltrosFlujo = ({
         <motion.div variants={itemVariants} className="min-w-[200px]">
           <Select
             isRequired
-            name="categoria_gasto"
+            name="concepto"
             label="Conceptos de Rendición"
             labelPlacement="outside"
             variant="bordered"
@@ -163,7 +163,11 @@ const FiltrosFlujo = ({
               <span className="text-xs">TODOS</span>
             </SelectItem>
             {conceptos.map((c) => (
-              <SelectItem key={c.conceptos} textValue={c.conceptos}>
+              <SelectItem
+                key={c.conceptos}
+                value={c.conceptos}
+                textValue={c.conceptos}
+              >
                 <span className="text-xs">{c.conceptos}</span>
               </SelectItem>
             ))}
@@ -173,7 +177,7 @@ const FiltrosFlujo = ({
         <motion.div variants={itemVariants} className="min-w-[200px]">
           <Select
             isRequired
-            name="categoria_gasto"
+            name="categoria"
             label="Categoría del Gasto"
             labelPlacement="outside"
             variant="bordered"
