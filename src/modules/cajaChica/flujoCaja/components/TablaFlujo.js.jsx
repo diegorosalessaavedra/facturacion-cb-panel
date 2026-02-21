@@ -69,7 +69,7 @@ const TablaFlujo = ({
         className={`${cellBase} ${bgClass} ${isBold ? "font-bold" : "font-medium"} justify-between`}
       >
         <span
-          className={`${isDark ? "text-slate-300" : "text-slate-300"} text-[9px]`}
+          className={`${isDark ? "text-slate-300" : "text-slate-700"} text-[9px]`}
         >
           S/
         </span>
@@ -182,7 +182,7 @@ const TablaFlujo = ({
               key={idx}
               className={`${cellBase} bg-slate-800 justify-between`}
             >
-              <span className="text-slate-300 text-[9px]">S/</span>
+              <span className="text-slate-800 text-[9px]">S/</span>
               <input
                 type="text"
                 value={saldoInicialEnero === 0 ? "" : saldoInicialEnero}
