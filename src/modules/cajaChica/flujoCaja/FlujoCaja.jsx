@@ -198,7 +198,7 @@ const FlujoCaja = () => {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="max-w-[1700px] w-full h-full mx-auto flex flex-col overflow-hidden"
+        className="max-w-[1700px] bg-white  w-full h-full mx-auto flex flex-col overflow-x-hidden overflow-y-auto"
       >
         {/* Cabecera general */}
         <header className="flex-none relative w-full min-h-[76px] bg-slate-900 rounded-t-2xl p-4 flex items-center justify-between shadow-md z-10">
@@ -225,31 +225,29 @@ const FlujoCaja = () => {
         </header>
 
         {/* Contenido principal (Filtros + Tabla) */}
-        <div className="flex-1 bg-white rounded-b-2xl shadow-xl  p-6 flex flex-col gap-6 min-h-0 overflow-hidden">
-          <FiltrosFlujo
-            setDataFiltros={setDataFiltros}
-            dataFiltros={dataFiltros}
-            handleFindTrabajadores={handleFindTrabajadores}
-            conceptos={conceptos}
-            categorias={categorias}
-          />
+        <FiltrosFlujo
+          setDataFiltros={setDataFiltros}
+          dataFiltros={dataFiltros}
+          handleFindTrabajadores={handleFindTrabajadores}
+          conceptos={conceptos}
+          categorias={categorias}
+        />
 
-          {/* Contenedor que limita el área de la tabla */}
-          <div className="flex-1 w-full rounded-xl overflow-hidden">
-            <main className="w-full h-full relative">
-              <TablaFlujo
-                tableData={tableData}
-                totalesEmpresa={totalesEmpresa}
-                saldosIniciales={saldosIniciales}
-                saldosFinales={saldosFinales}
-                flujosNetos={flujosNetos}
-                totalesAnuales={totalesAnuales}
-                saldoInicialEnero={saldoInicialEnero}
-                setSaldoInicialEnero={setSaldoInicialEnero}
-                dataFiltros={filtrosAplicados}
-              />
-            </main>
-          </div>
+        {/* Contenedor que limita el área de la tabla */}
+        <div className="flex-1  min-h-[500px]  w-full rounded-xl overflow-hidden">
+          <main className="w-full  h-full relative">
+            <TablaFlujo
+              tableData={tableData}
+              totalesEmpresa={totalesEmpresa}
+              saldosIniciales={saldosIniciales}
+              saldosFinales={saldosFinales}
+              flujosNetos={flujosNetos}
+              totalesAnuales={totalesAnuales}
+              saldoInicialEnero={saldoInicialEnero}
+              setSaldoInicialEnero={setSaldoInicialEnero}
+              dataFiltros={filtrosAplicados}
+            />
+          </main>
         </div>
       </motion.div>
     </main>

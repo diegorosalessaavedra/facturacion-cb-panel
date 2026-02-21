@@ -66,7 +66,7 @@ const FiltrosFlujo = ({
   };
 
   return (
-    <form className="w-fit flex gap-2 items-end" onSubmit={submit}>
+    <form className="w-fit flex gap-2 items-end px-4 py-8" onSubmit={submit}>
       <motion.div
         className="flex gap-2 items-end"
         initial="hidden"

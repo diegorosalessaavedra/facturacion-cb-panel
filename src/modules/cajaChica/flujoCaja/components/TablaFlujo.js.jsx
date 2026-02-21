@@ -146,11 +146,11 @@ const TablaFlujo = ({
   };
 
   return (
-    <div className="w-full h-full overflow-auto custom-scrollbar shadow-scroll-indicator rounded-xl p-4">
+    <div className="w-full h-full overflow-auto custom-scrollbar shadow-scroll-indicator rounded-xl p-4 pt-0">
       <div
         className={`grid border-t border-l ${borderColor} w-fit bg-slate-100 gap-[1px]`}
         style={{
-          gridTemplateColumns: `250px repeat(${indicesAMostrar.length}, 90px) 120px`,
+          gridTemplateColumns: `250px repeat(${indicesAMostrar.length}, 100px) 140px`,
           gridAutoRows: "minmax(40px, auto)",
         }}
       >
