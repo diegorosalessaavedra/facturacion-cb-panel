@@ -268,7 +268,6 @@ const TablaRendicion = ({
 
               <div className={cellInput}>
                 <input
-                  required
                   type="text"
                   className={`${inputClass} text-left pl-2`}
                   value={item.observacion}
