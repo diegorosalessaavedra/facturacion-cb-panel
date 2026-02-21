@@ -14,6 +14,7 @@ const FlujoCaja = () => {
   const [conceptos, setConceptos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [saldoInicialEnero, setSaldoInicialEnero] = useState(0);
+
   const [dataFiltros, setDataFiltros] = useState({
     trabajador_id: "TODOS",
     year: new Date().getFullYear(),
@@ -29,10 +30,8 @@ const FlujoCaja = () => {
     egresos: Array(12).fill(0),
   });
 
-  // ================= PETICIONES A LA API =================
   const fetchData = () => {
     setLoading(true);
-
     Promise.all([
       axios.get(`${API}/caja-chica/conceptos-rendicion`, config),
       axios.get(`${API}/caja-chica/categoria-gasto`, config),
@@ -47,40 +46,43 @@ const FlujoCaja = () => {
 
   const handleFindTrabajadores = () => {
     setLoading(true);
-
     const filtrosLimpios = Object.fromEntries(
       Object.entries(dataFiltros).filter(
         ([_, value]) => value !== "" && value !== "TODOS",
       ),
     );
-
     const queryParams = new URLSearchParams(filtrosLimpios).toString();
-    const url = `${API}/caja-chica/trabajador/flujo-caja?${queryParams}`;
+
     axios
-      .get(url, config)
+      .get(`${API}/caja-chica/trabajador/flujo-caja?${queryParams}`, config)
       .then((res) => {
-        setTrabajadores(res.data.trabajadores);
-        setTotalesEmpresa(res.data.totales_empresa);
+        setTrabajadores(res.data.trabajadores || []);
+        setTotalesEmpresa(
+          res.data.totales_empresa || {
+            ingresos: Array(12).fill(0),
+            egresos: Array(12).fill(0),
+          },
+        );
         setFiltrosAplicados({ ...dataFiltros });
       })
       .catch((err) => handleAxiosError(err))
       .finally(() => setLoading(false));
   };
+
   useEffect(() => {
     fetchData();
     handleFindTrabajadores();
   }, []);
 
-  // ================= CÁLCULO CASCADA DE SALDOS =================
+  // CÁLCULO CASCADA DE SALDOS (MOTOR FINANCIERO)
   const { saldosIniciales, saldosFinales, flujosNetos, totalesAnuales } =
     useMemo(() => {
       const iniciales = Array(12).fill(0);
       const finales = Array(12).fill(0);
       const netos = Array(12).fill(0);
-
       const saldoInicialNum = Number(saldoInicialEnero) || 0;
-      iniciales[0] = saldoInicialNum;
 
+      iniciales[0] = saldoInicialNum;
       let sumaIngresos = 0;
       let sumaEgresos = 0;
 
@@ -91,14 +93,10 @@ const FlujoCaja = () => {
 
         sumaIngresos += ing;
         sumaEgresos += egr;
-
         netos[i] = neto;
         finales[i] = iniciales[i] + neto;
-
         if (i < 11) iniciales[i + 1] = finales[i];
       }
-
-      const flujoNetoAnual = sumaIngresos - sumaEgresos;
 
       return {
         saldosIniciales: iniciales.map((v) => Number(v.toFixed(2))),
@@ -107,12 +105,12 @@ const FlujoCaja = () => {
         totalesAnuales: {
           ingresos: Number(sumaIngresos.toFixed(2)),
           egresos: Number(sumaEgresos.toFixed(2)),
-          flujoNeto: Number(flujoNetoAnual.toFixed(2)),
+          flujoNeto: Number((sumaIngresos - sumaEgresos).toFixed(2)),
         },
       };
     }, [saldoInicialEnero, totalesEmpresa]);
 
-  // ================= PROCESAMIENTO DE DATOS =================
+  // PROCESAMIENTO DE DATOS BASADO EN FECHA_USO
   const { tableData } = useMemo(() => {
     if (!trabajadores.length || !conceptos.length) {
       return { tableData: { ingresos: [], egresosGrouped: [] } };
@@ -126,66 +124,75 @@ const FlujoCaja = () => {
         values: t.ingresos.map((v) => Number(v)),
       }));
 
-    const egresosGrouped = conceptos.map((concepto) => {
-      const workersForConcept = [];
-      const nombreConcepto = concepto.conceptos || concepto.concepto;
+    const egresosGrouped = conceptos
+      .map((concepto) => {
+        const workersForConcept = [];
+        const nombreConcepto = concepto.conceptos || concepto.concepto;
 
-      trabajadores.forEach((t) => {
-        const matchingEgresos =
-          t.egresos?.filter((e) => e.concepto_rendicion === nombreConcepto) ||
-          [];
-        if (matchingEgresos.length > 0) {
-          const monthlyTotals = Array(12).fill(0);
-          const subItemsMap = {};
+        trabajadores.forEach((t) => {
+          // Filtrar rendiciones que pertenecen a este concepto
+          const matchingEgresos =
+            t.egresos?.filter((e) => e.concepto_rendicion === nombreConcepto) ||
+            [];
 
-          categorias.forEach((cat) => {
-            const nombreCat = cat.categoria;
-            subItemsMap[nombreCat] = {
-              id: `sub-${cat.id || nombreCat}-${t.id}`,
-              label: nombreCat,
-              values: Array(12).fill(0),
-            };
-          });
+          if (matchingEgresos.length > 0) {
+            const monthlyTotals = Array(12).fill(0);
+            const subItemsMap = {};
 
-          matchingEgresos.forEach((eg) => {
-            if (eg.fecha_rendida) {
-              const month =
-                parseInt(eg.fecha_rendida.split("T")[0].split("-")[1], 10) - 1;
-              monthlyTotals[month] += Number(eg.total_gastos) || 0;
+            // Inicializar mapa de categorías para este trabajador/concepto
+            categorias.forEach((cat) => {
+              subItemsMap[cat.categoria] = {
+                id: `sub-${cat.id}-${t.id}-${concepto.id}`,
+                label: cat.categoria,
+                values: Array(12).fill(0),
+              };
+            });
 
+            // REESTRUCTURACIÓN: Sumar basándonos en fecha_uso de cada comprobante
+            matchingEgresos.forEach((eg) => {
               if (Array.isArray(eg.datos_rendicion)) {
                 eg.datos_rendicion.forEach((dato) => {
-                  if (subItemsMap[dato.categoria]) {
-                    subItemsMap[dato.categoria].values[month] +=
-                      Number(dato.importe) || 0;
+                  if (dato.fecha_uso) {
+                    const mesIndex =
+                      parseInt(dato.fecha_uso.split("-")[1], 10) - 1;
+                    const importe = Number(dato.importe) || 0;
+
+                    // Sumar al total del trabajador en este mes/concepto
+                    monthlyTotals[mesIndex] += importe;
+
+                    // Sumar a la categoría específica
+                    if (subItemsMap[dato.categoria]) {
+                      subItemsMap[dato.categoria].values[mesIndex] += importe;
+                    }
                   }
                 });
               }
+            });
+
+            // Solo agregar si hay gastos reales en el periodo
+            if (monthlyTotals.some((v) => v > 0)) {
+              workersForConcept.push({
+                id: `egr-trab-${t.id}-${concepto.id}`,
+                name: t.nombre_trabajador,
+                values: monthlyTotals.map((v) => Number(v.toFixed(2))),
+                subItems: Object.values(subItemsMap)
+                  .filter((sub) => sub.values.some((val) => val > 0))
+                  .map((sub) => ({
+                    ...sub,
+                    values: sub.values.map((v) => Number(v.toFixed(2))),
+                  })),
+              });
             }
-          });
+          }
+        });
 
-          const validSubItems = Object.values(subItemsMap).filter((sub) =>
-            sub.values.some((val) => val > 0),
-          );
-
-          workersForConcept.push({
-            id: `egr-trab-${t.id}-${concepto.id}`,
-            name: t.nombre_trabajador,
-            values: monthlyTotals.map((v) => Number(v.toFixed(2))),
-            subItems: validSubItems.map((sub) => ({
-              ...sub,
-              values: sub.values.map((v) => Number(v.toFixed(2))),
-            })),
-          });
-        }
-      });
-
-      return {
-        id: `concepto-${concepto.id || nombreConcepto}`,
-        categoria: nombreConcepto,
-        items: workersForConcept,
-      };
-    });
+        return {
+          id: `concepto-${concepto.id || nombreConcepto}`,
+          categoria: nombreConcepto,
+          items: workersForConcept,
+        };
+      })
+      .filter((group) => group.items.length > 0); // Ocultar conceptos vacíos
 
     return { tableData: { ingresos, egresosGrouped } };
   }, [trabajadores, conceptos, categorias]);
@@ -198,56 +205,52 @@ const FlujoCaja = () => {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="max-w-[1700px] bg-white  w-full h-full mx-auto flex flex-col overflow-x-hidden overflow-y-auto"
+        className="max-w-[1700px] bg-white w-full h-full mx-auto flex flex-col shadow-2xl rounded-2xl overflow-hidden border border-slate-200"
       >
-        {/* Cabecera general */}
-        <header className="flex-none relative w-full min-h-[76px] bg-slate-900 rounded-t-2xl p-4 flex items-center justify-between shadow-md z-10">
-          <div className="flex items-center gap-4 relative">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="bg-white p-1.5 rounded-lg shadow-md"
-            >
+        <header className="flex-none relative w-full min-h-[76px] bg-slate-900 p-4 flex items-center justify-between z-10">
+          <div className="flex items-center gap-4">
+            <div className="bg-white p-1.5 rounded-lg shadow-md">
               <img
                 src="/logo.jpg"
                 alt="logo"
                 className="w-10 h-10 object-contain rounded"
               />
-            </motion.div>
+            </div>
             <div>
               <h1 className="text-2xl font-bold text-white tracking-tight">
                 Flujo de Caja
               </h1>
-              <p className="text-slate-300 text-xs font-medium">
-                Control financiero anual
+              <p className="text-slate-300 text-xs font-medium uppercase tracking-wider">
+                Control Anual {filtrosAplicados.year}
               </p>
             </div>
           </div>
         </header>
 
-        {/* Contenido principal (Filtros + Tabla) */}
-        <FiltrosFlujo
-          setDataFiltros={setDataFiltros}
-          dataFiltros={dataFiltros}
-          handleFindTrabajadores={handleFindTrabajadores}
-          conceptos={conceptos}
-          categorias={categorias}
-        />
+        <div className="p-4 flex flex-col gap-4 overflow-hidden flex-1">
+          <FiltrosFlujo
+            setDataFiltros={setDataFiltros}
+            dataFiltros={dataFiltros}
+            handleFindTrabajadores={handleFindTrabajadores}
+            conceptos={conceptos}
+            categorias={categorias}
+          />
 
-        {/* Contenedor que limita el área de la tabla */}
-        <div className="flex-1  min-h-[500px]  w-full rounded-xl overflow-hidden">
-          <main className="w-full  h-full relative">
-            <TablaFlujo
-              tableData={tableData}
-              totalesEmpresa={totalesEmpresa}
-              saldosIniciales={saldosIniciales}
-              saldosFinales={saldosFinales}
-              flujosNetos={flujosNetos}
-              totalesAnuales={totalesAnuales}
-              saldoInicialEnero={saldoInicialEnero}
-              setSaldoInicialEnero={setSaldoInicialEnero}
-              dataFiltros={filtrosAplicados}
-            />
-          </main>
+          <div className="flex-1 overflow-hidden relative border border-slate-200 rounded-xl bg-slate-50/30">
+            <main className="w-full h-full relative">
+              <TablaFlujo
+                tableData={tableData}
+                totalesEmpresa={totalesEmpresa}
+                saldosIniciales={saldosIniciales}
+                saldosFinales={saldosFinales}
+                flujosNetos={flujosNetos}
+                totalesAnuales={totalesAnuales}
+                saldoInicialEnero={saldoInicialEnero}
+                setSaldoInicialEnero={setSaldoInicialEnero}
+                dataFiltros={filtrosAplicados}
+              />
+            </main>
+          </div>
         </div>
       </motion.div>
     </main>
