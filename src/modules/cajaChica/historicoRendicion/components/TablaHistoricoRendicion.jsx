@@ -1,21 +1,22 @@
 import React from "react";
 import { numberPeru } from "../../../../assets/onInputs";
 import formatDate from "../../../../hooks/FormatDate";
+import { useDisclosure } from "@nextui-org/react";
+import { generarPDFRendiciones } from "../../../../utils/plantillasPdf/generarPDFRendiciones";
+
+const stickyHeader = "sticky top-0 z-20";
+const stickySubHeader = "sticky top-[30px] z-20";
+
+const headerBase =
+  "flex items-center justify-center font-bold text-[9px] uppercase tracking-wider py-2 px-1 text-center border-r border-b border-slate-400";
+
+const headerDark = `${headerBase} bg-slate-900 text-white`;
+
+// Añadimos h-full para que cuando haya "rowspan", la celda ocupe toda la altura y quede centrada
+const cellBase =
+  "flex items-center justify-center text-[10px] font-medium border-r border-b border-slate-300 min-h-[40px] h-full px-2 text-slate-700 bg-white text-center";
 
 const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
-  const stickyHeader = "sticky top-0 z-20";
-  const stickySubHeader = "sticky top-[30px] z-20";
-
-  const headerBase =
-    "flex items-center justify-center font-bold text-[9px] uppercase tracking-wider py-2 px-1 text-center border-r border-b border-slate-400";
-
-  const headerDark = `${headerBase} bg-slate-900 text-white`;
-
-  // Añadimos h-full para que cuando haya "rowspan", la celda ocupe toda la altura y quede centrada
-  const cellBase =
-    "flex items-center justify-center text-[10px] font-medium border-r border-b border-slate-300 min-h-[40px] h-full px-2 text-slate-700 bg-white text-center";
-
-  // Sumar el total de gastos usando la propiedad de la API
   const totalGeneralGastos = rendiciones.reduce(
     (acc, curr) => acc + Number(curr.total_gastos || 0),
     0,
@@ -105,8 +106,16 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                 >
                   {index + 1}
                 </div>
-                <div className={`${cellBase} font-semibold`} style={spanStyle}>
-                  {item.correlativo_rendicion || "-"}
+                <div
+                  className={`${cellBase} font-semibold cursor-pointer `}
+                  style={spanStyle}
+                  onClick={() => generarPDFRendiciones(item)}
+                >
+                  <Tooltip content="Generar pdf" showArrow={true}>
+                    <p className="text-red-600">
+                      {item.correlativo_rendicion || "-"}
+                    </p>
+                  </Tooltip>
                 </div>
                 <div
                   className={`${cellBase} justify-start font-medium`}

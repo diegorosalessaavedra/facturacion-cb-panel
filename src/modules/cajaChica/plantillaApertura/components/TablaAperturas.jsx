@@ -158,7 +158,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
 
               {/* Estado */}
               <div className={`${cellData} font-bold text-[11px]`}>
-                {item.estado ? item.estado.toUpperCase() : "APERTURADO"}
+                {item.estado_apertura}
               </div>
 
               <div className={`${cellBase} bg-white`}>
