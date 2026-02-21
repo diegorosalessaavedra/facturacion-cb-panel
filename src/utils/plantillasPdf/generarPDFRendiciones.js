@@ -10,7 +10,7 @@ export const generarPDFRendiciones = (rendicion) => {
     format: "a4",
   });
 
-  const margin = 10;
+  const margin = 6;
   const pageWidth = doc.internal.pageSize.width;
   let currentY = 10;
 
@@ -139,7 +139,7 @@ export const generarPDFRendiciones = (rendicion) => {
     index + 1,
     formatDate(det.fecha_uso),
     det.razon_social,
-    `${det.tipo_comprobante}\n${det.numero_comprobante}`,
+    `${det.tipo_comprobante} - \n${det.numero_comprobante}`,
     det.categoria,
     det.detalle || "-",
     `S/ ${numberPeru(det.importe || 0)}`,
@@ -163,7 +163,7 @@ export const generarPDFRendiciones = (rendicion) => {
     theme: "striped",
     headStyles: {
       fillColor: [51, 65, 85],
-      fontSize: 8,
+      fontSize: 7,
       halign: "center",
       valign: "middle",
     },
