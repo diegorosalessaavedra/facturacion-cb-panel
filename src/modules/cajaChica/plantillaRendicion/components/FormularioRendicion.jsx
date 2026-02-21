@@ -165,7 +165,6 @@ const FormularioRendicion = ({
               startContent={<FileText className="text-default-400" size={16} />}
               classNames={selectClassNames}
               isRequired
-              {...register("concepto_rendicion")}
               size="sm"
               isDisabled={!selectDesembolso}
               selectedKeys={[selectDesembolso?.motivo_desembolso || ""]}

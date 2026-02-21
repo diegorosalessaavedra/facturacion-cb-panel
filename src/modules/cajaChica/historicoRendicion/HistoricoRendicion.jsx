@@ -30,13 +30,13 @@ const HistoricoRendicion = () => {
       ),
     );
 
-    const url = `${API}/caja-chica/rendicion`;
+    const queryParams = new URLSearchParams(filtrosLimpios).toString();
+
+    const url = `${API}/caja-chica/rendicion?${queryParams}`;
     axios
       .get(
         url,
-        {
-          params: filtrosLimpios,
-        },
+
         config,
       )
       .then((res) => {

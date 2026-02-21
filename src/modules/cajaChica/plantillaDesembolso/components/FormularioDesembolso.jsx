@@ -28,7 +28,12 @@ import ModalIngresoEgresos from "../../components/ModalIngresoEgresos";
 import { numberPeru } from "../../../../assets/onInputs";
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
 
-const FormularioDesembolso = ({ trabajadores, onSuccess, saldoTotal }) => {
+const FormularioDesembolso = ({
+  trabajadores,
+  onSuccess,
+  saldoTotal,
+  conceptos,
+}) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { register, handleSubmit, reset } = useForm();
   const [loading, setLoading] = useState(false);
@@ -126,7 +131,7 @@ const FormularioDesembolso = ({ trabajadores, onSuccess, saldoTotal }) => {
         {/* MOTIVO */}
         <motion.div variants={itemVariants} className="min-w-[200px]">
           <Select
-            label="Motivo de Desembolso"
+            label="Concepto de Rendición"
             labelPlacement="outside"
             variant="bordered"
             startContent={<FileText className="text-default-400" size={16} />}
@@ -135,39 +140,11 @@ const FormularioDesembolso = ({ trabajadores, onSuccess, saldoTotal }) => {
             {...register("motivo_desembolso")}
             size="sm"
           >
-            <SelectItem
-              key="VIÁTICO PARA DESPACHOS"
-              textValue="VIÁTICO PARA DESPACHOS"
-            >
-              <p className="text-xs">VIÁTICO PARA DESPACHOS</p>
-            </SelectItem>
-            <SelectItem
-              key="VIÁTICO PARA RECOJOS"
-              textValue="VIÁTICO PARA RECOJOS"
-            >
-              <p className="text-xs">VIÁTICO PARA RECOJOS</p>
-            </SelectItem>
-            <SelectItem key="ALIMENTACIÓN" textValue="ALIMENTACIÓN">
-              <p className="text-xs">ALIMENTACIÓN</p>
-            </SelectItem>
-            <SelectItem
-              key="ARTÍCULOS DE LIMPIEZA"
-              textValue="ARTÍCULOS DE LIMPIEZA"
-            >
-              <p className="text-xs">ARTÍCULOS DE LIMPIEZA</p>
-            </SelectItem>
-            <SelectItem
-              key="ARTÍCULOS DE OFICINA"
-              textValue="ARTÍCULOS DE OFICINA"
-            >
-              <p className="text-xs">ARTÍCULOS DE OFICINA</p>
-            </SelectItem>
-            <SelectItem key="MOVILIDAD" textValue="MOVILIDAD">
-              <p className="text-xs">MOVILIDAD</p>
-            </SelectItem>
-            <SelectItem key="OTROS" textValue="OTROS">
-              <p className="text-xs">OTROS</p>
-            </SelectItem>
+            {conceptos?.map((c) => (
+              <SelectItem key={c.conceptos} textValue={c.conceptos}>
+                <p className="text-xs">{c.conceptos}</p>
+              </SelectItem>
+            ))}
           </Select>
         </motion.div>
 

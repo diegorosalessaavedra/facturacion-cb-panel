@@ -90,7 +90,7 @@ const PlantillaRendicion = () => {
           <div className="flex-none px-2 pt-2 pb-4 flex items-center gap-2">
             <div className="w-1 h-6 bg-amber-500 rounded-full"></div>
             <h2 className="text-md font-semibold text-slate-700">
-              Datos de Apertura
+              Datos de Rendición
             </h2>
           </div>
 

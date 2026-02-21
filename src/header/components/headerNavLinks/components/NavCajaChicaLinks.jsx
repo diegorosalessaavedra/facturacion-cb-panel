@@ -82,6 +82,14 @@ const NavCajaChicaLinks = ({
           <MdOutlineCircle className="text-sm" />
           <p className="text-sm">Historico de Rendición Individual</p>
         </Link>
+        <Link
+          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
+          to="/caja-chica/flujo-caja"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <MdOutlineCircle className="text-sm" />
+          <p className="text-sm">Flujo de Caja</p>
+        </Link>
       </div>
     </>
   );

@@ -1,6 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import formatDate from "../../../../hooks/FormatDate";
 import { numberPeru } from "../../../../assets/onInputs";
+import { Trash2 } from "lucide-react";
+import { API } from "../../../../utils/api";
+import axios from "axios";
+import config from "../../../../utils/getToken";
+import { handleAxiosError } from "../../../../utils/handleAxiosError";
+import { toast } from "sonner";
+import Loading from "../../../../hooks/Loading";
 
 // --- CONSTANTES ---
 const BILLETES = [
@@ -21,6 +28,8 @@ const MONEDAS = [
 ];
 
 const TablaDesembolsos = ({ desembolsos = [] }) => {
+  const [loading, setLoading] = useState(false);
+
   const stickyHeader = "sticky top-0 z-20";
 
   const headerBase =
@@ -34,14 +43,32 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
   const cellData = `${cellBase} bg-white text-slate-700 font-medium`;
   const cellTotal = `${cellBase} bg-slate-50 text-slate-900 font-bold`;
 
+  const handleRemoveApertura = async (id) => {
+    setLoading(true);
+
+    const url = `${API}/caja-chica/desembolso/${id}`;
+
+    await axios
+      .delete(url, config)
+      .then(() => {
+        toast.success(
+          "La solicitud de anulación del desembolso fue enviada correctamente.",
+        );
+      })
+      .catch((err) => handleAxiosError(err))
+      .finally(() => setLoading(false));
+  };
+
   return (
     // CAMBIO 1: h-fit a h-full para respetar el tamaño del padre
     <div className="w-full h-full overflow-auto shadow-md rounded-lg bg-white relative">
+      {loading && <Loading />}
+
       <div
         className="grid min-w-[1500px]" // Min-w asegura que haya scroll horizontal si es necesario
         style={{
           gridTemplateColumns:
-            "40px 1fr 90px 90px 90px 90px 1fr 90px repeat(11, 70px) 100px",
+            "40px 1fr 90px 90px 90px 90px 1fr 90px repeat(11, 70px) 100px 40px",
           gridAutoRows: "max-content", // Asegura que las filas no se estiren de más
         }}
       >
@@ -77,6 +104,7 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
         </div>
 
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>ESTADO</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}></div>
 
         <div
           className={`${headerPurple} bg-purple-800 top-[47px] sticky z-20 `}
@@ -153,6 +181,15 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
                 >
                   {item.estado_desembolso}
                 </p>
+              </div>
+
+              <div className={`${cellBase} bg-white`}>
+                <button
+                  onClick={() => handleRemoveApertura(item.id)}
+                  className="text-red-400 hover:text-red-500 transition-colors p-1"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             </React.Fragment>
           ))

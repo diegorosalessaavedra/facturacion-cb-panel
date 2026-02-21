@@ -15,6 +15,7 @@ const PlantillaDesembolso = () => {
   const [desembolsos, setDesembolsos] = useState([]);
   const [trabajadores, setTrabajadores] = useState([]);
   const [saldoTotal, setSaldoTotal] = useState(0);
+  const [conceptos, setConceptos] = useState([]);
   const [dataFiltros, setdataFiltros] = useState({
     nombre: "",
     fecha_inicio: getTodayDate2(),
@@ -32,16 +33,10 @@ const PlantillaDesembolso = () => {
         ([_, value]) => value !== "" && value !== "TODOS",
       ),
     );
-
-    const url = `${API}/caja-chica/desembolso`;
+    const queryParams = new URLSearchParams(filtrosLimpios).toString();
+    const url = `${API}/caja-chica/desembolso?${queryParams}`;
     axios
-      .get(
-        url,
-        {
-          params: filtrosLimpios,
-        },
-        config,
-      )
+      .get(url, config)
       .then((res) => {
         setDesembolsos(res.data.desembolsos);
         setSaldoTotal(res.data.saldoTotal);
@@ -60,9 +55,25 @@ const PlantillaDesembolso = () => {
       .finally(() => setLoading(false));
   };
 
+  const handleFindConcepto = () => {
+    setLoading(true);
+    const url = `${API}/caja-chica/conceptos-rendicion`;
+
+    axios
+      .get(url, config)
+      .then((res) => setConceptos(res.data.conceptoRendiciones))
+      .catch((err) => {
+        handleAxiosError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     handleFindDsembolsos();
     handleFindTrabajadores();
+    handleFindConcepto();
   }, []);
 
   return (
@@ -75,8 +86,6 @@ const PlantillaDesembolso = () => {
         transition={{ duration: 0.4 }}
         className="max-w-[1600px] h-full mx-auto overflow-y-auto overflow-x-hidden bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
       >
-        {/* HEADER MODERNO */}
-        {/* flex-none evita que el header se aplaste */}
         <header className="flex-none relative w-full min-h-[68px] bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg shadow-md overflow-hidden p-2 flex items-center justify-between">
           <div className="flex items-center gap-6 relative z-10">
             <div className="bg-white p-2 rounded-md shadow-md">
@@ -94,8 +103,6 @@ const PlantillaDesembolso = () => {
           </div>
         </header>
 
-        {/* SECCIÓN PRINCIPAL (FORMULARIO + TABLA) */}
-        {/* flex-1 min-h-0 es el TRUCO para que el scroll funcione dentro de flex */}
         <main className="flex-1 min-h-0 flex flex-col gap-4">
           {/* Título */}
           <div className="flex-none px-2 pt-2 flex items-center gap-2">
@@ -105,12 +112,12 @@ const PlantillaDesembolso = () => {
             </h2>
           </div>
 
-          {/* Formulario (flex-none para que ocupe lo que necesita) */}
           <div className="flex-none">
             <FormularioDesembolso
               trabajadores={trabajadores}
               onSuccess={handleFindDsembolsos}
               saldoTotal={saldoTotal}
+              conceptos={conceptos}
             />
           </div>
           <FlitroDesembolso
@@ -119,7 +126,6 @@ const PlantillaDesembolso = () => {
             handleFindDsembolsos={handleFindDsembolsos}
           />
 
-          {/* TABLA (flex-1 para ocupar el resto y permitir scroll) */}
           <div className="flex-1 min-h-[500px] border border-slate-200 rounded-xl overflow-hidden relative">
             <TablaDesembolsos desembolsos={desembolsos} />
           </div>

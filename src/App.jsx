@@ -149,8 +149,14 @@ const Trabajadores = lazy(
 const PlantillaApertura = lazy(
   () => import("./modules/cajaChica/plantillaApertura/PlantillaApertura"),
 );
+const AnularApertura = lazy(
+  () => import("./modules/cajaChica/plantillaApertura/AnularApertura"),
+);
 const PlantillaDesembolso = lazy(
   () => import("./modules/cajaChica/plantillaDesembolso/PlantillaDesembolso"),
+);
+const AnularDesembolso = lazy(
+  () => import("./modules/cajaChica/plantillaDesembolso/AnularDesembolso"),
 );
 const PlantillaRendicion = lazy(
   () => import("./modules/cajaChica/plantillaRendicion/PlantillaRendicion"),
@@ -158,6 +164,8 @@ const PlantillaRendicion = lazy(
 const HistoricoRendicion = lazy(
   () => import("./modules/cajaChica/historicoRendicion/HistoricoRendicion"),
 );
+
+const FlujoCaja = lazy(() => import("./modules/cajaChica/flujoCaja/FlujoCaja"));
 // caja chica
 
 // Hook personalizado para manejar la data del usuario
@@ -522,10 +530,26 @@ function App() {
             }
           />
           <Route
+            path="/apertura/:id/:codigo"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <AnularApertura />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
             path="/caja-chica/desembolsos"
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <PlantillaDesembolso />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/desembolso/:id/:codigo"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <AnularDesembolso />
               </ProtectedRouteWrapper>
             }
           />
@@ -542,6 +566,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <HistoricoRendicion />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/caja-chica/flujo-caja"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <FlujoCaja />
               </ProtectedRouteWrapper>
             }
           />
