@@ -1,7 +1,7 @@
 import React from "react";
 import { numberPeru } from "../../../../assets/onInputs";
 import formatDate from "../../../../hooks/FormatDate";
-import { useDisclosure } from "@nextui-org/react";
+import { Tooltip, useDisclosure } from "@nextui-org/react";
 import { generarPDFRendiciones } from "../../../../utils/plantillasPdf/generarPDFRendiciones";
 
 const stickyHeader = "sticky top-0 z-20";
@@ -111,7 +111,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                   style={spanStyle}
                   onClick={() => generarPDFRendiciones(item)}
                 >
-                  <Tooltip content="Generar pdf" showArrow={true}>
+                  <Tooltip content="Generar pdf" showArrow={true} size="sm">
                     <p className="text-red-600">
                       {item.correlativo_rendicion || "-"}
                     </p>
