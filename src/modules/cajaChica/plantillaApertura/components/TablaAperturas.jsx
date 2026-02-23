@@ -9,6 +9,7 @@ import { handleAxiosError } from "../../../../utils/handleAxiosError";
 import { toast } from "sonner";
 import Loading from "../../../../hooks/Loading";
 import AnularApertura from "./AnularApertura";
+import { useDisclosure } from "@nextui-org/react";
 
 // --- CONSTANTES ---
 const BILLETES = [
@@ -42,22 +43,6 @@ const TablaAperturas = ({ aperturas = [] }) => {
     "flex items-center justify-center text-[11px] py-2 px-1 border-r border-b border-slate-300 min-h-[40px]";
   const cellData = `${cellBase} bg-white text-slate-700 font-medium`;
   const cellTotal = `${cellBase} bg-slate-50 text-slate-900 font-bold`;
-
-  const handleRemoveApertura = async (id) => {
-    setLoading(true);
-
-    const url = `${API}/caja-chica/apertura/${id}`;
-
-    await axios
-      .delete(url, config)
-      .then(() => {
-        toast.success(
-          "La solicitud de anulación de la apertura fue enviada correctamente.",
-        );
-      })
-      .catch((err) => handleAxiosError(err))
-      .finally(() => setLoading(false));
-  };
 
   const handleRemove = (id) => {
     setSelectedId(id);
