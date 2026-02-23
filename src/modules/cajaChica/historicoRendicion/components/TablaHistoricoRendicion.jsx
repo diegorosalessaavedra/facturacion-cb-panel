@@ -31,7 +31,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
           className="grid"
           style={{
             gridTemplateColumns:
-              "40px 90px 220px 110px 180px 180px 80px 80px 80px 220px 90px 80px 100px 100px 140px 180px 90px",
+              "40px 90px 220px 110px 180px 130px 80px 80px 80px 220px 90px 80px 100px 100px 140px 180px 90px",
             gridAutoRows: "max-content",
           }}
         >
