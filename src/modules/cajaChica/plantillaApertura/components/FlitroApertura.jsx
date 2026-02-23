@@ -99,6 +99,9 @@ const FlitroApertura = ({
           <SelectItem key="DEVOLUCIÓN" value="DEVOLUCIÓN">
             DEVOLUCIÓN
           </SelectItem>
+          <SelectItem key="COBRO CLIENTE" value="COBRO CLIENTE">
+            COBRO CLIENTE
+          </SelectItem>
         </Select>
       </motion.div>
       <motion.div variants={itemVariants} className="min-w-[150px]">

@@ -251,15 +251,23 @@ export const ROUTE_PERMISSIONS = {
   ],
 
   // Rutas Caja Chica
-  "/caja-chica/categoria-centro-costos": [ROLES.GERENTE, ROLES.CONTADOR],
-  "/caja-chica/trabajadores": [ROLES.GERENTE, ROLES.CONTADOR],
-  "/caja-chica/aperturas": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/caja-chica/categoria-centro-costos": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.RRHH,
+  ],
+  "/caja-chica/trabajadores": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/caja-chica/aperturas": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
   "/apertura/:id/:codigo": [ROLES.GERENTE, ROLES.CONTADOR],
-  "/caja-chica/desembolsos": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/caja-chica/desembolsos": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
   "/desembolso/:id/:codigo": [ROLES.GERENTE, ROLES.CONTADOR],
-  "/caja-chica/rendicion": [ROLES.GERENTE, ROLES.CONTADOR],
-  "/caja-chica/historico-rendicion-individual": [ROLES.GERENTE, ROLES.CONTADOR],
-  "/caja-chica/flujo-caja": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/caja-chica/rendicion": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/caja-chica/historico-rendicion-individual": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.RRHH,
+  ],
+  "/caja-chica/flujo-caja": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
 
   // Rutas Caja Chica
 };
