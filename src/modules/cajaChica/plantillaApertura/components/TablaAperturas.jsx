@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import formatDate from "../../../../hooks/FormatDate";
 import { numberPeru } from "../../../../assets/onInputs";
 import { Trash2 } from "lucide-react";
-import { API } from "../../../../utils/api";
-import axios from "axios";
-import config from "../../../../utils/getToken";
-import { handleAxiosError } from "../../../../utils/handleAxiosError";
-import { toast } from "sonner";
-import Loading from "../../../../hooks/Loading";
+
 import AnularApertura from "./AnularApertura";
 import { useDisclosure } from "@nextui-org/react";
 
@@ -51,8 +46,6 @@ const TablaAperturas = ({ aperturas = [] }) => {
 
   return (
     <div className="w-full h-full overflow-auto shadow-md rounded-lg bg-white relative">
-      {loading && <Loading />}
-
       <div
         className="grid"
         style={{
