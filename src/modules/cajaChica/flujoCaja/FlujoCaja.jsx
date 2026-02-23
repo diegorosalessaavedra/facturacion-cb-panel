@@ -13,7 +13,7 @@ const FlujoCaja = () => {
   const [trabajadores, setTrabajadores] = useState([]);
   const [conceptos, setConceptos] = useState([]);
   const [categorias, setCategorias] = useState([]);
-  const [saldoInicialEnero, setSaldoInicialEnero] = useState(0);
+  const [saldoFlujo, setSaldoFlujo] = useState(null);
 
   const [dataFiltros, setDataFiltros] = useState({
     trabajador_id: "TODOS",
@@ -22,7 +22,7 @@ const FlujoCaja = () => {
     concepto: "TODOS",
     categoria: "TODOS",
   });
-  console.log(dataFiltros);
+  console.log(trabajadores);
 
   const [filtrosAplicados, setFiltrosAplicados] = useState({ ...dataFiltros });
 
@@ -65,6 +65,8 @@ const FlujoCaja = () => {
           },
         );
         setFiltrosAplicados({ ...dataFiltros });
+
+        setSaldoFlujo(res.data.saldoFlujo);
       })
       .catch((err) => handleAxiosError(err))
       .finally(() => setLoading(false));
@@ -81,7 +83,7 @@ const FlujoCaja = () => {
       const iniciales = Array(12).fill(0);
       const finales = Array(12).fill(0);
       const netos = Array(12).fill(0);
-      const saldoInicialNum = Number(saldoInicialEnero) || 0;
+      const saldoInicialNum = Number(saldoFlujo?.saldo) || 0;
 
       iniciales[0] = saldoInicialNum;
       let sumaIngresos = 0;
@@ -109,7 +111,7 @@ const FlujoCaja = () => {
           flujoNeto: Number((sumaIngresos - sumaEgresos).toFixed(2)),
         },
       };
-    }, [saldoInicialEnero, totalesEmpresa]);
+    }, [saldoFlujo?.saldo, totalesEmpresa]);
 
   // PROCESAMIENTO DE DATOS BASADO EN FECHA_USO
   const { tableData } = useMemo(() => {
@@ -246,9 +248,9 @@ const FlujoCaja = () => {
                 saldosFinales={saldosFinales}
                 flujosNetos={flujosNetos}
                 totalesAnuales={totalesAnuales}
-                saldoInicialEnero={saldoInicialEnero}
-                setSaldoInicialEnero={setSaldoInicialEnero}
                 dataFiltros={filtrosAplicados}
+                saldoFlujo={saldoFlujo}
+                setSaldoFlujo={setSaldoFlujo}
               />
             </main>
           </div>

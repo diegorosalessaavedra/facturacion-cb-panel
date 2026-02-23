@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { ChevronRight, TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { onInputNumber, onInputPrice } from "../../../../assets/onInputs";
+import { API } from "../../../../utils/api";
+import axios from "axios";
+import config from "../../../../utils/getToken";
+import { handleAxiosError } from "../../../../utils/handleAxiosError";
 
 const formatCurrency = (amount) => {
   if (amount === undefined || amount === null || amount === "") return "-";
@@ -37,11 +41,15 @@ const TablaFlujo = ({
   saldosFinales,
   flujosNetos,
   totalesAnuales,
-  saldoInicialEnero,
-  setSaldoInicialEnero,
+
   dataFiltros,
+  saldoFlujo,
+  setSaldoFlujo,
 }) => {
   const [expandedIds, setExpandedIds] = useState([]);
+
+  // 🟢 1. Referencia para guardar el temporizador
+  const debounceTimer = useRef(null);
 
   // Lógica de columnas dinámicas basada en filtros APLICADOS
   const indicesAMostrar =
@@ -145,6 +153,27 @@ const TablaFlujo = ({
     );
   };
 
+  // 🟢 2. Modificamos la función para incluir el retraso
+  const handleUpdateSaldo = (saldo) => {
+    setSaldoFlujo((prev) => ({ ...prev, saldo }));
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(async () => {
+      const url = `${API}/caja-chica/rendicion/flujo/${saldoFlujo?.year}`;
+
+      try {
+        const res = await axios.patch(url, { saldo }, config);
+
+        setSaldoFlujo(res.data.saldoFlujo);
+      } catch (err) {
+        handleAxiosError(err);
+      }
+    }, 2000);
+  };
+
   return (
     <div className="w-full h-full overflow-auto custom-scrollbar shadow-scroll-indicator rounded-xl p-4 pt-0">
       <div
@@ -185,10 +214,8 @@ const TablaFlujo = ({
               <span className="text-slate-800 text-[9px]">S/</span>
               <input
                 type="text"
-                value={saldoInicialEnero === 0 ? "" : saldoInicialEnero}
-                onChange={(e) =>
-                  setSaldoInicialEnero(Number(e.target.value) || 0)
-                }
+                value={saldoFlujo?.saldo || 0}
+                onChange={(e) => handleUpdateSaldo(Number(e.target.value) || 0)}
                 className="w-full bg-slate-700 text-right outline-none text-white font-bold rounded px-2 py-0.5 focus:ring-1 focus:ring-blue-400"
                 placeholder="0.00"
                 onInput={onInputPrice}

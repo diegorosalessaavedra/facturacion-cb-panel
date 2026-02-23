@@ -138,6 +138,9 @@ const FormularioApertura = ({
             <SelectItem key="DEVOLUCIÓN" value="DEVOLUCIÓN">
               DEVOLUCIÓN
             </SelectItem>
+            <SelectItem key="COBRO CLIENTE" value="COBRO CLIENTE">
+              DEVOLUCIÓN
+            </SelectItem>
           </Select>
         </motion.div>
 

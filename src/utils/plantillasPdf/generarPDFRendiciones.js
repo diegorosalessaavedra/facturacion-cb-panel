@@ -93,7 +93,7 @@ export const generarPDFRendiciones = (rendicion) => {
   doc.text("RUTAS:", col1, currentY + 8 + rowH * 3);
   doc.setFont("helvetica", "normal");
   doc.text(
-    rendicion.rutas_rendicion || "-",
+    rendicion.desembolso.rutas_desembolso || "-",
     col1 + 32,
     currentY + 8 + rowH * 3,
   );
@@ -167,11 +167,19 @@ export const generarPDFRendiciones = (rendicion) => {
       halign: "center",
       valign: "middle",
     },
-    styles: { fontSize: 7, valign: "middle", cellPadding: 2.5 },
+    // 🟢 AQUÍ EL CAMBIO: Agregamos halign: "center" para centrar todo el cuerpo de la tabla
+    styles: {
+      fontSize: 7,
+      valign: "middle",
+      halign: "center",
+      cellPadding: 2.5,
+    },
     columnStyles: {
-      0: { halign: "center", cellWidth: 7 },
-      1: { halign: "center", cellWidth: 18 },
+      0: { cellWidth: 7 },
+      1: { cellWidth: 18 },
       3: { cellWidth: 25 },
+      // Mantenemos el importe a la derecha por buenas prácticas financieras.
+      // Si quieres centrarlo también, borra 'halign: "right"' de la línea de abajo.
       6: { halign: "right", fontStyle: "bold", cellWidth: 22 },
     },
   });

@@ -49,7 +49,7 @@ const Trabajadores = () => {
           <Button
             className="bg-slate-900"
             onPress={() => {
-              selectModal("create");
+              setSelectModal("create");
               onOpen();
             }}
             color="primary"
