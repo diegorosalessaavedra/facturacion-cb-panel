@@ -22,6 +22,8 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
     0,
   );
 
+  console.log(rendiciones);
+
   return (
     <div className="relative w-full h-full flex flex-col gap-2">
       <div className="flex-1 w-full overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
@@ -29,7 +31,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
           className="grid"
           style={{
             gridTemplateColumns:
-              "40px 90px 220px 110px 180px 80px 80px 80px 220px 90px 80px 100px 100px 140px 180px 90px",
+              "40px 90px 220px 110px 180px 180px 80px 80px 80px 220px 90px 80px 100px 100px 140px 180px 90px",
             gridAutoRows: "max-content",
           }}
         >
@@ -44,6 +46,9 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>ÁREA</div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             CONCEPTO
+          </div>
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+            RUTAS
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             MONTO <br /> RECIBIDO
@@ -131,6 +136,12 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                   style={spanStyle}
                 >
                   {item.concepto_rendicion || "-"}
+                </div>
+                <div
+                  className={`${cellBase} justify-start text-[9px]`}
+                  style={spanStyle}
+                >
+                  {item.desembolso.rutas_desembolso || "-"}
                 </div>
                 <div className={`${cellBase} font-bold`} style={spanStyle}>
                   {item.monto_recibido

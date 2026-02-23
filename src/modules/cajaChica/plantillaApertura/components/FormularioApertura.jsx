@@ -21,7 +21,12 @@ import ModalIngresoEgresos from "../../components/ModalIngresoEgresos";
 import { numberPeru } from "../../../../assets/onInputs";
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
 
-const FormularioApertura = ({ trabajadores, onSuccess, saldoTotal }) => {
+const FormularioApertura = ({
+  desgloseCaja,
+  trabajadores,
+  onSuccess,
+  saldoTotal,
+}) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { register, handleSubmit, reset } = useForm();
   const [loading, setLoading] = useState(false);
@@ -181,6 +186,8 @@ const FormularioApertura = ({ trabajadores, onSuccess, saldoTotal }) => {
       </motion.div>
       {
         <ModalIngresoEgresos
+          saldoTotal={saldoTotal}
+          desgloseCaja={desgloseCaja}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           setIngresosData={setIngresosData}

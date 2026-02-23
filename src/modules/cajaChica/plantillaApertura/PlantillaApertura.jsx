@@ -14,6 +14,7 @@ const PlantillaApertura = () => {
   const [loading, setLoading] = useState(false);
   const [aperturas, setAperturas] = useState([]);
   const [trabajadores, setTrabajadores] = useState([]);
+  const [desgloseCaja, setDesgloseCaja] = useState(null);
   const [saldoTotal, setSaldoTotal] = useState(0);
   const [dataFiltros, setdataFiltros] = useState({
     nombre: "",
@@ -36,6 +37,8 @@ const PlantillaApertura = () => {
     axios
       .get(url, config)
       .then((res) => {
+        setDesgloseCaja(res.data.desgloseCaja);
+
         setAperturas(res.data.aperturas);
         setSaldoTotal(res.data.saldoTotal);
       })
@@ -104,6 +107,7 @@ const PlantillaApertura = () => {
             {/* Formulario (flex-none) */}
             <div className="flex-none">
               <FormularioApertura
+                desgloseCaja={desgloseCaja}
                 trabajadores={trabajadores}
                 onSuccess={handleFindAperturas}
                 saldoTotal={saldoTotal}

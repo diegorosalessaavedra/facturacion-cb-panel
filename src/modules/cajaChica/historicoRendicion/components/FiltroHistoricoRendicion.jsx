@@ -59,6 +59,10 @@ const FiltroHistoricoRendicion = ({
             }
             size="sm"
           >
+            {" "}
+            <SelectItem key="TODOS" value="TODOS" textValue="TODOS">
+              <span className="text-xs">TODOS</span>
+            </SelectItem>
             {trabajadores.map((t) => (
               <SelectItem
                 key={t.id}

@@ -8,6 +8,7 @@ import config from "../../../../utils/getToken";
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
 import { toast } from "sonner";
 import Loading from "../../../../hooks/Loading";
+import AnularApertura from "./AnularApertura";
 
 // --- CONSTANTES ---
 const BILLETES = [
@@ -28,7 +29,8 @@ const MONEDAS = [
 ];
 
 const TablaAperturas = ({ aperturas = [] }) => {
-  const [loading, setLoading] = useState(false);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectedId, setSelectedId] = useState(null);
 
   const stickyHeader = "sticky top-0 z-20";
   const headerBase =
@@ -55,6 +57,11 @@ const TablaAperturas = ({ aperturas = [] }) => {
       })
       .catch((err) => handleAxiosError(err))
       .finally(() => setLoading(false));
+  };
+
+  const handleRemove = (id) => {
+    setSelectedId(id);
+    onOpen();
   };
 
   return (
@@ -163,7 +170,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
 
               <div className={`${cellBase} bg-white`}>
                 <button
-                  onClick={() => handleRemoveApertura(item.id)}
+                  onClick={() => handleRemove(item.id)}
                   className="text-red-400 hover:text-red-500 transition-colors p-1"
                 >
                   <Trash2 size={14} />
@@ -177,6 +184,12 @@ const TablaAperturas = ({ aperturas = [] }) => {
           </div>
         )}
       </div>
+      <AnularApertura
+        key={selectedId}
+        id={selectedId}
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+      />
     </div>
   );
 };

@@ -8,13 +8,16 @@ import { motion } from "framer-motion";
 import FiltroHistoricoRendicion from "./components/FiltroHistoricoRendicion";
 import { getTodayDate, getTodayDate2 } from "../../../assets/getTodayDate";
 import TablaHistoricoRendicion from "./components/TablaHistoricoRendicion";
+import { Button } from "@nextui-org/react";
+import { generarExcelRendiciones } from "../../../utils/plantillasPdf/generarExcelRendiciones";
+import { Download } from "lucide-react";
 
 const HistoricoRendicion = () => {
   const [loading, setLoading] = useState(false);
   const [trabajadores, setTrabajadores] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [dataFiltros, setdataFiltros] = useState({
-    trabajador_id: "",
+    trabajador_id: "TODOS",
     fecha_inicio: getTodayDate2(),
     fecha_final: getTodayDate(),
     categoria_gasto: "",
@@ -72,9 +75,15 @@ const HistoricoRendicion = () => {
   };
 
   useEffect(() => {
+    handleFindRendiciones();
     handleFindTrabajadores();
     handleFindCategoria();
   }, []);
+
+  const totalGeneralGastos = rendiciones.reduce(
+    (acc, curr) => acc + Number(curr.total_gastos || 0),
+    0,
+  );
 
   return (
     <main className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
@@ -101,6 +110,22 @@ const HistoricoRendicion = () => {
               </h1>
             </div>
           </div>
+          <Button
+            color="success"
+            className="text-white font-semibold shadow-md"
+            startContent={<Download size={18} />}
+            onPress={() =>
+              generarExcelRendiciones(
+                rendiciones,
+                totalGeneralGastos,
+                dataFiltros.fecha_inicio, // 🟢 Pasamos fecha inicio
+                dataFiltros.fecha_final, // 🟢 Pasamos fecha fin
+              )
+            }
+            size="sm"
+          >
+            Exportar a Excel
+          </Button>
         </header>
 
         <main className="flex-1 min-h-0 flex flex-col">

@@ -8,7 +8,11 @@ import {
   Button,
 } from "@nextui-org/react";
 import { Save } from "lucide-react";
-import { onInputNumber, onInputPrice } from "../../../assets/onInputs";
+import {
+  numberPeru,
+  onInputNumber,
+  onInputPrice,
+} from "../../../assets/onInputs";
 
 // --- CONSTANTES ---
 const BILLETES = [
@@ -31,6 +35,8 @@ const MONEDAS = [
 const TODAS_DENOMINACIONES = [...BILLETES, ...MONEDAS];
 
 const ModalIngresoEgresos = ({
+  saldoTotal,
+  desgloseCaja,
   isOpen,
   onOpenChange,
   setIngresosData,
@@ -92,10 +98,6 @@ const ModalIngresoEgresos = ({
     onClose();
   };
 
-  // --- ESTILOS DINÁMICOS ---
-  // Cambia colores según si es Ingreso (Verde/Emerald) o Egreso (Rojo/Rose)
-  const themeColor = esIngreso ? "emerald" : "rose";
-
   // Clases base
   const headerBase =
     "flex items-center justify-center font-bold text-[11px] uppercase tracking-wider py-2 px-1 text-center";
@@ -104,7 +106,7 @@ const ModalIngresoEgresos = ({
   const headerSub = `${headerBase} bg-slate-800 text-white`;
 
   const cellBase = "h-10 relative flex items-center justify-center text-[11px]";
-  const cellReadOnly = `${cellBase} bg-slate-50 text-slate-400 font-medium`;
+  const cellReadOnly = `${cellBase} bg-slate-50 text-sm text-slate-800 font-bold`;
   const cellInput = `${cellBase} bg-white hover:bg-slate-50 transition-colors`;
 
   // Etiqueta lateral dinámica
@@ -168,14 +170,14 @@ const ModalIngresoEgresos = ({
                 <div className="bg-slate-800 text-white font-bold text-[11px] flex items-center justify-center">
                   SALDO
                 </div>
-                <div className={cellReadOnly}>-</div>
+                <div className={cellReadOnly}>{desgloseCaja.yape}</div>
                 {TODAS_DENOMINACIONES.map((d) => (
                   <div key={`saldo-${d.key}`} className={cellReadOnly}>
-                    0
+                    {desgloseCaja[d.key]}
                   </div>
                 ))}
-                <div className="bg-slate-50 flex items-center justify-center font-bold text-slate-400 text-sm">
-                  S/ 0.00
+                <div className="bg-slate-50 flex items-center justify-center font-bold text-slate-800 text-[13px]">
+                  S/ {numberPeru(saldoTotal)}
                 </div>
 
                 {/* --- FILA 4: INPUTS --- */}
@@ -221,7 +223,7 @@ const ModalIngresoEgresos = ({
                     ${esIngreso ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}
                 `}
                 >
-                  S/ {totalCalculado.toFixed(2)}
+                  S/ {numberPeru(totalCalculado)}
                 </div>
               </div>
             </ModalBody>

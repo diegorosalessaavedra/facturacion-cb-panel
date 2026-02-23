@@ -11,14 +11,7 @@ import axios from "axios";
 import { API } from "../../../../utils/api";
 import config from "../../../../utils/getToken";
 import { toast } from "sonner";
-import {
-  Save,
-  Wallet,
-  Calendar,
-  User,
-  FileText,
-  DollarSign,
-} from "lucide-react";
+import { Save, Wallet, Calendar, User, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   inputClassNames,
@@ -29,6 +22,7 @@ import { numberPeru } from "../../../../assets/onInputs";
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
 
 const FormularioDesembolso = ({
+  desgloseCaja,
   trabajadores,
   onSuccess,
   saldoTotal,
@@ -112,6 +106,18 @@ const FormularioDesembolso = ({
             ))}
           </Select>
         </motion.div>
+        <motion.div variants={itemVariants} className="min-w-[200px]">
+          <Input
+            label="Rutas"
+            labelPlacement="outside"
+            type="text"
+            variant="bordered"
+            color="danger"
+            {...register("rutas_desembolso")}
+            classNames={inputClassNames}
+            size="sm"
+          />
+        </motion.div>
 
         {/* FECHA */}
         <motion.div variants={itemVariants} className="min-w-[200px]">
@@ -191,6 +197,8 @@ const FormularioDesembolso = ({
       </motion.div>
       {
         <ModalIngresoEgresos
+          saldoTotal={saldoTotal}
+          desgloseCaja={desgloseCaja}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           setIngresosData={setIngresosData}

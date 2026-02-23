@@ -14,6 +14,7 @@ const PlantillaDesembolso = () => {
   const [loading, setLoading] = useState(false);
   const [desembolsos, setDesembolsos] = useState([]);
   const [trabajadores, setTrabajadores] = useState([]);
+  const [desgloseCaja, setDesgloseCaja] = useState(null);
   const [saldoTotal, setSaldoTotal] = useState(0);
   const [conceptos, setConceptos] = useState([]);
   const [dataFiltros, setdataFiltros] = useState({
@@ -38,6 +39,7 @@ const PlantillaDesembolso = () => {
     axios
       .get(url, config)
       .then((res) => {
+        setDesgloseCaja(res.data.desgloseCaja);
         setDesembolsos(res.data.desembolsos);
         setSaldoTotal(res.data.saldoTotal);
       })
@@ -84,7 +86,7 @@ const PlantillaDesembolso = () => {
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="max-w-[1600px] h-full mx-auto overflow-y-auto overflow-x-hidden bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
+        className="max-w-[1800px] h-full mx-auto overflow-y-auto overflow-x-hidden bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
       >
         <header className="flex-none relative w-full min-h-[68px] bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg shadow-md overflow-hidden p-2 flex items-center justify-between">
           <div className="flex items-center gap-6 relative z-10">
@@ -114,6 +116,7 @@ const PlantillaDesembolso = () => {
 
           <div className="flex-none">
             <FormularioDesembolso
+              desgloseCaja={desgloseCaja}
               trabajadores={trabajadores}
               onSuccess={handleFindDsembolsos}
               saldoTotal={saldoTotal}
