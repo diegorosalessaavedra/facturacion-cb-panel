@@ -202,6 +202,7 @@ const FormularioDesembolso = ({
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           setIngresosData={setIngresosData}
+          ingresosData={ingresosData}
           esIngreso={false}
         />
       }

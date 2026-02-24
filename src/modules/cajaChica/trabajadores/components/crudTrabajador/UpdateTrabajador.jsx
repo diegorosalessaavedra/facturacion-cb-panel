@@ -145,7 +145,7 @@ const UpdateTrabajador = ({
                 classNames={selectClassNames}
                 labelPlacement="outside"
                 label="Asignar Areas"
-                {...register("area_centro_costo")}
+                {...register("areas_asignadas")}
                 variant="bordered"
                 radius="sm"
                 size="sm"

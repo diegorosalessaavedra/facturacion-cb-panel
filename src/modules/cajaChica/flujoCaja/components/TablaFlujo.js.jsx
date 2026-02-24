@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { ChevronRight, TrendingUp, TrendingDown, Wallet } from "lucide-react";
-import { onInputNumber, onInputPrice } from "../../../../assets/onInputs";
+import { onInputPrice } from "../../../../assets/onInputs";
 import { API } from "../../../../utils/api";
 import axios from "axios";
 import config from "../../../../utils/getToken";
@@ -41,17 +41,13 @@ const TablaFlujo = ({
   saldosFinales,
   flujosNetos,
   totalesAnuales,
-
   dataFiltros,
   saldoFlujo,
   setSaldoFlujo,
 }) => {
   const [expandedIds, setExpandedIds] = useState([]);
-
-  // 🟢 1. Referencia para guardar el temporizador
   const debounceTimer = useRef(null);
 
-  // Lógica de columnas dinámicas basada en filtros APLICADOS
   const indicesAMostrar =
     dataFiltros?.mes === "TODOS"
       ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
@@ -93,7 +89,7 @@ const TablaFlujo = ({
   const renderRow = (
     id,
     label,
-    values,
+    values = Array(12).fill(0), // Valor por defecto si values es undefined
     bgClass,
     labelClass,
     isExpandable = false,
@@ -138,7 +134,7 @@ const TablaFlujo = ({
         {indicesAMostrar.map((idx) => (
           <MoneyCell
             key={idx}
-            val={values[idx]}
+            val={values[idx] || 0}
             bgClass={bgClass}
             isBold={bgClass.includes("slate")}
           />
@@ -153,20 +149,15 @@ const TablaFlujo = ({
     );
   };
 
-  // 🟢 2. Modificamos la función para incluir el retraso
   const handleUpdateSaldo = (saldo) => {
     setSaldoFlujo((prev) => ({ ...prev, saldo }));
 
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
     debounceTimer.current = setTimeout(async () => {
       const url = `${API}/caja-chica/rendicion/flujo/${saldoFlujo?.year}`;
-
       try {
         const res = await axios.patch(url, { saldo }, config);
-
         setSaldoFlujo(res.data.saldoFlujo);
       } catch (err) {
         handleAxiosError(err);
@@ -174,16 +165,23 @@ const TablaFlujo = ({
     }, 2000);
   };
 
+  // 🟢 Protegido con optional chaining
+  const ingresosTotalesArray = Array(12)
+    .fill(0)
+    .map(
+      (_, i) =>
+        (Number(totalesEmpresa?.ingresos_reposicion?.[i]) || 0) +
+        (Number(totalesEmpresa?.ingresos_cobro?.[i]) || 0),
+    );
+
   return (
     <div className="w-full h-full overflow-auto custom-scrollbar shadow-scroll-indicator rounded-xl p-4 pt-0">
       <div
         className={`grid border-t border-l ${borderColor} w-fit bg-slate-100 gap-[1px]`}
         style={{
           gridTemplateColumns: `250px repeat(${indicesAMostrar.length}, 100px) 140px`,
-          // gridAutoRows: "minmax(40px, auto)",
         }}
       >
-        {/* Encabezados */}
         <div
           className={`${cellBase} ${stickyLeft} ${headerDark} sticky top-0 z-30`}
         ></div>
@@ -224,7 +222,7 @@ const TablaFlujo = ({
           ) : (
             <MoneyCell
               key={idx}
-              val={saldosIniciales[idx]}
+              val={saldosIniciales[idx] || 0}
               bgClass="bg-slate-800"
               isBold={true}
             />
@@ -237,33 +235,57 @@ const TablaFlujo = ({
         />
 
         <div className="col-span-full h-2 bg-slate-100"></div>
+
         {/* Ingresos */}
         {renderRow(
           "tot-ing",
           "INGRESOS TOTALES",
-          totalesEmpresa.ingresos,
+          ingresosTotalesArray,
           "bg-emerald-50/50",
           "text-emerald-700 font-bold",
           false,
           totalesAnuales.ingresos,
           <TrendingUp size={14} className="text-emerald-500" />,
         )}
+
+        {/* 🟢 Bloque 1: Por Reposición */}
         {renderRow(
           "cat-rep",
           "Por Reposición",
-          totalesEmpresa.ingresos,
+          totalesEmpresa?.ingresos_reposicion || Array(12).fill(0),
           "bg-white",
           "font-semibold text-slate-900",
           true,
         )}
         {expandedIds.includes("cat-rep") &&
-          tableData.ingresos.map((trab) =>
+          tableData.ingresosReposicion.map((trab) =>
             renderRow(
               trab.id,
               trab.name,
               trab.values,
               "bg-white",
-              "pl-6 text-slate-900text-[10px]",
+              "pl-6 text-slate-900 text-[10px]",
+              false,
+            ),
+          )}
+
+        {/* 🟢 Bloque 2: Por Cobro Cliente */}
+        {renderRow(
+          "cat-cob",
+          "Por Cobro Cliente",
+          totalesEmpresa?.ingresos_cobro || Array(12).fill(0),
+          "bg-white",
+          "font-semibold text-slate-900",
+          true,
+        )}
+        {expandedIds.includes("cat-cob") &&
+          tableData.ingresosCobro.map((trab) =>
+            renderRow(
+              trab.id,
+              trab.name,
+              trab.values,
+              "bg-white",
+              "pl-6 text-slate-900 text-[10px]",
               false,
             ),
           )}
@@ -274,7 +296,7 @@ const TablaFlujo = ({
         {renderRow(
           "tot-egr",
           "EGRESOS TOTALES",
-          totalesEmpresa.egresos,
+          totalesEmpresa?.egresos || Array(12).fill(0),
           "bg-red-50/50",
           "text-red-700 font-bold",
           false,

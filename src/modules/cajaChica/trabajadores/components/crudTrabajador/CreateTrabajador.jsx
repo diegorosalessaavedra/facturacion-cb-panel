@@ -7,6 +7,7 @@ import {
   Input,
   Textarea,
   Select,
+  SelectItem,
 } from "@nextui-org/react";
 import {
   inputClassNames,
@@ -131,44 +132,42 @@ const CreateTrabajador = ({ isOpen, onOpenChange, handleFindTrabajadores }) => {
                   size="sm"
                 />
               </div>
-              <div>
-                <Select
-                  isRequired
-                  classNames={selectClassNames}
-                  label="Moneda"
-                  labelPlacement="outside"
-                  {...register("area_centro_costo")}
-                  variant="bordered"
-                  radius="sm"
-                  size="sm"
-                  selectionMode="single"
-                >
-                  {areasCentros.map((a) => (
-                    <SelectItem key={a}>{a}</SelectItem>
-                  ))}
-                </Select>
-                <Select
-                  isRequired
-                  classNames={selectClassNames}
-                  label="Moneda"
-                  labelPlacement="Asignar Areas"
-                  {...register("area_centro_costo")}
-                  variant="bordered"
-                  radius="sm"
-                  size="sm"
-                  selectionMode="multiple"
-                >
-                  <SelectItem key="RENDIDORES DE CAJA CHICA">
-                    RENDIDORES DE CAJA CHICA
-                  </SelectItem>
-                  <SelectItem key="RESPONSABLE DE CAJA">
-                    RESPONSABLE DE CAJA
-                  </SelectItem>{" "}
-                  <SelectItem key="SUPERVISORES DE CAJA CHICA">
-                    SUPERVISORES DE CAJA CHICA
-                  </SelectItem>
-                </Select>
-              </div>
+              <Select
+                isRequired
+                classNames={selectClassNames}
+                label="Ara de Centro Costos"
+                labelPlacement="outside"
+                {...register("area_centro_costo")}
+                variant="bordered"
+                radius="sm"
+                size="sm"
+                selectionMode="single"
+              >
+                {areasCentros.map((a) => (
+                  <SelectItem key={a}>{a}</SelectItem>
+                ))}
+              </Select>
+              <Select
+                isRequired
+                classNames={selectClassNames}
+                label="Asignar Areas"
+                labelPlacement="outside"
+                {...register("areas_asignadas")}
+                variant="bordered"
+                radius="sm"
+                size="sm"
+                selectionMode="multiple"
+              >
+                <SelectItem key="RENDIDORES DE CAJA CHICA">
+                  RENDIDORES DE CAJA CHICA
+                </SelectItem>
+                <SelectItem key="RESPONSABLE DE CAJA">
+                  RESPONSABLE DE CAJA
+                </SelectItem>{" "}
+                <SelectItem key="SUPERVISORES DE CAJA CHICA">
+                  SUPERVISORES DE CAJA CHICA
+                </SelectItem>
+              </Select>
 
               <div className="w-full flex items-center justify-end gap-3 ">
                 <Button

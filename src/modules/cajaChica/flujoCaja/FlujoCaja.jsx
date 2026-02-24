@@ -22,12 +22,12 @@ const FlujoCaja = () => {
     concepto: "TODOS",
     categoria: "TODOS",
   });
-  console.log(trabajadores);
 
   const [filtrosAplicados, setFiltrosAplicados] = useState({ ...dataFiltros });
 
   const [totalesEmpresa, setTotalesEmpresa] = useState({
-    ingresos: Array(12).fill(0),
+    ingresos_reposicion: Array(12).fill(0),
+    ingresos_cobro: Array(12).fill(0),
     egresos: Array(12).fill(0),
   });
 
@@ -58,14 +58,18 @@ const FlujoCaja = () => {
       .get(`${API}/caja-chica/trabajador/flujo-caja?${queryParams}`, config)
       .then((res) => {
         setTrabajadores(res.data.trabajadores || []);
-        setTotalesEmpresa(
-          res.data.totales_empresa || {
-            ingresos: Array(12).fill(0),
-            egresos: Array(12).fill(0),
-          },
-        );
-        setFiltrosAplicados({ ...dataFiltros });
 
+        // 🟢 CORRECCIÓN: Adaptamos la lectura a la estructura real del backend
+        setTotalesEmpresa({
+          ingresos_reposicion:
+            res.data.totales_empresa?.ingresos?.reposicion || Array(12).fill(0),
+          ingresos_cobro:
+            res.data.totales_empresa?.ingresos?.cobro_cliente ||
+            Array(12).fill(0),
+          egresos: res.data.totales_empresa?.egresos || Array(12).fill(0),
+        });
+
+        setFiltrosAplicados({ ...dataFiltros });
         setSaldoFlujo(res.data.saldoFlujo);
       })
       .catch((err) => handleAxiosError(err))
@@ -90,11 +94,14 @@ const FlujoCaja = () => {
       let sumaEgresos = 0;
 
       for (let i = 0; i < 12; i++) {
-        const ing = Number(totalesEmpresa.ingresos[i]) || 0;
-        const egr = Number(totalesEmpresa.egresos[i]) || 0;
-        const neto = ing - egr;
+        const ingRep = Number(totalesEmpresa?.ingresos_reposicion?.[i]) || 0;
+        const ingCob = Number(totalesEmpresa?.ingresos_cobro?.[i]) || 0;
+        const ingTotal = ingRep + ingCob;
 
-        sumaIngresos += ing;
+        const egr = Number(totalesEmpresa?.egresos?.[i]) || 0;
+        const neto = ingTotal - egr;
+
+        sumaIngresos += ingTotal;
         sumaEgresos += egr;
         netos[i] = neto;
         finales[i] = iniciales[i] + neto;
@@ -116,15 +123,39 @@ const FlujoCaja = () => {
   // PROCESAMIENTO DE DATOS BASADO EN FECHA_USO
   const { tableData } = useMemo(() => {
     if (!trabajadores.length || !conceptos.length) {
-      return { tableData: { ingresos: [], egresosGrouped: [] } };
+      return {
+        tableData: {
+          ingresosReposicion: [],
+          ingresosCobro: [],
+          egresosGrouped: [],
+        },
+      };
     }
 
-    const ingresos = trabajadores
-      .filter((t) => t.ingresos && t.ingresos.some((val) => Number(val) > 0))
+    // 🟢 CORRECCIÓN: Leemos ingresos.reposicion
+    const ingresosReposicion = trabajadores
+      .filter(
+        (t) =>
+          t.ingresos?.reposicion &&
+          t.ingresos.reposicion.some((val) => Number(val) > 0),
+      )
       .map((t) => ({
-        id: `ing-${t.id}`,
+        id: `ing-rep-${t.id}`,
         name: t.nombre_trabajador,
-        values: t.ingresos.map((v) => Number(v)),
+        values: t.ingresos.reposicion.map((v) => Number(v)),
+      }));
+
+    // 🟢 CORRECCIÓN: Leemos ingresos.cobro_cliente
+    const ingresosCobro = trabajadores
+      .filter(
+        (t) =>
+          t.ingresos?.cobro_cliente &&
+          t.ingresos.cobro_cliente.some((val) => Number(val) > 0),
+      )
+      .map((t) => ({
+        id: `ing-cob-${t.id}`,
+        name: t.nombre_trabajador,
+        values: t.ingresos.cobro_cliente.map((v) => Number(v)),
       }));
 
     const egresosGrouped = conceptos
@@ -133,7 +164,6 @@ const FlujoCaja = () => {
         const nombreConcepto = concepto.conceptos || concepto.concepto;
 
         trabajadores.forEach((t) => {
-          // Filtrar rendiciones que pertenecen a este concepto
           const matchingEgresos =
             t.egresos?.filter((e) => e.concepto_rendicion === nombreConcepto) ||
             [];
@@ -142,7 +172,6 @@ const FlujoCaja = () => {
             const monthlyTotals = Array(12).fill(0);
             const subItemsMap = {};
 
-            // Inicializar mapa de categorías para este trabajador/concepto
             categorias.forEach((cat) => {
               subItemsMap[cat.categoria] = {
                 id: `sub-${cat.id}-${t.id}-${concepto.id}`,
@@ -151,7 +180,6 @@ const FlujoCaja = () => {
               };
             });
 
-            // REESTRUCTURACIÓN: Sumar basándonos en fecha_uso de cada comprobante
             matchingEgresos.forEach((eg) => {
               if (Array.isArray(eg.datos_rendicion)) {
                 eg.datos_rendicion.forEach((dato) => {
@@ -160,10 +188,8 @@ const FlujoCaja = () => {
                       parseInt(dato.fecha_uso.split("-")[1], 10) - 1;
                     const importe = Number(dato.importe) || 0;
 
-                    // Sumar al total del trabajador en este mes/concepto
                     monthlyTotals[mesIndex] += importe;
 
-                    // Sumar a la categoría específica
                     if (subItemsMap[dato.categoria]) {
                       subItemsMap[dato.categoria].values[mesIndex] += importe;
                     }
@@ -172,7 +198,6 @@ const FlujoCaja = () => {
               }
             });
 
-            // Solo agregar si hay gastos reales en el periodo
             if (monthlyTotals.some((v) => v > 0)) {
               workersForConcept.push({
                 id: `egr-trab-${t.id}-${concepto.id}`,
@@ -195,9 +220,9 @@ const FlujoCaja = () => {
           items: workersForConcept,
         };
       })
-      .filter((group) => group.items.length > 0); // Ocultar conceptos vacíos
+      .filter((group) => group.items.length > 0);
 
-    return { tableData: { ingresos, egresosGrouped } };
+    return { tableData: { ingresosReposicion, ingresosCobro, egresosGrouped } };
   }, [trabajadores, conceptos, categorias]);
 
   return (

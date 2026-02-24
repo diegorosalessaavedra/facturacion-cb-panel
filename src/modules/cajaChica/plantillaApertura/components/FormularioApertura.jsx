@@ -31,18 +31,23 @@ const FormularioApertura = ({
   const { register, handleSubmit, reset } = useForm();
   const [loading, setLoading] = useState(false);
   const [ingresosData, setIngresosData] = useState(null);
+
   const submit = async (data) => {
+    // Validación de seguridad: Asegurarnos de que usaron el modal
+    if (!ingresosData || !ingresosData.total_operacion) {
+      toast.error("Por favor, ingrese el desglose en el Modal de Ingreso");
+      return;
+    }
+
     setLoading(true);
-
     const newData = { ...data, ...(ingresosData || {}) };
-
     const url = `${API}/caja-chica/apertura`;
 
     await axios
       .post(url, newData, config)
       .then(() => {
         onSuccess();
-        setIngresosData(null);
+        setIngresosData(null); // Reseteamos a null
         reset();
         toast.success("Apertura registrada correctamente");
       })
@@ -60,7 +65,7 @@ const FormularioApertura = ({
   return (
     <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
       <motion.div
-        className="flex  gap-3 "
+        className="flex gap-3"
         initial="hidden"
         animate="visible"
         transition={{ staggerChildren: 0.1 }}
@@ -77,6 +82,7 @@ const FormularioApertura = ({
             value={`S/ ${numberPeru(saldoTotal)}`}
             color="warning"
             size="sm"
+            isReadOnly
           />
         </motion.div>
 
@@ -161,8 +167,8 @@ const FormularioApertura = ({
               input: "font-bold text-green-600",
               label: "pb-[3px] text-[0.8rem] text-green-600 font-semibold",
             }}
-            isRequired
-            value={numberPeru(ingresosData?.total_operacion || 0) || 0}
+            isReadOnly // 🟢 Obliga al usuario a usar el modal
+            value={numberPeru(ingresosData?.total_operacion || 0)}
             size="sm"
           />
         </motion.div>
@@ -175,7 +181,11 @@ const FormularioApertura = ({
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        <Button className="font-medium bg-amber-400" onPress={onOpen}>
+        <Button
+          type="button" // 🟢 Previene que envíe el formulario por accidente
+          className="font-medium bg-amber-400"
+          onPress={onOpen}
+        >
           Modal Ingreso
         </Button>
         <Button
@@ -187,15 +197,16 @@ const FormularioApertura = ({
           Guardar Apertura
         </Button>
       </motion.div>
-      {
-        <ModalIngresoEgresos
-          saldoTotal={saldoTotal}
-          desgloseCaja={desgloseCaja}
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-          setIngresosData={setIngresosData}
-        />
-      }
+
+      <ModalIngresoEgresos
+        saldoTotal={saldoTotal}
+        desgloseCaja={desgloseCaja}
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        ingresosData={ingresosData}
+        setIngresosData={setIngresosData}
+        esIngreso={true} // Aseguramos que es un ingreso
+      />
     </form>
   );
 };

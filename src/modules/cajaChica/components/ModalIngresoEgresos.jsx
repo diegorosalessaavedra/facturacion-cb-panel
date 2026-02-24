@@ -39,10 +39,10 @@ const ModalIngresoEgresos = ({
   desgloseCaja,
   isOpen,
   onOpenChange,
+  ingresosData, // 🟢 Recibimos el estado actual
   setIngresosData,
-  esIngreso = true, // Prop para definir el tipo
+  esIngreso = true,
 }) => {
-  // Estado inicial
   const initialState = {
     yape: "",
     ...TODAS_DENOMINACIONES.reduce((acc, d) => ({ ...acc, [d.key]: "" }), {}),
@@ -51,20 +51,39 @@ const ModalIngresoEgresos = ({
   const [valores, setValores] = useState(initialState);
   const [totalCalculado, setTotalCalculado] = useState(0);
 
-  // --- 1. LÓGICA DE CÁLCULO VISUAL ---
+  // --- 1. SINCRONIZACIÓN AL ABRIR EL MODAL ---
   useEffect(() => {
-    // Calculamos siempre en positivo primero
+    if (isOpen) {
+      // Si hay data previa guardada, rellenamos los inputs
+      if (ingresosData && Object.keys(ingresosData).length > 0) {
+        const datosCargados = {
+          // Usamos Math.abs por si vienen negativos (en caso de egreso)
+          yape: ingresosData.yape ? Math.abs(ingresosData.yape).toString() : "",
+        };
+        TODAS_DENOMINACIONES.forEach((d) => {
+          datosCargados[d.key] = ingresosData[d.key]
+            ? Math.abs(ingresosData[d.key]).toString()
+            : "";
+        });
+        setValores(datosCargados);
+      } else {
+        // Si no hay data, reiniciamos a vacío
+        setValores(initialState);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, ingresosData]);
+
+  // --- 2. LÓGICA DE CÁLCULO VISUAL ---
+  useEffect(() => {
     let sumaEfectivo = TODAS_DENOMINACIONES.reduce((acc, d) => {
       const cantidad = Number(valores[d.key]) || 0;
       return acc + cantidad * d.valor;
     }, 0);
 
     let sumaYape = Number(valores.yape) || 0;
-
-    // Suma total absoluta
     const totalAbsoluto = sumaEfectivo + sumaYape;
 
-    // Si es egreso, el total visual debe ser negativo
     setTotalCalculado(esIngreso ? totalAbsoluto : totalAbsoluto * -1);
   }, [valores, esIngreso]);
 
@@ -72,24 +91,20 @@ const ModalIngresoEgresos = ({
     setValores((prev) => ({ ...prev, [key]: value }));
   };
 
-  // --- 2. LÓGICA DE GUARDADO ---
+  // --- 3. LÓGICA DE GUARDADO ---
   const handleGuardar = (onClose) => {
-    const factor = esIngreso ? 1 : -1; // Multiplicador clave
+    const factor = esIngreso ? 1 : -1;
 
     const dataProcesada = Object.keys(valores).reduce((acc, key) => {
       const valorNumerico = Number(valores[key]) || 0;
-
-      // Aplicamos el negativo a cada item individual (monedas, billetes y yape)
       acc[key] = valorNumerico * factor;
-
       return acc;
     }, {});
 
-    // Agregamos el total ya calculado (que ya tiene el signo correcto desde el useEffect)
     const resultadoFinal = {
       ...dataProcesada,
       total_operacion: Number(totalCalculado.toFixed(2)),
-      tipo: esIngreso ? "INGRESO" : "EGRESO", // Opcional: útil para debug
+      tipo: esIngreso ? "INGRESO" : "EGRESO",
     };
 
     if (setIngresosData) {
@@ -108,12 +123,7 @@ const ModalIngresoEgresos = ({
   const cellBase = "h-10 relative flex items-center justify-center text-[11px]";
   const cellReadOnly = `${cellBase} bg-slate-50 text-sm text-slate-800 font-bold`;
   const cellInput = `${cellBase} bg-white hover:bg-slate-50 transition-colors`;
-
-  // Etiqueta lateral dinámica
-  const cellLabel = `${cellBase} text-white font-bold px-2 transition-colors duration-300 ${
-    esIngreso ? "bg-emerald-900" : "bg-rose-900"
-  }`;
-
+  const cellLabel = `${cellBase} text-white font-bold px-2 transition-colors duration-300 ${esIngreso ? "bg-emerald-900" : "bg-rose-900"}`;
   const inputClass =
     "w-full h-full bg-transparent text-center font-bold text-slate-900 text-sm outline-none placeholder:text-slate-300 focus:text-blue-600";
 
@@ -143,7 +153,6 @@ const ModalIngresoEgresos = ({
                 <div className={`col-span-5 ${headerDark}`}>BILLETES</div>
                 <div className={`col-span-6 ${headerDark}`}>MONEDAS</div>
 
-                {/* TOTAL HEADER */}
                 <div className="row-span-2 bg-slate-900 flex flex-col items-center justify-center text-white font-bold p-2">
                   <span
                     className={`text-sm tracking-wide ${esIngreso ? "text-emerald-400" : "text-rose-400"}`}
@@ -166,7 +175,7 @@ const ModalIngresoEgresos = ({
                   </div>
                 ))}
 
-                {/* --- FILA 3: SALDO (ESTÁTICO / VISUAL) --- */}
+                {/* --- FILA 3: SALDO --- */}
                 <div className="bg-slate-800 text-white font-bold text-[11px] flex items-center justify-center">
                   SALDO
                 </div>
@@ -181,12 +190,10 @@ const ModalIngresoEgresos = ({
                 </div>
 
                 {/* --- FILA 4: INPUTS --- */}
-                {/* Etiqueta dinámica: INGRESO o EGRESO */}
                 <div className={cellLabel}>
                   {esIngreso ? "INGRESO" : "EGRESO"}
                 </div>
 
-                {/* Input Yape */}
                 <div className={cellInput}>
                   <div className="absolute left-2 text-[10px] font-bold text-purple-700 pointer-events-none">
                     S/
@@ -202,7 +209,6 @@ const ModalIngresoEgresos = ({
                   />
                 </div>
 
-                {/* Inputs Billetes y Monedas */}
                 {TODAS_DENOMINACIONES.map((d) => (
                   <div key={`input-${d.key}`} className={cellInput}>
                     <input
@@ -217,11 +223,8 @@ const ModalIngresoEgresos = ({
                   </div>
                 ))}
 
-                {/* RESULTADO TOTAL DINÁMICO */}
                 <div
-                  className={`flex items-center justify-center font-black text-sm transition-colors duration-300
-                    ${esIngreso ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}
-                `}
+                  className={`flex items-center justify-center font-black text-sm transition-colors duration-300 ${esIngreso ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}
                 >
                   S/ {numberPeru(totalCalculado)}
                 </div>
@@ -233,7 +236,7 @@ const ModalIngresoEgresos = ({
                 Cancelar
               </Button>
               <Button
-                // El botón también cambia de color
+                type="button" // Evita envío accidental en formularios
                 className={`text-white font-bold shadow-lg ${esIngreso ? "bg-slate-900" : "bg-rose-700 shadow-rose-900/20"}`}
                 startContent={<Save size={18} />}
                 onPress={() => handleGuardar(onClose)}
