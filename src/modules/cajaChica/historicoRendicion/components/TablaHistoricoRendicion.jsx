@@ -197,7 +197,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                       >
                         S/ {numberPeru(detalle.importe || 0)}
                       </div>
-                      <div className={`${cellData} font-bold text-[11px]`}>
+                      <div className={`${cellBase} font-bold text-[11px]`}>
                         {detalle.estado}
                       </div>
                       <div className={`${cellBase} bg-white`}>
