@@ -15,7 +15,7 @@ import {
 } from "@nextui-org/react";
 import config from "../../../../utils/getToken";
 
-const AnularApertura = ({ isOpen, onOpenChange, id, onSuccess }) => {
+const SolicitarAnularRendicion = ({ isOpen, onOpenChange, id, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [comentario, setComentario] = useState("");
 
@@ -27,7 +27,7 @@ const AnularApertura = ({ isOpen, onOpenChange, id, onSuccess }) => {
 
     setLoading(true);
 
-    const url = `${API}/caja-chica/desembolso/${id}`;
+    const url = `${API}/caja-chica/rendicion/${id}`;
 
     await axios
       .delete(url, {
@@ -36,7 +36,7 @@ const AnularApertura = ({ isOpen, onOpenChange, id, onSuccess }) => {
       })
       .then(() => {
         toast.success(
-          "La solicitud de anulación del desembolso fue enviada correctamente.",
+          "La solicitud de anulación de la  rendicion fue enviada correctamente.",
         );
         onClose(); // Cierra el modal en éxito
         if (onSuccess) onSuccess(); // Refresca la tabla
@@ -57,14 +57,14 @@ const AnularApertura = ({ isOpen, onOpenChange, id, onSuccess }) => {
           <>
             {/* {loading && <LoadingSpinner />} */}
             <ModalHeader className="flex flex-col gap-1 text-base">
-              Solicitar anulación de apertura
+              Solicitar anulación de rendicion
             </ModalHeader>
             <ModalBody>
               <div className="w-full flex flex-col gap-4 py-2">
                 <Textarea
                   label="Motivo de anulación"
                   labelPlacement="outside" // Corregido
-                  placeholder="Explique el motivo por el cual desea anular esta apertura..."
+                  placeholder="Explique el motivo por el cual desea anular esta rendicion..."
                   variant="bordered"
                   color="danger"
                   classNames={inputClassNames}
@@ -102,4 +102,4 @@ const AnularApertura = ({ isOpen, onOpenChange, id, onSuccess }) => {
   );
 };
 
-export default AnularApertura;
+export default SolicitarAnularRendicion;

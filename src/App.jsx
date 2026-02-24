@@ -161,6 +161,9 @@ const AnularDesembolso = lazy(
 const PlantillaRendicion = lazy(
   () => import("./modules/cajaChica/plantillaRendicion/PlantillaRendicion"),
 );
+const AnularRendicion = lazy(
+  () => import("./modules/cajaChica/historicoRendicion/AnularRendicion"),
+);
 const HistoricoRendicion = lazy(
   () => import("./modules/cajaChica/historicoRendicion/HistoricoRendicion"),
 );
@@ -558,6 +561,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <PlantillaRendicion />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/rendicion/:id/:codigo"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <AnularRendicion />
               </ProtectedRouteWrapper>
             }
           />

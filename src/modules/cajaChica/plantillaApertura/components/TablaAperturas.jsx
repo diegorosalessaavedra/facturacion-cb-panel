@@ -3,7 +3,7 @@ import formatDate from "../../../../hooks/FormatDate";
 import { numberPeru } from "../../../../assets/onInputs";
 import { Trash2 } from "lucide-react";
 
-import AnularApertura from "./AnularApertura";
+import SolicitarAnularApertura from "./SolicitarAnularApertura";
 import { useDisclosure } from "@nextui-org/react";
 
 // --- CONSTANTES ---
@@ -162,7 +162,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
           </div>
         )}
       </div>
-      <AnularApertura
+      <SolicitarAnularApertura
         key={selectedId}
         id={selectedId}
         isOpen={isOpen}

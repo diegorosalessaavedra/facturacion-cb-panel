@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { numberPeru } from "../../../../assets/onInputs";
 import formatDate from "../../../../hooks/FormatDate";
 import { Tooltip, useDisclosure } from "@nextui-org/react";
 import { generarPDFRendiciones } from "../../../../utils/plantillasPdf/generarPDFRendiciones";
+import SolicitarAnularRendicion from "./SolicitarAnularRendicion";
+import { Trash2 } from "lucide-react";
 
 const stickyHeader = "sticky top-0 z-20";
 const stickySubHeader = "sticky top-[30px] z-20";
@@ -17,12 +19,18 @@ const cellBase =
   "flex items-center justify-center text-[10px] font-medium border-r border-b border-slate-300 min-h-[40px] h-full px-2 text-slate-700 bg-white text-center";
 
 const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectedId, setSelectedId] = useState(null);
+
   const totalGeneralGastos = rendiciones.reduce(
     (acc, curr) => acc + Number(curr.total_gastos || 0),
     0,
   );
 
-  console.log(rendiciones);
+  const handleRemove = (id) => {
+    setSelectedId(id);
+    onOpen();
+  };
 
   return (
     <div className="relative w-full h-full flex flex-col gap-2">
@@ -31,7 +39,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
           className="grid"
           style={{
             gridTemplateColumns:
-              "40px 90px 220px 110px 180px 130px 80px 80px 80px 220px 90px 80px 100px 100px 140px 180px 90px",
+              "40px 90px 220px 110px 180px 130px 80px 80px 80px 220px 90px 80px 100px 100px 140px 180px 90px 100px 40px",
             gridAutoRows: "max-content",
           }}
         >
@@ -84,6 +92,10 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
             IMPORTE S/
           </div>
 
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+            ESTADO
+          </div>
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}></div>
           {/* ================= SUB-ENCABEZADOS COMPROBANTE ================= */}
           <div className={`${headerDark} ${stickySubHeader}`}>
             FECHA DE <br /> EMISIÓN
@@ -185,6 +197,17 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                       >
                         S/ {numberPeru(detalle.importe || 0)}
                       </div>
+                      <div className={`${cellData} font-bold text-[11px]`}>
+                        {detalle.estado}
+                      </div>
+                      <div className={`${cellBase} bg-white`}>
+                        <button
+                          onClick={() => handleRemove(item.id)}
+                          className="text-red-400 hover:text-red-500 transition-colors p-1"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </React.Fragment>
                   ))
                 ) : (
@@ -218,6 +241,12 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
           </div>
         </div>
       </div>
+      <SolicitarAnularRendicion
+        key={selectedId}
+        id={selectedId}
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+      />
     </div>
   );
 };
