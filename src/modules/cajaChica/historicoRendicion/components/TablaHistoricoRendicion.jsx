@@ -14,7 +14,6 @@ const headerBase =
 
 const headerDark = `${headerBase} bg-slate-900 text-white`;
 
-// Añadimos h-full para que cuando haya "rowspan", la celda ocupe toda la altura y quede centrada
 const cellBase =
   "flex items-center justify-center text-[10px] font-medium border-r border-b border-slate-300 min-h-[40px] h-full px-2 text-slate-700 bg-white text-center";
 
@@ -43,7 +42,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
             gridAutoRows: "max-content",
           }}
         >
-          {/* ================= ENCABEZADOS SUPERIORES ================= */}
+          {/* ================= ENCABEZADOS ================= */}
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>N°</div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             CORRELATIVO
@@ -59,64 +58,53 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
             RUTAS
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            MONTO <br /> RECIBIDO
+            MONTO REC.
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            FECHA <br /> RECIBIDA
-          </div>
-
-          {/* Empiezan los detalles específicos del comprobante */}
-          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            FECHA DE USO <br /> DE DINERO
+            FECHA REC.
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            RAZÓN SOCIAL DEL PROVEEDOR
+            FECHA USO
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            RUC <br /> PROVEEDOR
+            PROVEEDOR
           </div>
-
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>RUC</div>
           <div
             className={`col-span-3 ${headerDark} ${stickyHeader} border-b-0`}
           >
             COMPROBANTE
           </div>
-
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            CATEGORIA DEL GASTO
+            CATEGORIA
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            DETALLE DEL GASTO
+            DETALLE
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             IMPORTE S/
           </div>
-
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             ESTADO
           </div>
-          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}></div>
-          {/* ================= SUB-ENCABEZADOS COMPROBANTE ================= */}
-          <div className={`${headerDark} ${stickySubHeader}`}>
-            FECHA DE <br /> EMISIÓN
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>-</div>
+
+          {/* SUB-ENCABEZADOS COMPROBANTE */}
+          <div className={`${headerDark} ${stickySubHeader} left-0`}>
+            FECHA EMIS.
           </div>
-          <div className={`${headerDark} ${stickySubHeader}`}>
-            TIPO <br /> COMPROB.
-          </div>
-          <div className={`${headerDark} ${stickySubHeader}`}>
-            NÚMERO <br /> COMP.
-          </div>
+          <div className={`${headerDark} ${stickySubHeader}`}>TIPO</div>
+          <div className={`${headerDark} ${stickySubHeader}`}>NÚMERO</div>
 
           {/* ================= CUERPO DE LA TABLA ================= */}
           {rendiciones.map((item, index) => {
-            // Calculamos cuántos comprobantes tiene para hacer el efecto de celdas combinadas (Excel)
             const detalles = item.datos_rendicion || [];
             const filasOcupadas = detalles.length > 0 ? detalles.length : 1;
             const spanStyle = { gridRow: `span ${filasOcupadas}` };
 
             return (
               <React.Fragment key={item.id}>
-                {/* 1. SECCIÓN AGRUPADA (A la izquierda) */}
+                {/* COLUMNAS AGRUPADAS (IZQUIERDA) */}
                 <div
                   className={`${cellBase} font-bold text-slate-500`}
                   style={spanStyle}
@@ -124,7 +112,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                   {index + 1}
                 </div>
                 <div
-                  className={`${cellBase} font-semibold cursor-pointer `}
+                  className={`${cellBase} font-semibold cursor-pointer`}
                   style={spanStyle}
                   onClick={() => generarPDFRendiciones(item)}
                 >
@@ -164,7 +152,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                   {formatDate(item.fecha_recibida) || "-"}
                 </div>
 
-                {/* 2. SECCIÓN DETALLE (A la derecha, se renderizan fila por fila) */}
+                {/* SECCIÓN DETALLE (RENDERIZADO FILA POR FILA) */}
                 {detalles.length > 0 ? (
                   detalles.map((detalle, dIndex) => (
                     <React.Fragment key={detalle.id || dIndex}>
@@ -200,18 +188,29 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                       <div className={`${cellBase} font-bold text-[11px]`}>
                         {detalle.estado}
                       </div>
-                      <div className={`${cellBase} bg-white`}>
-                        <button
+
+                      {/* ESTA ES LA CLAVE: Solo renderizamos la columna de borrar en la primera iteración del detalle */}
+                      {dIndex === 0 && (
+                        <div
+                          className={`${cellBase} cursor-pointer hover:bg-red-50 transition-colors group`}
+                          style={spanStyle}
                           onClick={() => handleRemove(item.id)}
-                          className="text-red-400 hover:text-red-500 transition-colors p-1"
                         >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                          <Tooltip
+                            content="Eliminar Rendición"
+                            color="danger"
+                            showArrow={true}
+                          >
+                            <Trash2
+                              size={16}
+                              className="text-slate-400 group-hover:text-red-500 transition-colors"
+                            />
+                          </Tooltip>
+                        </div>
+                      )}
                     </React.Fragment>
                   ))
                 ) : (
-                  /* Fallback por si una rendición no tiene comprobantes guardados */
                   <>
                     <div className={cellBase}>-</div>
                     <div className={cellBase}>-</div>
@@ -222,6 +221,14 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                     <div className={cellBase}>-</div>
                     <div className={cellBase}>-</div>
                     <div className={cellBase}>S/ 0.00</div>
+                    <div className={cellBase}>-</div>
+                    <div
+                      className={`${cellBase} cursor-pointer hover:bg-red-50 transition-colors`}
+                      style={spanStyle}
+                      onClick={() => handleRemove(item.id)}
+                    >
+                      <Trash2 size={16} className="text-red-400" />
+                    </div>
                   </>
                 )}
               </React.Fragment>
@@ -230,7 +237,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
         </div>
       </div>
 
-      {/* ================= RESUMEN DE TOTALES ================= */}
+      {/* RESUMEN DE TOTALES */}
       <div className="flex gap-6 justify-end items-center rounded-lg p-4 bg-slate-50 border border-slate-200 shadow-sm">
         <div className="flex items-center gap-2">
           <span className="font-bold text-slate-600 uppercase text-xs">
@@ -241,6 +248,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
           </div>
         </div>
       </div>
+
       <SolicitarAnularRendicion
         key={selectedId}
         id={selectedId}
