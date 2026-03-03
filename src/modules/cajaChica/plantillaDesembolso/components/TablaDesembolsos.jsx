@@ -55,7 +55,7 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
           className="grid min-w-[1500px]"
           style={{
             gridTemplateColumns:
-              "40px 1fr 90px 90px 90px 90px 1fr 140px 90px repeat(11, 70px) 100px 40px",
+              "40px 1fr 90px 90px 90px 90px 1fr 140px 90px repeat(11, 70px) 100px 120px 40px",
             gridAutoRows: "max-content",
           }}
         >
@@ -93,6 +93,9 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             ESTADO
+          </div>
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+            OBSERVACIONES
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}></div>
 
@@ -175,6 +178,9 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
                   >
                     {item.estado_desembolso}
                   </p>
+                </div>
+                <div className={`${cellBase} bg-slate-50`}>
+                  {item.observaciones || "-"}
                 </div>
                 <div className={`${cellBase} bg-slate-50`}>
                   <button
