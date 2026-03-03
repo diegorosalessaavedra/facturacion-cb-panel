@@ -50,7 +50,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
         className="grid"
         style={{
           gridTemplateColumns:
-            "40px 1fr 90px 90px 100px 90px repeat(11, 70px) 100px 40px",
+            "40px 1fr 90px 90px 100px 90px repeat(11, 70px) 100px 120px 40px",
           gridAutoRows: "max-content", // Asegura que las filas no se estiren de más
         }}
       >
@@ -78,6 +78,9 @@ const TablaAperturas = ({ aperturas = [] }) => {
         </div>
 
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>ESTADO</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          OBSERVACIONES
+        </div>
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}></div>
 
         {/* === FILA 2: SUB-CABECERAS === */}
@@ -144,6 +147,9 @@ const TablaAperturas = ({ aperturas = [] }) => {
               {/* Estado */}
               <div className={`${cellData} font-bold text-[11px]`}>
                 {item.estado_apertura}
+              </div>
+              <div className={`${cellData}  text-[10px]`}>
+                {item?.observaciones || ""}
               </div>
 
               <div className={`${cellBase} bg-white`}>

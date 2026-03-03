@@ -11,7 +11,7 @@ import axios from "axios";
 import { API } from "../../../../utils/api";
 import config from "../../../../utils/getToken";
 import { toast } from "sonner";
-import { Save, Wallet, Calendar, User, FileText } from "lucide-react";
+import { Save, Wallet, Calendar, User, FileText, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   inputClassNames,
@@ -175,28 +175,43 @@ const FormularioApertura = ({
       </motion.div>
 
       {/* BOTONES */}
-      <motion.div
-        className="flex justify-end gap-3 pb-4 pt-0 border-b border-amber-300"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <Button
-          type="button" // 🟢 Previene que envíe el formulario por accidente
-          className="font-medium bg-amber-400"
-          onPress={onOpen}
+      <div className="w-full justify-between flex items-end pb-4 pt-0 border-b border-amber-300">
+        <motion.div variants={itemVariants} className="min-w-[500px]">
+          <Input
+            type="text"
+            labelPlacement="outside"
+            label="Observaciones"
+            variant="bordered"
+            startContent={<Pencil className="text-default-400" size={16} />}
+            classNames={inputClassNames}
+            isRequired
+            {...register("observaciones")}
+            size="sm"
+          />
+        </motion.div>
+        <motion.div
+          className="flex justify-end gap-3 "
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
         >
-          Modal Ingreso
-        </Button>
-        <Button
-          type="submit"
-          className="bg-slate-900 text-white shadow-lg shadow-slate-900/20"
-          isLoading={loading}
-          startContent={!loading && <Save size={18} />}
-        >
-          Guardar Apertura
-        </Button>
-      </motion.div>
+          <Button
+            type="button" // 🟢 Previene que envíe el formulario por accidente
+            className="font-medium bg-amber-400"
+            onPress={onOpen}
+          >
+            Modal Ingreso
+          </Button>
+          <Button
+            type="submit"
+            className="bg-slate-900 text-white shadow-lg shadow-slate-900/20"
+            isLoading={loading}
+            startContent={!loading && <Save size={18} />}
+          >
+            Guardar Apertura
+          </Button>
+        </motion.div>
+      </div>
 
       <ModalIngresoEgresos
         saldoTotal={saldoTotal}
