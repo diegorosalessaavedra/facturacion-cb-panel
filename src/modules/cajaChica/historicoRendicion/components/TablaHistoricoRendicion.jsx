@@ -185,8 +185,11 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                       >
                         S/ {numberPeru(detalle.importe || 0)}
                       </div>
-                      <div className={`${cellBase} font-bold text-[11px]`}>
-                        {detalle.estado}
+                      <div
+                        className={`${cellBase} font-bold text-[11px]`}
+                        style={spanStyle}
+                      >
+                        {item.estado}
                       </div>
 
                       {/* ESTA ES LA CLAVE: Solo renderizamos la columna de borrar en la primera iteración del detalle */}
