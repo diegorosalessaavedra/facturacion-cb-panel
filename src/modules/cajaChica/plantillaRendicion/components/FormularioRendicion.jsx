@@ -42,7 +42,7 @@ const FormularioRendicion = ({
       fecha_emision: "",
       tipo_comprobante: "FACTURA",
       numero_comprobante: "",
-      categoria: "COMBUSTIBLE",
+      categoria: "",
       detalle: "",
       importe: "",
       observacion: "",
