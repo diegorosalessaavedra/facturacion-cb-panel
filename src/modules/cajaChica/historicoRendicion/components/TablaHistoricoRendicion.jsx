@@ -141,7 +141,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                   className={`${cellBase} justify-start text-[9px]`}
                   style={spanStyle}
                 >
-                  {item.desembolso.rutas_desembolso || "-"}
+                  {item.desembolso?.rutas_desembolso || "-"}
                 </div>
                 <div className={`${cellBase} font-bold`} style={spanStyle}>
                   {item.monto_recibido
@@ -156,6 +156,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                 {detalles.length > 0 ? (
                   detalles.map((detalle, dIndex) => (
                     <React.Fragment key={detalle.id || dIndex}>
+                      {/* Columnas del detalle individual (sin span) */}
                       <div className={cellBase}>
                         {formatDate(detalle.fecha_uso) || "-"}
                       </div>
@@ -185,36 +186,39 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                       >
                         S/ {numberPeru(detalle.importe || 0)}
                       </div>
-                      <div
-                        className={`${cellBase} font-bold text-[11px]`}
-                        style={spanStyle}
-                      >
-                        {item.estado}
-                      </div>
 
-                      {/* ESTA ES LA CLAVE: Solo renderizamos la columna de borrar en la primera iteración del detalle */}
+                      {/* 🛠️ LA CLAVE: Estado y Botón de Eliminar solo en la primera fila del bloque */}
                       {dIndex === 0 && (
-                        <div
-                          className={`${cellBase} cursor-pointer hover:bg-red-50 transition-colors group`}
-                          style={spanStyle}
-                          onClick={() => handleRemove(item.id)}
-                        >
-                          <Tooltip
-                            content="Eliminar Rendición"
-                            color="danger"
-                            showArrow={true}
+                        <>
+                          <div
+                            className={`${cellBase} font-bold text-[11px]`}
+                            style={spanStyle}
                           >
-                            <Trash2
-                              size={16}
-                              className="text-slate-400 group-hover:text-red-500 transition-colors"
-                            />
-                          </Tooltip>
-                        </div>
+                            {item.estado}
+                          </div>
+                          <div
+                            className={`${cellBase} cursor-pointer hover:bg-red-50 transition-colors group`}
+                            style={spanStyle}
+                            onClick={() => handleRemove(item.id)}
+                          >
+                            <Tooltip
+                              content="Eliminar Rendición"
+                              color="danger"
+                              showArrow={true}
+                            >
+                              <Trash2
+                                size={16}
+                                className="text-slate-400 group-hover:text-red-500 transition-colors"
+                              />
+                            </Tooltip>
+                          </div>
+                        </>
                       )}
                     </React.Fragment>
                   ))
                 ) : (
                   <>
+                    {/* Caso cuando no hay detalles (Rendición vacía) */}
                     <div className={cellBase}>-</div>
                     <div className={cellBase}>-</div>
                     <div className={cellBase}>-</div>
@@ -223,8 +227,18 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                     <div className={cellBase}>-</div>
                     <div className={cellBase}>-</div>
                     <div className={cellBase}>-</div>
-                    <div className={cellBase}>S/ 0.00</div>
-                    <div className={cellBase}>-</div>
+                    <div
+                      className={`${cellBase} font-bold text-slate-900 justify-end pr-2`}
+                    >
+                      S/ 0.00
+                    </div>
+                    {/* Se muestran el estado y el trash si no hay detalles */}
+                    <div
+                      className={`${cellBase} font-bold text-[11px]`}
+                      style={spanStyle}
+                    >
+                      {item.estado || "-"}
+                    </div>
                     <div
                       className={`${cellBase} cursor-pointer hover:bg-red-50 transition-colors`}
                       style={spanStyle}
