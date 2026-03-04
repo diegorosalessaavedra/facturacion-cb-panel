@@ -36,7 +36,7 @@ const CentroCostos = () => {
             size="sm"
             startContent={<FaPlus />}
             onPress={() => {
-              onOpen(), setSelectModal("nuevo");
+              (onOpen(), setSelectModal("nuevo"));
             }}
           >
             Nuevo

@@ -249,7 +249,7 @@ const TablaOrdenCompras = ({
                               setSelectModal("anular");
                             }}
                           >
-                            Anular
+                            Anular Comprobante
                           </Button>
                         )}
                     </div>
