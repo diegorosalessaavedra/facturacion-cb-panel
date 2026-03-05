@@ -24,7 +24,7 @@ const ReportesOrdenesCompra = () => {
     setLoading(true);
     const url = `${
       import.meta.env.VITE_URL_API
-    }/compras/orden-compra?tipoFiltro=fechaEmision&fechaInicial=${fechaInicio}&fechaFinal=${fechaFinal}&estadoPago=${estadoPago}`;
+    }/compras/orden-compra?tipoFiltro=fechaEmision&fechaInicial=${fechaInicio}&fechaFinal=${fechaFinal}&estadoPago=${estadoPago}&estado=Activo`;
 
     axios
       .get(url, config)
@@ -57,7 +57,7 @@ const ReportesOrdenesCompra = () => {
                 ExcelReporteOrdenCompra.exportToExcel(
                   ordenesCompra,
                   fechaInicio,
-                  fechaFinal
+                  fechaFinal,
                 )
               }
             >
@@ -73,7 +73,7 @@ const ReportesOrdenesCompra = () => {
                 ExcelSimplificadoOrdenesCompra.exportToExcel(
                   ordenesCompra,
                   fechaInicio,
-                  fechaFinal
+                  fechaFinal,
                 )
               }
             >

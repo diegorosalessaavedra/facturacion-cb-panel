@@ -15,6 +15,7 @@ import EditarComprobanteOrdenCompra from "../editarComprobanteOrdenCompra/Editar
 import ModalAdjuntarSolped from "./components/ModalAdjuntarSolped";
 import ModalCambiarValidacion from "./components/ModalCambiarValidacion";
 import DescargarLayout from "../../../hooks/DescargarTxt";
+import ModalAnularOrdenCompra from "./components/ModalAnularOrdenCompra";
 
 const OrdenesCompra = ({ userData }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -40,7 +41,7 @@ const OrdenesCompra = ({ userData }) => {
       .then((res) => {
         setOrdenCompras(res.data.ordenesCompras);
         setTxtSolpeds(
-          res.data.ordenesCompras.filter((o) => o.validacion === true)
+          res.data.ordenesCompras.filter((o) => o.validacion === true),
         );
       })
       .finally(() => setLoading(false));
@@ -147,13 +148,25 @@ const OrdenesCompra = ({ userData }) => {
         />
       )}
 
-      {selectModal === "cambiar_validacion" && (
+      {selectModal === "cambiar_validacion" && selectOrdenCompra && (
         <ModalCambiarValidacion
+          key={selectOrdenCompra.id}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           handleFindOrdenCompras={handleFindOrdenCompras}
           selectOrdenCompra={selectOrdenCompra}
           setTxtSolpeds={setTxtSolpeds}
+        />
+      )}
+
+      {selectModal === "anular_solped" && selectOrdenCompra && (
+        <ModalAnularOrdenCompra
+          key={selectOrdenCompra.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          handleFindOrdenCompras={handleFindOrdenCompras}
+          selectOrdenCompra={selectOrdenCompra}
+          setLoading={setLoading}
         />
       )}
     </div>

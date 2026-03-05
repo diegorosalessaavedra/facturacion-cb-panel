@@ -252,6 +252,20 @@ const TablaOrdenCompras = ({
                             Anular Comprobante
                           </Button>
                         )}
+                      {ordenCompra.status === "Activo" && (
+                        <Button
+                          className="scale-85"
+                          size="sm"
+                          color="danger"
+                          onPress={() => {
+                            setSelectOrdenCompra(ordenCompra);
+                            setSelectModal("anular_solped");
+                            onOpen();
+                          }}
+                        >
+                          Anular SOLPED
+                        </Button>
+                      )}
                     </div>
                   )}
                   {(userData?.role === "GERENTE" ||
