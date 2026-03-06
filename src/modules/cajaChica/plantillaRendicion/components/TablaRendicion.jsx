@@ -1,11 +1,7 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@nextui-org/react";
-import {
-  numberPeru,
-  onInputNumber,
-  onInputPrice,
-} from "../../../../assets/onInputs";
+import { numberPeru, onInputPrice } from "../../../../assets/onInputs";
 
 const TIPOS_COMPROBANTE = [
   { value: "SIN SUSTENTO", label: "SIN SUSTENTO" },
@@ -230,6 +226,10 @@ const TablaRendicion = ({
                     handleChange(index, "categoria", e.target.value)
                   }
                 >
+                  <option key="" value="">
+                    Seleccionar Categoria
+                  </option>
+
                   {categorias.map((opt) => (
                     <option key={opt.categoria} value={opt.categoria}>
                       {opt.categoria}
