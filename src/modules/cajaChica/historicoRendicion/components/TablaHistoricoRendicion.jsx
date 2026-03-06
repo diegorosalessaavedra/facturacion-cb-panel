@@ -32,8 +32,8 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col gap-2">
-      <div className="flex-1 w-full   overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
+    <div className="relative w-full h-full flex flex-col gap-2 overflow-hidden">
+      <div className="flex-1 w-full  overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
         <div
           className="grid"
           style={{

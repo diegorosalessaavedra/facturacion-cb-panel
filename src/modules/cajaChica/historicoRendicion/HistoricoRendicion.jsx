@@ -128,7 +128,7 @@ const HistoricoRendicion = () => {
           </Button>
         </header>
 
-        <main className="flex-1 min-h-0 flex flex-col">
+        <main className="flex-1 min-h-0  h-full flex flex-col">
           <div className="flex-none px-2 pt-2 pb-4 flex items-center gap-2">
             <div className="w-1 h-6 bg-amber-500 rounded-full"></div>
             <h2 className="text-md font-semibold text-slate-700">
@@ -136,7 +136,7 @@ const HistoricoRendicion = () => {
             </h2>
           </div>
 
-          <div className="flex-1 min-h-0 flex flex-col gap-4 px-2 pb-2">
+          <div className="flex-1 min-h-0 h-full flex flex-col gap-4 px-2 pb-2">
             <div className="flex-none">
               <FiltroHistoricoRendicion
                 trabajadores={trabajadores}
