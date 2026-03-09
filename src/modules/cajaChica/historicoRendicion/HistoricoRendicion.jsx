@@ -21,6 +21,7 @@ const HistoricoRendicion = () => {
     fecha_inicio: getTodayDate2(),
     fecha_final: getTodayDate(),
     categoria_gasto: "",
+    estado: "TODOS",
   });
   const [rendiciones, setRendiciones] = useState([]);
 

@@ -6,6 +6,7 @@ import {
 } from "../../../../assets/classNames";
 import { FiFileText } from "react-icons/fi";
 import { Search, User } from "lucide-react";
+import { GrStatusInfo } from "react-icons/gr";
 
 const FiltroHistoricoRendicion = ({
   trabajadores = [],
@@ -59,7 +60,6 @@ const FiltroHistoricoRendicion = ({
             }
             size="sm"
           >
-            {" "}
             <SelectItem key="TODOS" value="TODOS" textValue="TODOS">
               <span className="text-xs">TODOS</span>
             </SelectItem>
@@ -122,6 +122,31 @@ const FiltroHistoricoRendicion = ({
                 <span className="text-xs">{c.categoria}</span>
               </SelectItem>
             ))}
+          </Select>
+        </motion.div>
+        <motion.div variants={itemVariants} className="min-w-[200px]">
+          <Select
+            name="estado"
+            label="Estado "
+            labelPlacement="outside"
+            variant="bordered"
+            startContent={
+              <GrStatusInfo className="text-default-400" size={16} />
+            }
+            classNames={selectClassNames}
+            onChange={handleInputChange}
+            selectedKeys={dataFiltros?.estado ? [dataFiltros.estado] : []}
+            size="sm"
+          >
+            <SelectItem key="TODOS" textValue="TODOS">
+              <span className="text-xs">TODOS</span>
+            </SelectItem>
+            <SelectItem key="ACTIVO" textValue="ACTIVO">
+              <span className="text-xs">ACTIVO</span>
+            </SelectItem>
+            <SelectItem key="ANULADO" textValue="ANULADO">
+              <span className="text-xs">ANULADO</span>
+            </SelectItem>
           </Select>
         </motion.div>
 

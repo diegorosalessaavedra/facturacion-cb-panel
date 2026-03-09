@@ -194,7 +194,15 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                             className={`${cellBase} font-bold text-[11px]`}
                             style={spanStyle}
                           >
-                            {item.estado}
+                            <p
+                              className={`${
+                                item.estado === "ACTIVO"
+                                  ? "text-green-600"
+                                  : "text-red-500"
+                              }`}
+                            >
+                              {item.estado}
+                            </p>
                           </div>
                           <div
                             className={`${cellBase} cursor-pointer hover:bg-red-50 transition-colors group`}
@@ -205,6 +213,7 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                               content="Eliminar Rendición"
                               color="danger"
                               showArrow={true}
+                              size="sm"
                             >
                               <Trash2
                                 size={16}
