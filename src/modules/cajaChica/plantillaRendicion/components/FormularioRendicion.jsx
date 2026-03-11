@@ -64,10 +64,12 @@ const FormularioRendicion = ({
 
     await axios
       .post(url, newData, config)
-      .then(() => {
+      .then((res) => {
+        toast.success(
+          `Rendicion con la serie ${res.data.rendicion?.correlativo_rendicion || "-"} registrada correctamente`,
+        );
         onSuccess();
         reset();
-        toast.success("Rendicion registrada correctamente");
       })
       .catch((err) => handleAxiosError(err))
       .finally(() => {
