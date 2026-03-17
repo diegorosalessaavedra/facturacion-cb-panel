@@ -216,7 +216,7 @@ const ModalPdfOrdenCompraId = ({ onOpenChange, isOpen, id }) => {
               </Button>
               <Button
                 color="primary"
-                onClick={() => plantillaOrdenCompraPdf(ordenCompra)}
+                onPress={() => plantillaOrdenCompraPdf(ordenCompra)}
               >
                 Descargar PDF
               </Button>

@@ -75,6 +75,8 @@ const ModalEditarProveedor = ({
       telefono: data.telefono,
       banco_beneficiario: data.banco_beneficiario,
       nro_cuenta_bco: data.nro_cuenta_bco,
+      nro_cuenta_bco_2: data.nro_cuenta_bco_2,
+      banco_beneficiario_2: data.banco_beneficiario_2,
     };
 
     const url = `${import.meta.env.VITE_URL_API}/proveedores/${
@@ -91,7 +93,7 @@ const ModalEditarProveedor = ({
       .catch((err) => {
         toast.error(
           err.response?.data?.error ||
-            "Hubo un error al editar el proveedor por favor verifique bine los datos"
+            "Hubo un error al editar el proveedor por favor verifique bine los datos",
         );
       });
   };
