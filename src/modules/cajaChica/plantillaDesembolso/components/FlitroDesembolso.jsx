@@ -13,6 +13,7 @@ const FlitroDesembolso = ({
   dataFiltros,
   setdataFiltros,
   handleFindDsembolsos,
+  conceptos,
 }) => {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -74,7 +75,7 @@ const FlitroDesembolso = ({
       </motion.div>
       <motion.div variants={itemVariants} className="min-w-[150px]">
         <Select
-          label="Motivo de Desembolso"
+          label="Concepto Rendición"
           labelPlacement="outside"
           variant="bordered"
           startContent={<FileText className="text-default-400" size={16} />}
@@ -91,39 +92,11 @@ const FlitroDesembolso = ({
           <SelectItem key="TODOS" textValue="TODOS">
             <p className="text-xs">TODOS</p>
           </SelectItem>
-          <SelectItem
-            key="VIÁTICO PARA DESPACHOS"
-            textValue="VIÁTICO PARA DESPACHOS"
-          >
-            <p className="text-xs">VIÁTICO PARA DESPACHOS</p>
-          </SelectItem>
-          <SelectItem
-            key="VIÁTICO PARA RECOJOS"
-            textValue="VIÁTICO PARA RECOJOS"
-          >
-            <p className="text-xs">VIÁTICO PARA RECOJOS</p>
-          </SelectItem>
-          <SelectItem key="ALIMENTACIÓN" textValue="ALIMENTACIÓN">
-            <p className="text-xs">ALIMENTACIÓN</p>
-          </SelectItem>
-          <SelectItem
-            key="ARTÍCULOS DE LIMPIEZA"
-            textValue="ARTÍCULOS DE LIMPIEZA"
-          >
-            <p className="text-xs">ARTÍCULOS DE LIMPIEZA</p>
-          </SelectItem>
-          <SelectItem
-            key="ARTÍCULOS DE OFICINA"
-            textValue="ARTÍCULOS DE OFICINA"
-          >
-            <p className="text-xs">ARTÍCULOS DE OFICINA</p>
-          </SelectItem>
-          <SelectItem key="MOVILIDAD" textValue="MOVILIDAD">
-            <p className="text-xs">MOVILIDAD</p>
-          </SelectItem>
-          <SelectItem key="OTROS" textValue="OTROS">
-            <p className="text-xs">OTROS</p>
-          </SelectItem>
+          {conceptos?.map((c) => (
+            <SelectItem key={c.conceptos} textValue={c.conceptos}>
+              <p className="text-xs">{c.conceptos}</p>
+            </SelectItem>
+          ))}
         </Select>
       </motion.div>
       <motion.div variants={itemVariants} className="min-w-[150px]">
