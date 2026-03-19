@@ -11,6 +11,7 @@ import Loading from "../../../hooks/Loading";
 import CamposMetodosDePago from "../../ventas/creartCotizacion/components/FormCrearCotizacion/components/CamposMetodosDePago";
 import ModalNuevoCliente from "../../clientesProveedores/tusClientes/components/ModalNuevoCliente/ModalNuevoCliente";
 import ModalPdfComprobanteElectronico from "../tusComprobantes/components/ModalPdfComprobanteElectronico copy";
+import { handleAxiosError } from "../../../utils/handleAxiosError";
 
 const ComprobanteElectronico = ({ userData }) => {
   const {
@@ -55,7 +56,7 @@ const ComprobanteElectronico = ({ userData }) => {
 
     const total = productos?.reduce(
       (acc, producto) => acc + Number(producto.total),
-      0
+      0,
     );
 
     const newData = {
@@ -93,9 +94,7 @@ const ComprobanteElectronico = ({ userData }) => {
         reset();
       })
       .catch((err) => {
-        toast.error(
-          "hubo un error al registrar el comprobante por favor verifique bien los campos"
-        );
+        handleAxiosError(err);
       })
       .finally(() => {
         setLoading(false);
