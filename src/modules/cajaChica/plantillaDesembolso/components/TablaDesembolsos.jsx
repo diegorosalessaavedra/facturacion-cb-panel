@@ -48,8 +48,6 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
     onOpen();
   };
 
-  console.log(desembolsos);
-
   return (
     <>
       <div className="w-full h-full overflow-auto shadow-md rounded-lg bg-slate-50 relative">
