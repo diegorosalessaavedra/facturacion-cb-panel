@@ -4,6 +4,7 @@ import {
   Input,
   Select,
   SelectItem,
+  Textarea,
   useDisclosure,
 } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
@@ -21,6 +22,7 @@ import { handleAxiosError } from "../../../../utils/handleAxiosError";
 import TablaRendicion from "./TablaRendicion";
 import { getTodayDate } from "../../../../assets/getTodayDate";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
+import formatDate from "../../../../hooks/FormatDate";
 
 const FormularioRendicion = ({
   trabajadores,
@@ -33,7 +35,9 @@ const FormularioRendicion = ({
   const [selectTrabajador, setSelectTrabajador] = useState(null);
   const [desembolsos, setDesembolsos] = useState([]);
   const [selectCategoria, setSelectCategoria] = useState(null);
-  const [selectDesembolso, setSelectDesembolso] = useState(null);
+
+  const [selectDesembolsos, setSelectDesembolsos] = useState([]);
+
   const [datosRendicion, setDatosRendicion] = useState([
     {
       fecha_uso: "",
@@ -50,6 +54,11 @@ const FormularioRendicion = ({
     },
   ]);
 
+  const montoTotalDesembolsos = selectDesembolsos.reduce(
+    (acc, d) => acc + Math.abs(Number(d.importe_desembolso)),
+    0,
+  );
+
   const submit = async (data) => {
     setLoading(true);
 
@@ -58,18 +67,20 @@ const FormularioRendicion = ({
       trabajador_id: selectTrabajador.id,
       area_rendicion: selectTrabajador.area_centro_costo,
       datos_rendicion: datosRendicion,
+      desembolsos_ids: selectDesembolsos.map((d) => d.id),
     };
 
-    const url = `${API}/caja-chica/rendicion/${selectDesembolso.id}`;
+    const url = `${API}/caja-chica/rendicion`;
 
     await axios
       .post(url, newData, config)
       .then((res) => {
         toast.success(
-          `Rendicion con la serie ${res.data.rendicion?.correlativo_rendicion || "-"} registrada correctamente`,
+          `Rendición con la serie ${res.data.rendicion?.correlativo_rendicion || "-"} registrada correctamente`,
         );
         onSuccess();
         reset();
+        setSelectDesembolsos([]);
       })
       .catch((err) => handleAxiosError(err))
       .finally(() => {
@@ -91,6 +102,7 @@ const FormularioRendicion = ({
   useEffect(() => {
     if (selectTrabajador?.id) {
       handleFindDesembolso();
+      setSelectDesembolsos([]);
     }
   }, [selectTrabajador]);
 
@@ -110,13 +122,14 @@ const FormularioRendicion = ({
     <section>
       {loading && <LoadingSpinner />}
 
-      <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
         <motion.div
-          className="flex  gap-3 "
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
           initial="hidden"
           animate="visible"
           transition={{ staggerChildren: 0.1 }}
         >
+          {/* TRABAJADOR */}
           <motion.div variants={itemVariants} className="w-full">
             <Select
               label="Trabajador a Rendir"
@@ -147,7 +160,8 @@ const FormularioRendicion = ({
             </Select>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="min-w-[200px]">
+          {/* ÁREA */}
+          <motion.div variants={itemVariants} className="w-full">
             <Input
               type="text"
               labelPlacement="outside"
@@ -162,17 +176,24 @@ const FormularioRendicion = ({
             />
           </motion.div>
 
-          <motion.div variants={itemVariants} className="min-w-[200px]">
+          {/* CONCEPTOS */}
+          <motion.div variants={itemVariants} className="w-full">
             <Select
-              label="Concepto"
+              label="Concepto(s)"
               labelPlacement="outside"
               variant="bordered"
+              selectionMode="multiple"
               startContent={<FileText className="text-default-400" size={16} />}
               classNames={selectClassNames}
-              isRequired
               size="sm"
-              isDisabled={!selectDesembolso}
-              selectedKeys={[selectDesembolso?.motivo_desembolso || ""]}
+              isDisabled={selectDesembolsos.length === 0}
+              selectedKeys={
+                new Set(
+                  selectDesembolsos
+                    .map((d) => d.motivo_desembolso)
+                    .filter(Boolean),
+                )
+              }
             >
               {conceptos?.map((c) => (
                 <SelectItem key={c.conceptos} textValue={c.conceptos}>
@@ -181,11 +202,14 @@ const FormularioRendicion = ({
               ))}
             </Select>
           </motion.div>
-          <motion.div variants={itemVariants} className="min-w-[150px]">
+
+          {/* MONTO RECIBIDO */}
+          <motion.div variants={itemVariants} className="w-full">
             <Select
-              label="Monto Recibido"
+              label="Monto(s) Recibido(s)"
               labelPlacement="outside"
               variant="bordered"
+              selectionMode="multiple"
               startContent={
                 <p className="text-red-600 text-xs font-black">S/</p>
               }
@@ -194,40 +218,51 @@ const FormularioRendicion = ({
               color="danger"
               isDisabled={!selectTrabajador}
               size="sm"
-              selectedKeys={[`${selectDesembolso?.id || ""}`]}
-              onChange={(e) =>
-                setSelectDesembolso(
-                  desembolsos.find((t) => t.id === Number(e.target.value)),
-                )
-              }
+              selectedKeys={new Set(selectDesembolsos.map((d) => String(d.id)))}
+              onSelectionChange={(keys) => {
+                if (keys === "all") return;
+                const selectedIds = Array.from(keys).map(Number);
+                const selectedItems = desembolsos.filter((d) =>
+                  selectedIds.includes(d.id),
+                );
+                setSelectDesembolsos(selectedItems);
+              }}
             >
               {desembolsos?.map((d) => (
                 <SelectItem
                   key={d.id}
-                  textValue={Math.abs(d.importe_desembolso)}
+                  textValue={`S/ ${Math.abs(d.importe_desembolso)} - ${d.fecha_desembolso}`}
                 >
-                  <p className="text-xs">{Math.abs(d.importe_desembolso)}</p>
+                  <p className="text-xs">
+                    S/ {Math.abs(d.importe_desembolso)} (
+                    {formatDate(d.fecha_desembolso)})
+                  </p>
                 </SelectItem>
               ))}
             </Select>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="min-w-[150px]">
+          {/* FECHA RECIBIDA */}
+          <motion.div variants={itemVariants} className="w-full">
             <Input
-              isRequired
-              label="Fecha Recibida"
+              label="Fecha(s) Recibida(s)"
               labelPlacement="outside"
-              type="date"
+              type="text"
               classNames={inputClassNames}
               variant="bordered"
               color="success"
               size="sm"
-              value={selectDesembolso?.fecha_desembolso}
-              isDisabled={!selectDesembolso}
+              value={Array.from(
+                new Set(
+                  selectDesembolsos.map((d) => formatDate(d.fecha_desembolso)),
+                ),
+              ).join(" | ")}
+              isDisabled={selectDesembolsos.length === 0}
             />
           </motion.div>
 
-          <motion.div variants={itemVariants} className="min-w-[150px]">
+          {/* FECHA RENDIDA */}
+          <motion.div variants={itemVariants} className="w-full">
             <Input
               isRequired
               label="Fecha Rendida"
@@ -238,7 +273,7 @@ const FormularioRendicion = ({
               variant="bordered"
               color="success"
               size="sm"
-              value={getTodayDate()}
+              defaultValue={getTodayDate()}
             />
           </motion.div>
         </motion.div>
@@ -274,20 +309,36 @@ const FormularioRendicion = ({
             </div>
           )}
         </motion.div>
+
+        {/* TABLA RENDICIÓN */}
         <div className="flex-1   min-h-[500px] rounded-xl  relative">
-          {selectDesembolso ? (
-            <TablaRendicion
-              datosRendicion={datosRendicion}
-              setDatosRendicion={setDatosRendicion}
-              montoRendicion={Math.abs(
-                Number(selectDesembolso.importe_desembolso),
-              )}
-              categorias={categorias}
-              setSelectCategoria={setSelectCategoria}
-            />
+          {selectDesembolsos.length > 0 ? (
+            <>
+              <TablaRendicion
+                datosRendicion={datosRendicion}
+                setDatosRendicion={setDatosRendicion}
+                montoRendicion={montoTotalDesembolsos}
+                categorias={categorias}
+                setSelectCategoria={setSelectCategoria}
+              />
+              <Textarea
+                className="w-full mt-4"
+                classNames={inputClassNames}
+                labelPlacement="outside"
+                type="text"
+                variant="bordered"
+                label="Observaciones"
+                placeholder="..."
+                {...register("observaciones_rendicion")}
+                color="danger"
+                radius="sm"
+                size="sm"
+                maxLength={100}
+              />
+            </>
           ) : (
             <p className=" p-4 border-t-1 border-b-1 border-amber-300 rounded-xl">
-              Seleccione un Monto
+              Seleccione al menos un Monto
             </p>
           )}
         </div>

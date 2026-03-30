@@ -94,7 +94,7 @@ const HistoricoRendicion = () => {
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="max-w-[1600px] overflow-hidden h-full mx-auto bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
+        className="max-w-[1800px] h-full mx-auto overflow-y-auto overflow-x-hidden bg-white p-4 rounded-xl flex flex-col gap-4 shadow-xl"
       >
         <header className="flex-none relative w-full min-h-[68px] bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg shadow-md overflow-hidden p-2 flex items-center justify-between">
           <div className="flex items-center gap-6 relative z-10">
@@ -137,7 +137,7 @@ const HistoricoRendicion = () => {
             </h2>
           </div>
 
-          <div className="flex-1 min-h-0 h-full flex flex-col gap-4 px-2 pb-2">
+          <div className="flex-1 min-h-[600px] h-full flex flex-col gap-4 px-2 pb-2">
             <div className="flex-none">
               <FiltroHistoricoRendicion
                 trabajadores={trabajadores}
@@ -147,7 +147,10 @@ const HistoricoRendicion = () => {
                 handleFindRendiciones={handleFindRendiciones}
               />
             </div>
-            <TablaHistoricoRendicion rendiciones={rendiciones} />
+            <TablaHistoricoRendicion
+              rendiciones={rendiciones}
+              handleFindRendiciones={handleFindRendiciones}
+            />
           </div>
         </main>
       </motion.div>

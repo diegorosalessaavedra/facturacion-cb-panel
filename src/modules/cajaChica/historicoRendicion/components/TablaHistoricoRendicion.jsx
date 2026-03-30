@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { numberPeru } from "../../../../assets/onInputs";
 import formatDate from "../../../../hooks/FormatDate";
-import { Tooltip, useDisclosure } from "@nextui-org/react";
+import { Button, Tooltip, useDisclosure } from "@nextui-org/react";
 import { generarPDFRendiciones } from "../../../../utils/plantillasPdf/generarPDFRendiciones";
 import SolicitarAnularRendicion from "./SolicitarAnularRendicion";
 import { Trash2 } from "lucide-react";
+import CargarSustentoRendicion from "./CargarSustentoRendicion";
 
 const stickyHeader = "sticky top-0 z-20";
 const stickySubHeader = "sticky top-[30px] z-20";
@@ -17,28 +18,42 @@ const headerDark = `${headerBase} bg-slate-900 text-white`;
 const cellBase =
   "flex items-center justify-center text-[10px] font-medium border-r border-b border-slate-300 min-h-[40px] h-full px-2 text-slate-700 bg-white text-center";
 
-const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
+const TablaHistoricoRendicion = ({
+  rendiciones = [],
+  handleFindRendiciones,
+}) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [selectedId, setSelectedId] = useState(null);
+  const {
+    isOpen: isOpenSustento,
+    onOpen: onOpenSustento,
+    onOpenChange: onOpenChangeSustento,
+  } = useDisclosure();
+
+  const [selectRendicion, setSelectedRendicion] = useState(null);
 
   const totalGeneralGastos = rendiciones.reduce(
     (acc, curr) => acc + Number(curr.total_gastos || 0),
     0,
   );
 
-  const handleRemove = (id) => {
-    setSelectedId(id);
+  const handleRemove = (item) => {
+    setSelectedRendicion(item);
     onOpen();
+  };
+
+  const handleSustento = (item) => {
+    setSelectedRendicion(item);
+    onOpenSustento();
   };
 
   return (
     <div className="relative w-full h-full flex flex-col gap-2 overflow-hidden">
-      <div className="flex-1 w-full  overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
+      <div className="flex-1 w-full  pb-4 overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
         <div
           className="grid"
           style={{
             gridTemplateColumns:
-              "40px 90px 220px 110px 180px 130px 80px 80px 80px 220px 90px 80px 100px 100px 140px 180px 90px 100px 40px",
+              "40px 90px 220px 110px 180px 130px 80px 80px 80px 220px 90px 80px 100px 100px 100px 140px 180px 90px 100px  100px 40px",
             gridAutoRows: "max-content",
           }}
         >
@@ -86,6 +101,12 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             ESTADO
+          </div>
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+            RESULTADO
+          </div>
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+            SUSTENTO
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>-</div>
 
@@ -205,9 +226,35 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                             </p>
                           </div>
                           <div
+                            className={`${cellBase} font-bold text-[11px]`}
+                            style={spanStyle}
+                          >
+                            {item.por_devolver > 0 ? (
+                              <p className="text-red-600">
+                                A devolver S/ {numberPeru(item.por_devolver)}
+                              </p>
+                            ) : item.por_reembolsar > 0 ? (
+                              <p className="text-blue-600">
+                                Por reembolsar S/{" "}
+                                {numberPeru(item.por_reembolsar)}
+                              </p>
+                            ) : (
+                              <p className="text-emerald-600">Completo</p>
+                            )}
+                          </div>
+                          <div className={`${cellBase} `} style={spanStyle}>
+                            <Button
+                              className="bg-slate-800 text-white"
+                              size="sm"
+                              onPress={() => handleSustento(item)}
+                            >
+                              Ver Sustento
+                            </Button>
+                          </div>
+                          <div
                             className={`${cellBase} cursor-pointer hover:bg-red-50 transition-colors group`}
                             style={spanStyle}
-                            onClick={() => handleRemove(item.id)}
+                            onClick={() => handleRemove(item)}
                           >
                             <Tooltip
                               content="Eliminar Rendición"
@@ -246,12 +293,45 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
                       className={`${cellBase} font-bold text-[11px]`}
                       style={spanStyle}
                     >
-                      {item.estado || "-"}
+                      <p
+                        className={`${
+                          item.estado === "ACTIVO"
+                            ? "text-green-600"
+                            : "text-red-500"
+                        }`}
+                      >
+                        {item.estado}
+                      </p>
+                    </div>
+                    <div
+                      className={`${cellBase} font-bold text-[11px]`}
+                      style={spanStyle}
+                    >
+                      {item.por_devolver > 0 ? (
+                        <p className="text-red-600">
+                          A devolver S/ {numberPeru(item.por_devolver)}
+                        </p>
+                      ) : item.por_reembolsar > 0 ? (
+                        <p className="text-blue-600">
+                          Por reembolsar S/ {numberPeru(item.por_reembolsar)}
+                        </p>
+                      ) : (
+                        <p className="text-emerald-600">Completo</p>
+                      )}
+                    </div>
+                    <div className={`${cellBase} `} style={spanStyle}>
+                      <Button
+                        className="bg-slate-800 text-white"
+                        size="sm"
+                        onPress={() => handleSustento(item)}
+                      >
+                        Ver Sustento
+                      </Button>
                     </div>
                     <div
                       className={`${cellBase} cursor-pointer hover:bg-red-50 transition-colors`}
                       style={spanStyle}
-                      onClick={() => handleRemove(item.id)}
+                      onClick={() => handleRemove(item)}
                     >
                       <Trash2 size={16} className="text-red-400" />
                     </div>
@@ -276,10 +356,19 @@ const TablaHistoricoRendicion = ({ rendiciones = [] }) => {
       </div>
 
       <SolicitarAnularRendicion
-        key={selectedId}
-        id={selectedId}
+        key={selectRendicion?.id}
+        id={selectRendicion?.id}
         isOpen={isOpen}
         onOpenChange={onOpenChange}
+        onSuccess={handleFindRendiciones}
+      />
+
+      <CargarSustentoRendicion
+        key={selectRendicion?.id}
+        selectRendicion={selectRendicion}
+        isOpen={isOpenSustento}
+        onOpenChange={onOpenChangeSustento}
+        onSuccess={handleFindRendiciones}
       />
     </div>
   );

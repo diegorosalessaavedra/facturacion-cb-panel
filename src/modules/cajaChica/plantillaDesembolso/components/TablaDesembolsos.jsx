@@ -48,6 +48,8 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
     onOpen();
   };
 
+  console.log(desembolsos);
+
   return (
     <>
       <div className="w-full h-full overflow-auto shadow-md rounded-lg bg-slate-50 relative">
@@ -55,12 +57,13 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
           className="grid min-w-[1500px]"
           style={{
             gridTemplateColumns:
-              "40px 1fr 90px 90px 90px 90px 1fr 140px 90px repeat(11, 70px) 100px 120px 40px",
+              "40px 1fr 90px 90px 90px 90px 1fr 140px 90px repeat(11, 70px) 100px 100px  120px 40px",
             gridAutoRows: "max-content",
           }}
         >
           {/* === FILA 1: CABECERAS PRINCIPALES === */}
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>N°</div>
+
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             DESEMBOLSO A
           </div>
@@ -93,6 +96,9 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             ESTADO
+          </div>
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+            Nº CORRELATIVO
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             OBSERVACIONES
@@ -178,6 +184,11 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
                   >
                     {item.estado_desembolso}
                   </p>
+                </div>
+                <div className={`${cellBase} bg-slate-50`}>
+                  {item.rendicion?.correlativo_rendicion ||
+                    item.rendiciones_multiples?.[0]?.correlativo_rendicion ||
+                    (item.estado_desembolso === "RENDIDO" ? "No aplica" : "-")}
                 </div>
                 <div className={`${cellBase} bg-slate-50`}>
                   {item.observaciones || "-"}

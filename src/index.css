@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /* ========================================== */
+  /* ============= PARA FIREFOX =============== */
+  /* ========================================== */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #111728 transparent; /* 💡 Actualizado a tu azul oscuro */
+  }
+
+  /* ========================================== */
+  /* ======= PARA CHROME, EDGE Y SAFARI ======= */
+  /* ========================================== */
+
+  /* 💡 SCROLL VERTICAL (Y) */
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  /* 💡 SCROLL HORIZONTAL (X) - ¡Aquí está el cambio! */
+  *::-webkit-scrollbar:horizontal {
+    height: 3px; /* Mucho más bajito y delgado */
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #111728;
+    border-radius: 10px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #1e293b; /* 💡 Le puse un tono un poquitito más claro para el hover */
+  }
+}
