@@ -179,7 +179,7 @@ const FormularioRendicion = ({
           {/* CONCEPTOS */}
           <motion.div variants={itemVariants} className="w-full">
             <Select
-              label="Concepto(s)"
+              label="Concepto para flujo de caja"
               labelPlacement="outside"
               variant="bordered"
               selectionMode="multiple"
@@ -187,13 +187,6 @@ const FormularioRendicion = ({
               classNames={selectClassNames}
               size="sm"
               isDisabled={selectDesembolsos.length === 0}
-              selectedKeys={
-                new Set(
-                  selectDesembolsos
-                    .map((d) => d.motivo_desembolso)
-                    .filter(Boolean),
-                )
-              }
             >
               {conceptos?.map((c) => (
                 <SelectItem key={c.conceptos} textValue={c.conceptos}>
