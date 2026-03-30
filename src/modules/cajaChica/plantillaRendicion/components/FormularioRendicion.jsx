@@ -273,7 +273,7 @@ const FormularioRendicion = ({
               variant="bordered"
               color="success"
               size="sm"
-              defaultValue={getTodayDate()}
+              value={getTodayDate()}
             />
           </motion.div>
         </motion.div>
