@@ -186,7 +186,7 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
                 <div className={`${cellBase} bg-slate-50`}>
                   {item.rendicion?.correlativo_rendicion ||
                     item.rendiciones_multiples?.[0]?.correlativo_rendicion ||
-                    (item.estado_desembolso === "RENDIDO" ? "No aplica" : "-")}
+                    (item.estado_desembolso === "RENDIDO" ? "NO APLICA" : "-")}
                 </div>
                 <div className={`${cellBase} bg-slate-50`}>
                   {item.observaciones || "-"}
