@@ -182,10 +182,10 @@ const FormularioRendicion = ({
               label="Concepto para flujo de caja"
               labelPlacement="outside"
               variant="bordered"
-              selectionMode="multiple"
               startContent={<FileText className="text-default-400" size={16} />}
               classNames={selectClassNames}
               size="sm"
+              {...register("concepto_rendicion")}
               isDisabled={selectDesembolsos.length === 0}
             >
               {conceptos?.map((c) => (
