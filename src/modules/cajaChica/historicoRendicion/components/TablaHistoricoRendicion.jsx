@@ -32,15 +32,13 @@ const TablaHistoricoRendicion = ({
   const [selectRendicion, setSelectedRendicion] = useState(null);
 
   const totalGeneralGastos = rendiciones.reduce((accGeneral, rendicion) => {
-    // Sumamos los importes de los detalles de la rendición actual
     const sumaDetalles = (rendicion.datos_rendicion || []).reduce(
       (accDetalle, detalle) => accDetalle + Number(detalle.importe || 0),
       0,
     );
-
-    // Acumulamos el resultado al total general
     return accGeneral + sumaDetalles;
   }, 0);
+
   const handleRemove = (item) => {
     setSelectedRendicion(item);
     onOpen();
