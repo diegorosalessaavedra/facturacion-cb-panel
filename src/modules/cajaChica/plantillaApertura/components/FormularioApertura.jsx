@@ -123,6 +123,12 @@ const FormularioApertura = ({
             isRequired
             {...register("fecha_dispone")}
             size="sm"
+            onKeyDown={(e) => {
+              if (e.key !== "Tab") {
+                e.preventDefault();
+              }
+            }}
+            onPaste={(e) => e.preventDefault()}
           />
         </motion.div>
 

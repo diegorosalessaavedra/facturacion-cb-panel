@@ -267,6 +267,12 @@ const FormularioRendicion = ({
               color="success"
               size="sm"
               value={getTodayDate()}
+              onKeyDown={(e) => {
+                if (e.key !== "Tab") {
+                  e.preventDefault();
+                }
+              }}
+              onPaste={(e) => e.preventDefault()}
             />
           </motion.div>
         </motion.div>

@@ -131,6 +131,12 @@ const FormularioDesembolso = ({
             isRequired
             {...register("fecha_desembolso")}
             size="sm"
+            onKeyDown={(e) => {
+              if (e.key !== "Tab") {
+                e.preventDefault();
+              }
+            }}
+            onPaste={(e) => e.preventDefault()}
           />
         </motion.div>
 
