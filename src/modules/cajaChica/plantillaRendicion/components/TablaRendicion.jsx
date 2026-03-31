@@ -144,6 +144,12 @@ const TablaRendicion = ({
                   onChange={(e) =>
                     handleChange(index, "fecha_uso", e.target.value)
                   }
+                  onKeyDown={(e) => {
+                    if (e.key !== "Tab") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onPaste={(e) => e.preventDefault()}
                 />
               </div>
 
@@ -184,6 +190,12 @@ const TablaRendicion = ({
                   onChange={(e) =>
                     handleChange(index, "fecha_emision", e.target.value)
                   }
+                  onKeyDown={(e) => {
+                    if (e.key !== "Tab") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onPaste={(e) => e.preventDefault()}
                 />
               </div>
 
