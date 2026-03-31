@@ -131,37 +131,58 @@ export const generarPDFRendiciones = (rendicion) => {
   );
 
   // ==========================================
-  // --- 1. LISTA DE FECHAS RECIBIDAS ---
+  // --- 1. LISTAS LADO A LADO (FECHAS Y RUTAS) ---
   // ==========================================
   currentY += boxHeight + 8; // Bajamos el cursor debajo del recuadro gris
 
-  // Título de la lista
+  const col1List = margin;
+  const col2List = pageWidth / 2 + 5;
+
+  // Títulos de las listas
   doc.setTextColor(15, 23, 42); // slate-900 para el título
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
-  doc.text("FECHAS RECIBIDAS:", margin, currentY);
+  doc.text("FECHAS RECIBIDAS:", col1List, currentY);
+  doc.text("RUTAS:", col2List, currentY);
   currentY += 4;
 
-  // Contenido de la lista (Mismo estilo exacto que jspdf-autotable)
+  // Contenido de las listas
   doc.setTextColor(20, 20, 20); // Color exacto del body de la tabla
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
 
   if (listaDesembolsos.length > 0) {
     listaDesembolsos.forEach((d) => {
+      // 💡 Datos formateados
       const fechaFormat = formatDate(d.fecha_desembolso) || "-";
       const montoFormat = `S/ ${numberPeru(Math.abs(d.importe_desembolso) || 0)}`;
+      const rutaTexto = d.rutas_desembolso || "-";
 
-      // 💡 Usando el punto de lista perfecto (\u2022)
-      doc.text(`\u2022  ${fechaFormat} - ${montoFormat}`, margin + 2, currentY);
+      // 💡 Textos finales con la viñeta
+      const textoCol1 = `\u2022  ${fechaFormat} - ${montoFormat}`;
+      const textoCol2 = `\u2022  ${rutaTexto}`;
 
-      currentY += 4; // Salto de línea
+      // 💡 Control de texto largo para las rutas (para que no invada el margen derecho)
+      const maxRutaWidth = pageWidth / 2 - margin - 5;
+      const lineasRuta = doc.splitTextToSize(textoCol2, maxRutaWidth);
+
+      // Imprimimos Columna Izquierda (Fechas)
+      doc.text(textoCol1, col1List + 2, currentY);
+
+      // Imprimimos Columna Derecha (Rutas)
+      doc.text(lineasRuta, col2List + 2, currentY);
+
+      // Incrementamos currentY basándonos en si la ruta ocupó más de una línea
+      currentY += lineasRuta.length * 4;
     });
   } else {
-    doc.text("-", margin + 2, currentY);
+    // Si no hay datos
+    doc.text("-", col1List + 2, currentY);
+    doc.text("-", col2List + 2, currentY);
     currentY += 4;
   }
-  currentY += 6; // Espacio extra antes de la tabla
+
+  currentY += 6; // Espacio extra antes de la tabla principal
 
   // ==========================================
   // --- 2. TABLA DE GASTOS RENDIDOS ---
