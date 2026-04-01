@@ -68,7 +68,7 @@ const FormularioDesembolso = ({
         transition={{ staggerChildren: 0.1 }}
       >
         {/* SALDO EN CAJA */}
-        <motion.div variants={itemVariants} className="w-[150px]">
+        <motion.div variants={itemVariants} className="min-w-[150px]">
           <Input
             label="Saldo en Caja"
             labelPlacement="outside"

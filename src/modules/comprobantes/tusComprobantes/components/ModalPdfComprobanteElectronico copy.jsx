@@ -160,7 +160,7 @@ const ModalPdfComprobanteElectronico = ({
                         </td>
                         <td className="px-2">
                           {formatNumber(
-                            comprobanteElectronico?.total_valor_venta
+                            comprobanteElectronico?.total_valor_venta,
                           )}
                         </td>
                       </tr>
@@ -179,7 +179,9 @@ const ModalPdfComprobanteElectronico = ({
                           TOTAL A PAGAR: S/
                         </td>
                         <td className="px-2">
-                          {formatNumber(comprobanteElectronico?.total_venta)}{" "}
+                          {formatNumber(
+                            comprobanteElectronico?.total_venta,
+                          )}{" "}
                         </td>
                       </tr>
                     </tbody>
@@ -229,7 +231,7 @@ const ModalPdfComprobanteElectronico = ({
                 onClick={() =>
                   plantillaComprobantePdf(
                     comprobanteElectronico,
-                    cuentasBancarias
+                    cuentasBancarias,
                   )
                 }
               >
