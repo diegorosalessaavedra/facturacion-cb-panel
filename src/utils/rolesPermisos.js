@@ -263,6 +263,8 @@ export const ROUTE_PERMISSIONS = {
   "/desembolso/:id/:codigo": [ROLES.GERENTE, ROLES.CONTADOR],
   "/caja-chica/rendicion": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
   "/rendicion/:id/:codigo": [ROLES.GERENTE, ROLES.CONTADOR],
+  "/rendicion/sustento/:id/:codigo": [ROLES.GERENTE, ROLES.CONTADOR],
+
   "/caja-chica/historico-rendicion-individual": [
     ROLES.GERENTE,
     ROLES.CONTADOR,
