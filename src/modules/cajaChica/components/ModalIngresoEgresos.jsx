@@ -39,7 +39,7 @@ const ModalIngresoEgresos = ({
   desgloseCaja,
   isOpen,
   onOpenChange,
-  ingresosData, // 🟢 Recibimos el estado actual
+  ingresosData,
   setIngresosData,
   esIngreso = true,
 }) => {
@@ -49,15 +49,17 @@ const ModalIngresoEgresos = ({
   };
 
   const [valores, setValores] = useState(initialState);
+
+  // SEPARADOS: Guardamos los cálculos por separado para la vista
+  const [totalYape, setTotalYape] = useState(0);
+  const [totalEfectivo, setTotalEfectivo] = useState(0);
   const [totalCalculado, setTotalCalculado] = useState(0);
 
   // --- 1. SINCRONIZACIÓN AL ABRIR EL MODAL ---
   useEffect(() => {
     if (isOpen) {
-      // Si hay data previa guardada, rellenamos los inputs
       if (ingresosData && Object.keys(ingresosData).length > 0) {
         const datosCargados = {
-          // Usamos Math.abs por si vienen negativos (en caso de egreso)
           yape: ingresosData.yape ? Math.abs(ingresosData.yape).toString() : "",
         };
         TODAS_DENOMINACIONES.forEach((d) => {
@@ -67,7 +69,6 @@ const ModalIngresoEgresos = ({
         });
         setValores(datosCargados);
       } else {
-        // Si no hay data, reiniciamos a vacío
         setValores(initialState);
       }
     }
@@ -78,12 +79,15 @@ const ModalIngresoEgresos = ({
   useEffect(() => {
     let sumaEfectivo = TODAS_DENOMINACIONES.reduce((acc, d) => {
       const cantidad = Number(valores[d.key]) || 0;
-      return acc + cantidad * d.valor;
+      return acc + cantidad * d.valor; // Cantidad de billetes * su valor
     }, 0);
 
-    let sumaYape = Number(valores.yape) || 0;
+    let sumaYape = Number(valores.yape) || 0; // Monto directo en Yape
     const totalAbsoluto = sumaEfectivo + sumaYape;
 
+    // Actualizamos los estados visuales
+    setTotalYape(esIngreso ? sumaYape : sumaYape * -1);
+    setTotalEfectivo(esIngreso ? sumaEfectivo : sumaEfectivo * -1);
     setTotalCalculado(esIngreso ? totalAbsoluto : totalAbsoluto * -1);
   }, [valores, esIngreso]);
 
@@ -146,18 +150,26 @@ const ModalIngresoEgresos = ({
             </ModalHeader>
 
             <ModalBody className="bg-slate-100 p-6 overflow-x-auto">
-              <div className="grid grid-cols-[90px_100px_repeat(11,1fr)_100px] gap-px bg-slate-300 border border-slate-300 rounded-lg overflow-hidden shadow-sm">
+              {/* CORRECCIÓN 1: Se agregaron 100px extra al final para completar las 15 columnas del Grid */}
+              <div className="grid grid-cols-[90px_100px_repeat(11,1fr)_100px_100px] gap-px bg-slate-300 border border-slate-300 rounded-lg overflow-hidden shadow-sm">
                 {/* --- FILA 1: ENCABEZADOS --- */}
                 <div className="bg-white"></div>
                 <div className={headerPurple}>Billetera Digital</div>
                 <div className={`col-span-5 ${headerDark}`}>BILLETES</div>
                 <div className={`col-span-6 ${headerDark}`}>MONEDAS</div>
 
-                <div className="row-span-2 bg-slate-900 flex flex-col items-center justify-center text-white font-bold p-2">
+                <div className="row-span-2 bg-slate-900 flex flex-col items-center justify-center text-white font-bold p-1 text-center">
                   <span
-                    className={`text-sm tracking-wide ${esIngreso ? "text-emerald-400" : "text-rose-400"}`}
+                    className={`text-[10px] tracking-wide ${esIngreso ? "text-emerald-400" : "text-rose-400"}`}
                   >
-                    TOTAL
+                    TOTAL BILLETERA FISICA
+                  </span>
+                </div>
+                <div className="row-span-2 bg-slate-900 flex flex-col items-center justify-center text-white font-bold p-1 text-center">
+                  <span
+                    className={`text-[10px] tracking-wide ${esIngreso ? "text-emerald-400" : "text-rose-400"}`}
+                  >
+                    TOTAL BILLETERA DIGITAL
                   </span>
                 </div>
 
@@ -179,14 +191,17 @@ const ModalIngresoEgresos = ({
                 <div className="bg-slate-800 text-white font-bold text-[11px] flex items-center justify-center">
                   SALDO
                 </div>
-                <div className={cellReadOnly}>{desgloseCaja.yape}</div>
+                <div className={cellReadOnly}>{desgloseCaja?.yape || 0}</div>
                 {TODAS_DENOMINACIONES.map((d) => (
                   <div key={`saldo-${d.key}`} className={cellReadOnly}>
-                    {desgloseCaja[d.key]}
+                    {desgloseCaja?.[d.key] || 0}
                   </div>
                 ))}
                 <div className="bg-slate-50 flex items-center justify-center font-bold text-slate-800 text-[13px]">
-                  S/ {numberPeru(saldoTotal)}
+                  S/ {numberPeru((saldoTotal || 0) - (desgloseCaja?.yape || 0))}
+                </div>
+                <div className="bg-slate-50 flex items-center justify-center font-bold text-slate-800 text-[13px]">
+                  S/ {numberPeru(desgloseCaja?.yape || 0)}
                 </div>
 
                 {/* --- FILA 4: INPUTS --- */}
@@ -223,10 +238,28 @@ const ModalIngresoEgresos = ({
                   </div>
                 ))}
 
+                {/* CORRECCIÓN 2: Se separó el totalYape y totalEfectivo para mostrar la suma correcta en cada columna */}
                 <div
                   className={`flex items-center justify-center font-black text-sm transition-colors duration-300 ${esIngreso ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}
                 >
-                  S/ {numberPeru(totalCalculado)}
+                  S/ {!esIngreso ? "-" : ""}
+                  {numberPeru(Math.abs(totalEfectivo))}
+                </div>
+                <div
+                  className={`flex items-center justify-center font-black text-sm transition-colors duration-300 ${esIngreso ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}
+                >
+                  S/ {!esIngreso ? "-" : ""}
+                  {numberPeru(Math.abs(totalYape))}
+                </div>
+              </div>
+
+              {/* Opcional: Mostrar el Gran Total general abajo para mayor claridad */}
+              <div className="mt-1 flex justify-end">
+                <div
+                  className={`px-6 py-2 rounded-lg font-bold text-xs ${esIngreso ? "bg-emerald-100 text-emerald-800 border border-emerald-300" : "bg-rose-100 text-rose-800 border border-rose-300"}`}
+                >
+                  GRAN TOTAL: S/ {!esIngreso ? "-" : ""}
+                  {numberPeru(Math.abs(totalCalculado))}
                 </div>
               </div>
             </ModalBody>
@@ -236,7 +269,7 @@ const ModalIngresoEgresos = ({
                 Cancelar
               </Button>
               <Button
-                type="button" // Evita envío accidental en formularios
+                type="button"
                 className={`text-white font-bold shadow-lg ${esIngreso ? "bg-slate-900" : "bg-rose-700 shadow-rose-900/20"}`}
                 startContent={<Save size={18} />}
                 onPress={() => handleGuardar(onClose)}

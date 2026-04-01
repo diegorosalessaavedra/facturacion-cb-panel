@@ -68,7 +68,7 @@ const FormularioDesembolso = ({
         transition={{ staggerChildren: 0.1 }}
       >
         {/* SALDO EN CAJA */}
-        <motion.div variants={itemVariants} className="min-w-[150px]">
+        <motion.div variants={itemVariants} className="w-[150px]">
           <Input
             label="Saldo en Caja"
             labelPlacement="outside"
@@ -76,7 +76,7 @@ const FormularioDesembolso = ({
             startContent={<Wallet className="text-default-400" size={16} />}
             variant="bordered"
             classNames={inputClassNames}
-            value={`S/ ${numberPeru(saldoTotal)}`}
+            value={`S/ ${numberPeru(saldoTotal - (desgloseCaja?.yape || 0))}`}
             color="primary"
             size="sm"
           />
@@ -183,19 +183,34 @@ const FormularioDesembolso = ({
       </motion.div>
 
       <div className="w-full justify-between flex items-end pb-4 pt-0 border-b border-amber-300 -mt-1">
-        <motion.div variants={itemVariants} className="min-w-[500px]">
-          <Input
-            type="text"
-            labelPlacement="outside"
-            label="Observaciones"
-            variant="bordered"
-            startContent={<Pencil className="text-default-400" size={16} />}
-            classNames={inputClassNames}
-            isRequired
-            {...register("observaciones")}
-            size="sm"
-          />
-        </motion.div>
+        <div className="flex gap-2">
+          <motion.div variants={itemVariants} className="w-[150px]">
+            <Input
+              label="Saldo en Yape"
+              labelPlacement="outside"
+              placeholder="0.00"
+              startContent={<Wallet className="text-default-400" size={16} />}
+              variant="bordered"
+              classNames={inputClassNames}
+              value={`S/ ${numberPeru(desgloseCaja?.yape || 0)}`}
+              color="primary"
+              size="sm"
+            />
+          </motion.div>
+          <motion.div variants={itemVariants} className="min-w-[400px]">
+            <Input
+              type="text"
+              labelPlacement="outside"
+              label="Observaciones"
+              variant="bordered"
+              startContent={<Pencil className="text-default-400" size={16} />}
+              classNames={inputClassNames}
+              isRequired
+              {...register("observaciones")}
+              size="sm"
+            />
+          </motion.div>
+        </div>
         {/* BOTONES */}
         <motion.div
           className="flex justify-end gap-3"
