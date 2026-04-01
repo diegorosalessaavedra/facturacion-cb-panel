@@ -31,7 +31,7 @@ const FiltrarOrdenesCompra = ({
 
   const sumaTotal = txtSolpeds.reduce(
     (suma, solped) => suma + Number(solped.monto_txt || 0),
-    0 // 👈 valor inicial
+    0, // 👈 valor inicial
   );
 
   return (
@@ -118,6 +118,7 @@ const FiltrarOrdenesCompra = ({
           <SelectItem key="CANCELADO">CANCELADO</SelectItem>
           <SelectItem key="ANTICIPO">ANTICIPO</SelectItem>
           <SelectItem key="ENVIADO A PAGO">ENVIADO A PAGO</SelectItem>
+          <SelectItem key="ANULADO">ANULADO</SelectItem>
         </Select>
 
         <Button color="primary" type="submit">

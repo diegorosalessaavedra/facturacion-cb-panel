@@ -128,7 +128,9 @@ const TablaOrdenCompras = ({
                     ? "text-amber-500"
                     : ordenCompra.estadoPago === "PENDIENTE"
                       ? "text-red-500"
-                      : "text-blue-500"
+                      : ordenCompra.estadoPago === "ANULADO"
+                        ? "text-red-500"
+                        : "text-blue-500"
                 }  text-xs  font-semibold `}
               >
                 {ordenCompra.estadoPago}
