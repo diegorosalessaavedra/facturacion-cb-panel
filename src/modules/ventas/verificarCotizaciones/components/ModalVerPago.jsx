@@ -173,11 +173,11 @@ const ModalVerPago = ({ isOpen, onOpenChange, selectPago }) => {
 
             <ModalFooter>
               <Button color="danger" variant="flat" onPress={onClose} size="sm">
-                deposito rechazado{" "}
+                Depósito Rechazado{" "}
               </Button>
               {!isVerified && (
                 <Button color="success" size="sm" shadow>
-                  deposito validado
+                  Depósito Validado
                 </Button>
               )}
             </ModalFooter>
