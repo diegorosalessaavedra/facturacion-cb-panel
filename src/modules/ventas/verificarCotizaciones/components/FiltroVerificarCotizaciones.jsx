@@ -68,46 +68,24 @@ const FiltroVerificarCotizaciones = ({
       </motion.div>
 
       {/* Selectores de Estado Condicionales */}
-      {filtros.tipoFiltro === "Pagos" ? (
-        <motion.div layout className="w-full sm:max-w-[160px] flex-1">
-          <Select
-            label="Estado de pagos"
-            labelPlacement="outside"
-            variant="bordered"
-            selectedKeys={[filtros.estado_pago]}
-            radius="sm"
-            size="sm"
-            onChange={(e) => handleChangeFiltro("estado_pago", e.target.value)}
-            classNames={selectClassNames}
-          >
-            <SelectItem key="todos">Todos</SelectItem>
-            <SelectItem key="Activo">Conformes</SelectItem>
-            <SelectItem key="observados">Observados</SelectItem>
+      <motion.div layout className="w-full sm:max-w-[160px] flex-1">
+        <Select
+          label="Estado de pagos"
+          labelPlacement="outside"
+          variant="bordered"
+          selectedKeys={[filtros.estado_pago]}
+          radius="sm"
+          size="sm"
+          onChange={(e) => handleChangeFiltro("estado_pago", e.target.value)}
+          classNames={selectClassNames}
+        >
+          <SelectItem key="todos">Todos</SelectItem>
+          <SelectItem key="Activo">Conformes</SelectItem>
+          <SelectItem key="observados">Observados</SelectItem>
 
-            <SelectItem key="Anulado">Rechazados</SelectItem>
-          </Select>
-        </motion.div>
-      ) : (
-        <motion.div layout className="w-full sm:max-w-[160px] flex-1">
-          <Select
-            label="Estado"
-            labelPlacement="outside"
-            variant="bordered"
-            selectedKeys={[filtros.estado_cotizacion]}
-            radius="sm"
-            size="sm"
-            onChange={(e) =>
-              handleChangeFiltro("estado_cotizacion", e.target.value)
-            }
-            classNames={selectClassNames}
-          >
-            <SelectItem key="todos">Todos</SelectItem>
-            <SelectItem key="Activo">Activo</SelectItem>
-            <SelectItem key="Anulado">Anulado</SelectItem>
-            <SelectItem key="Facturar">Facturar</SelectItem>
-          </Select>
-        </motion.div>
-      )}
+          <SelectItem key="Anulado">Rechazados</SelectItem>
+        </Select>
+      </motion.div>
 
       <motion.div layout>
         <Button

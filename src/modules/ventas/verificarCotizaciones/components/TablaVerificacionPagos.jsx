@@ -19,7 +19,8 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
   const cellData = `${cellBase} bg-white text-slate-700 font-medium`;
   const cellHighlight = `${cellBase} bg-slate-50 text-slate-900 font-bold`;
 
-  const gridTemplate = "40px 90px 120px 300px 90px 1fr 90px";
+  // Tienes exactamente 6 columnas aquí
+  const gridTemplate = "40px 90px 120px 300px 90px 1fr";
 
   const handleSeeMore = (pago) => {
     setSelectPago(pago);
@@ -34,7 +35,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
         </div>
       ) : (
         <div className="grid" style={{ gridTemplateColumns: gridTemplate }}>
-          {/* === CABECERAS (7 Columnas) === */}
+          {/* === CABECERAS (6 Columnas) === */}
           <div className={headerDark + " " + stickyHeader}>#</div>
           <div className={headerDark + " " + stickyHeader}>
             Fecha de Despacho
@@ -45,7 +46,6 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
           <div className={`${headerDark} ${stickyHeader}`}>
             Detalle de Pagos
           </div>
-          <div className={headerDark + " " + stickyHeader}>Estado</div>
 
           {/* === CUERPO === */}
           {cotizaciones?.map((cot, index) => {
@@ -87,9 +87,9 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
                   S/. {formatNumber(cot.saldoInicial)}
                 </div>
 
-                {/* COLUMNA DE PAGOS Y ESTADO */}
+                {/* COLUMNA DE PAGOS */}
                 {cot.pagos && cot.pagos.length > 0 ? (
-                  cot.pagos.map((pago, pIdx) => {
+                  cot.pagos.map((pago) => {
                     const isVerified = pago.datos_verificacion !== null;
                     const statusClass = isVerified
                       ? "bg-green-50 border-l-green-300 text-green-900"
@@ -130,16 +130,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
                             <Eye size={14} />
                           </Button>
                         </div>
-
-                        {/* 7. Estado (Abarca el rowSpan completo, solo se dibuja una vez) */}
-                        {pIdx === 0 && (
-                          <div
-                            className={`${cellData} font-bold ${cot.status === "Activo" ? "text-green-600" : "text-red-600"}`}
-                            style={rowSpan}
-                          >
-                            {cot.status}
-                          </div>
-                        )}
+                        {/* Se eliminó la celda extra de Estado que estaba rompiendo el grid aquí */}
                       </React.Fragment>
                     );
                   })
@@ -149,8 +140,6 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
                     <div className={`${cellData} italic text-slate-400`}>
                       Sin pagos registrados
                     </div>
-                    {/* 7. Estado */}
-                    <div className={`${cellData} font-bold`}>{cot.status}</div>
                   </>
                 )}
               </React.Fragment>
