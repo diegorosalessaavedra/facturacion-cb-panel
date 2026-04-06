@@ -4,7 +4,7 @@ import {
 } from "../../../../assets/classNames";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import { motion } from "framer-motion";
-import { FiSearch, FiFilter } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 
 const FiltroVerificarCotizaciones = ({
   filtros,
@@ -22,7 +22,6 @@ const FiltroVerificarCotizaciones = ({
       onSubmit={handleSubmit}
       className="w-full bg-white py-3 border-b-1 border-slate-200 flex gap-3 items-end flex-wrap z-10 relative"
     >
-      {/* Inputs de Fecha (Corregidos a fecha_inicio y fecha_final) */}
       <motion.div layout className="flex gap-3 w-full sm:w-auto">
         <Input
           className="w-full sm:max-w-[180px]"
