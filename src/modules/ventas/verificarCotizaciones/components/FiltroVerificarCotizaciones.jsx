@@ -22,23 +22,6 @@ const FiltroVerificarCotizaciones = ({
       onSubmit={handleSubmit}
       className="w-full bg-white py-3 border-b-1 border-slate-200 flex gap-3 items-end flex-wrap z-10 relative"
     >
-      <motion.div layout className="w-full sm:max-w-[200px] flex-1">
-        <Select
-          label="Filtrar por:"
-          labelPlacement="outside"
-          variant="bordered"
-          selectedKeys={[filtros.tipoFiltro]}
-          radius="sm"
-          size="sm"
-          onChange={(e) => handleChangeFiltro("tipoFiltro", e.target.value)}
-          classNames={selectClassNames}
-          startContent={<FiFilter className="text-default-400" />}
-        >
-          <SelectItem key="Pagos">Fecha Pagos</SelectItem>
-          <SelectItem key="Cotizaciones">Fecha Cotizaciones</SelectItem>
-        </Select>
-      </motion.div>
-
       {/* Inputs de Fecha (Corregidos a fecha_inicio y fecha_final) */}
       <motion.div layout className="flex gap-3 w-full sm:w-auto">
         <Input
