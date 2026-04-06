@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Spinner, Button, useDisclosure } from "@nextui-org/react";
-import { Eye } from "lucide-react"; // Importa un icono para el botón
+import { Eye } from "lucide-react";
 import formatDate from "../../../../hooks/FormatDate";
 import { formatNumber } from "../../../../assets/formats";
 import ModalVerPago from "./ModalVerPago";
@@ -17,9 +17,10 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
   const cellBase =
     "flex items-center justify-center text-[11px] py-2 px-2 border-r border-b border-slate-300 min-h-[50px]";
   const cellData = `${cellBase} bg-white text-slate-700 font-medium`;
-  const cellHighlight = `${cellBase} bg-slate-50 text-slate-900 font-bold`;
+  // const cellHighlight = `${cellBase} bg-slate-50 text-slate-900 font-bold`; // (sin uso actualmente)
 
-  const gridTemplate = "40px 90px 120px 200px repeat(4, 90px) 1fr 120px 90px";
+  // CORRECCIÓN: Exactamente 7 columnas para coincidir con las cabeceras
+  const gridTemplate = "40px 90px 120px 300px 1fr 120px 90px";
 
   const handleSeeMore = (pago) => {
     setSelectPago(pago);
@@ -35,19 +36,15 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
       ) : (
         <div className="grid" style={{ gridTemplateColumns: gridTemplate }}>
           {/* === CABECERAS === */}
-          <div className={headerDark + " " + stickyHeader}>#</div>
-          <div className={headerDark + " " + stickyHeader}>Fecha</div>
-          <div className={headerDark + " " + stickyHeader}>Vendedor</div>
-          <div className={headerDark + " " + stickyHeader}>Cliente</div>
-          <div className={headerDark + " " + stickyHeader}>T. Gravado</div>
-          <div className={headerDark + " " + stickyHeader}>T. IGV</div>
-          <div className={headerDark + " " + stickyHeader}>Total</div>
-          <div className={headerDark + " " + stickyHeader}>Saldo</div>
+          <div className={`${headerDark} ${stickyHeader}`}>#</div>
+          <div className={`${headerDark} ${stickyHeader}`}>Fecha</div>
+          <div className={`${headerDark} ${stickyHeader}`}>Vendedor</div>
+          <div className={`${headerDark} ${stickyHeader}`}>Cliente</div>
           <div className={`${headerDark} ${stickyHeader}`}>
             Detalle de Pagos
           </div>
-          <div className={headerDark + " " + stickyHeader}>Comprobante</div>
-          <div className={headerDark + " " + stickyHeader}>Estado</div>
+          <div className={`${headerDark} ${stickyHeader}`}>Comprobante</div>
+          <div className={`${headerDark} ${stickyHeader}`}>Estado</div>
 
           {/* === CUERPO === */}
           {cotizaciones?.map((cot, index) => {
@@ -78,26 +75,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
                   </span>
                 </div>
 
-                <div className={cellHighlight} style={rowSpan}>
-                  S/. {formatNumber(Number(cot.saldoInicial) / 1.18)}
-                </div>
-                <div className={cellHighlight} style={rowSpan}>
-                  S/. {formatNumber((Number(cot.saldoInicial) / 1.18) * 0.18)}
-                </div>
-                <div
-                  className={`${cellHighlight} text-blue-700`}
-                  style={rowSpan}
-                >
-                  S/. {formatNumber(cot.saldoInicial)}
-                </div>
-                <div
-                  className={`${cellHighlight} text-red-600`}
-                  style={rowSpan}
-                >
-                  S/. {formatNumber(cot.saldo)}
-                </div>
-
-                {/* COLUMNA DE PAGOS */}
+                {/* COLUMNA DE PAGOS Y COLUMNAS FINALES */}
                 {cot.pagos && cot.pagos.length > 0 ? (
                   cot.pagos.map((pago, pIdx) => {
                     const isVerified = pago.datos_verificacion !== null;
@@ -107,6 +85,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
 
                     return (
                       <React.Fragment key={pago.id}>
+                        {/* Columna 5: Pago individual (NO lleva rowSpan para que fluya en filas nuevas) */}
                         <div
                           className={`${cellBase} ${statusClass} border-l-2 justify-between px-3`}
                         >
@@ -140,6 +119,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
                           </Button>
                         </div>
 
+                        {/* Columnas 6 y 7: Solo se pintan en la primera iteración del pago, abarcando todas las filas */}
                         {pIdx === 0 && (
                           <>
                             <div className={cellData} style={rowSpan}>
