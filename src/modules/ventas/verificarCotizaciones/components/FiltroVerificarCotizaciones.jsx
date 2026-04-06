@@ -34,8 +34,8 @@ const FiltroVerificarCotizaciones = ({
           classNames={selectClassNames}
           startContent={<FiFilter className="text-default-400" />}
         >
-          <SelectItem key="Pagos">Pagos</SelectItem>
-          <SelectItem key="Cotizaciones">Cotizaciones</SelectItem>
+          <SelectItem key="Pagos">Fecha Pagos</SelectItem>
+          <SelectItem key="Cotizaciones">Fecha Cotizaciones</SelectItem>
         </Select>
       </motion.div>
 
@@ -71,7 +71,7 @@ const FiltroVerificarCotizaciones = ({
       {filtros.tipoFiltro === "Pagos" ? (
         <motion.div layout className="w-full sm:max-w-[160px] flex-1">
           <Select
-            label="Estado"
+            label="Estado de pagos"
             labelPlacement="outside"
             variant="bordered"
             selectedKeys={[filtros.estado_pago]}
@@ -81,8 +81,10 @@ const FiltroVerificarCotizaciones = ({
             classNames={selectClassNames}
           >
             <SelectItem key="todos">Todos</SelectItem>
-            <SelectItem key="Activo">Verificados</SelectItem>
-            <SelectItem key="Anulado">No verificados</SelectItem>
+            <SelectItem key="Activo">Conformes</SelectItem>
+            <SelectItem key="observados">Observados</SelectItem>
+
+            <SelectItem key="Anulado">Rechazados</SelectItem>
           </Select>
         </motion.div>
       ) : (

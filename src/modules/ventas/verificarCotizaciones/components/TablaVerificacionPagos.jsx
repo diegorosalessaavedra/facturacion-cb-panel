@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Spinner, Button, useDisclosure } from "@nextui-org/react";
-import { Eye } from "lucide-react"; // Importa un icono para el botón
+import { Eye } from "lucide-react";
 import formatDate from "../../../../hooks/FormatDate";
 import { formatNumber } from "../../../../assets/formats";
 import ModalVerPago from "./ModalVerPago";
@@ -19,7 +19,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
   const cellData = `${cellBase} bg-white text-slate-700 font-medium`;
   const cellHighlight = `${cellBase} bg-slate-50 text-slate-900 font-bold`;
 
-  const gridTemplate = "40px 90px 120px   300px 90px 1fr 120px 90px";
+  const gridTemplate = "40px 90px 120px 300px 90px 1fr 90px";
 
   const handleSeeMore = (pago) => {
     setSelectPago(pago);
@@ -34,16 +34,17 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
         </div>
       ) : (
         <div className="grid" style={{ gridTemplateColumns: gridTemplate }}>
-          {/* === CABECERAS === */}
+          {/* === CABECERAS (7 Columnas) === */}
           <div className={headerDark + " " + stickyHeader}>#</div>
-          <div className={headerDark + " " + stickyHeader}>Fecha</div>
+          <div className={headerDark + " " + stickyHeader}>
+            Fecha de Despacho
+          </div>
           <div className={headerDark + " " + stickyHeader}>Vendedor</div>
           <div className={headerDark + " " + stickyHeader}>Cliente</div>
           <div className={headerDark + " " + stickyHeader}>Total</div>
           <div className={`${headerDark} ${stickyHeader}`}>
             Detalle de Pagos
           </div>
-          <div className={headerDark + " " + stickyHeader}>Comprobante</div>
           <div className={headerDark + " " + stickyHeader}>Estado</div>
 
           {/* === CUERPO === */}
@@ -53,15 +54,19 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
 
             return (
               <React.Fragment key={cot.id}>
+                {/* 1. # */}
                 <div className={cellData} style={rowSpan}>
                   {index + 1}
                 </div>
+                {/* 2. Fecha */}
                 <div className={cellData} style={rowSpan}>
                   {formatDate(cot.fechaEmision)}
                 </div>
+                {/* 3. Vendedor */}
                 <div className={`${cellData} text-[10px]`} style={rowSpan}>
                   {cot.vendedor}
                 </div>
+                {/* 4. Cliente */}
                 <div
                   className={`${cellData} flex-col items-start text-left`}
                   style={rowSpan}
@@ -74,7 +79,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
                     {cot.cliente?.numeroDoc}
                   </span>
                 </div>
-
+                {/* 5. Total */}
                 <div
                   className={`${cellHighlight} text-blue-700`}
                   style={rowSpan}
@@ -82,7 +87,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
                   S/. {formatNumber(cot.saldoInicial)}
                 </div>
 
-                {/* COLUMNA DE PAGOS */}
+                {/* COLUMNA DE PAGOS Y ESTADO */}
                 {cot.pagos && cot.pagos.length > 0 ? (
                   cot.pagos.map((pago, pIdx) => {
                     const isVerified = pago.datos_verificacion !== null;
@@ -92,6 +97,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
 
                     return (
                       <React.Fragment key={pago.id}>
+                        {/* 6. Detalle de Pagos (Se repite por cada pago) */}
                         <div
                           className={`${cellBase} ${statusClass} border-l-2 justify-between px-3`}
                         >
@@ -125,31 +131,25 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
                           </Button>
                         </div>
 
+                        {/* 7. Estado (Abarca el rowSpan completo, solo se dibuja una vez) */}
                         {pIdx === 0 && (
-                          <>
-                            <div className={cellData} style={rowSpan}>
-                              {cot.ComprobanteElectronico?.tipoComprobante ||
-                                "Sin comprobante"}
-                            </div>
-                            <div
-                              className={`${cellData} font-bold ${cot.status === "Activo" ? "text-green-600" : "text-red-600"}`}
-                              style={rowSpan}
-                            >
-                              {cot.status}
-                            </div>
-                          </>
+                          <div
+                            className={`${cellData} font-bold ${cot.status === "Activo" ? "text-green-600" : "text-red-600"}`}
+                            style={rowSpan}
+                          >
+                            {cot.status}
+                          </div>
                         )}
                       </React.Fragment>
                     );
                   })
                 ) : (
                   <>
+                    {/* 6. Detalle de Pagos (Vacío) */}
                     <div className={`${cellData} italic text-slate-400`}>
                       Sin pagos registrados
                     </div>
-                    <div className={cellData}>
-                      {cot.ComprobanteElectronico?.tipoComprobante || "---"}
-                    </div>
+                    {/* 7. Estado */}
                     <div className={`${cellData} font-bold`}>{cot.status}</div>
                   </>
                 )}
