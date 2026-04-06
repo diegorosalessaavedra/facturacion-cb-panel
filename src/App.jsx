@@ -30,6 +30,10 @@ const ComprobantesCotizacion = lazy(
     import("./modules/ventas/comprobantesCotizacion/ComprobantesCotizacion"),
 );
 
+const VerificarCotizaciones = lazy(
+  () => import("./modules/ventas/verificarCotizaciones/VerificarCotizaciones"),
+);
+
 // Compras
 const OrdenesCompra = lazy(
   () => import("./modules/compras/ordenesCompra/OrdenesCompra"),
@@ -270,6 +274,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <EditarCotizacion userData={userData} />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/ventas/verificar-cotizaciones"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <VerificarCotizaciones userData={userData} />
               </ProtectedRouteWrapper>
             }
           />

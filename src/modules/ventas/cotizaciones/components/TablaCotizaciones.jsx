@@ -108,7 +108,7 @@ const TablaCotizaciones = ({
                   <TableCell className=" min-w-[110px]  text-xs  ">
                     S/.{" "}
                     {formatNumber(
-                      (Number(cotizacion?.saldoInicial) / 1.18) * 0.18
+                      (Number(cotizacion?.saldoInicial) / 1.18) * 0.18,
                     )}
                   </TableCell>
                   <TableCell className=" min-w-[110px]  text-xs  ">
@@ -193,11 +193,6 @@ const TablaCotizaciones = ({
                               className="scale-85"
                               size="sm"
                               color="primary"
-                              // onClick={() => {
-                              //   setSelectCotizacion(cotizacion);
-                              //   setSelectModal("comprobante");
-                              //   onOpen();
-                              // }}
                             >
                               Editar
                             </Button>

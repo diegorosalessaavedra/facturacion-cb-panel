@@ -19,37 +19,67 @@ const Cotizaciones = ({ userData }) => {
   const [selectModal, setSelectModal] = useState();
   const [cotizaciones, setCotizaciones] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectFiltro, setSelectFiltro] = useState("fechaEmision");
-  const [dataFiltro, setDataFiltro] = useState("");
-  const [estadoCotizacion, setEstadoCotizacion] = useState("todos");
-  const [inicioFecha, setInicioFecha] = useState(getTodayDate2());
-  const [finalFecha, setFinalFecha] = useState(getTodayDate());
+
+  // ESTADO UNIFICADO PARA LOS FILTROS
+  const [filtros, setFiltros] = useState({
+    tipoFiltro: "fechaEmision",
+    dataFiltro: "",
+    estadoCotizacion: "todos",
+    inicioFecha: getTodayDate2(),
+    finalFecha: getTodayDate(),
+  });
+
+  // Función manejadora centralizada
+  const handleChangeFiltro = (campo, valor) => {
+    setFiltros((prev) => {
+      const nuevosFiltros = { ...prev, [campo]: valor };
+
+      // Lógica de reseteo automático al cambiar el tipo de filtro
+      if (campo === "tipoFiltro") {
+        const esFecha = valor === "fechaEmision" || valor === "fechaEntrega";
+        nuevosFiltros.finalFecha = esFecha ? getTodayDate() : "";
+        nuevosFiltros.inicioFecha = esFecha ? getTodayDate2() : "";
+        nuevosFiltros.dataFiltro = esFecha ? "" : nuevosFiltros.dataFiltro;
+      }
+
+      return nuevosFiltros;
+    });
+  };
 
   const handleFindCotizaciones = () => {
-    const url = `${
-      import.meta.env.VITE_URL_API
-    }/ventas/cotizaciones?tipoFiltro=${selectFiltro}&dataFiltro=${dataFiltro}&fechaInicial=${inicioFecha}&fechaFinal=${finalFecha}&estado=${estadoCotizacion}`;
+    setLoading(true);
 
+    const parametrosApi = {
+      tipoFiltro: filtros.tipoFiltro,
+      dataFiltro: filtros.dataFiltro,
+      fechaInicial: filtros.inicioFecha,
+      fechaFinal: filtros.finalFecha,
+      estado: filtros.estadoCotizacion,
+    };
+
+    const filtrosLimpios = Object.fromEntries(
+      Object.entries(parametrosApi).filter(
+        ([_, value]) => value !== "" && value !== "TODOS" && value !== "todos",
+      ),
+    );
+
+    const queryParams = new URLSearchParams(filtrosLimpios).toString();
+
+    const url = `${import.meta.env.VITE_URL_API}/ventas/cotizaciones?${queryParams}`;
     axios
       .get(url, config)
       .then((res) => {
         setCotizaciones(res.data.cotizaciones);
       })
+      .catch((err) => {
+        console.error(err);
+      })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    selectFiltro === "fechaEmision" || selectFiltro === "fechaEntrega"
-      ? setFinalFecha(getTodayDate())
-      : setDataFiltro("");
-    selectFiltro === "fechaEmision" || selectFiltro === "fechaEntrega"
-      ? setInicioFecha(getTodayDate2())
-      : setInicioFecha("");
-  }, [selectFiltro]);
-
-  useEffect(() => {
     handleFindCotizaciones();
-  }, []);
+  }, []); // Se ejecuta solo al montar
 
   return (
     <div className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
@@ -67,19 +97,16 @@ const Cotizaciones = ({ userData }) => {
             </Button>
           </Link>
         </div>
-        <FiltrarCotizaciones
-          selectFiltro={selectFiltro}
-          setSelectFiltro={setSelectFiltro}
-          dataFiltro={dataFiltro}
-          setDataFiltro={setDataFiltro}
-          inicioFecha={inicioFecha}
-          setInicioFecha={setInicioFecha}
-          finalFecha={finalFecha}
-          setFinalFecha={setFinalFecha}
-          setEstadoCotizacion={setEstadoCotizacion}
-          estadoCotizacion={estadoCotizacion}
-          handleFindCotizaciones={handleFindCotizaciones}
-        />
+
+        {/* Pasamos solo 3 props en lugar de 11 */}
+        <div className="w-full px-6">
+          <FiltrarCotizaciones
+            filtros={filtros}
+            handleChangeFiltro={handleChangeFiltro}
+            handleFindCotizaciones={handleFindCotizaciones}
+          />
+        </div>
+
         <TablaCotizaciones
           cotizaciones={cotizaciones}
           loading={loading}
@@ -89,6 +116,8 @@ const Cotizaciones = ({ userData }) => {
           userData={userData}
         />
       </div>
+
+      {/* ... (Tus modales quedan exactamente igual) ... */}
       {selectModal === "comprobante" && (
         <ModalGenerarComprobante
           key={selectCotizacion.id}
@@ -108,7 +137,6 @@ const Cotizaciones = ({ userData }) => {
           idComprobante={selectCotizacion.comprobanteElectronicoId}
         />
       )}
-
       {selectModal === "pdf" && (
         <ModalPdfCotizacion
           key={selectCotizacion.id}

@@ -34,7 +34,7 @@ const NavVentasLinks = ({
       </div>
       <div
         className={`${
-          openListModule === "ventas" ? "h-[150px]" : "h-[0px]"
+          openListModule === "ventas" ? "h-[200px]" : "h-[0px]"
         } w-full bg-blue-700 text-white  transition-all duration-300  `}
       >
         <Link
@@ -59,6 +59,13 @@ const NavVentasLinks = ({
         >
           <MdOutlineCircle className="text-sm" />
           <p className="text-sm">Cotizaciones</p>
+        </Link>
+        <Link
+          className=" h-[50px] flex items-center gap-4 px-8 hover:bg-blue-600 w-[280px] transition-all duration-300"
+          to="/ventas/verificar-cotizaciones"
+        >
+          <MdOutlineCircle className="text-sm" />
+          <p className="text-sm">Verificados por Banco</p>
         </Link>
       </div>
     </>

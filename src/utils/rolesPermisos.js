@@ -58,6 +58,13 @@ export const ROUTE_PERMISSIONS = {
     ROLES.VENDEDOR,
     ROLES.COMPRADOR_VENDEDOR,
   ],
+  "/ventas/verificar-cotizaciones": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+    ROLES.VENDEDOR,
+    ROLES.COMPRADOR_VENDEDOR,
+  ],
 
   // Rutas de Compras
   "/compras/ordenes-compra": [

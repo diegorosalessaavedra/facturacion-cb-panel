@@ -1,125 +1,163 @@
-import React from "react";
 import {
   inputClassNames,
   selectClassNames,
 } from "../../../../assets/classNames";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiSearch, FiFilter } from "react-icons/fi";
 
 const FiltrarCotizaciones = ({
-  selectFiltro,
-  setSelectFiltro,
-  dataFiltro,
-  setDataFiltro,
+  filtros,
+  handleChangeFiltro,
   handleFindCotizaciones,
-  inicioFecha,
-  setInicioFecha,
-  finalFecha,
-  setFinalFecha,
-  setEstadoCotizacion,
-  estadoCotizacion,
 }) => {
-  const handleSelectFiltro = (e) => {
-    setSelectFiltro(e.target.value);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     handleFindCotizaciones();
   };
 
+  const fadeSlideVariants = {
+    hidden: { opacity: 0, y: -10, scale: 0.95 },
+    visible: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: 10, scale: 0.95 },
+  };
+
+  const getPlaceholder = () => {
+    if (filtros.tipoFiltro === "cliente") return "Ej. Juan Pérez...";
+    if (filtros.tipoFiltro === "vendedor") return "Ej. Ana López...";
+    return "Escribe aquí...";
+  };
+
   return (
-    <form
+    <motion.form
+      layout
       onSubmit={handleSubmit}
-      className="flex gap-2 px-2 items-end flex-wrap"
+      className="w-full bg-white  py-3 border-b-1 border-slate-400 shadow-sm flex gap-3 items-end flex-wrap z-10 relative "
     >
-      {/* Select principal */}
-      <Select
-        className="w-[100%] max-w-[200px]"
-        label="Filtrar por:"
-        labelPlacement="outside"
-        variant="bordered"
-        selectedKeys={[selectFiltro]}
-        radius="sm"
-        size="sm"
-        onChange={handleSelectFiltro}
-        classNames={selectClassNames}
-      >
-        <SelectItem key="cliente">Cliente</SelectItem>
-        <SelectItem key="fechaEmision">Fecha de Emisión</SelectItem>
-        <SelectItem key="fechaEntrega">Fecha de Entrega</SelectItem>
-        <SelectItem key="vendedor">Vendedor</SelectItem>
-      </Select>
+      <motion.div layout className="w-full sm:max-w-[200px] flex-1">
+        <Select
+          label="Filtrar por:"
+          labelPlacement="outside"
+          variant="bordered"
+          selectedKeys={[filtros.tipoFiltro]}
+          radius="sm"
+          size="sm"
+          onChange={(e) => handleChangeFiltro("tipoFiltro", e.target.value)}
+          classNames={selectClassNames}
+          startContent={<FiFilter className="text-default-400" />}
+        >
+          <SelectItem key="cliente">Cliente</SelectItem>
+          <SelectItem key="fechaEmision">Fecha de Emisión</SelectItem>
+          <SelectItem key="fechaEntrega">Fecha de Entrega</SelectItem>
+          <SelectItem key="vendedor">Vendedor</SelectItem>
+        </Select>
+      </motion.div>
 
-      {/* Filtros por fecha */}
-      {(selectFiltro === "fechaEmision" || selectFiltro === "fechaEntrega") && (
-        <>
-          <Input
-            className="w-[100%] max-w-[200px]"
-            classNames={inputClassNames}
-            value={inicioFecha}
-            onChange={(e) => setInicioFecha(e.target.value)}
-            labelPlacement="outside"
-            type="date"
-            variant="bordered"
-            label="Fecha inicial"
-            radius="sm"
-            size="sm"
-          />
-          <Input
-            className="w-[100%] max-w-[200px]"
-            classNames={inputClassNames}
-            value={finalFecha}
-            onChange={(e) => setFinalFecha(e.target.value)}
-            labelPlacement="outside"
-            type="date"
-            variant="bordered"
-            label="Fecha final"
-            radius="sm"
-            size="sm"
-          />
-        </>
-      )}
-
-      {/* Input de texto general */}
-      {selectFiltro !== "estado" &&
-        selectFiltro !== "fechaEmision" &&
-        selectFiltro !== "fechaEntrega" && (
-          <Input
-            className="w-[100%] max-w-[200px]"
-            classNames={inputClassNames}
-            value={dataFiltro}
-            onChange={(e) => setDataFiltro(e.target.value)}
-            labelPlacement="outside"
-            type="text"
-            variant="bordered"
-            label="Datos"
-            radius="sm"
-            size="sm"
-          />
+      <AnimatePresence mode="popLayout">
+        {(filtros.tipoFiltro === "fechaEmision" ||
+          filtros.tipoFiltro === "fechaEntrega") && (
+          <motion.div
+            key="date-filters"
+            layout
+            variants={fadeSlideVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.2 }}
+            className="flex gap-3 w-full sm:w-auto"
+          >
+            <Input
+              className="w-full sm:max-w-[180px]"
+              classNames={inputClassNames}
+              value={filtros.inicioFecha}
+              onChange={(e) =>
+                handleChangeFiltro("inicioFecha", e.target.value)
+              }
+              labelPlacement="outside"
+              type="date"
+              variant="bordered"
+              label="Fecha inicial"
+              radius="sm"
+              size="sm"
+            />
+            <Input
+              className="w-full sm:max-w-[180px]"
+              classNames={inputClassNames}
+              value={filtros.finalFecha}
+              onChange={(e) => handleChangeFiltro("finalFecha", e.target.value)}
+              labelPlacement="outside"
+              type="date"
+              variant="bordered"
+              label="Fecha final"
+              radius="sm"
+              size="sm"
+            />
+          </motion.div>
         )}
 
-      {/* Select de estado */}
-      <Select
-        className="w-[100%] max-w-[200px]"
-        label="Estado"
-        labelPlacement="outside"
-        variant="bordered"
-        selectedKeys={[estadoCotizacion]}
-        radius="sm"
-        size="sm"
-        onChange={(e) => setEstadoCotizacion(e.target.value)}
-        classNames={selectClassNames}
-      >
-        <SelectItem key="todos">Todos</SelectItem>
-        <SelectItem key="Activo">Activo</SelectItem>
-        <SelectItem key="Anulado">Anulado</SelectItem>
-        <SelectItem key="Facturar">Facturar</SelectItem>
-      </Select>
+        {filtros.tipoFiltro !== "estado" &&
+          filtros.tipoFiltro !== "fechaEmision" &&
+          filtros.tipoFiltro !== "fechaEntrega" && (
+            <motion.div
+              key="text-filter"
+              layout
+              variants={fadeSlideVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.2 }}
+              className="w-full sm:max-w-[220px] flex-1"
+            >
+              <Input
+                classNames={inputClassNames}
+                value={filtros.dataFiltro}
+                onChange={(e) =>
+                  handleChangeFiltro("dataFiltro", e.target.value)
+                }
+                labelPlacement="outside"
+                type="text"
+                variant="bordered"
+                label="Datos de búsqueda"
+                placeholder={getPlaceholder()}
+                radius="sm"
+                size="sm"
+              />
+            </motion.div>
+          )}
+      </AnimatePresence>
 
-      <Button color="primary" type="submit">
-        Filtrar
-      </Button>
-    </form>
+      <motion.div layout className="w-full sm:max-w-[160px] flex-1">
+        <Select
+          label="Estado"
+          labelPlacement="outside"
+          variant="bordered"
+          selectedKeys={[filtros.estadoCotizacion]}
+          radius="sm"
+          size="sm"
+          onChange={(e) =>
+            handleChangeFiltro("estadoCotizacion", e.target.value)
+          }
+          classNames={selectClassNames}
+        >
+          <SelectItem key="todos">Todos</SelectItem>
+          <SelectItem key="Activo">Activo</SelectItem>
+          <SelectItem key="Anulado">Anulado</SelectItem>
+          <SelectItem key="Facturar">Facturar</SelectItem>
+        </Select>
+      </motion.div>
+
+      <motion.div layout>
+        <Button
+          color="primary"
+          type="submit"
+          radius="sm"
+          className="font-medium bg-slate-900 shadow-sm shadow-primary/30"
+          startContent={<FiSearch className="text-lg" />}
+        >
+          Buscar
+        </Button>
+      </motion.div>
+    </motion.form>
   );
 };
 
