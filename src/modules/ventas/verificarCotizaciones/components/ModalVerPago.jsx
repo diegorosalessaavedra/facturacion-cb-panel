@@ -200,6 +200,9 @@ const ModalVerPago = ({
                     <SelectItem key="BCP" value="BCP">
                       BCP
                     </SelectItem>
+                    <SelectItem key="AHORROS" value="AHORROS">
+                      AHORROS
+                    </SelectItem>
                     <SelectItem key="BBVA" value="BBVA">
                       BBVA
                     </SelectItem>
@@ -296,7 +299,10 @@ const ModalVerPago = ({
             <ModalFooter>
               <Button
                 color="primary"
-                onPress={onClose}
+                onPress={() => {
+                  onClose();
+                  reset();
+                }}
                 size="sm"
                 isDisabled={loading}
               >
