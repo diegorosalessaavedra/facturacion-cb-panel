@@ -154,7 +154,7 @@ const TablaVerificacionPagos = ({
       )}
       {selectPago && (
         <ModalVerPago
-          key={selectPago}
+          key={selectPago.id}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           selectPago={selectPago}

@@ -200,11 +200,11 @@ const ModalVerPago = ({
                     <SelectItem key="BCP" value="BCP">
                       BCP
                     </SelectItem>
-                    <SelectItem key="AHORROS" value="AHORROS">
-                      AHORROS
-                    </SelectItem>
                     <SelectItem key="BBVA" value="BBVA">
                       BBVA
+                    </SelectItem>
+                    <SelectItem key="AHORROS" value="AHORROS">
+                      AHORROS
                     </SelectItem>
                   </Select>
 
