@@ -76,7 +76,7 @@ const VerificarCotizaciones = () => {
             </div>
             <div className="text-white">
               <h1 className="text-xl font-bold tracking-tight">
-                Verificar ventas por banco
+                Validación Banca Diaria{" "}
               </h1>
             </div>
           </div>
@@ -84,14 +84,6 @@ const VerificarCotizaciones = () => {
 
         {/* CONTENIDO PRINCIPAL */}
         <main className="flex-1 min-h-0 flex flex-col">
-          {/* Título */}
-          <div className="flex-none px-2 pt-2 pb-2 flex items-center gap-2">
-            <div className="w-1 h-6 bg-amber-500 rounded-full"></div>
-            <h2 className="text-md font-semibold text-slate-700">
-              Cotizaciones
-            </h2>
-          </div>
-
           {/* Contenedor de Filtros y Botón PDF */}
           <div className="flex flex-wrap items-end justify-between gap-4 px-2 pb-2 border-b-1 border-slate-200">
             <div className="flex-1 min-w-[300px]">

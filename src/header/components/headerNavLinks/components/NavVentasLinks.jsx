@@ -65,7 +65,7 @@ const NavVentasLinks = ({
           to="/ventas/verificar-cotizaciones"
         >
           <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Verificados por Banco</p>
+          <p className="text-sm">Validación Banca Diaria</p>
         </Link>
       </div>
     </>
