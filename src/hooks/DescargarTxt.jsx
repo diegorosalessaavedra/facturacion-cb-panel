@@ -29,7 +29,7 @@ export default function DescargarLayout({
 
   const calcularSemanaDelAno = (fecha) => {
     const f = new Date(
-      Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate())
+      Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()),
     );
     f.setUTCDate(f.getUTCDate() + 4 - (f.getUTCDay() || 7));
     const inicioAno = new Date(Date.UTC(f.getUTCFullYear(), 0, 1));
@@ -40,7 +40,7 @@ export default function DescargarLayout({
   const calcularTotalSaldos = (ordenes) => {
     const total = ordenes.reduce(
       (suma, orden) => suma + Number(orden.monto_txt || 0),
-      0
+      0,
     );
     return formatWithLeadingZeros(total.toFixed(2), 17);
   };
@@ -59,13 +59,13 @@ export default function DescargarLayout({
     fecha,
     totalFormateado,
     semana,
-    sumaCuentas
+    sumaCuentas,
   ) => {
     const cuentaBancaria =
       import.meta.env.VITE_EMPRESA === "GPCB"
         ? "11937211891082"
         : "11912682922020";
-    const numeroControl = formatWithLeadingZeros(sumaCuentas + 2682922020, 15);
+    const numeroControl = formatWithLeadingZeros(sumaCuentas + 7211891082, 15);
     return `1${numeroSolpeds}${fecha}C000${cuentaBancaria}       ${totalFormateado}PAGOS SEMANA ${semana}                         N${numeroControl}`;
   };
 
@@ -82,28 +82,30 @@ export default function DescargarLayout({
     }
 
     const tipoDocIdentidad = determinarTipoDocumento(
-      proveedor.tipoDocIdentidad
+      proveedor.tipoDocIdentidad,
     );
     const montoFormateado = formatWithLeadingZeros(
       Number(monto_txt || 0).toFixed(2),
-      17
+      17,
     );
     const numeroDoc = proveedor.numeroDoc || "";
     const nombreComercial = proveedor.nombreComercial || "";
     const tipoDeCuenta = determinarTipoCuenta(ordenCompra.nro_cuenta_bco);
 
-    return `2${tipoDeCuenta}${String(nro_cuenta_bco).padEnd(
-      20,
-      " "
-    )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
-      nombreComercial
+    return `2${tipoDeCuenta}${String(nro_cuenta_bco)
+      .slice(-10)
+      .padEnd(
+        20,
+        " ",
+      )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
+      nombreComercial,
     )
       .slice(0, 75)
       .padEnd(75, " ")}${String(ordenCompra.observacion)
       .slice(0, 40)
       .padEnd(40, " ")}Ref Emp ${String(numeroDoc).padEnd(
       12,
-      " "
+      " ",
     )}0001${montoFormateado}S`;
   };
 
@@ -158,7 +160,7 @@ export default function DescargarLayout({
         fechaFormateada,
         totalFormateado,
         semanaDelAno,
-        sumaNroCuenta
+        sumaNroCuenta,
       );
 
       // Generar líneas de detalle
@@ -176,7 +178,7 @@ export default function DescargarLayout({
     } catch (error) {
       console.error("Error al procesar las órdenes de compra:", error);
       alert(
-        "Error al procesar los datos. Verifica que toda la información esté completa."
+        "Error al procesar los datos. Verifica que toda la información esté completa.",
       );
     }
   };
