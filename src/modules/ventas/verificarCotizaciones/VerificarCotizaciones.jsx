@@ -120,6 +120,7 @@ const VerificarCotizaciones = () => {
           <TablaVerificacionPagos
             cotizaciones={cotizaciones}
             loading={loading}
+            handleFindCotizaciones={handleFindCotizaciones}
           />
         </main>
       </motion.div>

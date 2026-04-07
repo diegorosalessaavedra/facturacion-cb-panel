@@ -63,9 +63,8 @@ const FiltroVerificarCotizaciones = ({
         >
           <SelectItem key="todos">Todos</SelectItem>
           <SelectItem key="Activo">Conformes</SelectItem>
-          <SelectItem key="observados">Observados</SelectItem>
-
-          <SelectItem key="Anulado">Rechazados</SelectItem>
+          <SelectItem key="Observados">Observados</SelectItem>
+          <SelectItem key="Rechazados">Rechazados</SelectItem>
         </Select>
       </motion.div>
 

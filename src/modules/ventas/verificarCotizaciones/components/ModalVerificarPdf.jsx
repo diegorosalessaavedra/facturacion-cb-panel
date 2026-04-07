@@ -14,6 +14,7 @@ import axios from "axios";
 import config from "../../../../utils/getToken";
 import { selectClassNames } from "../../../../assets/classNames";
 import { toast } from "sonner";
+import { API } from "../../../../utils/api";
 
 const ModalVerificarPdf = ({
   isOpen,
@@ -55,7 +56,7 @@ const ModalVerificarPdf = ({
     formData.append("banco", banco); // <-- Agregamos el banco al FormData
 
     try {
-      const url = `${import.meta.env.VITE_URL_API}/ventas/pagos-cotizaciones/verificar-pdf`;
+      const url = `${API}/ventas/pagos-cotizaciones/verificar-pdf`;
 
       const res = await axios.post(url, formData, config);
 

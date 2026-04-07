@@ -5,7 +5,11 @@ import formatDate from "../../../../hooks/FormatDate";
 import { formatNumber } from "../../../../assets/formats";
 import ModalVerPago from "./ModalVerPago";
 
-const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
+const TablaVerificacionPagos = ({
+  cotizaciones,
+  loading,
+  handleFindCotizaciones,
+}) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectPago, setSelectPago] = useState(null);
 
@@ -90,7 +94,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
                 {/* COLUMNA DE PAGOS */}
                 {cot.pagos && cot.pagos.length > 0 ? (
                   cot.pagos.map((pago) => {
-                    const isVerified = pago.datos_verificacion !== null;
+                    const isVerified = pago.datos_validacion !== null;
                     const statusClass = isVerified
                       ? "bg-green-50 border-l-green-300 text-green-900"
                       : "bg-amber-50 border-l-amber-300 text-amber-900";
@@ -152,6 +156,7 @@ const TablaVerificacionPagos = ({ cotizaciones, loading }) => {
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           selectPago={selectPago}
+          handleFindCotizaciones={handleFindCotizaciones}
         />
       )}
     </div>

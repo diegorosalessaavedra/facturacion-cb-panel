@@ -1,3 +1,5 @@
+import React, { useState } from "react";
+import axios from "axios";
 import {
   Button,
   Modal,
@@ -5,17 +7,60 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  Divider,
   Chip,
+  Select,
+  SelectItem,
+  Input, // Añadido: Faltaba importar Input
 } from "@nextui-org/react";
 import { FiCheckCircle, FiAlertCircle, FiCreditCard } from "react-icons/fi";
 import { formatNumber } from "../../../../assets/formats";
 import formatDate from "../../../../hooks/FormatDate";
+import {
+  inputClassNames,
+  selectClassNames,
+} from "../../../../assets/classNames";
+import { useForm } from "react-hook-form";
+import config from "../../../../utils/getToken";
+import { toast } from "sonner";
+import { API } from "../../../../utils/api";
+import { handleAxiosError } from "../../../../utils/handleAxiosError";
 
-const ModalVerPago = ({ isOpen, onOpenChange, selectPago }) => {
-  if (!selectPago) return null;
+const ModalVerPago = ({
+  isOpen,
+  onOpenChange,
+  selectPago,
+  handleFindCotizaciones,
+}) => {
+  const { register, handleSubmit, reset } = useForm();
+  const [loading, setLoading] = useState(false); // Estado para controlar la carga
 
-  const isVerified = selectPago.datos_verificacion !== null;
+  const isVerified = selectPago.datos_validacion !== null;
+
+  // Función que procesa el envío al backend
+  const onSubmit = async (data, estado) => {
+    setLoading(true);
+
+    const payload = {
+      banco: data.banco,
+      fecha_operacion: data.fecha_operacion,
+      cargo_abono: data.cargo_abono,
+      num_op: data.num_op,
+      estado: estado,
+    };
+
+    const url = `${API}/ventas/pagos-cotizaciones/${selectPago.id}`;
+
+    await axios
+      .patch(url, payload, config)
+      .then((res) => {
+        toast.success(`El pago se a actualizó correctamente`);
+        handleFindCotizaciones();
+        reset();
+        onOpenChange();
+      })
+      .catch((err) => handleAxiosError(err))
+      .finally(() => setLoading(false));
+  };
 
   return (
     <Modal
@@ -100,86 +145,133 @@ const ModalVerPago = ({ isOpen, onOpenChange, selectPago }) => {
               </div>
 
               {/* SECCIÓN 2: DATOS DE VERIFICACIÓN (SOLO SI EXISTE) */}
-              <div className="space-y-3">
-                <h4 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-2">
-                  <FiCheckCircle /> Verificación de Extracto
-                </h4>
-                {isVerified ? (
-                  <div className="bg-green-50/50 p-3 rounded-lg border border-green-100 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <div className="w-2/3">
-                        <p className="text-[10px] text-green-700 uppercase">
-                          Descripción Bancaria
-                        </p>
-                        <p className="text-[11px] leading-tight font-medium text-green-900">
-                          {selectPago.datos_verificacion?.descripcion}
-                        </p>
+              <div className="flex flex-col gap-5 p-2 mt-4 border-t border-slate-200 pt-4">
+                <h3 className="font-bold text-slate-800">
+                  Datos de Validación
+                </h3>
+
+                {/* Formulario */}
+                <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Select
+                    isRequired
+                    label="Selecciona el Banco"
+                    labelPlacement="outside"
+                    placeholder="Elige BBVA o BCP"
+                    variant="bordered"
+                    radius="sm"
+                    size="sm"
+                    classNames={selectClassNames}
+                    {...register("banco")}
+                    defaultSelectedKeys={
+                      selectPago.datos_validacion
+                        ? [selectPago.datos_validacion.banco]
+                        : []
+                    }
+                    isDisabled={loading}
+                  >
+                    <SelectItem key="BCP" value="BCP">
+                      BCP
+                    </SelectItem>
+                    <SelectItem key="BBVA" value="BBVA">
+                      BBVA
+                    </SelectItem>
+                  </Select>
+
+                  <Input
+                    isRequired
+                    type="date"
+                    label="Fecha de Operación"
+                    labelPlacement="outside"
+                    placeholder=" "
+                    variant="bordered"
+                    size="sm"
+                    {...register("fecha_operacion")}
+                    defaultValue={
+                      selectPago.datos_validacion?.fecha_operacion ||
+                      selectPago.fecha ||
+                      ""
+                    }
+                    classNames={inputClassNames}
+                    isDisabled={loading}
+                  />
+
+                  <Input
+                    type="number"
+                    step="0.01"
+                    label="Cargo / Abono"
+                    labelPlacement="outside"
+                    placeholder="0.00"
+                    variant="bordered"
+                    size="sm"
+                    startContent={
+                      <div className="pointer-events-none flex items-center">
+                        <span className="text-default-400 text-small">S/.</span>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[10px] text-green-700 uppercase">
-                          Banco Verificado
-                        </p>
-                        <p className="text-xs font-bold text-green-900">
-                          {selectPago.datos_verificacion?.banco}
-                        </p>
-                      </div>
-                    </div>
-                    <Divider className="bg-green-100" />
-                    <div className="flex justify-between">
-                      <div>
-                        <p className="text-[10px] text-green-700 uppercase">
-                          Fecha Op.
-                        </p>
-                        <p className="text-xs font-semibold text-green-900">
-                          {selectPago.datos_verificacion?.fecha_operacion}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-green-700 uppercase">
-                          Abono Real
-                        </p>
-                        <p className="text-xs font-bold text-green-900">
-                          S/.{" "}
-                          {formatNumber(
-                            Math.abs(
-                              selectPago.datos_verificacion?.cargo_abono,
-                            ),
-                          )}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-green-700 uppercase">
-                          N° Op. Banco
-                        </p>
-                        <p className="text-xs font-mono font-bold text-green-900">
-                          {selectPago.datos_verificacion?.num_op}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center p-6 bg-amber-50 border border-dashed border-amber-200 rounded-lg">
-                    <FiAlertCircle className="text-amber-500 mb-2" size={24} />
-                    <p className="text-xs text-amber-700 font-medium">
-                      Este pago aún no ha sido conciliado.
-                    </p>
-                    <p className="text-[10px] text-amber-600">
-                      No se encontró coincidencia en el extracto bancario.
-                    </p>
-                  </div>
-                )}
+                    }
+                    {...register("cargo_abono")}
+                    defaultValue={
+                      selectPago.datos_validacion?.cargo_abono ||
+                      selectPago.monto ||
+                      ""
+                    }
+                    classNames={inputClassNames}
+                    isDisabled={loading}
+                  />
+
+                  <Input
+                    label="N° de Operación"
+                    labelPlacement="outside"
+                    placeholder="Ej. 12345678"
+                    variant="bordered"
+                    size="sm"
+                    {...register("num_op")}
+                    defaultValue={
+                      selectPago.datos_validacion?.num_op ||
+                      selectPago.operacion ||
+                      ""
+                    }
+                    classNames={inputClassNames}
+                    isDisabled={loading}
+                  />
+                </form>
+
+                {/* Botones de Acción */}
+                <div className="flex gap-4 items- justify-end mt-2">
+                  <Button
+                    color="danger"
+                    variant="flat"
+                    isLoading={loading}
+                    onPress={handleSubmit((data) =>
+                      onSubmit(data, "Rechazado"),
+                    )}
+                    className="font-bold"
+                    size="sm"
+                  >
+                    Depósito Rechazado
+                  </Button>
+
+                  <Button
+                    color="success"
+                    isLoading={loading}
+                    onPress={handleSubmit((data) => onSubmit(data, "Conforme"))}
+                    className="font-bold text-white"
+                    size="sm"
+                  >
+                    Depósito Validado
+                  </Button>
+                </div>
               </div>
             </ModalBody>
 
             <ModalFooter>
-              <Button color="danger" variant="flat" onPress={onClose} size="sm">
-                Depósito Rechazado{" "}
+              <Button
+                color="primary"
+                onPress={onClose}
+                size="sm"
+                isDisabled={loading}
+              >
+                Cerrar
               </Button>
-              {!isVerified && (
-                <Button color="success" size="sm" shadow>
-                  Depósito Validado
-                </Button>
-              )}
             </ModalFooter>
           </>
         )}
