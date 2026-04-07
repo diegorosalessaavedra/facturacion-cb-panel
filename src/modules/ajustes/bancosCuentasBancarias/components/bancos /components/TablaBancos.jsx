@@ -24,13 +24,13 @@ const TablaBancos = ({ onOpen, setSelectModal, bancos, setSelectBanco }) => {
       isHeaderSticky
     >
       <TableHeader>
-        <TableColumn className=" min-w-14 text-xs text-white bg-blue-700">
+        <TableColumn className=" min-w-14 text-xs text-white bg-slate-900">
           #
         </TableColumn>
-        <TableColumn className=" w-full text-xs text-white bg-blue-700">
+        <TableColumn className=" w-full text-xs text-white bg-slate-900">
           NOMBRE DEL BANCO
         </TableColumn>
-        <TableColumn className=" text-xs text-white bg-blue-700">
+        <TableColumn className=" text-xs text-white bg-slate-900">
           ACCIONES{" "}
         </TableColumn>
       </TableHeader>

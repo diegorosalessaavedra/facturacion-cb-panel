@@ -1,6 +1,7 @@
 import { Button, useDisclosure } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
+import { FiBriefcase } from "react-icons/fi"; // Ícono agregado
 import axios from "axios";
 import TablaBancos from "./components/TablaBancos";
 import config from "../../../../../utils/getToken";
@@ -24,26 +25,44 @@ const Bancos = () => {
   }, []);
 
   return (
-    <>
-      <div className="w-full px-6 py-4 bg-blue-600 flex items-center     justify-between">
-        <h2 className=" text-white font-normal text-lg">Tus Bancos</h2>
+    <section className="w-[40%] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      {/* Cabecera estilo Card */}
+      <div className="w-full px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-slate-100 text-slate-600 rounded-lg">
+            <FiBriefcase size={18} />
+          </div>
+          <div>
+            <h2 className="text-slate-800 font-bold text-md">Tus Bancos</h2>
+            <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
+              Entidades Financieras
+            </p>
+          </div>
+        </div>
         <Button
-          className="bg-white"
+          color="primary"
           size="sm"
           startContent={<FaPlus />}
-          onClick={() => {
-            onOpen(), setSelectModal("nuevo");
+          onPress={() => {
+            onOpen();
+            setSelectModal("nuevo");
           }}
+          className="font-medium bg-slate-900"
         >
-          Nuevo
+          Nuevo Banco
         </Button>
       </div>
-      <TablaBancos
-        bancos={bancos}
-        onOpen={onOpen}
-        setSelectModal={setSelectModal}
-        setSelectBanco={setSelectBanco}
-      />
+
+      {/* Contenedor de la Tabla */}
+      <div className="p-4">
+        <TablaBancos
+          bancos={bancos}
+          onOpen={onOpen}
+          setSelectModal={setSelectModal}
+          setSelectBanco={setSelectBanco}
+        />
+      </div>
+
       {selectModal === "eliminar" && (
         <ModalEliminarBanco
           isOpen={isOpen}
@@ -58,8 +77,8 @@ const Bancos = () => {
           onOpenChange={onOpenChange}
           handleFindBancos={handleFindBancos}
         />
-      )}{" "}
-    </>
+      )}
+    </section>
   );
 };
 

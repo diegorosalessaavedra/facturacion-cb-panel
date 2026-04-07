@@ -1,6 +1,7 @@
 import { Button, useDisclosure } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
+import { FiCreditCard } from "react-icons/fi"; // Ícono agregado
 import TablaCuentasBanco from "./components/TablaCuentasBanco";
 import axios from "axios";
 import ModalEliminarCuentasBancarias from "./components/ModalEliminarCuentasBancarias";
@@ -24,27 +25,48 @@ const CuentasBancarias = () => {
   useEffect(() => {
     handleFindCuentasBancarias();
   }, []);
+
   return (
-    <div>
-      <div className="w-full px-6 py-4 bg-blue-600 flex items-center     justify-between">
-        <h2 className=" text-white font-normal text-lg">Cuentas Bancarias</h2>
+    <section className="w-[60%] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      {/* Cabecera estilo Card */}
+      <div className="w-full px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-lg">
+            <FiCreditCard size={18} />
+          </div>
+          <div>
+            <h2 className="text-slate-800 font-bold text-md">
+              Cuentas Bancarias
+            </h2>
+            <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
+              Cuentas Registradas
+            </p>
+          </div>
+        </div>
         <Button
-          className="bg-white"
+          color="primary"
           size="sm"
           startContent={<FaPlus />}
-          onClick={() => {
-            onOpen(), setSelectModal("nuevo");
+          onPress={() => {
+            onOpen();
+            setSelectModal("nuevo");
           }}
+          className="font-medium bg-slate-900"
         >
-          Nuevo
+          Nueva Cuenta
         </Button>
       </div>
-      <TablaCuentasBanco
-        cuentasBancarias={cuentasBancarias}
-        onOpen={onOpen}
-        setSelectModal={setSelectModal}
-        setSelectCuentaBancaria={setSelectCuentaBancaria}
-      />
+
+      {/* Contenedor de la Tabla */}
+      <div className="p-4">
+        <TablaCuentasBanco
+          cuentasBancarias={cuentasBancarias}
+          onOpen={onOpen}
+          setSelectModal={setSelectModal}
+          setSelectCuentaBancaria={setSelectCuentaBancaria}
+        />
+      </div>
+
       {selectModal === "eliminar" && (
         <ModalEliminarCuentasBancarias
           isOpen={isOpen}
@@ -60,8 +82,8 @@ const CuentasBancarias = () => {
           onOpenChange={onOpenChange}
           handleFindCuentasBancarias={handleFindCuentasBancarias}
         />
-      )}{" "}
-    </div>
+      )}
+    </section>
   );
 };
 

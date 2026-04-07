@@ -29,15 +29,19 @@ const TablaCuentasBanco = ({
       isHeaderSticky
     >
       <TableHeader>
-        <TableColumn className=" text-xs text-white bg-blue-700">#</TableColumn>
-
-        <TableColumn className=" text-xs text-white bg-blue-700">
+        <TableColumn className=" text-xs text-white bg-slate-900">
+          #
+        </TableColumn>
+        <TableColumn className=" text-xs text-white bg-slate-900">
+          BANCO
+        </TableColumn>
+        <TableColumn className=" text-xs text-white bg-slate-900">
           DESCRIPCIÓN
         </TableColumn>
-        <TableColumn className=" text-xs text-white bg-blue-700">
+        <TableColumn className=" text-xs text-white bg-slate-900">
           NÚMERO
         </TableColumn>
-        <TableColumn className=" text-xs text-white bg-blue-700">
+        <TableColumn className=" text-xs text-white bg-slate-900">
           ACCIONES{" "}
         </TableColumn>
       </TableHeader>
@@ -45,6 +49,9 @@ const TablaCuentasBanco = ({
         {cuentasBancarias?.map((cuentaBancaria, index) => (
           <TableRow key={cuentaBancaria.id}>
             <TableCell className="text-xs py-2">{index + 1}</TableCell>
+            <TableCell className="text-[11px] py-2">
+              {cuentaBancaria.banco}
+            </TableCell>
             <TableCell className="text-xs py-2">
               {cuentaBancaria.descripcion}
             </TableCell>
