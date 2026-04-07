@@ -102,7 +102,7 @@ const VerificarCotizaciones = () => {
               />
             </div>
             {/* El botón de verificar PDF ahora está alineado a la derecha y al fondo */}
-            <div className="mb-3">
+            {/* <div className="mb-3">
               <Button
                 color="danger"
                 type="button"
@@ -115,7 +115,7 @@ const VerificarCotizaciones = () => {
               >
                 Verificar Pdf
               </Button>
-            </div>
+            </div> */}
           </div>
           <TablaVerificacionPagos
             cotizaciones={cotizaciones}
