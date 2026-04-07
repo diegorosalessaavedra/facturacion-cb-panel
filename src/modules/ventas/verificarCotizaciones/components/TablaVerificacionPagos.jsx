@@ -94,10 +94,12 @@ const TablaVerificacionPagos = ({
                 {/* COLUMNA DE PAGOS */}
                 {cot.pagos && cot.pagos.length > 0 ? (
                   cot.pagos.map((pago) => {
-                    const isVerified = pago.datos_validacion !== null;
-                    const statusClass = isVerified
-                      ? "bg-green-50 border-l-green-300 text-green-900"
-                      : "bg-amber-50 border-l-amber-300 text-amber-900";
+                    const statusClass =
+                      pago.estado_verificacion === "Conforme"
+                        ? "bg-green-50 border-l-green-300 text-green-900"
+                        : pago.estado_verificacion === "Observado"
+                          ? "bg-amber-50 border-l-amber-300 text-amber-900"
+                          : "bg-red-50 border-l-red-300 text-red-900";
 
                     return (
                       <React.Fragment key={pago.id}>
@@ -105,7 +107,7 @@ const TablaVerificacionPagos = ({
                         <div
                           className={`${cellBase} ${statusClass} border-l-2 justify-between px-3`}
                         >
-                          <div className="flex flex-col gap-0">
+                          <div className="w-32 flex flex-col gap-0">
                             <span className="text-[10px] font-bold uppercase">
                               {formatDate(pago.fecha)}
                             </span>
@@ -127,8 +129,7 @@ const TablaVerificacionPagos = ({
                             isIconOnly
                             size="sm"
                             variant="flat"
-                            color={isVerified ? "success" : "warning"}
-                            className="h-7 w-7 min-w-7"
+                            className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
                             onPress={() => handleSeeMore(pago)}
                           >
                             <Eye size={14} />

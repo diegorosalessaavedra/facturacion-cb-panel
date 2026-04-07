@@ -10,9 +10,14 @@ import {
   Chip,
   Select,
   SelectItem,
-  Input, // Añadido: Faltaba importar Input
+  Input,
 } from "@nextui-org/react";
-import { FiCheckCircle, FiAlertCircle, FiCreditCard } from "react-icons/fi";
+import {
+  FiCheckCircle,
+  FiAlertCircle,
+  FiCreditCard,
+  FiXCircle,
+} from "react-icons/fi";
 import { formatNumber } from "../../../../assets/formats";
 import formatDate from "../../../../hooks/FormatDate";
 import {
@@ -32,11 +37,39 @@ const ModalVerPago = ({
   handleFindCotizaciones,
 }) => {
   const { register, handleSubmit, reset } = useForm();
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const [loading, setLoading] = useState(false);
 
-  const isVerified = selectPago.datos_validacion !== null;
+  if (!selectPago) return null;
 
-  // Función que procesa el envío al backend
+  // Manejo del estado actual
+  const estadoActual = selectPago.estado_verificacion;
+
+  // Función para determinar el color del Chip según los 3 estados
+  const getEstadoColor = (estado) => {
+    switch (estado) {
+      case "Conforme":
+        return "success";
+      case "Observado":
+        return "warning";
+      case "Rechazado":
+        return "danger";
+      default:
+        return "default"; // Para cuando es nulo/Pendiente
+    }
+  };
+
+  // Función para determinar el ícono del Chip
+  const getEstadoIcon = (estado) => {
+    switch (estado) {
+      case "Conforme":
+        return <FiCheckCircle size={14} />;
+      case "Rechazado":
+        return <FiXCircle size={14} />;
+      default:
+        return <FiAlertCircle size={14} />;
+    }
+  };
+
   const onSubmit = async (data, estado) => {
     setLoading(true);
 
@@ -53,7 +86,7 @@ const ModalVerPago = ({
     await axios
       .patch(url, payload, config)
       .then((res) => {
-        toast.success(`El pago se a actualizó correctamente`);
+        toast.success(`El pago se actualizó a: ${estado}`);
         handleFindCotizaciones();
         reset();
         onOpenChange();
@@ -87,18 +120,13 @@ const ModalVerPago = ({
                 </p>
               </div>
               <Chip
-                startContent={
-                  isVerified ? (
-                    <FiCheckCircle size={14} />
-                  ) : (
-                    <FiAlertCircle size={14} />
-                  )
-                }
-                color={isVerified ? "success" : "warning"}
+                startContent={getEstadoIcon(estadoActual)}
+                color={getEstadoColor(estadoActual)}
                 variant="flat"
                 size="sm"
+                className="capitalize"
               >
-                {isVerified ? "Verificado" : "Pendiente"}
+                {estadoActual || "Pendiente"}
               </Chip>
             </ModalHeader>
 
@@ -144,7 +172,7 @@ const ModalVerPago = ({
                 </div>
               </div>
 
-              {/* SECCIÓN 2: DATOS DE VERIFICACIÓN (SOLO SI EXISTE) */}
+              {/* SECCIÓN 2: DATOS DE VERIFICACIÓN */}
               <div className="flex flex-col gap-5 p-2 mt-4 border-t border-slate-200 pt-4">
                 <h3 className="font-bold text-slate-800">
                   Datos de Validación
@@ -196,6 +224,7 @@ const ModalVerPago = ({
                   />
 
                   <Input
+                    isRequired
                     type="number"
                     step="0.01"
                     label="Cargo / Abono"
@@ -219,6 +248,7 @@ const ModalVerPago = ({
                   />
 
                   <Input
+                    isRequired
                     label="N° de Operación"
                     labelPlacement="outside"
                     placeholder="Ej. 12345678"
@@ -235,8 +265,8 @@ const ModalVerPago = ({
                   />
                 </form>
 
-                {/* Botones de Acción */}
-                <div className="flex gap-4 items- justify-end mt-2">
+                {/* Botones de Acción - Ahora son 3 para los 3 estados */}
+                <div className="flex gap-2 items-center justify-end mt-2 flex-wrap">
                   <Button
                     color="danger"
                     variant="flat"
@@ -244,20 +274,20 @@ const ModalVerPago = ({
                     onPress={handleSubmit((data) =>
                       onSubmit(data, "Rechazado"),
                     )}
-                    className="font-bold"
+                    className="font-bold text-xs"
                     size="sm"
                   >
-                    Depósito Rechazado
+                    Rechazar
                   </Button>
 
                   <Button
                     color="success"
                     isLoading={loading}
                     onPress={handleSubmit((data) => onSubmit(data, "Conforme"))}
-                    className="font-bold text-white"
+                    className="font-bold text-white text-xs"
                     size="sm"
                   >
-                    Depósito Validado
+                    Validar
                   </Button>
                 </div>
               </div>
