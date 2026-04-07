@@ -94,6 +94,8 @@ const TablaVerificacionPagos = ({
                 {/* COLUMNA DE PAGOS */}
                 {cot.pagos && cot.pagos.length > 0 ? (
                   cot.pagos.map((pago) => {
+                    console.log(pago.estado_verificacion);
+
                     const statusClass =
                       pago.estado_verificacion === "Conforme"
                         ? "bg-green-50 border-l-green-300 text-green-900"

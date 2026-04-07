@@ -36,7 +36,13 @@ const ModalVerPago = ({
   selectPago,
   handleFindCotizaciones,
 }) => {
-  const { register, handleSubmit, reset } = useForm();
+  // 1. Extraemos 'errors' del formState para manejar las validaciones
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
   const [loading, setLoading] = useState(false);
 
   if (!selectPago) return null;
@@ -78,7 +84,7 @@ const ModalVerPago = ({
       fecha_operacion: data.fecha_operacion,
       cargo_abono: data.cargo_abono,
       num_op: data.num_op,
-      estado: estado,
+      estado_verificacion: estado,
     };
 
     const url = `${API}/ventas/pagos-cotizaciones/${selectPago.id}`;
@@ -189,7 +195,7 @@ const ModalVerPago = ({
                     radius="sm"
                     size="sm"
                     classNames={selectClassNames}
-                    {...register("banco")}
+                    {...register("banco", { required: "Selecciona un banco" })}
                     defaultSelectedKeys={
                       selectPago.datos_validacion
                         ? [selectPago.datos_validacion.banco]
@@ -216,7 +222,9 @@ const ModalVerPago = ({
                     placeholder=" "
                     variant="bordered"
                     size="sm"
-                    {...register("fecha_operacion")}
+                    {...register("fecha_operacion", {
+                      required: "Fecha requerida",
+                    })}
                     defaultValue={
                       selectPago.datos_validacion?.fecha_operacion ||
                       selectPago.fecha ||
@@ -240,7 +248,9 @@ const ModalVerPago = ({
                         <span className="text-default-400 text-small">S/.</span>
                       </div>
                     }
-                    {...register("cargo_abono")}
+                    {...register("cargo_abono", {
+                      required: "Monto requerido",
+                    })}
                     defaultValue={
                       selectPago.datos_validacion?.cargo_abono ||
                       selectPago.monto ||
@@ -257,7 +267,9 @@ const ModalVerPago = ({
                     placeholder="Ej. 12345678"
                     variant="bordered"
                     size="sm"
-                    {...register("num_op")}
+                    {...register("num_op", {
+                      required: "N° de operación requerido",
+                    })}
                     defaultValue={
                       selectPago.datos_validacion?.num_op ||
                       selectPago.operacion ||
@@ -268,7 +280,7 @@ const ModalVerPago = ({
                   />
                 </form>
 
-                {/* Botones de Acción - Ahora son 3 para los 3 estados */}
+                {/* Botones de Acción */}
                 <div className="flex gap-2 items-center justify-end mt-2 flex-wrap">
                   <Button
                     color="danger"
