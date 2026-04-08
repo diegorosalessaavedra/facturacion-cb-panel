@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Button,
@@ -11,6 +11,7 @@ import {
   Select,
   SelectItem,
   Input,
+  Textarea, // <-- Importamos Textarea
 } from "@nextui-org/react";
 import {
   FiCheckCircle,
@@ -36,21 +37,27 @@ const ModalVerPago = ({
   selectPago,
   handleFindCotizaciones,
 }) => {
-  // 1. Extraemos 'errors' del formState para manejar las validaciones
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
+
   const [loading, setLoading] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false); // <-- Nuevo estado para el flujo de rechazo
+
+  // Limpiamos el estado si el modal se abre/cierra
+  useEffect(() => {
+    if (isOpen) {
+      setIsRejecting(false);
+    }
+  }, [isOpen]);
 
   if (!selectPago) return null;
 
-  // Manejo del estado actual
   const estadoActual = selectPago.estado_verificacion;
 
-  // Función para determinar el color del Chip según los 3 estados
   const getEstadoColor = (estado) => {
     switch (estado) {
       case "Conforme":
@@ -60,11 +67,10 @@ const ModalVerPago = ({
       case "Rechazado":
         return "danger";
       default:
-        return "default"; // Para cuando es nulo/Pendiente
+        return "default";
     }
   };
 
-  // Función para determinar el ícono del Chip
   const getEstadoIcon = (estado) => {
     switch (estado) {
       case "Conforme":
@@ -85,6 +91,9 @@ const ModalVerPago = ({
       cargo_abono: data.cargo_abono,
       num_op: data.num_op,
       estado_verificacion: estado,
+      // Solo enviamos la observación si el estado es Rechazado
+      observaciones_rechazo:
+        estado === "Rechazado" ? data.observaciones_rechazo : null,
     };
 
     const url = `${API}/ventas/pagos-cotizaciones/${selectPago.id}`;
@@ -95,6 +104,7 @@ const ModalVerPago = ({
         toast.success(`El pago se actualizó a: ${estado}`);
         handleFindCotizaciones();
         reset();
+        setIsRejecting(false);
         onOpenChange();
       })
       .catch((err) => handleAxiosError(err))
@@ -278,32 +288,83 @@ const ModalVerPago = ({
                     classNames={inputClassNames}
                     isDisabled={loading}
                   />
+
+                  {/* CAMPO DE OBSERVACIONES DE RECHAZO */}
+                  {isRejecting && (
+                    <div className="col-span-1 md:col-span-2 mt-2">
+                      <Textarea
+                        isRequired
+                        label="Motivo de Rechazo"
+                        labelPlacement="outside"
+                        placeholder="Escribe el motivo por el cual rechazas este pago..."
+                        variant="bordered"
+                        radius="sm"
+                        {...register("observaciones_rechazo", {
+                          required: "El motivo de rechazo es obligatorio",
+                        })}
+                        isInvalid={!!errors.observaciones_rechazo}
+                        errorMessage={errors.observaciones_rechazo?.message}
+                        isDisabled={loading}
+                      />
+                    </div>
+                  )}
                 </form>
 
-                {/* Botones de Acción */}
+                {/* Botones de Acción Modificados */}
                 <div className="flex gap-2 items-center justify-end mt-2 flex-wrap">
-                  <Button
-                    color="danger"
-                    variant="flat"
-                    isLoading={loading}
-                    onPress={handleSubmit((data) =>
-                      onSubmit(data, "Rechazado"),
-                    )}
-                    className="font-bold text-xs"
-                    size="sm"
-                  >
-                    Rechazar
-                  </Button>
+                  {!isRejecting ? (
+                    <>
+                      <Button
+                        color="danger"
+                        variant="flat"
+                        onPress={() => setIsRejecting(true)} // Cambia al modo rechazo
+                        className="font-bold text-xs"
+                        size="sm"
+                      >
+                        Rechazar
+                      </Button>
 
-                  <Button
-                    color="success"
-                    isLoading={loading}
-                    onPress={handleSubmit((data) => onSubmit(data, "Conforme"))}
-                    className="font-bold text-white text-xs"
-                    size="sm"
-                  >
-                    Validar
-                  </Button>
+                      <Button
+                        color="success"
+                        isLoading={loading}
+                        onPress={handleSubmit((data) =>
+                          onSubmit(data, "Conforme"),
+                        )}
+                        className="font-bold text-white text-xs"
+                        size="sm"
+                      >
+                        Validar
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        color="default"
+                        variant="flat"
+                        onPress={() => {
+                          setIsRejecting(false);
+                          reset({ observaciones_rechazo: "" }); // Limpia el textarea si cancela
+                        }}
+                        className="font-bold text-xs"
+                        size="sm"
+                        isDisabled={loading}
+                      >
+                        Cancelar Rechazo
+                      </Button>
+
+                      <Button
+                        color="danger"
+                        isLoading={loading}
+                        onPress={handleSubmit((data) =>
+                          onSubmit(data, "Rechazado"),
+                        )} // Ejecuta el submit como rechazado
+                        className="font-bold text-white text-xs"
+                        size="sm"
+                      >
+                        Confirmar Rechazo
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </ModalBody>
@@ -314,6 +375,7 @@ const ModalVerPago = ({
                 onPress={() => {
                   onClose();
                   reset();
+                  setIsRejecting(false);
                 }}
                 size="sm"
                 isDisabled={loading}

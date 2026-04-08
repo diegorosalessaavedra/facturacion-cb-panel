@@ -77,7 +77,7 @@ const ModalCambiarValidacion = ({
             <ModalHeader className="flex items-center justify-between gap-1 text-primary">
               <p>Validación SOLPED</p>
               <span className="text-xs text-slate-900 pr-4">
-                S/. {formatNumber(selectOrdenCompra.saldoInicial)}
+                S/. {formatNumber(selectOrdenCompra.saldo || 0)}
               </span>
             </ModalHeader>
             <ModalBody>
