@@ -92,12 +92,10 @@ export default function DescargarLayout({
     const nombreComercial = proveedor.nombreComercial || "";
     const tipoDeCuenta = determinarTipoCuenta(ordenCompra.nro_cuenta_bco);
 
-    return `2${tipoDeCuenta}${String(nro_cuenta_bco)
-      .slice(-10)
-      .padEnd(
-        20,
-        " ",
-      )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
+    return `2${tipoDeCuenta}${String(nro_cuenta_bco).padEnd(
+      20,
+      " ",
+    )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
       nombreComercial,
     )
       .slice(0, 75)

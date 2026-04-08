@@ -31,7 +31,7 @@ const Header = ({ userData }) => {
         </Link>
 
         {/* Navegación con scroll independiente */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar border-t-1 border-slate-400 pt-2">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
           <HeaderNavLinks
             openListModule={openListModule}
             setOpenListModule={setOpenListModule}
