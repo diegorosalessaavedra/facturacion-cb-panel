@@ -47,9 +47,8 @@ export default function DescargarLayout({
 
   const calcularSumaNroCuenta = (ordenes) => {
     return ordenes.reduce((suma, orden) => {
-      const nroCuenta = String(orden.nro_cuenta_bco || "");
-      const slice =
-        nroCuenta.length === 20 ? nroCuenta.slice(0, 11) : nroCuenta.slice(3);
+      const nroCuenta = String(orden.nro_cuenta_bco || "").slice(-10);
+      const slice = nroCuenta ? Number(nroCuenta) : 0;
       return suma + Number(slice || 0);
     }, 0);
   };
