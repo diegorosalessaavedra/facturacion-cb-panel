@@ -179,7 +179,7 @@ const FormularioRendicion = ({
           {/* CONCEPTOS */}
           <motion.div variants={itemVariants} className="w-full">
             <Select
-              label="Concepto para flujo de caja"
+              label="Concepto Para Flujo de Caja"
               labelPlacement="outside"
               variant="bordered"
               startContent={<FileText className="text-default-400" size={16} />}
