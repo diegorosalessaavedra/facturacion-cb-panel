@@ -278,8 +278,15 @@ export const ROUTE_PERMISSIONS = {
     ROLES.RRHH,
   ],
   "/caja-chica/flujo-caja": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
-
   // Rutas Caja Chica
+
+  // Bancos
+  "/bancos/validacion-banca-diaria": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.RRHH,
+  ],
+  // Bancos
 };
 
 export const hasPermissionForRoute = (userRole, routePath) => {

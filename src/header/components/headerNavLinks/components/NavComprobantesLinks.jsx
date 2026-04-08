@@ -9,52 +9,82 @@ const NavComprobantesLinks = ({
   setOpenListModule,
   setIsMenuOpen,
 }) => {
+  const isOpen = openListModule === "comprobantes";
+
+  // Arreglo de rutas para un código limpio y profesional
+  const menuLinks = [
+    {
+      to: "/comprobantes/comprobante-electronico",
+      label: "Emitir comprobantes de venta sin cotización",
+    },
+    {
+      to: "/comprobantes/tus-comprobantes",
+      label: "Status comprobante de venta",
+    },
+  ];
+
   return (
-    <>
-      {" "}
+    <div className="w-[280px] bg-slate-900 flex flex-col border-t-[0.5px] border-slate-400">
+      {/* --- BOTÓN PRINCIPAL --- */}
       <div
-        className={`w-[280px] flex items-center p-4 px-6   hover:bg-blue-700 hover:text-white cursor-pointer ${
-          openListModule === "comprobantes"
-            ? "bg-blue-700 text-white hover:bg-blue-700"
-            : " text-stone-700  "
-        } transition-all duration-300 border-b-1 border-zinc-300  hover:scale-105`}
-        to="/"
+        className={`w-full flex items-center justify-between p-4 px-6 cursor-pointer transition-all duration-300 ease-out
+          ${
+            isOpen
+              ? "bg-slate-800 text-white border-l-4 border-amber-500 shadow-md shadow-slate-950/50"
+              : "text-slate-400 border-l-4 border-transparent hover:bg-slate-800 hover:text-white"
+          }
+        `}
         onClick={() => {
-          openListModule === "comprobantes"
-            ? setOpenListModule("")
-            : setOpenListModule("comprobantes");
+          setOpenListModule(isOpen ? "" : "comprobantes");
         }}
       >
-        <div className="w-full flex gap-4 items-center">
-          <RiBillFill className="text-xl" />
-          <p className="text-base">Comprobantes</p>
+        <div className="flex gap-4 items-center">
+          <RiBillFill
+            className={`text-xl transition-transform duration-500 ease-out ${
+              isOpen ? "scale-110 text-amber-500" : "text-slate-500"
+            }`}
+          />
+          <p className="text-sm font-medium tracking-wide transition-colors duration-300">
+            Comprobantes
+          </p>
         </div>
-        <IoMdArrowDropdown className="text-2xl" />
+
+        <IoMdArrowDropdown
+          className={`text-2xl shrink-0 transition-transform duration-400 ease-in-out ${
+            isOpen ? "rotate-180 text-amber-500" : "text-slate-500"
+          }`}
+        />
       </div>
+
+      {/* --- SUB-MENÚ (ANIMACIÓN INFALIBLE CON ESTILOS EN LÍNEA) --- */}
       <div
-        className={`${
-          openListModule === "comprobantes" ? "h-[100px]" : "h-[0px] "
-        } w-full bg-blue-700 text-white  transition-all duration-300   `}
+        className="w-full overflow-hidden transition-all duration-500 ease-in-out bg-slate-900/50"
+        style={{
+          // 200px da margen suficiente por si el texto largo salta a varias líneas
+          maxHeight: isOpen ? "200px" : "0px",
+          opacity: isOpen ? 1 : 0,
+        }}
       >
-        {" "}
-        <Link
-          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
-          to="/comprobantes/comprobante-electronico"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Emitir comprobantes de venta sin cotización</p>
-        </Link>
-        <Link
-          className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
-          to="/comprobantes/tus-comprobantes"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Status comprobante de venta</p>
-        </Link>
+        <div className="flex flex-col py-2 border-l-4 border-transparent">
+          {menuLinks.map((link, idx) => (
+            <Link
+              key={idx}
+              className="group flex items-center gap-4 px-8 py-3 text-slate-400 hover:bg-slate-800/80 hover:text-white transition-colors duration-300"
+              to={link.to}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {/* Viñeta sutil que destaca al hacer hover. shrink-0 evita que se deforme */}
+              <MdOutlineCircle className="text-[8px] shrink-0 text-slate-600 transition-all duration-300 group-hover:text-amber-500 group-hover:scale-[1.5]" />
+
+              {/* leading-tight es vital aquí para mantener la estética si el texto ocupa varias líneas */}
+              <p className="text-sm leading-tight transition-transform duration-300 group-hover:translate-x-1.5">
+                {link.label}
+              </p>
+            </Link>
+          ))}
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

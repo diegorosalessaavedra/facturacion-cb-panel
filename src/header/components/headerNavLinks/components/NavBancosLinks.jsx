@@ -1,21 +1,18 @@
 import React from "react";
-import { FaUserGroup } from "react-icons/fa6";
+import { FaPiggyBank } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { MdOutlineCircle } from "react-icons/md";
 import { Link } from "react-router-dom";
 
-const NavClientesLinks = ({
+const NavBancosLinks = ({
   openListModule,
   setOpenListModule,
   setIsMenuOpen,
 }) => {
-  const isOpen = openListModule === "clientes";
+  const isOpen = openListModule === "bancos";
 
-  // Arreglo de rutas para limpiar el JSX y hacerlo más mantenible
   const menuLinks = [
-    { to: "/clientes/tus-clientes", label: "Clientes" },
-    { to: "/clientes/tus-proveedores", label: "Proveedores" },
-    { to: "/clientes/agencias", label: "Agencias" },
+    { to: "/bancos/validacion-banca-diaria", label: "Validación Banca Diaria" },
   ];
 
   return (
@@ -25,29 +22,27 @@ const NavClientesLinks = ({
         className={`w-full flex items-center justify-between p-4 px-6 cursor-pointer transition-all duration-300 ease-out
           ${
             isOpen
-              ? "bg-slate-800 text-white border-l-4 border-amber-500 shadow-md shadow-slate-950/50"
+              ? "bg-slate-800 text-white border-l-4 border-amber-500 shadow-md"
               : "text-slate-300 border-l-4 border-transparent hover:bg-slate-800 hover:text-white"
           }
         `}
         onClick={() => {
-          setOpenListModule(isOpen ? "" : "clientes");
+          setOpenListModule(isOpen ? "" : "bancos");
         }}
       >
         <div className="flex gap-4 items-center">
-          <FaUserGroup
+          <FaPiggyBank
             className={`text-xl transition-transform duration-500 ease-out ${
-              isOpen ? "scale-110 text-amber-500" : "text-slate-500"
+              isOpen ? "scale-110 text-amber-500" : "text-slate-400"
             }`}
           />
-          {/* leading-tight ayuda a que las dos líneas se vean juntas y elegantes */}
-          <p className="text-sm font-medium tracking-wide transition-colors duration-300">
-            Clientes / Proveedores <br />
-            Agencias
+          <p className="text-base font-medium transition-colors duration-300">
+            Bancos
           </p>
         </div>
 
         <IoMdArrowDropdown
-          className={`text-2xl shrink-0 transition-transform duration-300 ease-in-out ${
+          className={`text-2xl transition-transform duration-300 ease-in-out ${
             isOpen ? "rotate-180 text-amber-500" : "text-slate-400"
           }`}
         />
@@ -57,7 +52,7 @@ const NavClientesLinks = ({
       <div
         className="w-full overflow-hidden transition-all duration-500 ease-in-out bg-slate-900"
         style={{
-          // 200px es espacio de sobra para 3 enlaces
+          // Usamos estilos en línea para obligar a la transición CSS
           maxHeight: isOpen ? "200px" : "0px",
           opacity: isOpen ? 1 : 0,
         }}
@@ -70,7 +65,7 @@ const NavClientesLinks = ({
               to={link.to}
               onClick={() => setIsMenuOpen(false)}
             >
-              <MdOutlineCircle className="text-[10px] shrink-0 text-slate-500 transition-all duration-300 group-hover:text-amber-500 group-hover:scale-[1.3]" />
+              <MdOutlineCircle className="text-[10px] text-slate-500 transition-all duration-300 group-hover:text-amber-500 group-hover:scale-[1.3]" />
               <p className="text-sm transition-transform duration-300 group-hover:translate-x-1.5">
                 {link.label}
               </p>
@@ -82,4 +77,4 @@ const NavClientesLinks = ({
   );
 };
 
-export default NavClientesLinks;
+export default NavBancosLinks;

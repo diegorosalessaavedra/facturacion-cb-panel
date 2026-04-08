@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import { motion } from "framer-motion";
 import { getTodayDate, getTodayDate2 } from "../../../assets/getTodayDate";
-import { Button, useDisclosure } from "@nextui-org/react";
+import { useDisclosure } from "@nextui-org/react";
 import ModalVerificarPdf from "./components/ModalVerificarPdf";
 import FiltroVerificarCotizaciones from "./components/FiltroVerificarCotizaciones";
 import TablaVerificacionPagos from "./components/TablaVerificacionPagos";
 
-const VerificarCotizaciones = () => {
+const ValidacionBancaDiaria = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectModal, setSelectModal] = useState();
   const [cotizaciones, setCotizaciones] = useState([]);
@@ -128,4 +128,4 @@ const VerificarCotizaciones = () => {
   );
 };
 
-export default VerificarCotizaciones;
+export default ValidacionBancaDiaria;

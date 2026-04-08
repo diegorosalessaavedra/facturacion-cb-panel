@@ -30,10 +30,6 @@ const ComprobantesCotizacion = lazy(
     import("./modules/ventas/comprobantesCotizacion/ComprobantesCotizacion"),
 );
 
-const VerificarCotizaciones = lazy(
-  () => import("./modules/ventas/verificarCotizaciones/VerificarCotizaciones"),
-);
-
 // Compras
 const OrdenesCompra = lazy(
   () => import("./modules/compras/ordenesCompra/OrdenesCompra"),
@@ -178,6 +174,11 @@ const HistoricoRendicion = lazy(
 
 const FlujoCaja = lazy(() => import("./modules/cajaChica/flujoCaja/FlujoCaja"));
 // caja chica
+// bancos
+const ValidacionBancaDiaria = lazy(
+  () => import("./modules/bancos/validacionBancaDiaria/ValidacionBancaDiaria"),
+);
+// bancos
 
 // Hook personalizado para manejar la data del usuario
 const useUserData = () => {
@@ -237,6 +238,7 @@ function App() {
   return (
     <>
       {userData && <Header userData={userData} />}
+
       <Toaster position="bottom-right" richColors />
       <Routes>
         <Route path="/log-in" element={<Login userData={userData} />} />
@@ -274,14 +276,6 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <EditarCotizacion userData={userData} />
-              </ProtectedRouteWrapper>
-            }
-          />
-          <Route
-            path="/ventas/verificar-cotizaciones"
-            element={
-              <ProtectedRouteWrapper userRole={userRole}>
-                <VerificarCotizaciones userData={userData} />
               </ProtectedRouteWrapper>
             }
           />
@@ -612,6 +606,17 @@ function App() {
               </ProtectedRouteWrapper>
             }
           />
+          {/* Bancos */}
+          <Route
+            path="/bancos/validacion-banca-diaria"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <ValidacionBancaDiaria />
+              </ProtectedRouteWrapper>
+            }
+          />
+          {/* Bancos */}
+
           {/* Rutas de Usuarios */}
 
           {/* Ruta por defecto */}

@@ -6,63 +6,48 @@ import { IoGrid } from "react-icons/io5";
 import HeaderNavLinks from "./components/headerNavLinks/HeaderNavLinks";
 
 const Header = ({ userData }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Cambiado a false
   const [openListModule, setOpenListModule] = useState("");
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
-  const handleClickOutside = (event) => {
-    // Verifica si el clic ocurrió fuera del contenedor
-    if (event.target.closest(".menu-container") === null) {
-      setOpenListModule("");
-    }
-  };
-
-  useEffect(() => {
-    // Agrega el evento de clic al documento
-    document.addEventListener("mouseup", handleClickOutside);
-    return () => {
-      // Limpia el evento al desmontar el componente
-      document.removeEventListener("mouseup", handleClickOutside);
-    };
-  }, []);
-
   return (
-    <div
-      className="group relative min-w-[60px] max-w-[60px] h-[100vh] bg-white shadow-lg shadow-slate-400 flex flex-col items-center py-6  gap-5 menu-container
-    hover:min-w-[280px] hover:max-w-[280px] duration-300
-    "
+    <aside
+      className={`group relative h-screen bg-slate-900 shadow-2xl transition-all duration-300 
+      ${isMenuOpen ? "w-[260px] max-w-[260px]" : "min-w-[60px]  max-w-[60px] hover:min-w-[260px] hover:max-w-[260px]"}
+      `}
     >
+      {/* Perfil que se mueve con el sidebar */}
       <HeaderProfile userData={userData} />
-      <Link className=" h-28" to="/">
-        <img
-          className="w-28  opacity-0 group-hover:opacity-100 duration-300"
-          src={import.meta.env.VITE_LOGO}
-          alt=""
-        />
-      </Link>
-      <HeaderNavLinks
-        openListModule={openListModule}
-        setOpenListModule={setOpenListModule}
-        setIsMenuOpen={setIsMenuOpen}
-        userData={userData}
-      />
-      <div className="block md:hidden">
-        {isMenuOpen ? (
-          <IoIosClose
-            className="text-stone-700 text-4xl cursor-pointer"
-            onClick={toggleMenu}
+
+      <div className="w-full flex flex-col h-full pt-4  gap-4">
+        {/* Logo area */}
+        <Link className="px-2 h-28 flex items-center justify-center" to="/">
+          <img
+            className="w-full h-fit rounded-md group-hover:h-28   group-hover:w-fit duration-300"
+            src={import.meta.env.VITE_LOGO || "/logo.jpg"}
+            alt=""
           />
-        ) : (
-          <IoGrid
-            className="text-stone-700 text-4xl cursor-pointer"
-            onClick={toggleMenu}
+        </Link>
+
+        {/* Navegación con scroll independiente */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar border-t-1 border-slate-400 pt-2">
+          <HeaderNavLinks
+            openListModule={openListModule}
+            setOpenListModule={setOpenListModule}
+            setIsMenuOpen={setIsMenuOpen}
+            userData={userData}
           />
-        )}
+        </div>
+
+        {/* Toggle para Móviles */}
+        <div className="md:hidden flex justify-center p-4 border-t border-slate-800">
+          <button onClick={toggleMenu} className="text-slate-400 text-3xl">
+            {isMenuOpen ? <IoIosClose /> : <IoGrid />}
+          </button>
+        </div>
       </div>
-    </div>
+    </aside>
   );
 };
 
