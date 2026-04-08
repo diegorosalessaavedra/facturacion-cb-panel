@@ -85,7 +85,7 @@ const CreateTrabajador = ({ isOpen, onOpenChange, handleFindTrabajadores }) => {
                 labelPlacement="outside"
                 type="text"
                 variant="bordered"
-                label="Nombre del Trabajador"
+                label="Nombre del Colaborador"
                 placeholder="..."
                 {...register("nombre_trabajador")}
                 radius="sm"
@@ -99,7 +99,7 @@ const CreateTrabajador = ({ isOpen, onOpenChange, handleFindTrabajadores }) => {
                   labelPlacement="outside"
                   type="text"
                   variant="bordered"
-                  label="Cod. del Trabajador"
+                  label="Cod. del Colaborador"
                   placeholder="..."
                   {...register("codigo_trabajador")}
                   radius="sm"
