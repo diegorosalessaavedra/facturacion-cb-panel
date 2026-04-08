@@ -94,7 +94,8 @@ export default function DescargarLayout({
       17,
     );
     const numeroDoc = proveedor.numeroDoc || "";
-    const nombreComercial = proveedor.nombreComercial || "";
+    const nombreComercial =
+      proveedor.nombreComercial || proveedor.nombreApellidos;
     const tipoDeCuenta = determinarTipoCuenta(ordenCompra.nro_cuenta_bco);
 
     return `2${tipoDeCuenta}${String(nro_cuenta_bco).padEnd(
