@@ -50,7 +50,7 @@ export default function DescargarLayout({
       const nroCuenta = String(orden.nro_cuenta_bco || "");
       const slice =
         nroCuenta.length === 20
-          ? nroCuenta.slice(-11)
+          ? nroCuenta.slice(-10)
           : nroCuenta.length === 13
             ? nroCuenta.slice(-10)
             : nroCuenta.slice(-11);
@@ -78,7 +78,8 @@ export default function DescargarLayout({
   };
 
   const generarLineaDetalle = (ordenCompra) => {
-    const { proveedor, nro_cuenta_bco, monto_txt } = ordenCompra;
+    const { proveedor, nro_cuenta_bco, monto_txt, validacion_flag } =
+      ordenCompra;
 
     if (!proveedor) {
       console.warn("Orden de compra sin proveedor:", ordenCompra);
@@ -96,12 +97,10 @@ export default function DescargarLayout({
     const nombreComercial = proveedor.nombreComercial || "";
     const tipoDeCuenta = determinarTipoCuenta(ordenCompra.nro_cuenta_bco);
 
-    return `2${tipoDeCuenta}${String(nro_cuenta_bco)
-      .slice(-10)
-      .padEnd(
-        20,
-        " ",
-      )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
+    return `2${tipoDeCuenta}${String(nro_cuenta_bco).padEnd(
+      20,
+      " ",
+    )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
       nombreComercial,
     )
       .slice(0, 75)
@@ -110,7 +109,7 @@ export default function DescargarLayout({
       .padEnd(40, " ")}Ref Emp ${String(numeroDoc).padEnd(
       12,
       " ",
-    )}0001${montoFormateado}S`;
+    )}0001${montoFormateado}${validacion_flag ? "S" : "N"}`;
   };
 
   const descargarArchivo = (contenido) => {

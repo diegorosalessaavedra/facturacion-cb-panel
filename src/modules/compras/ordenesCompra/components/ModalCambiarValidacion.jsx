@@ -47,7 +47,7 @@ const ModalCambiarValidacion = ({
         {
           validacion: !selectOrdenCompra.validacion,
           monto_txt: montoTxt,
-          validacion_flag: validacionFlag ? 1 : 0, // 6. Normalización de datos para el backend
+          validacion_flag: validacionFlag, // 6. Normalización de datos para el backend
         },
         config,
       );
