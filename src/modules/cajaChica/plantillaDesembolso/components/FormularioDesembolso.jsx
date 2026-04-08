@@ -143,7 +143,7 @@ const FormularioDesembolso = ({
         {/* MOTIVO */}
         <motion.div variants={itemVariants} className="min-w-[200px]">
           <Select
-            label="Concepto  Rendición"
+            label="Concepto de Rendición"
             labelPlacement="outside"
             variant="bordered"
             startContent={<FileText className="text-default-400" size={16} />}
