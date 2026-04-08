@@ -132,7 +132,7 @@ const FormularioRendicion = ({
           {/* TRABAJADOR */}
           <motion.div variants={itemVariants} className="w-full">
             <Select
-              label="Trabajador a Rendir"
+              label="Colaborador a Rendir"
               labelPlacement="outside"
               placeholder="Seleccionar..."
               variant="bordered"

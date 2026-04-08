@@ -65,7 +65,10 @@ const TablaAperturas = ({ aperturas = [] }) => {
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
           IMPORTE
         </div>
-        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>MOTIVO</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          MOTIVO <br />
+          APERTURA
+        </div>
 
         <div className={`${headerPurple}  ${stickyHeader}`}>
           BILLETERA DIGITAL
@@ -77,11 +80,16 @@ const TablaAperturas = ({ aperturas = [] }) => {
           MONEDAS
         </div>
 
-        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>ESTADO</div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          ESTADO <br />
+          APERTURA
+        </div>
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
           OBSERVACIONES
         </div>
-        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}></div>
+        <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+          <Trash2 className="text-white" size={14} />
+        </div>
 
         {/* === FILA 2: SUB-CABECERAS === */}
         <div

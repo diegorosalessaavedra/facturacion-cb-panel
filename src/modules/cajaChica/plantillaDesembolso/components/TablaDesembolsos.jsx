@@ -72,7 +72,8 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
             FECHA RENDIDA
           </div>
           <div className={`row-span-2 ${headerAmber} ${stickyHeader}`}>
-            DEMORA DÍAS
+            DÍAS EN <br />
+            RENDIR
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             IMPORTE
@@ -93,7 +94,8 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
             MONEDAS
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            ESTADO
+            ESTADO <br />
+            DESEMBOLSO
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             Nº CORRELATIVO
@@ -101,7 +103,9 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             OBSERVACIONES
           </div>
-          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}></div>
+          <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
+            <Trash2 className="text-white" size={14} />
+          </div>
 
           <div className={`${headerPurple} top-[47px] sticky z-20`}>YAPE</div>
 

@@ -22,7 +22,7 @@ const FlitroApertura = ({
         <Input
           type="text"
           labelPlacement="outside"
-          label="Nombre del Trabajador"
+          label="Nombre del Colaborador"
           variant="bordered"
           startContent={<PiUserFill className="text-default-400" size={16} />}
           classNames={inputClassNames}
@@ -75,7 +75,7 @@ const FlitroApertura = ({
       </motion.div>
       <motion.div variants={itemVariants} className="min-w-[150px]">
         <Select
-          label="Motivo de Apertura"
+          label="Motivo Apertura"
           labelPlacement="outside"
           variant="bordered"
           startContent={<FiFileText className="text-default-400" size={16} />}

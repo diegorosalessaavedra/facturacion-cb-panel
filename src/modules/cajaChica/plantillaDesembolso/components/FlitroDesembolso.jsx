@@ -25,7 +25,7 @@ const FlitroDesembolso = ({
         <Input
           type="text"
           labelPlacement="outside"
-          label="Nombre del Trabajador"
+          label="Nombre del Colaborador"
           variant="bordered"
           startContent={<PiUserFill className="text-default-400" size={16} />}
           classNames={inputClassNames}

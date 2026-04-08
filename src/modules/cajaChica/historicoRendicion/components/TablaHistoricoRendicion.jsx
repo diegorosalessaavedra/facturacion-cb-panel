@@ -66,7 +66,7 @@ const TablaHistoricoRendicion = ({
             CORRELATIVO
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            TRABAJADOR
+            COLABORADOR
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>ÁREA</div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>

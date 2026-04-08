@@ -46,7 +46,7 @@ const FiltroHistoricoRendicion = ({
           <Select
             isRequired
             name="trabajador_id" // Usamos el name para la función genérica
-            label="Trabajador"
+            label="Colaborador"
             labelPlacement="outside"
             placeholder="Seleccionar..."
             variant="bordered"
@@ -106,7 +106,7 @@ const FiltroHistoricoRendicion = ({
         <motion.div variants={itemVariants} className="min-w-[200px]">
           <Select
             name="categoria_gasto"
-            label="Categoría del gasto"
+            label="Categoría de Gasto"
             labelPlacement="outside"
             variant="bordered"
             startContent={<FiFileText className="text-default-400" size={16} />}
