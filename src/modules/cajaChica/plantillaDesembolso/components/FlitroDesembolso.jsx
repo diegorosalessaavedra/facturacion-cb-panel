@@ -101,7 +101,7 @@ const FlitroDesembolso = ({
       </motion.div>
       <motion.div variants={itemVariants} className="min-w-[150px]">
         <Select
-          label="Estado Desembolso"
+          label="Estado de Desembolso"
           labelPlacement="outside"
           variant="bordered"
           startContent={<FiFileText className="text-default-400" size={16} />}

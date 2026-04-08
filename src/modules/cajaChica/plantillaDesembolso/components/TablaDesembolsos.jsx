@@ -63,10 +63,10 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>N°</div>
 
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            DESEMBOLSO A
+            DESEMBOLSO
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            FECHA DESEMBOLSO
+            FECHA DE DESEMBOLSO
           </div>
           <div className={`row-span-2 ${headerAmber} ${stickyHeader}`}>
             FECHA RENDIDA
@@ -95,7 +95,8 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
             MONEDAS
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            ESTADO <br />
+            ESTADO DE
+            <br />
             DESEMBOLSO
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>

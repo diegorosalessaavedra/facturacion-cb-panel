@@ -75,7 +75,7 @@ const FlitroApertura = ({
       </motion.div>
       <motion.div variants={itemVariants} className="min-w-[150px]">
         <Select
-          label="Motivo Apertura"
+          label="Motivo de Apertura"
           labelPlacement="outside"
           variant="bordered"
           startContent={<FiFileText className="text-default-400" size={16} />}
@@ -106,7 +106,7 @@ const FlitroApertura = ({
       </motion.div>
       <motion.div variants={itemVariants} className="min-w-[150px]">
         <Select
-          label="Estado Apertura"
+          label="Estado de Apertura"
           labelPlacement="outside"
           variant="bordered"
           startContent={<FiFileText className="text-default-400" size={16} />}

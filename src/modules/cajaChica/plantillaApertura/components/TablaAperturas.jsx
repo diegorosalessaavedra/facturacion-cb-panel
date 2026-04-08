@@ -66,7 +66,8 @@ const TablaAperturas = ({ aperturas = [] }) => {
           IMPORTE
         </div>
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-          MOTIVO <br />
+          MOTIVO DE
+          <br />
           APERTURA
         </div>
 
@@ -81,7 +82,7 @@ const TablaAperturas = ({ aperturas = [] }) => {
         </div>
 
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-          ESTADO <br />
+          ESTADO DE <br />
           APERTURA
         </div>
         <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
