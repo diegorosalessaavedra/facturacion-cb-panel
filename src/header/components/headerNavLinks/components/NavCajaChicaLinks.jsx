@@ -48,7 +48,7 @@ const NavCajaChicaLinks = ({
           onClick={() => setIsMenuOpen(false)}
         >
           <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Trabajadores</p>
+          <p className="text-sm">Colaboradores</p>
         </Link>
         <Link
           className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
