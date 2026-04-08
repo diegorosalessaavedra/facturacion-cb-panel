@@ -79,7 +79,8 @@ const TablaDesembolsos = ({ desembolsos = [] }) => {
             IMPORTE
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
-            CONCEPTO
+            CONCEPTO DE <br />
+            RENDICIÓN
           </div>
           <div className={`row-span-2 ${headerDark} ${stickyHeader}`}>
             RUTAS
