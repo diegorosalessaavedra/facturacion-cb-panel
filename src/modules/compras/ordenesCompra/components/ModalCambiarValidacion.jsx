@@ -14,6 +14,7 @@ import { useState, useEffect } from "react"; // 1. Usamos useEffect para sincron
 import config from "../../../../utils/getToken";
 import { inputClassNames } from "../../../../assets/classNames";
 import { onInputPrice } from "../../../../assets/onInputs";
+import { formatNumber } from "../../../../assets/formats";
 
 const ModalCambiarValidacion = ({
   isOpen,
@@ -73,8 +74,11 @@ const ModalCambiarValidacion = ({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1 text-primary">
-              Validación SOLPED
+            <ModalHeader className="flex items-center justify-between gap-1 text-primary">
+              <p>Validación SOLPED</p>
+              <span className="text-xs text-slate-900 pr-4">
+                S/. {formatNumber(selectOrdenCompra.saldoInicial)}
+              </span>
             </ModalHeader>
             <ModalBody>
               <p className="text-default-600">
@@ -104,6 +108,7 @@ const ModalCambiarValidacion = ({
                     value={montoTxt}
                     onChange={(e) => setMontoTxt(e.target.value)}
                     onInput={onInputPrice}
+                    size="sm"
                   />
 
                   <div className="flex flex-col gap-2">
@@ -127,6 +132,9 @@ const ModalCambiarValidacion = ({
                         </span>
                       </Checkbox>
                     </div>
+                    <span className="text-slate-500 text-[11px] px-4">
+                      Solo considerar entre cuentas BCP
+                    </span>
                   </div>
                 </div>
               )}
