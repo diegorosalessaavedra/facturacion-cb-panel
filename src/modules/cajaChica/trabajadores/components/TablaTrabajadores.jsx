@@ -33,10 +33,10 @@ const TablaTrabajadores = ({
           Nº
         </TableColumn>
         <TableColumn className=" text-xs text-white  bg-slate-900">
-          COD. DEL TRABAJADOR
+          COD. DEL COLABORADOR
         </TableColumn>
         <TableColumn className=" text-xs text-white  bg-slate-900">
-          TRABAJADORES
+          NOMBRE DEL COLABORADOR
         </TableColumn>
 
         <TableColumn className=" text-xs text-white  bg-slate-900">

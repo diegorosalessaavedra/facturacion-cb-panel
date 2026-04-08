@@ -44,7 +44,7 @@ const Trabajadores = () => {
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center gap-2 text-slate-600">
             <FaUsers className="text-2xl" />
-            <h2>TRABAJADORES</h2>
+            <h2>COLABORADORES</h2>
           </div>
           <Button
             className="bg-slate-900"
@@ -55,7 +55,7 @@ const Trabajadores = () => {
             color="primary"
             startContent={<FaPlus />}
           >
-            Trabajador
+            Colaborador
           </Button>
         </div>
 
