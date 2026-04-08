@@ -47,8 +47,13 @@ export default function DescargarLayout({
 
   const calcularSumaNroCuenta = (ordenes) => {
     return ordenes.reduce((suma, orden) => {
-      const nroCuenta = String(orden.nro_cuenta_bco || "").slice(-10);
-      const slice = nroCuenta ? Number(nroCuenta) : 0;
+      const nroCuenta = String(orden.nro_cuenta_bco || "");
+      const slice =
+        nroCuenta.length === 20
+          ? nroCuenta.slice(-11)
+          : nroCuenta.length === 13
+            ? nroCuenta.slice(-10)
+            : nroCuenta.slice(-11);
       return suma + Number(slice || 0);
     }, 0);
   };
@@ -91,10 +96,12 @@ export default function DescargarLayout({
     const nombreComercial = proveedor.nombreComercial || "";
     const tipoDeCuenta = determinarTipoCuenta(ordenCompra.nro_cuenta_bco);
 
-    return `2${tipoDeCuenta}${String(nro_cuenta_bco).padEnd(
-      20,
-      " ",
-    )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
+    return `2${tipoDeCuenta}${String(nro_cuenta_bco)
+      .slice(-10)
+      .padEnd(
+        20,
+        " ",
+      )}1${tipoDocIdentidad}${String(numeroDoc).padEnd(15, " ")}${String(
       nombreComercial,
     )
       .slice(0, 75)
