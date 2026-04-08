@@ -56,7 +56,7 @@ const NavCajaChicaLinks = ({
           onClick={() => setIsMenuOpen(false)}
         >
           <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Plantilla Aperturas</p>
+          <p className="text-sm">Plantilla de Aperturas</p>
         </Link>
         <Link
           className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
@@ -64,7 +64,7 @@ const NavCajaChicaLinks = ({
           onClick={() => setIsMenuOpen(false)}
         >
           <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Plantilla Desembolso</p>
+          <p className="text-sm">Plantilla de Desembolso</p>
         </Link>
         <Link
           className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
@@ -72,7 +72,7 @@ const NavCajaChicaLinks = ({
           onClick={() => setIsMenuOpen(false)}
         >
           <MdOutlineCircle className="text-sm" />
-          <p className="text-sm">Plantilla Rendición</p>
+          <p className="text-sm">Plantilla de Rendición</p>
         </Link>
         <Link
           className="h-[50px] flex items-center gap-4 px-8  hover:bg-blue-600 w-[280px] transition-all duration-300"
