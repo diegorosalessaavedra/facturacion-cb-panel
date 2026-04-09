@@ -63,11 +63,9 @@ const HeaderNavLinks = ({
         ROLES.PRACTICANTE_CONTABLE,
         ROLES.COMPRADOR,
       ].includes(role),
-      canAccessBancos: [
-        ROLES.GERENTE,
-        ROLES.CONTADOR,
-        ROLES.PRACTICANTE_CONTABLE,
-      ].includes(role),
+      canAccessBancos: [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH].includes(
+        role,
+      ),
       canAccessReportes: [
         ROLES.GERENTE,
         ROLES.CONTADOR,
