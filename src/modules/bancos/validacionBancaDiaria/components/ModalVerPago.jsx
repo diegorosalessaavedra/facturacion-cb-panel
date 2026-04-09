@@ -63,7 +63,6 @@ const ModalVerPago = ({
 
   const estadoActual = selectPago.estado_verificacion;
   const savedVoucherLink = selectPago.datos_validacion?.link_vaucher; // Por si ya existe un voucher guardado
-  console.log(selectPago);
 
   const getEstadoColor = (estado) => {
     switch (estado) {
