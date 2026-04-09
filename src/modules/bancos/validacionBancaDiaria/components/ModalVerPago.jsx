@@ -96,8 +96,7 @@ const ModalVerPago = ({
       const fileUrl = URL.createObjectURL(file);
       window.open(fileUrl, "_blank");
     } else if (savedVoucherLink) {
-      // Imagen que ya estaba guardada en el backend
-      window.open(savedVoucherLink, "_blank");
+      window.open(`${API_DOC}/${savedVoucherLink}`, "_blank");
     }
   };
 
