@@ -342,7 +342,6 @@ const ModalVerPago = ({
                         />
                       </label>
 
-                      {/* Botón de previsualización: Se muestra si hay archivo seleccionado o guardado previamente */}
                       {((fileVoucher && fileVoucher.length > 0) ||
                         savedVoucherLink) && (
                         <Button
@@ -369,7 +368,7 @@ const ModalVerPago = ({
                     <Textarea
                       label="Observación de Validación"
                       labelPlacement="outside"
-                      placeholder="Agrega notas o detalles adicionales sobre esta validación..."
+                      placeholder="Agrega notas adicionales sobre esta validación..."
                       variant="bordered"
                       radius="sm"
                       {...register("observacion_validacion")}
