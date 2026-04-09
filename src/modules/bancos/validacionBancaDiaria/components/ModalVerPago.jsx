@@ -11,13 +11,15 @@ import {
   Select,
   SelectItem,
   Input,
-  Textarea, // <-- Importamos Textarea
+  Textarea,
 } from "@nextui-org/react";
 import {
   FiCheckCircle,
   FiAlertCircle,
   FiCreditCard,
   FiXCircle,
+  FiUploadCloud, // <-- Importado para el diseño del input file
+  FiEye, // <-- Importado para previsualizar la imagen
 } from "react-icons/fi";
 import { formatNumber } from "../../../../assets/formats";
 import formatDate from "../../../../hooks/FormatDate";
@@ -41,13 +43,16 @@ const ModalVerPago = ({
     register,
     handleSubmit,
     reset,
+    watch, // <-- Extraemos watch para monitorear el archivo seleccionado
     formState: { errors },
   } = useForm();
 
   const [loading, setLoading] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false); // <-- Nuevo estado para el flujo de rechazo
+  const [isRejecting, setIsRejecting] = useState(false);
 
-  // Limpiamos el estado si el modal se abre/cierra
+  // Observamos el campo del archivo en tiempo real
+  const fileVoucher = watch("file_voucher");
+
   useEffect(() => {
     if (isOpen) {
       setIsRejecting(false);
@@ -57,6 +62,7 @@ const ModalVerPago = ({
   if (!selectPago) return null;
 
   const estadoActual = selectPago.estado_verificacion;
+  const savedVoucherLink = selectPago.datos_validacion?.link_file; // Por si ya existe un voucher guardado
 
   const getEstadoColor = (estado) => {
     switch (estado) {
@@ -82,24 +88,45 @@ const ModalVerPago = ({
     }
   };
 
+  // Función para abrir la imagen en una nueva pestaña
+  const handlePreviewVoucher = () => {
+    if (fileVoucher && fileVoucher.length > 0) {
+      // Imagen recién seleccionada desde la PC
+      const file = fileVoucher[0];
+      const fileUrl = URL.createObjectURL(file);
+      window.open(fileUrl, "_blank");
+    } else if (savedVoucherLink) {
+      // Imagen que ya estaba guardada en el backend
+      window.open(savedVoucherLink, "_blank");
+    }
+  };
+
   const onSubmit = async (data, estado) => {
     setLoading(true);
 
-    const payload = {
-      banco: data.banco,
-      fecha_operacion: data.fecha_operacion,
-      cargo_abono: data.cargo_abono,
-      num_op: data.num_op,
-      estado_verificacion: estado,
-      // Solo enviamos la observación si el estado es Rechazado
-      observaciones_rechazo:
-        estado === "Rechazado" ? data.observaciones_rechazo : null,
-    };
+    const formData = new FormData();
+    formData.append("banco", data.banco);
+    formData.append("fecha_operacion", data.fecha_operacion);
+    formData.append("cargo_abono", data.cargo_abono);
+    formData.append("num_op", data.num_op);
+    formData.append("estado_verificacion", estado);
+
+    if (data.observacion_validacion) {
+      formData.append("observacion_validacion", data.observacion_validacion);
+    }
+
+    if (estado === "Rechazado" && data.observaciones_rechazo) {
+      formData.append("observaciones_rechazo", data.observaciones_rechazo);
+    }
+
+    if (data.file_voucher && data.file_voucher.length > 0) {
+      formData.append("file", data.file_voucher[0]);
+    }
 
     const url = `${API}/ventas/pagos-cotizaciones/${selectPago.id}`;
 
     await axios
-      .patch(url, payload, config)
+      .patch(url, formData, config)
       .then((res) => {
         toast.success(`El pago se actualizó a: ${estado}`);
         handleFindCotizaciones();
@@ -118,7 +145,7 @@ const ModalVerPago = ({
       backdrop="blur"
       size="md"
       classNames={{
-        base: "border-[#e4e4e7] border-1",
+        base: "h-[90vh] border-[#e4e4e7] border-1 ",
         header: "border-b-[1px] border-[#e4e4e7]",
         footer: "border-t-[1px] border-[#e4e4e7]",
       }}
@@ -146,7 +173,7 @@ const ModalVerPago = ({
               </Chip>
             </ModalHeader>
 
-            <ModalBody className="py-6 flex flex-col gap-6">
+            <ModalBody className="py-6 flex flex-col gap-6 overflow-y-auto">
               {/* SECCIÓN 1: DATOS REGISTRADOS */}
               <div className="space-y-3">
                 <h4 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-2">
@@ -194,7 +221,6 @@ const ModalVerPago = ({
                   Datos de Validación
                 </h3>
 
-                {/* Formulario */}
                 <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Select
                     isRequired
@@ -229,7 +255,6 @@ const ModalVerPago = ({
                     type="date"
                     label="Fecha de Operación"
                     labelPlacement="outside"
-                    placeholder=" "
                     variant="bordered"
                     size="sm"
                     {...register("fecha_operacion", {
@@ -254,9 +279,7 @@ const ModalVerPago = ({
                     variant="bordered"
                     size="sm"
                     startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">S/.</span>
-                      </div>
+                      <span className="text-default-400 text-small">S/.</span>
                     }
                     {...register("cargo_abono", {
                       required: "Monto requerido",
@@ -277,9 +300,7 @@ const ModalVerPago = ({
                     placeholder="Ej. 12345678"
                     variant="bordered"
                     size="sm"
-                    {...register("num_op", {
-                      required: "N° de operación requerido",
-                    })}
+                    {...register("num_op", { required: "N° requerido" })}
                     defaultValue={
                       selectPago.datos_validacion?.num_op ||
                       selectPago.operacion ||
@@ -289,7 +310,82 @@ const ModalVerPago = ({
                     isDisabled={loading}
                   />
 
-                  {/* CAMPO DE OBSERVACIONES DE RECHAZO */}
+                  {/* NUEVO DISEÑO MEJORADO: Voucher de Pago */}
+                  <div className="col-span-1 md:col-span-2 flex flex-col gap-1.5 mt-2">
+                    <label className="text-sm font-medium text-slate-700">
+                      Voucher de Validación
+                    </label>
+
+                    <div className="flex items-center gap-3 h-[40px]">
+                      {/* Área de subida estilizada */}
+                      <label
+                        className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-2 h-full border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
+                          fileVoucher && fileVoucher.length > 0
+                            ? "border-primary-400 bg-primary-50 text-primary-700"
+                            : "border-slate-300 bg-slate-50 text-slate-500 hover:bg-slate-100 hover:border-slate-400"
+                        } ${loading ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+                      >
+                        <FiUploadCloud className="text-lg" />
+                        <span className="text-sm font-medium truncate max-w-[200px]">
+                          {fileVoucher && fileVoucher.length > 0
+                            ? fileVoucher[0].name
+                            : "Haz clic para subir una imagen"}
+                        </span>
+
+                        {/* Input nativo oculto */}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          {...register("file_voucher")}
+                          disabled={loading}
+                        />
+                      </label>
+
+                      {/* Botón de previsualización: Se muestra si hay archivo seleccionado o guardado previamente */}
+                      {((fileVoucher && fileVoucher.length > 0) ||
+                        savedVoucherLink) && (
+                        <Button
+                          isIconOnly
+                          color={
+                            fileVoucher && fileVoucher.length > 0
+                              ? "primary"
+                              : "default"
+                          }
+                          variant="flat"
+                          onPress={handlePreviewVoucher}
+                          title="Ver Imagen"
+                          radius="md"
+                          className="h-full px-2 min-w-[40px] shadow-sm"
+                        >
+                          <FiEye size={18} />
+                        </Button>
+                      )}
+                    </div>
+
+                    <p className="text-[10px] text-slate-400 ml-1">
+                      Solo formatos de imagen (JPG, PNG, etc.)
+                    </p>
+                  </div>
+
+                  {/* Observación General */}
+                  <div className="col-span-1 md:col-span-2 mt-1">
+                    <Textarea
+                      label="Observación (Opcional)"
+                      labelPlacement="outside"
+                      placeholder="Agrega notas o detalles adicionales sobre esta validación..."
+                      variant="bordered"
+                      radius="sm"
+                      {...register("observacion_validacion")}
+                      defaultValue={
+                        selectPago.datos_validacion?.observacion_validacion ||
+                        ""
+                      }
+                      isDisabled={loading}
+                    />
+                  </div>
+
+                  {/* CAMPO DE OBSERVACIONES DE RECHAZO (Condicional) */}
                   {isRejecting && (
                     <div className="col-span-1 md:col-span-2 mt-2">
                       <Textarea
@@ -310,14 +406,13 @@ const ModalVerPago = ({
                   )}
                 </form>
 
-                {/* Botones de Acción Modificados */}
                 <div className="flex gap-2 items-center justify-end mt-2 flex-wrap">
                   {!isRejecting ? (
                     <>
                       <Button
                         color="danger"
                         variant="flat"
-                        onPress={() => setIsRejecting(true)} // Cambia al modo rechazo
+                        onPress={() => setIsRejecting(true)}
                         className="font-bold text-xs"
                         size="sm"
                       >
@@ -343,7 +438,7 @@ const ModalVerPago = ({
                         variant="flat"
                         onPress={() => {
                           setIsRejecting(false);
-                          reset({ observaciones_rechazo: "" }); // Limpia el textarea si cancela
+                          reset({ observaciones_rechazo: "" });
                         }}
                         className="font-bold text-xs"
                         size="sm"
@@ -357,7 +452,7 @@ const ModalVerPago = ({
                         isLoading={loading}
                         onPress={handleSubmit((data) =>
                           onSubmit(data, "Rechazado"),
-                        )} // Ejecuta el submit como rechazado
+                        )}
                         className="font-bold text-white text-xs"
                         size="sm"
                       >
