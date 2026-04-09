@@ -362,16 +362,12 @@ const ModalVerPago = ({
                         </Button>
                       )}
                     </div>
-
-                    <p className="text-[10px] text-slate-400 ml-1">
-                      Solo formatos de imagen (JPG, PNG, etc.)
-                    </p>
                   </div>
 
                   {/* Observación General */}
                   <div className="col-span-1 md:col-span-2 mt-1">
                     <Textarea
-                      label="Observación (Opcional)"
+                      label="Observación de Validación"
                       labelPlacement="outside"
                       placeholder="Agrega notas o detalles adicionales sobre esta validación..."
                       variant="bordered"
