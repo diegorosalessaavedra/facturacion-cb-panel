@@ -26,7 +26,7 @@ const TablaOrdenCompras = ({
         color="default"
         isStriped
         classNames={{
-          base: "w-full  max-h-[70vh] overflow-auto p-4 ",
+          base: "w-full  h-[70vh] overflow-auto p-4 ",
           wrapper: "p-0",
         }}
         radius="sm"

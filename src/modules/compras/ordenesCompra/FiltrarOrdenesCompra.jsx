@@ -1,27 +1,28 @@
 import React from "react";
 import { inputClassNames, selectClassNames } from "../../../assets/classNames";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
-import { div } from "framer-motion/client";
 
 const FiltrarOrdenesCompra = ({
-  selectFiltro,
-  setSelectFiltro,
-  dataFiltro,
-  setDataFiltro,
+  filtros,
+  setFiltros,
   handleFindOrdenCompras,
-  inicioFecha,
-  setInicioFecha,
-  finalFecha,
-  setFinalFecha,
-  setEstadoPago,
-  estadoPago,
   txtSolpeds,
 }) => {
-  const handleSelectFiltro = (e) => {
-    setSelectFiltro(e.target.value);
+  // Función unificada para manejar cambios en Inputs (texto, fechas)
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFiltros((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
+
+  // Función específica para el Select de NextUI
   const handleSelectEstadoPago = (e) => {
-    setEstadoPago(e.target.value);
+    setFiltros((prev) => ({
+      ...prev,
+      estado_pago: e.target.value,
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -31,7 +32,7 @@ const FiltrarOrdenesCompra = ({
 
   const sumaTotal = txtSolpeds.reduce(
     (suma, solped) => suma + Number(solped.monto_txt || 0),
-    0, // 👈 valor inicial
+    0,
   );
 
   return (
@@ -40,80 +41,60 @@ const FiltrarOrdenesCompra = ({
         onSubmit={handleSubmit}
         className="w-full flex gap-2 px-2 items-end"
       >
-        <Select
+        <Input
+          name="proveedor"
+          value={filtros.proveedor}
+          onChange={handleChange}
           className="w-[100%] max-w-[300px]"
-          label="Filtrar por: "
+          classNames={inputClassNames}
           labelPlacement="outside"
+          type="text"
           variant="bordered"
-          selectedKeys={[selectFiltro]}
+          label="Datos Proveedor"
           radius="sm"
           size="sm"
-          onChange={handleSelectFiltro}
-          classNames={selectClassNames}
-        >
-          <SelectItem key="proveedor">Proveedor</SelectItem>
-          <SelectItem key="fechaEmision">Fecha de Emisión</SelectItem>
-          <SelectItem key="fechaVencimiento">Fecha de Vencimiento</SelectItem>
-          <SelectItem key="comprador">Comprador</SelectItem>
-        </Select>
+        />
 
-        {(selectFiltro === "fechaEmision" ||
-          selectFiltro === "fechaVencimiento") && (
-          <Input
-            className="w-[100%] max-w-[300px]"
-            classNames={inputClassNames}
-            value={inicioFecha}
-            onChange={(e) => setInicioFecha(e.target.value)}
-            labelPlacement="outside"
-            type="date"
-            variant="bordered"
-            label="Fecha inicial"
-            radius="sm"
-            size="sm"
-          />
-        )}
+        <Input
+          name="fecha_inicio"
+          value={filtros.fecha_inicio}
+          onChange={handleChange}
+          className="w-[100%] max-w-[300px]"
+          classNames={inputClassNames}
+          labelPlacement="outside"
+          type="date"
+          variant="bordered"
+          label="Fecha inicial"
+          radius="sm"
+          size="sm"
+        />
 
-        {selectFiltro === "fechaEmision" ||
-        selectFiltro === "fechaVencimiento" ? (
-          <Input
-            className="w-[100%] max-w-[300px]"
-            classNames={inputClassNames}
-            value={finalFecha}
-            onChange={(e) => setFinalFecha(e.target.value)}
-            labelPlacement="outside"
-            type="date"
-            variant="bordered"
-            label="Fecha Final"
-            radius="sm"
-            size="sm"
-          />
-        ) : (
-          <Input
-            className="w-[100%] max-w-[300px]"
-            classNames={inputClassNames}
-            value={dataFiltro}
-            onChange={(e) => setDataFiltro(e.target.value)}
-            labelPlacement="outside"
-            type="text"
-            variant="bordered"
-            label="Datos"
-            radius="sm"
-            size="sm"
-          />
-        )}
+        <Input
+          name="fecha_final"
+          value={filtros.fecha_final}
+          onChange={handleChange}
+          className="w-[100%] max-w-[300px]"
+          classNames={inputClassNames}
+          labelPlacement="outside"
+          type="date"
+          variant="bordered"
+          label="Fecha Final"
+          radius="sm"
+          size="sm"
+        />
 
         <Select
           className="w-[100%] max-w-[300px]"
-          label="Estado de pago "
+          label="Estado de pago"
           labelPlacement="outside"
           variant="bordered"
-          selectedKeys={[estadoPago]}
+          selectedKeys={[filtros.estado_pago]} // Vinculado al estado global
           radius="sm"
           size="sm"
           onChange={handleSelectEstadoPago}
           classNames={selectClassNames}
         >
-          <SelectItem key="TODOS">TODOS</SelectItem>
+          <SelectItem key="Todos">TODOS</SelectItem>
           <SelectItem key="PENDIENTE">PENDIENTE</SelectItem>
           <SelectItem key="CANCELADO">CANCELADO</SelectItem>
           <SelectItem key="ANTICIPO">ANTICIPO</SelectItem>
@@ -125,6 +106,7 @@ const FiltrarOrdenesCompra = ({
           Filtrar
         </Button>
       </form>
+
       <div className="flex text-nowrap gap-4 text-sm font-semibold text-center pr-4">
         <article>
           <p className="text-nowrap">Total</p>
