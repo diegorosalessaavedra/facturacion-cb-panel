@@ -24,7 +24,7 @@ const ReportesOrdenesCompra = () => {
     setLoading(true);
     const url = `${
       import.meta.env.VITE_URL_API
-    }/compras/orden-compra?tipoFiltro=fechaEmision&fechaInicial=${fechaInicio}&fechaFinal=${fechaFinal}&estadoPago=${estadoPago}&estado=Activo`;
+    }/compras/orden-compra?fecha_inicio=${fechaInicio}&fecha_final=${fechaFinal}&estado_pago=${estadoPago}&estado=Activo`;
 
     axios
       .get(url, config)
