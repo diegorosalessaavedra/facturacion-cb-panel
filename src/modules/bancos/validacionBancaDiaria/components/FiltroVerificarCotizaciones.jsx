@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   inputClassNames,
   selectClassNames,
@@ -6,6 +7,8 @@ import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { FiSearch } from "react-icons/fi";
+import config from "../../../../utils/getToken";
+import { API } from "../../../../utils/api";
 
 const FiltroVerificarCotizaciones = ({
   filtros,
@@ -15,9 +18,7 @@ const FiltroVerificarCotizaciones = ({
   const [vendedores, setVendedores] = useState([]);
 
   const findvendedores = () => {
-    const url = `${
-      import.meta.env.VITE_URL_API
-    }/ajustes/encargado?cargo=Vendedor`;
+    const url = `${API}/ajustes/encargado?cargo=Vendedor`;
 
     axios.get(url, config).then((res) => setVendedores(res.data.encargados));
   };
