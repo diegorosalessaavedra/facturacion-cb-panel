@@ -16,9 +16,10 @@ const ValidacionBancaDiaria = () => {
   const [loading, setLoading] = useState(true);
 
   const [filtros, setFiltros] = useState({
+    vendedor: "Todos",
     tipoFiltro: "Pagos",
-    estado_pago: "todos",
-    estado_cotizacion: "todos",
+    estado_pago: "Todos",
+    estado_cotizacion: "Todos",
     fecha_inicio: getTodayDate2(),
     fecha_final: getTodayDate(),
   });
@@ -35,7 +36,7 @@ const ValidacionBancaDiaria = () => {
 
     const filtrosLimpios = Object.fromEntries(
       Object.entries(filtros).filter(
-        ([_, value]) => value !== "" && value !== "TODOS" && value !== "todos",
+        ([_, value]) => value !== "" && value !== "Todos" && value !== "Todos",
       ),
     );
 
