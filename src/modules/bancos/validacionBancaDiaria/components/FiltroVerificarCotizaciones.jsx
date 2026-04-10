@@ -103,7 +103,7 @@ const FiltroVerificarCotizaciones = ({
           classNames={selectClassNames}
         >
           <SelectItem key="Todos">Todos</SelectItem>
-          <SelectItem key="Conforme">Conformes</SelectItem>
+          <SelectItem key="Conforme">Validados</SelectItem>
           <SelectItem key="Observados">Observados</SelectItem>
           <SelectItem key="Rechazados">Rechazados</SelectItem>
         </Select>
