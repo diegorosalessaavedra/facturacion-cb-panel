@@ -5,7 +5,7 @@ import {
 } from "../../../../assets/classNames";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import config from "../../../../utils/getToken";
 import { API } from "../../../../utils/api";
