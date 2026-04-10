@@ -18,8 +18,8 @@ import {
   FiAlertCircle,
   FiCreditCard,
   FiXCircle,
-  FiUploadCloud, // <-- Importado para el diseño del input file
-  FiEye, // <-- Importado para previsualizar la imagen
+  FiUploadCloud,
+  FiEye,
 } from "react-icons/fi";
 import { formatNumber } from "../../../../assets/formats";
 import formatDate from "../../../../hooks/FormatDate";
@@ -30,7 +30,8 @@ import {
 import { useForm } from "react-hook-form";
 import config from "../../../../utils/getToken";
 import { toast } from "sonner";
-import { API } from "../../../../utils/api";
+import { API, API_DOC } from "../../../../utils/api";
+// import { API_DOC } from "../../../../utils/api"; // <-- Asegúrate de importar API_DOC si lo usas
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
 
 const ModalVerPago = ({
@@ -43,14 +44,12 @@ const ModalVerPago = ({
     register,
     handleSubmit,
     reset,
-    watch, // <-- Extraemos watch para monitorear el archivo seleccionado
+    watch,
     formState: { errors },
   } = useForm();
 
   const [loading, setLoading] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
-
-  // Observamos el campo del archivo en tiempo real
   const fileVoucher = watch("file_voucher");
 
   useEffect(() => {
@@ -63,6 +62,7 @@ const ModalVerPago = ({
 
   const estadoActual = selectPago.estado_verificacion;
   const savedVoucherLink = selectPago.datos_validacion?.link_vaucher;
+
   const getEstadoColor = (estado) => {
     switch (estado) {
       case "Conforme":
@@ -87,15 +87,11 @@ const ModalVerPago = ({
     }
   };
 
-  // Función para abrir la imagen en una nueva pestaña
-  const handlePreviewVoucher = () => {
+  // Función para previsualizar el archivo local recién seleccionado
+  const handlePreviewNewVoucher = () => {
     if (fileVoucher && fileVoucher.length > 0) {
-      // Imagen recién seleccionada desde la PC
-      const file = fileVoucher[0];
-      const fileUrl = URL.createObjectURL(file);
+      const fileUrl = URL.createObjectURL(fileVoucher[0]);
       window.open(fileUrl, "_blank");
-    } else if (savedVoucherLink) {
-      window.open(`${API_DOC}/${savedVoucherLink}`, "_blank");
     }
   };
 
@@ -327,7 +323,9 @@ const ModalVerPago = ({
                         <span className="text-sm font-medium truncate max-w-[200px]">
                           {fileVoucher && fileVoucher.length > 0
                             ? fileVoucher[0].name
-                            : "Haz clic para subir una imagen"}
+                            : savedVoucherLink
+                              ? "Reemplazar voucher existente"
+                              : "Haz clic para subir una imagen"}
                         </span>
 
                         {/* Input nativo oculto */}
@@ -340,24 +338,34 @@ const ModalVerPago = ({
                         />
                       </label>
 
-                      {((fileVoucher && fileVoucher.length > 0) ||
-                        savedVoucherLink) && (
+                      {/* LÓGICA DE BOTONES PARA VER IMAGEN */}
+                      {fileVoucher && fileVoucher.length > 0 ? (
+                        /* Botón para previsualizar NUEVA imagen seleccionada */
                         <Button
                           isIconOnly
-                          color={
-                            fileVoucher && fileVoucher.length > 0
-                              ? "primary"
-                              : "default"
-                          }
-                          variant="flat"
-                          onPress={handlePreviewVoucher}
-                          title="Ver Imagen"
+                          color="primary"
+                          onPress={handlePreviewNewVoucher}
+                          title="Ver nueva imagen seleccionada"
                           radius="md"
                           className="h-full px-2 min-w-[40px] shadow-sm"
                         >
                           <FiEye size={18} />
                         </Button>
-                      )}
+                      ) : savedVoucherLink ? (
+                        <Button
+                          isIconOnly
+                          as="a" // Actúa como una etiqueta <a>
+                          href={`${API_DOC}/solped/${savedVoucherLink}`} // Asume que API_DOC está definido en tu entorno
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          color="warning"
+                          title="Ver voucher guardado"
+                          radius="md"
+                          className="h-full px-2 min-w-[40px] shadow-sm"
+                        >
+                          <FiEye size={18} />
+                        </Button>
+                      ) : null}
                     </div>
                   </div>
 
