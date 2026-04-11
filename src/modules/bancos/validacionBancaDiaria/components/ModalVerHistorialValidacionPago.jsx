@@ -20,15 +20,12 @@ import { formatNumber } from "../../../../assets/formats";
 import { API_DOC } from "../../../../utils/api";
 import formatDate from "../../../../hooks/FormatDate";
 import { formatDateTime } from "../../../../utils/formatDateTime";
+
 const ModalVerHistorialValidacionPago = ({
   isOpen,
   onOpenChange,
   selectPago,
 }) => {
-  // Nota: Eliminé referencias a 'setIsRejecting' y 'reset()' de react-hook-form
-  // ya que este parece ser un modal de solo lectura.
-  // Si las necesitas para otra lógica, puedes volver a agregarlas.
-
   if (!selectPago) return null;
 
   const estadoActual = selectPago.estado_verificacion;
@@ -143,20 +140,45 @@ const ModalVerHistorialValidacionPago = ({
 
                 {historial.length > 0 ? (
                   <div className="flex flex-col gap-4 relative">
-                    {/* Línea vertical para diseño de timeline (opcional) */}
+                    {/* Línea vertical para diseño de timeline */}
                     <div className="absolute left-3 top-2 bottom-2 w-[2px] bg-slate-200 z-0"></div>
 
                     {historial.map((item, index) => (
                       <div key={item.id} className="relative z-10 pl-8">
                         {/* Puntito del timeline */}
-                        <div className="absolute left-[9px] top-4 w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-sm"></div>
+                        <div
+                          className={`absolute left-[9px] top-4 w-3 h-3 rounded-full border-2 border-white shadow-sm ${item.estado === "Rechazado" ? "bg-danger" : "bg-success"}`}
+                        ></div>
 
                         {/* Tarjeta de Historial */}
-                        <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex flex-col gap-2">
+                        <div
+                          className={`bg-white border ${item.estado === "Rechazado" ? "border-danger-100" : "border-success-100"} rounded-lg p-3 shadow-sm flex flex-col gap-2`}
+                        >
                           <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                            <span className="text-xs text-slate-500 font-bold uppercase tracking-wide">
-                              Validación #{historial.length - index}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-slate-500 font-bold uppercase tracking-wide">
+                                Validación #{historial.length - index}
+                              </span>
+                              {/* NUEVO CHIP PARA EL ESTADO DEL HISTORIAL */}
+                              <Chip
+                                startContent={
+                                  item.estado === "Rechazado" ? (
+                                    <FiXCircle size={12} />
+                                  ) : (
+                                    <FiCheckCircle size={12} />
+                                  )
+                                }
+                                color={
+                                  item.estado === "Rechazado"
+                                    ? "danger"
+                                    : "success"
+                                }
+                                variant="flat"
+                                className="h-5 px-1 text-[10px] font-bold"
+                              >
+                                {item.estado || "Validado"}
+                              </Chip>
+                            </div>
                             <span className="text-[10px] text-slate-400 bg-slate-50 px-2 py-1 rounded">
                               {formatDateTime(item.createdAt)}
                             </span>
