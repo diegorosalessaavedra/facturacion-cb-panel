@@ -51,7 +51,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   doc.setFontSize(12);
   const cotizacionCodeText = `COT-${formatWithLeadingZeros(
     selectCotizacion.id,
-    6
+    6,
   )}`;
   const cotizacionCodeWidth = doc.getTextWidth(cotizacionCodeText); // Obtener el ancho del texto
   const cotizacionCodeX = 160 + (40 - cotizacionCodeWidth) / 2; // Calcular la posición X para centrar
@@ -67,7 +67,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
       selectCotizacion.cliente?.nombreApellidos ||
       "N/A",
     35,
-    50
+    50,
   );
   doc.text(`${selectCotizacion.cliente?.tipoDocIdentidad}`, 10, 55);
 
@@ -145,7 +145,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y, // Coordenada Y inicial (arriba de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y, // Coordenada Y final (misma Y para línea horizontal)
         );
 
         // Borde inferior (más delgado)
@@ -156,7 +156,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
         );
       }
 
@@ -170,7 +170,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
         );
       }
     },
@@ -193,7 +193,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   doc.text(
     `S/ ${formatNumber(opGravadas * 0.18)}`,
     171,
-    doc.lastAutoTable.finalY + 10
+    doc.lastAutoTable.finalY + 10,
   );
 
   doc.text(`TOTAL A PAGAR:`, 165, doc.lastAutoTable.finalY + 15, {
@@ -203,7 +203,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   doc.text(
     `S/ ${formatNumber(selectCotizacion.saldoInicial)}`,
     171,
-    doc.lastAutoTable.finalY + 15
+    doc.lastAutoTable.finalY + 15,
   );
 
   // Convertir el total a letras
@@ -257,7 +257,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y, // Coordenada Y inicial (arriba de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y, // Coordenada Y final (misma Y para línea horizontal)
         );
 
         // Borde inferior (más delgado)
@@ -268,7 +268,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
         );
       }
 
@@ -282,7 +282,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
         );
       }
     },
@@ -291,7 +291,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   // Saldo
   const totalPagos = selectCotizacion.pagos.reduce(
     (acc, pago) => acc + Number(pago.monto),
-    0
+    0,
   );
 
   doc.setFontSize(10);
@@ -299,7 +299,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   doc.text(
     `SALDO: S/ ${formatNumber(selectCotizacion.saldoInicial - totalPagos)}`,
     10,
-    doc.lastAutoTable.finalY + 10
+    doc.lastAutoTable.finalY + 10,
   );
 
   const pageHeight = doc.internal.pageSize.height; // Altura total de la página
@@ -315,12 +315,18 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     "Código de Cuenta",
   ];
 
-  const bancosBody = cuentasBancarias.map((cuentaBancaria) => [
-    cuentaBancaria.descripcion,
-    "Soles",
-    cuentaBancaria.cci,
-    cuentaBancaria.numero,
-  ]);
+  const bancosBody = cuentasBancarias
+    .filter(
+      (cuenta) =>
+        cuenta.descripcion !== "MORTANDAD" &&
+        cuenta.descripcion !== "JCESPEDES",
+    )
+    .map((cuentaBancaria) => [
+      cuentaBancaria.descripcion,
+      "Soles",
+      cuentaBancaria.cci,
+      cuentaBancaria.numero,
+    ]);
 
   // Agregar la tabla al pie de página
   doc.autoTable({
@@ -343,7 +349,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   if (newWindow) {
     newWindow.document.title = `COT-${formatWithLeadingZeros(
       selectCotizacion.id,
-      6
+      6,
     )}`;
     newWindow.document.write(`
       <html>

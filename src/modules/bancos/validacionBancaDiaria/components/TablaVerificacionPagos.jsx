@@ -4,6 +4,8 @@ import { Eye } from "lucide-react";
 import formatDate from "../../../../hooks/FormatDate";
 import { formatNumber } from "../../../../assets/formats";
 import ModalVerPago from "./ModalVerPago";
+import { MdHistory } from "react-icons/md";
+import ModalVerHistorialValidacionPago from "./ModalVerHistorialValidacionPago";
 
 const TablaVerificacionPagos = ({
   cotizaciones,
@@ -11,6 +13,7 @@ const TablaVerificacionPagos = ({
   handleFindCotizaciones,
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectModal, setSelectModal] = useState("");
   const [selectPago, setSelectPago] = useState(null);
 
   const stickyHeader = "sticky top-0 z-20";
@@ -27,6 +30,13 @@ const TablaVerificacionPagos = ({
   const gridTemplate = "40px 90px 120px 300px 90px 1fr";
 
   const handleSeeMore = (pago) => {
+    setSelectModal("ver_pago");
+    setSelectPago(pago);
+    onOpen();
+  };
+
+  const handleVerHistorial = (pago) => {
+    setSelectModal("ver_historial");
     setSelectPago(pago);
     onOpen();
   };
@@ -125,15 +135,26 @@ const TablaVerificacionPagos = ({
                             </span>
                           </div>
 
-                          <Button
-                            isIconOnly
-                            size="sm"
-                            variant="flat"
-                            className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
-                            onPress={() => handleSeeMore(pago)}
-                          >
-                            <Eye size={14} />
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              variant="flat"
+                              className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
+                              onPress={() => handleVerHistorial(pago)}
+                            >
+                              <MdHistory size={14} />
+                            </Button>
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              variant="flat"
+                              className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
+                              onPress={() => handleSeeMore(pago)}
+                            >
+                              <Eye size={14} />
+                            </Button>
+                          </div>
                         </div>
                         {/* Se eliminó la celda extra de Estado que estaba rompiendo el grid aquí */}
                       </React.Fragment>
@@ -152,8 +173,17 @@ const TablaVerificacionPagos = ({
           })}
         </div>
       )}
-      {selectPago && (
+      {selectModal === "ver_pago" && selectPago && (
         <ModalVerPago
+          key={selectPago.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectPago={selectPago}
+          handleFindCotizaciones={handleFindCotizaciones}
+        />
+      )}
+      {selectModal === "ver_historial" && selectPago && (
+        <ModalVerHistorialValidacionPago
           key={selectPago.id}
           isOpen={isOpen}
           onOpenChange={onOpenChange}

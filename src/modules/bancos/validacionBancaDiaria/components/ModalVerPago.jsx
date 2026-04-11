@@ -22,7 +22,6 @@ import {
   FiEye,
 } from "react-icons/fi";
 import { formatNumber } from "../../../../assets/formats";
-import formatDate from "../../../../hooks/FormatDate";
 import {
   inputClassNames,
   selectClassNames,
@@ -33,6 +32,7 @@ import { toast } from "sonner";
 import { API, API_DOC } from "../../../../utils/api";
 // import { API_DOC } from "../../../../utils/api"; // <-- Asegúrate de importar API_DOC si lo usas
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
+import formatDate from "../../../../hooks/FormatDate";
 
 const ModalVerPago = ({
   isOpen,

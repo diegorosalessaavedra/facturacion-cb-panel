@@ -8,7 +8,7 @@ import { mediosDePago } from "../jsons/mediosPago";
 
 const plantillaComprobantePdf = async (
   comprobanteElectronico,
-  cuentasBancarias
+  cuentasBancarias,
 ) => {
   // Crear un nuevo documento PDF con fuente Arial
   const doc = new jsPDF();
@@ -52,7 +52,7 @@ const plantillaComprobantePdf = async (
 
   const correo = `Email: ${(import.meta.env.VITE_CORREO || "").replace(
     /\n/g,
-    " "
+    " ",
   )}`;
   doc.text(correo, 40, 25);
 
@@ -92,7 +92,7 @@ const plantillaComprobantePdf = async (
       comprobanteElectronico.cliente?.nombreApellidos ||
       " ",
     35,
-    35
+    35,
   );
 
   doc.setFont("helvetica", "bold");
@@ -107,7 +107,7 @@ const plantillaComprobantePdf = async (
     `${comprobanteElectronico?.cliente?.direccion} - ${comprobanteElectronico?.cliente?.provincia.provincia} - ${comprobanteElectronico?.cliente?.distrito.distrito} - ${comprobanteElectronico?.cliente?.departamento.departamento}` ||
       " ",
     35,
-    45
+    45,
   );
 
   doc.setFont("helvetica", "bold");
@@ -127,10 +127,10 @@ const plantillaComprobantePdf = async (
     doc.text(
       `COT-${formatWithLeadingZeros(
         comprobanteElectronico?.cotizacion?.id,
-        6
+        6,
       )}`,
       35,
-      60
+      60,
     );
   }
 
@@ -201,7 +201,7 @@ const plantillaComprobantePdf = async (
   doc.text(
     `S/ ${formatNumber(comprobanteElectronico?.total_valor_venta)}`,
     171,
-    doc.lastAutoTable.finalY + 5
+    doc.lastAutoTable.finalY + 5,
   );
 
   doc.setFont("helvetica", "bold");
@@ -213,7 +213,7 @@ const plantillaComprobantePdf = async (
   doc.text(
     `S/ ${formatNumber(comprobanteElectronico?.total_igv)}`,
     171,
-    doc.lastAutoTable.finalY + 10
+    doc.lastAutoTable.finalY + 10,
   );
 
   doc.setFont("helvetica", "bold");
@@ -225,7 +225,7 @@ const plantillaComprobantePdf = async (
   doc.text(
     `S/ ${formatNumber(comprobanteElectronico.total_venta)}`,
     171,
-    doc.lastAutoTable.finalY + 15
+    doc.lastAutoTable.finalY + 15,
   );
 
   // Convertir el total a letras
@@ -256,27 +256,27 @@ const plantillaComprobantePdf = async (
     doc.text(
       `Información de la detracción :`,
       10,
-      doc.lastAutoTable.finalY + 28
+      doc.lastAutoTable.finalY + 28,
     );
 
     doc.setFontSize(9);
     doc.text(`Bien o Servicio:`, 10, doc.lastAutoTable.finalY + 32);
     const bienEncontrado = codigosBienes.find(
       (codigo) =>
-        codigo.codigo === comprobanteElectronico.detraccion.codBienDetraccion
+        codigo.codigo === comprobanteElectronico.detraccion.codBienDetraccion,
     );
 
     doc.setFont("helvetica", "normal");
     doc.text(
       `${bienEncontrado.codigo} - ${bienEncontrado?.descripcion || ""}`,
       60,
-      doc.lastAutoTable.finalY + 32
+      doc.lastAutoTable.finalY + 32,
     );
 
     doc.setFont("helvetica", "bold");
     doc.text(`Medio de pago:`, 10, doc.lastAutoTable.finalY + 36);
     const medioPagoEncontrado = mediosDePago.find(
-      (pago) => pago.codigo === comprobanteElectronico.detraccion.codMedioPago
+      (pago) => pago.codigo === comprobanteElectronico.detraccion.codMedioPago,
     );
 
     doc.setFont("helvetica", "normal");
@@ -285,20 +285,20 @@ const plantillaComprobantePdf = async (
         medioPagoEncontrado?.descripcion || ""
       }`,
       60,
-      doc.lastAutoTable.finalY + 36
+      doc.lastAutoTable.finalY + 36,
     );
 
     doc.setFont("helvetica", "bold");
     doc.text(
       `Nro. Cta. Banco de la Nación:`,
       10,
-      doc.lastAutoTable.finalY + 40
+      doc.lastAutoTable.finalY + 40,
     );
     doc.setFont("helvetica", "normal");
     doc.text(
       `${comprobanteElectronico.detraccion.ctaBancaria}      Porcentaje de detracción:     ${comprobanteElectronico.detraccion.porcentaje}      Monto detracción:    ${comprobanteElectronico.detraccion.montoDetraccion} `,
       60,
-      doc.lastAutoTable.finalY + 40
+      doc.lastAutoTable.finalY + 40,
     );
 
     doc.setFont("helvetica", "bold");
@@ -353,7 +353,7 @@ const plantillaComprobantePdf = async (
     doc.text(
       comprobanteElectronico.digestValue,
       150,
-      doc.lastAutoTable.finalY + 37
+      doc.lastAutoTable.finalY + 37,
     );
   }
 
@@ -379,13 +379,18 @@ const plantillaComprobantePdf = async (
     "Código de Cuenta",
   ];
 
-  const bancosBody = cuentasBancarias.map((cuentaBancaria) => [
-    cuentaBancaria.descripcion,
-    "Soles",
-    cuentaBancaria.cci,
-    cuentaBancaria.numero,
-  ]);
-
+  const bancosBody = cuentasBancarias
+    .filter(
+      (cuenta) =>
+        cuenta.descripcion !== "MORTANDAD" &&
+        cuenta.descripcion !== "JCESPEDES",
+    )
+    .map((cuentaBancaria) => [
+      cuentaBancaria.descripcion,
+      "Soles",
+      cuentaBancaria.cci,
+      cuentaBancaria.numero,
+    ]);
   // Agregar la tabla al pie de página
   doc.autoTable({
     startY: bancosStartY + 10, // Posición calculada
@@ -418,7 +423,7 @@ const plantillaComprobantePdf = async (
   }
 
   doc.save(
-    `${comprobanteElectronico.serie}-${comprobanteElectronico.numeroSerie}.pdf`
+    `${comprobanteElectronico.serie}-${comprobanteElectronico.numeroSerie}.pdf`,
   );
 };
 
