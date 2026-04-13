@@ -8,6 +8,7 @@ import ModalNuevoCliente from "./components/ModalNuevoCliente/ModalNuevoCliente"
 import ModalEliminarCliente from "./components/ModalEliminarCliente";
 import ModalEditarClientes from "./components/ModalEditarClientes/ModalEditarClientes";
 import FiltrarClientes from "./components/FiltrarClientes";
+import { API } from "../../../utils/api";
 
 const TusClientes = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -22,7 +23,7 @@ const TusClientes = () => {
 
   // Memoizar la función findClients para evitar recreaciones
   const findClients = useCallback(() => {
-    const url = `${import.meta.env.VITE_URL_API}/clientes?numeroDoc=${
+    const url = `${API}/clientes?numeroDoc=${
       dataFilter.numeroDoc
     }&nombreComercial=${dataFilter.nombreComercial}`;
 
@@ -53,7 +54,7 @@ const TusClientes = () => {
         findClients={findClients}
       />
     ),
-    [dataFilter, findClients]
+    [dataFilter, findClients],
   );
 
   // Memoizar la tabla de clientes
@@ -67,7 +68,7 @@ const TusClientes = () => {
         setSelectProveedor={setSelectProveedor}
       />
     ),
-    [clientes, loading, onOpen]
+    [clientes, loading, onOpen],
   );
 
   // Cargar clientes al montar el componente

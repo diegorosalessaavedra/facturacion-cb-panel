@@ -42,7 +42,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
   doc.setFontSize(12);
   const cotizacionCodeText = `COD-${formatWithLeadingZeros(
     ordenCompra?.id,
-    6
+    3,
   )}`;
   const cotizacionCodeWidth = doc.getTextWidth(cotizacionCodeText);
   const cotizacionCodeX = 160 + (40 - cotizacionCodeWidth) / 2;
@@ -56,7 +56,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
       ordenCompra.proveedor?.nombreApellidos ||
       " ",
     35,
-    50
+    50,
   );
   doc.text(`${ordenCompra.proveedor?.tipoDocIdentidad}`, 15, 55);
 
@@ -66,7 +66,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
     ` ${ordenCompra?.proveedor?.distrito?.distrito} - ${ordenCompra?.proveedor?.provincia?.provincia} - ${ordenCompra?.proveedor?.departamento?.departamento}` ||
       " ",
     35,
-    60
+    60,
   );
   doc.text("Comprador:", 15, 65);
   doc.text(ordenCompra.comprador || " ", 35, 65);
@@ -129,7 +129,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y, // Coordenada Y inicial (arriba de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y, // Coordenada Y final (misma Y para línea horizontal)
         );
 
         // Borde inferior (más delgado)
@@ -140,7 +140,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
         );
       }
 
@@ -154,7 +154,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
         );
       }
     },
@@ -177,7 +177,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
   doc.text(
     `S/ ${formatNumber(opGravadas * 0.18)}`,
     171,
-    doc.lastAutoTable.finalY + 10
+    doc.lastAutoTable.finalY + 10,
   );
 
   doc.text(`TOTAL A PAGAR:`, 165, doc.lastAutoTable.finalY + 15, {
@@ -187,7 +187,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
   doc.text(
     `S/ ${formatNumber(ordenCompra.saldoInicial)}`,
     171,
-    doc.lastAutoTable.finalY + 15
+    doc.lastAutoTable.finalY + 15,
   );
 
   // Convertir el total a letras
@@ -239,7 +239,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y, // Coordenada Y inicial (arriba de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y, // Coordenada Y final (misma Y para línea horizontal)
         );
 
         // Borde inferior (más delgado)
@@ -250,7 +250,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
         );
       }
 
@@ -264,7 +264,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
           data.cell.x, // Coordenada X inicial (inicio de la celda)
           data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
           data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height // Coordenada Y final (misma Y para línea horizontal)
+          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
         );
       }
     },
@@ -273,7 +273,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
   // Saldo
   const totalPagos = ordenCompra.pagos.reduce(
     (acc, pago) => acc + Number(pago.monto),
-    0
+    0,
   );
 
   doc.setFontSize(10);
@@ -281,7 +281,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
   doc.text(
     `SALDO: S/ ${formatNumber(ordenCompra.saldoInicial - totalPagos)}`,
     15,
-    doc.lastAutoTable.finalY + 10
+    doc.lastAutoTable.finalY + 10,
   );
 
   const pdfOutput = doc.output("dataurlstring");
@@ -290,7 +290,7 @@ const plantillaOrdenCompraPdf = (ordenCompra) => {
   if (newWindow) {
     newWindow.document.title = `OC-${formatWithLeadingZeros(
       ordenCompra?.id,
-      6
+      6,
     )}`;
     newWindow.document.write(`
       <html>

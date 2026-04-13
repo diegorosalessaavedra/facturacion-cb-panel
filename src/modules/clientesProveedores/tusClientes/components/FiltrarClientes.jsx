@@ -9,7 +9,7 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
       e.preventDefault();
       findClients();
     },
-    [findClients]
+    [findClients],
   );
 
   // Memoizar los handlers de onChange para evitar recreaciones
@@ -17,14 +17,14 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
     (e) => {
       setDataFilter((prev) => ({ ...prev, numeroDoc: e.target.value }));
     },
-    [setDataFilter]
+    [setDataFilter],
   );
 
   const handleNombreComercialChange = useCallback(
     (e) => {
       setDataFilter((prev) => ({ ...prev, nombreComercial: e.target.value }));
     },
-    [setDataFilter]
+    [setDataFilter],
   );
 
   // Memoizar props que no cambian
@@ -37,7 +37,7 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
       classNames: inputClassNames,
       className: "w-[100%] max-w-[300px]",
     }),
-    []
+    [],
   );
 
   return (
@@ -56,8 +56,8 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
         type="text"
         label="Nombre Comercial / Nombre Apellidos"
       />
-      <Button color="primary" type="submit">
-        Filtrar
+      <Button className="bg-slate-900" color="primary" type="submit">
+        Buscar
       </Button>
     </form>
   );
