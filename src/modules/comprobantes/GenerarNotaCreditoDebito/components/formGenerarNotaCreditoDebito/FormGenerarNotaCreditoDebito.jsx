@@ -30,7 +30,7 @@ const FormGenerarNotaCreditoDebito = ({ userData, comprobanteElectronico }) => {
   const submit = (data) => {
     if (!productos || productos.length === 0) {
       toast.error(
-        "Debes agregar al menos un producto en la  nota de credito o devito."
+        "Debes agregar al menos un producto en la  nota de credito o devito.",
       );
       return;
     }
@@ -56,7 +56,7 @@ const FormGenerarNotaCreditoDebito = ({ userData, comprobanteElectronico }) => {
       .then((res) => {
         setIdNotaComprobante(res.data.notaComprobante.id);
         toast.success(
-          `La nota de ${dataSelects.tipo_comprobante} se registro correctamente`
+          `La nota de ${dataSelects.tipo_comprobante} se registro correctamente`,
         );
         setSelectModal("verNota");
         onOpenChange(true);
@@ -66,13 +66,14 @@ const FormGenerarNotaCreditoDebito = ({ userData, comprobanteElectronico }) => {
       .catch((err) => {
         toast.error(
           err.response?.data?.error ||
-            `hubo un error al registrar la nota de ${dataSelects.tipo_comprobante} por favor verifique bien los campos`
+            `hubo un error al registrar la nota de ${dataSelects.tipo_comprobante} por favor verifique bien los campos`,
         );
       })
       .finally(() => {
         setLoading(false);
       });
   };
+  console.log(comprobanteElectronico?.productos);
 
   const resetDatos = () => {
     const productosAcumulados = comprobanteElectronico?.productos.map(
@@ -83,7 +84,9 @@ const FormGenerarNotaCreditoDebito = ({ userData, comprobanteElectronico }) => {
         cantidad: producto.cantidad || 0,
         precioUnitario: producto.precioUnitario || 0,
         total: producto.total || 0,
-      })
+        nombre: producto.producto.nombre,
+        stock: producto.producto.stock,
+      }),
     );
 
     setProductos(productosAcumulados);
@@ -92,6 +95,8 @@ const FormGenerarNotaCreditoDebito = ({ userData, comprobanteElectronico }) => {
   useEffect(() => {
     resetDatos();
   }, [comprobanteElectronico]);
+
+  console.log(productos);
 
   return (
     <div className="w-full  bg-white flex flex-col gap-4 p-6 rounded-md ">
@@ -118,6 +123,7 @@ const FormGenerarNotaCreditoDebito = ({ userData, comprobanteElectronico }) => {
           productos={productos}
           setProductos={setProductos}
           setSelectModal={setSelectModal}
+          tipo_productos="Comercialización y servicios"
         />
         <div className="w-full items-center justify-center flex gap-4">
           <Button type="submit" color="primary">

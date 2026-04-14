@@ -31,20 +31,20 @@ const TablaAgregarProducto = ({
 
   const eliminarProducto = (id) => {
     setProductos((prevProductos) =>
-      prevProductos.filter((producto) => producto.id !== id)
+      prevProductos.filter((producto) => producto.id !== id),
     );
   };
   const saveEditedProduct = (updatedProducto) => {
     setProductos((prev) =>
       prev.map((prod) =>
-        prod.id === updatedProducto.id ? updatedProducto : prod
-      )
+        prod.id === updatedProducto.id ? updatedProducto : prod,
+      ),
     );
   };
 
   const total = productos?.reduce(
     (acc, producto) => acc + Number(producto.total),
-    0
+    0,
   );
 
   const opGravadas = total / 1.18;
@@ -94,6 +94,7 @@ const TablaAgregarProducto = ({
       )}
       {selectModal === "editar" && (
         <ModalEditarProductoCotizacion
+          key={selectProduct.id}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           selectProduct={selectProduct}
