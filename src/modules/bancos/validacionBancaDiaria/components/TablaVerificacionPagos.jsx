@@ -6,6 +6,9 @@ import { formatNumber } from "../../../../assets/formats";
 import ModalVerPago from "./ModalVerPago";
 import { MdHistory } from "react-icons/md";
 import ModalVerHistorialValidacionPago from "./ModalVerHistorialValidacionPago";
+import { RiResetLeftFill } from "react-icons/ri";
+import { IoTimeSharp } from "react-icons/io5";
+import ModalReiniciarPago from "./ModalReiniciarPago";
 
 const TablaVerificacionPagos = ({
   cotizaciones,
@@ -37,6 +40,12 @@ const TablaVerificacionPagos = ({
 
   const handleVerHistorial = (pago) => {
     setSelectModal("ver_historial");
+    setSelectPago(pago);
+    onOpen();
+  };
+
+  const handleReiniciar = (pago) => {
+    setSelectModal("reiniciar");
     setSelectPago(pago);
     onOpen();
   };
@@ -141,9 +150,18 @@ const TablaVerificacionPagos = ({
                               size="sm"
                               variant="flat"
                               className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
+                              onPress={() => handleReiniciar(pago)}
+                            >
+                              <RiResetLeftFill size={14} />
+                            </Button>
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              variant="flat"
+                              className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
                               onPress={() => handleVerHistorial(pago)}
                             >
-                              <MdHistory size={14} />
+                              <IoTimeSharp size={14} />
                             </Button>
                             <Button
                               isIconOnly
@@ -189,6 +207,14 @@ const TablaVerificacionPagos = ({
           onOpenChange={onOpenChange}
           selectPago={selectPago}
           handleFindCotizaciones={handleFindCotizaciones}
+        />
+      )}
+      {selectModal === "reiniciar" && selectPago && (
+        <ModalReiniciarPago
+          key={selectPago.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectPago={selectPago}
         />
       )}
     </div>
