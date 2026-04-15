@@ -77,6 +77,7 @@ const ModalEditarProveedor = ({
       nro_cuenta_bco: data.nro_cuenta_bco,
       nro_cuenta_bco_2: data.nro_cuenta_bco_2,
       banco_beneficiario_2: data.banco_beneficiario_2,
+      alias_proveedor: data.alias_proveedor,
     };
 
     const url = `${import.meta.env.VITE_URL_API}/proveedores/${

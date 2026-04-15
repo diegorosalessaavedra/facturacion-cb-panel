@@ -95,7 +95,7 @@ const DatosEditarProveedor = ({
               <SelectItem key={item} value={item}>
                 {item}
               </SelectItem>
-            )
+            ),
           )}
         </Select>
         <div className="relative w-full flex items-end gap-1">
@@ -175,9 +175,23 @@ const DatosEditarProveedor = ({
             onChange={handleRuc}
           />
         )}
+      </div>
+      <div className="w-full flex gap-4">
+        <Input
+          classNames={inputClassNames}
+          labelPlacement="outside"
+          type="text"
+          variant="bordered"
+          label="Alias del Proveedor"
+          placeholder="..."
+          {...register("alias_proveedor")}
+          color="primary"
+          radius="sm"
+          size="sm"
+          defaultValue={selectProveedor.alias_proveedor}
+        />
         <Input
           isRequired
-          className="w-1/3"
           classNames={inputClassNames}
           labelPlacement="outside"
           type="text"
@@ -189,8 +203,8 @@ const DatosEditarProveedor = ({
           radius="sm"
           size="sm"
           maxLength={9}
-          onInput={onInputNumber}
           defaultValue={selectProveedor.telefono}
+          onInput={onInputNumber}
         />
       </div>
     </>
