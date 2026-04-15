@@ -5,13 +5,21 @@ import { API } from "../../../utils/api";
 import axios from "axios";
 import config from "../../../utils/getToken";
 import { handleAxiosError } from "../../../utils/handleAxiosError";
-import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Select,
+  SelectItem,
+} from "@nextui-org/react";
 import TablaEECCProvedores from "./components/TablaEECCProvedores";
+import { selectClassNames } from "../../../assets/classNames";
 
 const EECCProveedores = () => {
   const [loading, setLoading] = useState(false);
   const [proveedores, setProveedores] = useState([]);
   const [selectProveedor, setSelectProveedor] = useState(null);
+  const [productos, setProductos] = useState([]);
+  const [selectProducto, setSelectProducto] = useState(null);
 
   const findProveedores = useCallback(() => {
     setLoading(true); // Fundamental para mostrar el loader al aplicar filtros
@@ -25,13 +33,26 @@ const EECCProveedores = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleFindProductos = useCallback(() => {
+    const url = `${API}/productos/mis-productos?tipo_producto=Comercialización y servicios&status=Activo`;
+
+    axios.get(url, config).then((res) => setProductos(res.data.misProductos));
+  }, []);
+
   useEffect(() => {
     findProveedores();
-  }, [findProveedores]);
+    handleFindProductos();
+  }, [findProveedores, handleFindProductos]);
 
   const onSelectionChange = (value) => {
     setSelectProveedor(value);
   };
+
+  const onSelectionProdcutoChange = (e) => {
+    setSelectProducto(e.target.value);
+  };
+
+  console.log({ productos });
 
   return (
     <main className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
@@ -69,7 +90,7 @@ const EECCProveedores = () => {
             </h2>
           </div>
 
-          <section className="max-w-xl px-4">
+          <section className="flex gap-4 max-w-3xl px-4">
             <Autocomplete
               aria-label="Seleccione un Proveedor"
               label="Seleccione un Proveedor"
@@ -77,13 +98,12 @@ const EECCProveedores = () => {
                 classNames: {
                   input: "text-xs  bg-white",
                   inputWrapper:
-                    "min-h-9 border-1.5 bg-white border-neutral-400",
+                    "min-h-10 border-1.5 bg-white border-neutral-400",
                   label: "text-[0.8rem] text-neutral-800 font-semibold",
                 },
               }}
               labelPlacement="outside"
               variant="bordered"
-              color="primary"
               onSelectionChange={onSelectionChange}
               size="sm"
               maxListboxHeight={200}
@@ -103,11 +123,32 @@ const EECCProveedores = () => {
                 </AutocompleteItem>
               ))}
             </Autocomplete>
+            <Select
+              className="w-[100%] max-w-[300px]"
+              label="Filtrar por producto: "
+              labelPlacement="outside"
+              variant="bordered"
+              selectedKeys={[selectProducto]}
+              radius="sm"
+              size="sm"
+              onChange={onSelectionProdcutoChange}
+              classNames={selectClassNames}
+            >
+              <SelectItem key="TODOS" textValue="TODOS">
+                TODOS
+              </SelectItem>
+              {productos.map((p) => (
+                <SelectItem key={p.id} textValue={p.nombre}>
+                  {p.nombre}
+                </SelectItem>
+              ))}
+            </Select>
           </section>
           {selectProveedor && (
             <TablaEECCProvedores
               key={selectProveedor}
               selectProveedor={selectProveedor}
+              selectProducto={selectProducto}
             />
           )}
         </main>

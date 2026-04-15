@@ -7,8 +7,9 @@ import config from "../../../../utils/getToken";
 import { formatWithLeadingZeros } from "../../../../assets/formats";
 import formatDate from "../../../../hooks/FormatDate";
 import { numberPeru } from "../../../../assets/onInputs";
+import { descargarExcelProveedor } from "../../../../utils/plantillasExel/exportExcelProveedor";
 
-const TablaEECCProvedores = ({ selectProveedor }) => {
+const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
   const [dataProveedor, setDataProveedor] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +23,7 @@ const TablaEECCProvedores = ({ selectProveedor }) => {
     let isMounted = true;
     setLoading(true);
 
-    const url = `${API}/proveedores/${selectProveedor}`;
+    const url = `${API}/proveedores/${selectProveedor}?${selectProducto && selectProducto !== "TODOS" && `producto_id=${selectProducto}`}`;
 
     axios
       .get(url, config)
@@ -37,7 +38,7 @@ const TablaEECCProvedores = ({ selectProveedor }) => {
     return () => {
       isMounted = false;
     };
-  }, [selectProveedor]);
+  }, [selectProveedor, selectProducto]);
 
   // 2. Efecto para inicializar el estado de los inputs de detracción
   useEffect(() => {
@@ -72,7 +73,9 @@ const TablaEECCProvedores = ({ selectProveedor }) => {
   const { rows, totalSaldo } = useMemo(() => {
     if (!dataProveedor?.ordenesCompra) return { rows: [], totalSaldo: 0 };
 
-    let saldoGlobal = 0;
+    // Este mantendrá el saldo total histórico solo para la fila de TOTALES al final de la tabla
+    let acumuladorFooter = 0;
+
     const allRows = dataProveedor.ordenesCompra
       .slice()
       .sort((a, b) => new Date(a.fechaEmision) - new Date(b.fechaEmision))
@@ -84,13 +87,22 @@ const TablaEECCProvedores = ({ selectProveedor }) => {
         const montoDetraccion =
           parseFloat(formDetracciones[orden.id]?.monto_detraccion) || 0;
 
+        // NUEVO: El saldo se inicializa en 0 POR CADA ORDEN DE COMPRA
+        let saldoPorOrden = 0;
+
         return Array.from({ length: maxRows }, (_, i) => {
           const prod = productos[i];
           const pago = pagos[i];
 
-          if (prod) saldoGlobal += parseFloat(prod.total || 0);
-          if (pago) saldoGlobal -= parseFloat(pago.monto || 0);
-          if (i === 0) saldoGlobal -= montoDetraccion;
+          // 1. Calculamos el saldo aislado de la orden actual
+          if (prod) saldoPorOrden += parseFloat(prod.total || 0);
+          if (pago) saldoPorOrden -= parseFloat(pago.monto || 0);
+          if (i === 0) saldoPorOrden -= montoDetraccion;
+
+          // 2. Acumulamos para el Gran Total del proveedor (para el tfoot)
+          if (prod) acumuladorFooter += parseFloat(prod.total || 0);
+          if (pago) acumuladorFooter -= parseFloat(pago.monto || 0);
+          if (i === 0) acumuladorFooter -= montoDetraccion;
 
           return {
             orden,
@@ -98,13 +110,13 @@ const TablaEECCProvedores = ({ selectProveedor }) => {
             pago,
             isFirstRow: i === 0,
             maxRows,
-            saldoActual: saldoGlobal,
+            saldoActual: saldoPorOrden, // Pasamos el saldo individual de la orden a la fila
             key: `${orden.id}-${i}`,
           };
         });
       });
 
-    return { rows: allRows, totalSaldo: saldoGlobal };
+    return { rows: allRows, totalSaldo: acumuladorFooter };
   }, [dataProveedor, formDetracciones]);
 
   // --- MANEJADORES DE DETRACCIÓN ---
@@ -231,7 +243,6 @@ const TablaEECCProvedores = ({ selectProveedor }) => {
           </span>
         </h2>
       </header>
-
       <section className="relative flex-1 min-h-0 flex flex-col p-2 bg-slate-50">
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3">
@@ -358,16 +369,9 @@ const TablaEECCProvedores = ({ selectProveedor }) => {
 
                         <td
                           className="py-2 px-3 text-left text-slate-800 max-w-[150px] truncate border-r border-slate-200 bg-white"
-                          title={
-                            prod
-                              ? prod.producto?.nombre ||
-                                prod.descripcion_producto
-                              : ""
-                          }
+                          title={prod ? prod.descripcion_producto : "-"}
                         >
-                          {prod
-                            ? prod.producto?.nombre || prod.descripcion_producto
-                            : "-"}
+                          {prod ? prod.descripcion_producto : "-"}
                         </td>
                         <td className="py-2 px-3 text-center text-slate-700 border-r border-slate-200 bg-white">
                           {prod ? numberPeru(prod.cantidad) : "-"}
@@ -533,9 +537,23 @@ const TablaEECCProvedores = ({ selectProveedor }) => {
           </div>
         )}
       </section>
-
       <footer className="p-4 bg-slate-100 border-t border-slate-200 flex justify-end gap-2 shrink-0">
-        <Button color="success" variant="flat" isDisabled={rows.length === 0}>
+        <Button
+          color="success"
+          variant="flat"
+          isDisabled={rows.length === 0}
+          onClick={() => {
+            descargarExcelProveedor(
+              rows,
+              totalSaldo,
+              dataProveedor?.nombreComercial ||
+                dataProveedor?.nombreApellidos ||
+                "Sin_Nombre",
+              formDetracciones, // Pasa tu estado React aquí
+              tieneDetraccion, // Pasa la variable booleana que ya tenías
+            );
+          }}
+        >
           Exportar Excel
         </Button>
       </footer>
