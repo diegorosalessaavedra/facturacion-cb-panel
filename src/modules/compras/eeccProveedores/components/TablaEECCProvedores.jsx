@@ -220,7 +220,7 @@ const TablaEECCProvedores = ({ selectProveedor }) => {
   const totalColSpanVacio = tieneDetraccion ? 16 : 12;
 
   return (
-    <div className="flex flex-col h-[85vh] w-full max-w-[1800px] mx-auto bg-slate-50 shadow-xl rounded-lg overflow-hidden border border-slate-200">
+    <div className="flex flex-col min-h-[90vh] max-h-[90vh] w-full max-w-[1800px] mx-auto bg-slate-50 shadow-xl rounded-lg overflow-hidden border border-slate-200">
       <header className="p-4 py-3 border-b border-slate-200 bg-slate-900 shrink-0">
         <h2 className="text-sm font-bold text-slate-50">
           Proveedor:{" "}
