@@ -46,6 +46,7 @@ const TablaTusProveedores = ({
           <TableHeader>
             <TableColumn width={50}>#</TableColumn>
             <TableColumn>NOMBRE</TableColumn>
+            <TableColumn>ALIAS</TableColumn>
             <TableColumn>BANCO DEL BENEFICIARIO</TableColumn>
             <TableColumn>NRO CUENTA BCO</TableColumn>
             <TableColumn>DOCUMENTO</TableColumn>
@@ -64,6 +65,9 @@ const TablaTusProveedores = ({
                   {proveedor.tipoDocIdentidad === "RUC"
                     ? proveedor.nombreComercial
                     : proveedor.nombreApellidos}
+                </TableCell>
+                <TableCell className="font-bold text-slate-800">
+                  {proveedor.alias_proveedor || "-"}
                 </TableCell>
 
                 <TableCell>
