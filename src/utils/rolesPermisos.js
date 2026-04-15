@@ -110,6 +110,13 @@ export const ROUTE_PERMISSIONS = {
     ROLES.COMPRADOR_VENDEDOR,
   ],
 
+  "/compras/ee-cc-proveedores": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.PRACTICANTE_CONTABLE,
+    ROLES.COMPRADOR_VENDEDOR,
+  ],
+
   // Rutas de Productos
   "/productos/comercializacion-servicios": [
     ROLES.GERENTE,

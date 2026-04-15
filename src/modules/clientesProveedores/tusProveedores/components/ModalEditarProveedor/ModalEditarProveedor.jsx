@@ -32,7 +32,7 @@ const ModalEditarProveedor = ({
     setError,
     clearErrors,
   } = useForm();
-
+  const [validacionFlag, setValidacionFlag] = useState(false);
   const [idDepartamento, setIdDepartamento] = useState();
   const [idProvincia, setIdProvincia] = useState();
   const [idDistrito, setIdDistrito] = useState();
@@ -78,6 +78,7 @@ const ModalEditarProveedor = ({
       nro_cuenta_bco_2: data.nro_cuenta_bco_2,
       banco_beneficiario_2: data.banco_beneficiario_2,
       alias_proveedor: data.alias_proveedor,
+      detraccion_activo: validacionFlag,
     };
 
     const url = `${import.meta.env.VITE_URL_API}/proveedores/${
@@ -107,7 +108,7 @@ const ModalEditarProveedor = ({
     setIdDistrito();
     setNumero(selectProveedor.numeroDoc);
     setNombre(selectProveedor.nombreApellidos);
-
+    setValidacionFlag(selectProveedor.detraccion_activo);
     setDataRuc({
       nombre_o_razon_social: selectProveedor.nombreComercial,
       direccion: selectProveedor.direccion,
@@ -143,6 +144,8 @@ const ModalEditarProveedor = ({
                 nombre={nombre}
                 setNombre={setNombre}
                 selectProveedor={selectProveedor}
+                validacionFlag={validacionFlag}
+                setValidacionFlag={setValidacionFlag}
               />
               <UbigeoEditarProveedor
                 register={register}

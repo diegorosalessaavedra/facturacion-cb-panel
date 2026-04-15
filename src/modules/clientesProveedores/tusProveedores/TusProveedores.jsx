@@ -8,7 +8,6 @@ import ModalNuevoProveedor from "./components/ModalNuevoProveedor/ModalNuevoProv
 import ModalEliminarProveedor from "./components/ModalEliminarProveedor";
 import ModalEditarProveedor from "./components/ModalEditarProveedor/ModalEditarProveedor";
 import FiltrarClientes from "../tusClientes/components/FiltrarClientes";
-import EEccProveedores from "./components/EEccProveedores";
 import { handleAxiosError } from "../../../utils/handleAxiosError";
 
 const TusProveedores = () => {
@@ -118,14 +117,6 @@ const TusProveedores = () => {
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           findProveedores={findProveedores}
-          selectProveedor={selectProveedor}
-        />
-      )}
-      {selectModal === "eecc" && selectProveedor && (
-        <EEccProveedores
-          key={selectProveedor.id}
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
           selectProveedor={selectProveedor}
         />
       )}

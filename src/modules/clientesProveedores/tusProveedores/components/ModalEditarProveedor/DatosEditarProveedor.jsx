@@ -1,4 +1,4 @@
-import { Button, Select, Input, SelectItem } from "@nextui-org/react";
+import { Button, Select, Input, SelectItem, Checkbox } from "@nextui-org/react";
 import React, { useState } from "react";
 import {
   inputClassNames,
@@ -20,6 +20,8 @@ const DatosEditarProveedor = ({
   setNombre,
   nombre,
   selectProveedor,
+  validacionFlag,
+  setValidacionFlag,
 }) => {
   const [errorFind, seterrorFind] = useState();
 
@@ -191,7 +193,6 @@ const DatosEditarProveedor = ({
           defaultValue={selectProveedor.alias_proveedor}
         />
         <Input
-          isRequired
           classNames={inputClassNames}
           labelPlacement="outside"
           type="text"
@@ -206,6 +207,15 @@ const DatosEditarProveedor = ({
           defaultValue={selectProveedor.telefono}
           onInput={onInputNumber}
         />
+        <Checkbox
+          className="m-auto"
+          isSelected={validacionFlag}
+          onValueChange={setValidacionFlag}
+          color="warning"
+          size="lg"
+        >
+          <span className="text-small font-medium">Detracción</span>
+        </Checkbox>
       </div>
     </>
   );

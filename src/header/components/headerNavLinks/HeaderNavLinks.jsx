@@ -118,6 +118,7 @@ const HeaderNavLinks = ({
       submenu: [
         { to: "/compras/nueva-orden-compra", label: "SOLPED" },
         { to: "/compras/ordenes-compra", label: "Status SOLPED" },
+        { to: "/compras/ee-cc-proveedores", label: "EECC Proveedores" },
       ],
     },
     {

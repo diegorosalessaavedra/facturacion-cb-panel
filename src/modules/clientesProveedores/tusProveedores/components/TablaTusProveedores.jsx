@@ -10,6 +10,7 @@ import {
   TableRow,
   Tooltip,
   Chip,
+  Checkbox,
 } from "@nextui-org/react";
 import { FaClipboardList, FaEdit, FaTrashAlt } from "react-icons/fa";
 
@@ -51,6 +52,7 @@ const TablaTusProveedores = ({
             <TableColumn>NRO CUENTA BCO</TableColumn>
             <TableColumn>DOCUMENTO</TableColumn>
             <TableColumn>NÚMERO</TableColumn>
+            <TableColumn align="center">DETRACCIÓN</TableColumn>
             <TableColumn align="center">ACCIONES</TableColumn>
           </TableHeader>
 
@@ -101,24 +103,17 @@ const TablaTusProveedores = ({
                 <TableCell className="font-mono font-semibold text-slate-700">
                   {proveedor.numeroDoc}
                 </TableCell>
+                <TableCell className="font-mono font-semibold text-slate-700">
+                  <Checkbox
+                    className="m-auto"
+                    isSelected={proveedor.detraccion_activo}
+                    color="warning"
+                    size="md"
+                  ></Checkbox>{" "}
+                </TableCell>
 
                 <TableCell>
                   <div className="flex gap-1 justify-center items-center">
-                    <Tooltip content="EECC" color="primary" showArrow size="sm">
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        variant="light"
-                        color="primary"
-                        onPress={() => {
-                          setSelectModal("eecc");
-                          setSelectProveedor(proveedor);
-                          onOpen();
-                        }}
-                      >
-                        <FaClipboardList className="text-lg" />
-                      </Button>
-                    </Tooltip>
                     <Tooltip
                       content="Editar"
                       color="warning"

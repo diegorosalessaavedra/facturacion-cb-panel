@@ -1,4 +1,4 @@
-import { Button, Select, Input, SelectItem } from "@nextui-org/react";
+import { Button, Select, Input, SelectItem, Checkbox } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import {
   inputClassNames,
@@ -20,6 +20,8 @@ const DatosNuevoProveedor = ({
   setTipoDoc,
   setNombre,
   nombre,
+  validacionFlag,
+  setValidacionFlag,
 }) => {
   const [errorFind, seterrorFind] = useState();
 
@@ -190,7 +192,6 @@ const DatosNuevoProveedor = ({
           color="primary"
           radius="sm"
           size="sm"
-          defaultValue={selectProveedor.alias_proveedor}
         />
         <Input
           isRequired
@@ -205,9 +206,17 @@ const DatosNuevoProveedor = ({
           radius="sm"
           size="sm"
           maxLength={9}
-          defaultValue={selectProveedor.telefono}
           onInput={onInputNumber}
         />
+        <Checkbox
+          className="m-auto"
+          isSelected={validacionFlag}
+          onValueChange={setValidacionFlag}
+          color="success"
+          size="lg"
+        >
+          <span className="text-small font-medium">Detracción</span>
+        </Checkbox>
       </div>
     </>
   );

@@ -44,6 +44,9 @@ const ComprobanteOrdenCompra = lazy(
 const EditarOrdenCompra = lazy(
   () => import("./modules/compras/editarOrdenCompra/EditarOrdenCompra"),
 );
+const EECCProveedores = lazy(
+  () => import("./modules/compras/eeccProveedores/EECCProveedores"),
+);
 
 // Productos
 const ComercializacionServicios = lazy(
@@ -329,6 +332,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <EditarOrdenCompra userData={userData} />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/compras/ee-cc-proveedores"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <EECCProveedores userData={userData} />
               </ProtectedRouteWrapper>
             }
           />

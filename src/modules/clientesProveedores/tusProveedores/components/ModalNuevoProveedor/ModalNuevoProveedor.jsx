@@ -24,7 +24,7 @@ const ModalNuevoProveedor = ({ isOpen, onOpenChange, findProveedores }) => {
     setError,
     clearErrors,
   } = useForm();
-
+  const [validacionFlag, setValidacionFlag] = useState(false);
   const [idDepartamento, setIdDepartamento] = useState();
   const [idProvincia, setIdProvincia] = useState();
   const [idDistrito, setIdDistrito] = useState();
@@ -70,6 +70,7 @@ const ModalNuevoProveedor = ({ isOpen, onOpenChange, findProveedores }) => {
       nro_cuenta_bco_2: data.nro_cuenta_bco_2,
       banco_beneficiario_2: data.banco_beneficiario_2,
       alias_proveedor: data.alias_proveedor,
+      detraccion_activo: validacionFlag,
     };
 
     const url = `${import.meta.env.VITE_URL_API}/proveedores`;
@@ -135,6 +136,8 @@ const ModalNuevoProveedor = ({ isOpen, onOpenChange, findProveedores }) => {
                 setDataRuc={setDataRuc}
                 nombre={nombre}
                 setNombre={setNombre}
+                validacionFlag={validacionFlag}
+                setValidacionFlag={setValidacionFlag}
               />
               <UbigeoNuevoProveedor
                 register={register}
