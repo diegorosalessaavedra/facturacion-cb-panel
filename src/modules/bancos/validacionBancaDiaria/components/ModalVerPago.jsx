@@ -132,6 +132,12 @@ const ModalVerPago = ({
       .finally(() => setLoading(false));
   };
 
+  const incluyeBCP =
+    selectPago.banco?.descripcion?.toLowerCase().includes("bcp") || false;
+
+  const incluyeBBVA =
+    selectPago.banco?.descripcion?.toLowerCase().includes("bbva") || false;
+
   return (
     <Modal
       isOpen={isOpen}
@@ -229,7 +235,13 @@ const ModalVerPago = ({
                     defaultSelectedKeys={
                       selectPago.datos_validacion
                         ? [selectPago.datos_validacion.banco]
-                        : []
+                        : [
+                            incluyeBCP
+                              ? "BCP"
+                              : incluyeBBVA
+                                ? "BBVA"
+                                : "AHORROS",
+                          ]
                     }
                     isDisabled={loading}
                   >
