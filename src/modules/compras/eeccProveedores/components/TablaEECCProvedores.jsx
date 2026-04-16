@@ -340,7 +340,7 @@ const TablaEECCProvedores = ({
                       pago?.banco?.banco ||
                       pago?.banco?.descripcion ||
                       pago?.banco ||
-                      (isFirstRow ? orden.banco_beneficiario : "-");
+                      "-";
 
                     return (
                       <tr
