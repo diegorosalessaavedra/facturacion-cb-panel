@@ -118,6 +118,30 @@ const FormularioRendicion = ({
     }
   }, [selectCategoria]);
 
+  const getMetodoPago = (egreso) => {
+    if (!egreso) return "Efectivo";
+
+    // Usamos Math.abs por si los egresos se guardan como números negativos
+    const tieneYape = Math.abs(Number(egreso.yape || 0)) > 0;
+
+    const tieneEfectivo =
+      Math.abs(Number(egreso.billete_200 || 0)) > 0 ||
+      Math.abs(Number(egreso.billete_100 || 0)) > 0 ||
+      Math.abs(Number(egreso.billete_50 || 0)) > 0 ||
+      Math.abs(Number(egreso.billete_20 || 0)) > 0 ||
+      Math.abs(Number(egreso.billete_10 || 0)) > 0 ||
+      Math.abs(Number(egreso.moneda_5 || 0)) > 0 ||
+      Math.abs(Number(egreso.moneda_2 || 0)) > 0 ||
+      Math.abs(Number(egreso.moneda_1 || 0)) > 0 ||
+      Math.abs(Number(egreso.moneda_05 || 0)) > 0 ||
+      Math.abs(Number(egreso.moneda_02 || 0)) > 0 ||
+      Math.abs(Number(egreso.moneda_01 || 0)) > 0;
+
+    if (tieneYape && tieneEfectivo) return "Yape y Efectivo";
+    if (tieneYape && !tieneEfectivo) return "Yape";
+    return "Efectivo";
+  };
+
   return (
     <section>
       {loading && <LoadingSpinner />}
@@ -228,8 +252,7 @@ const FormularioRendicion = ({
                 >
                   <p className="text-xs">
                     S/ {Math.abs(d.importe_desembolso)} (
-                    {formatDate(d.fecha_desembolso)}){" "}
-                    {d.egresos.yape < 0 ? `"Yape"` : `"Efectivo"`}
+                    {formatDate(d.fecha_desembolso)}) {getMetodoPago(d.egresos)}
                   </p>
                 </SelectItem>
               ))}
