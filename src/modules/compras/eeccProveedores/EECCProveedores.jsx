@@ -137,10 +137,10 @@ const EECCProveedores = () => {
               classNames={selectClassNames}
             >
               <SelectItem key="TODOS" textValue="TODOS">
-                TODOS
+                Todos
               </SelectItem>
               <SelectItem key="NINGUNO" textValue="NINGUNO">
-                NINGUNO
+                Ninguno
               </SelectItem>
               {productos2.map((p) => (
                 <SelectItem key={p.id.toString()} textValue={p.nombre}>
@@ -162,10 +162,10 @@ const EECCProveedores = () => {
               classNames={selectClassNames}
             >
               <SelectItem key="TODOS" textValue="TODOS">
-                TODOS
+                Todos
               </SelectItem>
               <SelectItem key="NINGUNO" textValue="NINGUNO">
-                NINGUNO
+                Ninguno
               </SelectItem>
               {productos.map((p) => (
                 <SelectItem key={p.id.toString()} textValue={p.nombre}>
