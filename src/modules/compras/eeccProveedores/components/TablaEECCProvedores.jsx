@@ -369,9 +369,16 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
 
                         <td
                           className="py-2 px-3 text-left text-slate-800 max-w-[150px] truncate border-r border-slate-200 bg-white"
-                          title={prod ? prod.descripcion_producto : "-"}
+                          title={
+                            prod
+                              ? prod.descripcion_producto ||
+                                prod.producto.nombre
+                              : "-"
+                          }
                         >
-                          {prod ? prod.descripcion_producto : "-"}
+                          {prod
+                            ? prod.descripcion_producto || prod.producto.nombre
+                            : "-"}
                         </td>
                         <td className="py-2 px-3 text-center text-slate-700 border-r border-slate-200 bg-white">
                           {prod ? numberPeru(prod.cantidad) : "-"}

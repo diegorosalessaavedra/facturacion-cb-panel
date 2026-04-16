@@ -19,13 +19,15 @@ const EECCProveedores = () => {
   const [proveedores, setProveedores] = useState([]);
   const [selectProveedor, setSelectProveedor] = useState(null);
   const [productos, setProductos] = useState([]);
-  const [selectProducto, setSelectProducto] = useState(null);
+  const [productos2, setProductos2] = useState([]);
+
+  // 1. Separamos los estados y usamos Set de JavaScript (Requisito de NextUI para selects múltiples)
+  const [selectComercial, setSelectComercial] = useState(new Set(["TODOS"]));
+  const [selectGastos, setSelectGastos] = useState(new Set(["TODOS"]));
 
   const findProveedores = useCallback(() => {
-    setLoading(true); // Fundamental para mostrar el loader al aplicar filtros
-
+    setLoading(true);
     const url = `${API}/proveedores`;
-
     axios
       .get(url, config)
       .then((res) => setProveedores(res.data.proveedores))
@@ -34,25 +36,36 @@ const EECCProveedores = () => {
   }, []);
 
   const handleFindProductos = useCallback(() => {
-    const url = `${API}/productos/mis-productos?tipo_producto=Comercialización y servicios&status=Activo`;
-
+    // "Costos y gastos" -> productos
+    const url = `${API}/productos/mis-productos?tipo_producto=Costos y gastos&status=Activo`;
     axios.get(url, config).then((res) => setProductos(res.data.misProductos));
+  }, []);
+
+  const handleFindProductos2 = useCallback(() => {
+    // "Comercialización y servicios" -> productos2
+    const url = `${API}/productos/mis-productos?tipo_producto=Comercialización y servicios&status=Activo`;
+    axios.get(url, config).then((res) => setProductos2(res.data.misProductos));
   }, []);
 
   useEffect(() => {
     findProveedores();
     handleFindProductos();
-  }, [findProveedores, handleFindProductos]);
+    handleFindProductos2();
+  }, [findProveedores, handleFindProductos, handleFindProductos2]);
 
   const onSelectionChange = (value) => {
     setSelectProveedor(value);
   };
 
-  const onSelectionProdcutoChange = (e) => {
-    setSelectProducto(e.target.value);
-  };
+  // 2. Unificamos los IDs seleccionados para mandarlos a la tabla
+  // Convertimos los Sets a Arrays, los unimos, y filtramos "TODOS" por si el usuario seleccionó IDs específicos
+  const allSelectedIds = [
+    ...Array.from(selectComercial),
+    ...Array.from(selectGastos),
+  ].filter((id) => id !== "TODOS");
 
-  console.log({ productos });
+  const productoIdsParaTabla =
+    allSelectedIds.length > 0 ? allSelectedIds.join(",") : "TODOS";
 
   return (
     <main className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
@@ -82,7 +95,6 @@ const EECCProveedores = () => {
         </header>
 
         <main className="flex-1 min-h-0 h-full flex flex-col gap-4">
-          {/* Título */}
           <div className="flex-none px-2 pt-2 flex items-center gap-2">
             <div className="w-1 h-6 bg-amber-500 rounded-full"></div>
             <h2 className="text-md font-semibold text-slate-700">
@@ -90,13 +102,13 @@ const EECCProveedores = () => {
             </h2>
           </div>
 
-          <section className="flex gap-4 max-w-3xl px-4">
+          <section className="flex gap-4 max-w-4xl px-4">
             <Autocomplete
               aria-label="Seleccione un Proveedor"
               label="Seleccione un Proveedor"
               inputProps={{
                 classNames: {
-                  input: "text-xs  bg-white",
+                  input: "text-xs bg-white",
                   inputWrapper:
                     "min-h-10 border-1.5 bg-white border-neutral-400",
                   label: "text-[0.8rem] text-neutral-800 font-semibold",
@@ -112,9 +124,7 @@ const EECCProveedores = () => {
                 <AutocompleteItem
                   key={item.id}
                   value={item.id}
-                  textValue={`${item.nombreComercial || item.nombreApellidos} -  ${
-                    item.numeroDoc
-                  }`}
+                  textValue={`${item.nombreComercial || item.nombreApellidos} - ${item.numeroDoc}`}
                 >
                   <p className="text-[11px]">
                     {item.nombreComercial || item.nombreApellidos} -{" "}
@@ -123,32 +133,57 @@ const EECCProveedores = () => {
                 </AutocompleteItem>
               ))}
             </Autocomplete>
+
             <Select
-              className="w-[100%] max-w-[300px]"
-              label="Filtrar por producto: "
+              className="w-[100%] max-w-[200px]"
+              label="Comercialización y servicios"
               labelPlacement="outside"
               variant="bordered"
-              selectedKeys={[selectProducto]}
+              selectionMode="multiple" // 3. Se mantiene el modo múltiple
+              selectedKeys={selectComercial} // 4. Pasamos el Set directamente (sin corchetes)
+              onSelectionChange={setSelectComercial} // 5. Usamos onSelectionChange en lugar de onChange
               radius="sm"
               size="sm"
-              onChange={onSelectionProdcutoChange}
+              classNames={selectClassNames}
+            >
+              <SelectItem key="TODOS" textValue="TODOS">
+                TODOS
+              </SelectItem>
+              {productos2.map((p) => (
+                <SelectItem key={p.id.toString()} textValue={p.nombre}>
+                  {p.nombre}
+                </SelectItem>
+              ))}
+            </Select>
+
+            <Select
+              className="w-[100%] max-w-[200px]"
+              label="Costos y gastos"
+              labelPlacement="outside"
+              variant="bordered"
+              selectionMode="multiple"
+              selectedKeys={selectGastos}
+              onSelectionChange={setSelectGastos}
+              radius="sm"
+              size="sm"
               classNames={selectClassNames}
             >
               <SelectItem key="TODOS" textValue="TODOS">
                 TODOS
               </SelectItem>
               {productos.map((p) => (
-                <SelectItem key={p.id} textValue={p.nombre}>
+                <SelectItem key={p.id.toString()} textValue={p.nombre}>
                   {p.nombre}
                 </SelectItem>
               ))}
             </Select>
           </section>
+
           {selectProveedor && (
             <TablaEECCProvedores
               key={selectProveedor}
               selectProveedor={selectProveedor}
-              selectProducto={selectProducto}
+              selectProducto={productoIdsParaTabla} // 6. Pasamos el string limpio ("1,2,5" o "TODOS")
             />
           )}
         </main>

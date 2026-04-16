@@ -206,7 +206,7 @@ export const descargarExcelProveedor = (
 
       // Datos del Producto
       {
-        v: prod ? prod.producto?.nombre || prod.descripcion_producto : "-",
+        v: prod ? prod.descripcion_producto || prod.producto?.nombre : "-",
         s: styles.cellGeneral,
       },
       { v: prod ? Number(prod.cantidad) : "-", s: styles.cellCentro },
