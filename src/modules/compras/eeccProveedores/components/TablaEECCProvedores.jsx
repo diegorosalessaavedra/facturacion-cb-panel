@@ -519,7 +519,7 @@ const TablaEECCProvedores = ({
                         ) : null}
 
                         <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
-                          {pago ? pago.createdAt?.split("T")[0] : "-"}
+                          {pago ? formatDate(pago.fecha) : "-"}
                         </td>
                         <td className="py-2 px-2 text-center font-bold text-slate-900 bg-slate-100/50 border-r border-slate-200">
                           {pago ? `S/ ${numberPeru(pago.monto)}` : "-"}

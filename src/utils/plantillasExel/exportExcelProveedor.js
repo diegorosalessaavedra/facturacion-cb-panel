@@ -268,7 +268,7 @@ export const descargarExcelProveedor = (
 
     // Datos del Pago
     rowData.push(
-      { v: pago ? pago.createdAt?.split("T")[0] : "-", s: styles.cellCentro },
+      { v: pago ? formatDate(pago.fecha) : "-", s: styles.cellCentro },
       {
         v: pago ? Number(pago.monto) : "-",
         t: pago ? "n" : "s",
