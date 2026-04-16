@@ -142,11 +142,13 @@ const EECCProveedores = () => {
               <SelectItem key="NINGUNO" textValue="NINGUNO">
                 Ninguno
               </SelectItem>
-              {productos2.map((p) => (
-                <SelectItem key={p.id.toString()} textValue={p.nombre}>
-                  {p.nombre}
-                </SelectItem>
-              ))}
+              {productos2
+                .filter((f) => f.nombre !== "Adelantos")
+                .map((p) => (
+                  <SelectItem key={p.id.toString()} textValue={p.nombre}>
+                    {p.nombre}
+                  </SelectItem>
+                ))}
             </Select>
 
             <Select

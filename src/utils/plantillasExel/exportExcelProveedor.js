@@ -10,6 +10,7 @@ export const descargarExcelProveedor = (
   tieneDetraccion = false, // NUEVO: Flag para saber si imprimimos la sección de detracción
 ) => {
   const formatoSoles = '"S/"#,##0.00';
+  const formatoNumber = "#,##0";
 
   // 1. Definir los estilos
   const styles = {
@@ -70,6 +71,11 @@ export const descargarExcelProveedor = (
       alignment: { horizontal: "right", vertical: "top" },
       border: { right: { style: "thin", color: { rgb: "E2E8F0" } } },
       numFmt: formatoSoles,
+    },
+    cellNumero: {
+      alignment: { horizontal: "right", vertical: "top" },
+      border: { right: { style: "thin", color: { rgb: "E2E8F0" } } },
+      numFmt: formatoNumber,
     },
     cellMonedaNegrita: {
       font: { bold: true },
@@ -184,10 +190,7 @@ export const descargarExcelProveedor = (
   rows.forEach((row) => {
     const { orden, prod, pago, isFirstRow, saldoActual } = row;
     const bancoNombre =
-      pago?.banco?.banco ||
-      pago?.banco?.descripcion ||
-      pago?.banco ||
-      (isFirstRow ? orden.banco_beneficiario : "-");
+      pago?.banco?.banco || pago?.banco?.descripcion || pago?.banco || "-";
     const detracData = formDetracciones[orden.id] || {};
 
     // Datos de la orden (Solo primera fila del bloque)
@@ -213,7 +216,7 @@ export const descargarExcelProveedor = (
       {
         v: prod ? Number(prod.cantidad) : "-",
         t: prod ? "n" : "s",
-        s: prod ? styles.cellMoneda : styles.cellDerecha,
+        s: prod ? styles.cellNumero : styles.cellDerecha,
       },
       {
         v: prod ? Number(prod.precioUnitario) : "-",
