@@ -228,7 +228,8 @@ const FormularioRendicion = ({
                 >
                   <p className="text-xs">
                     S/ {Math.abs(d.importe_desembolso)} (
-                    {formatDate(d.fecha_desembolso)})
+                    {formatDate(d.fecha_desembolso)}){" "}
+                    {d.egresos.yape > 0 ? `"Yape"` : `"Efectivo"`}
                   </p>
                 </SelectItem>
               ))}
