@@ -21,7 +21,7 @@ const EECCProveedores = () => {
   const [productos, setProductos] = useState([]);
   const [productos2, setProductos2] = useState([]);
 
-  // 1. Separamos los estados y usamos Set de JavaScript (Requisito de NextUI para selects múltiples)
+  // 1. Estados independientes (Sets)
   const [selectComercial, setSelectComercial] = useState(new Set(["TODOS"]));
   const [selectGastos, setSelectGastos] = useState(new Set(["TODOS"]));
 
@@ -57,18 +57,8 @@ const EECCProveedores = () => {
     setSelectProveedor(value);
   };
 
-  // 2. Unificamos los IDs seleccionados para mandarlos a la tabla
-  // Convertimos los Sets a Arrays, los unimos, y filtramos "TODOS" por si el usuario seleccionó IDs específicos
-  const allSelectedIds = [
-    ...Array.from(selectComercial),
-    ...Array.from(selectGastos),
-  ].filter((id) => id !== "TODOS");
-
-  const productoIdsParaTabla =
-    allSelectedIds.length > 0 ? allSelectedIds.join(",") : "TODOS";
-
   return (
-    <main className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
+    <main className="w-full h-[100vh] bg-slate-100 p-2 pt-[90px] overflow-hidden">
       {loading && <LoadingSpinner />}
 
       <motion.div
@@ -139,15 +129,18 @@ const EECCProveedores = () => {
               label="Comercialización y servicios"
               labelPlacement="outside"
               variant="bordered"
-              selectionMode="multiple" // 3. Se mantiene el modo múltiple
-              selectedKeys={selectComercial} // 4. Pasamos el Set directamente (sin corchetes)
-              onSelectionChange={setSelectComercial} // 5. Usamos onSelectionChange en lugar de onChange
+              selectionMode="multiple"
+              selectedKeys={selectComercial}
+              onSelectionChange={setSelectComercial}
               radius="sm"
               size="sm"
               classNames={selectClassNames}
             >
               <SelectItem key="TODOS" textValue="TODOS">
                 TODOS
+              </SelectItem>
+              <SelectItem key="NINGUNO" textValue="NINGUNO">
+                NINGUNO
               </SelectItem>
               {productos2.map((p) => (
                 <SelectItem key={p.id.toString()} textValue={p.nombre}>
@@ -171,6 +164,9 @@ const EECCProveedores = () => {
               <SelectItem key="TODOS" textValue="TODOS">
                 TODOS
               </SelectItem>
+              <SelectItem key="NINGUNO" textValue="NINGUNO">
+                NINGUNO
+              </SelectItem>
               {productos.map((p) => (
                 <SelectItem key={p.id.toString()} textValue={p.nombre}>
                   {p.nombre}
@@ -179,13 +175,32 @@ const EECCProveedores = () => {
             </Select>
           </section>
 
-          {selectProveedor && (
-            <TablaEECCProvedores
-              key={selectProveedor}
-              selectProveedor={selectProveedor}
-              selectProducto={productoIdsParaTabla} // 6. Pasamos el string limpio ("1,2,5" o "TODOS")
-            />
-          )}
+          {/* 3. Preparamos las props antes de enviarlas a la tabla */}
+          {selectProveedor &&
+            (() => {
+              // Filtramos "TODOS" de los Sets (si el usuario seleccionó ítems específicos)
+              const arrComercial = Array.from(selectComercial).filter(
+                (id) => id !== "TODOS",
+              );
+              const arrGastos = Array.from(selectGastos).filter(
+                (id) => id !== "TODOS",
+              );
+
+              // Convertimos a string o devolvemos "TODOS" por defecto
+              const stringComercial =
+                arrComercial.length > 0 ? arrComercial.join(",") : "TODOS";
+              const stringGastos =
+                arrGastos.length > 0 ? arrGastos.join(",") : "TODOS";
+
+              return (
+                <TablaEECCProvedores
+                  key={selectProveedor}
+                  selectProveedor={selectProveedor}
+                  selectComercial={stringComercial}
+                  selectGastos={stringGastos}
+                />
+              );
+            })()}
         </main>
       </motion.div>
     </main>

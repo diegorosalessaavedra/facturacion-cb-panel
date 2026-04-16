@@ -9,7 +9,11 @@ import formatDate from "../../../../hooks/FormatDate";
 import { numberPeru } from "../../../../assets/onInputs";
 import { descargarExcelProveedor } from "../../../../utils/plantillasExel/exportExcelProveedor";
 
-const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
+const TablaEECCProvedores = ({
+  selectProveedor,
+  selectGastos,
+  selectComercial,
+}) => {
   const [dataProveedor, setDataProveedor] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +27,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
     let isMounted = true;
     setLoading(true);
 
-    const url = `${API}/proveedores/${selectProveedor}?${selectProducto && selectProducto !== "TODOS" && `producto_id=${selectProducto}`}`;
+    const url = `${API}/proveedores/${selectProveedor}?${selectGastos && `gastos=${selectGastos}&${selectComercial && `comercial=${selectComercial}`}`}`;
 
     axios
       .get(url, config)
@@ -38,7 +42,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
     return () => {
       isMounted = false;
     };
-  }, [selectProveedor, selectProducto]);
+  }, [selectProveedor, selectGastos, selectComercial]);
 
   // 2. Efecto para inicializar el estado de los inputs de detracción
   useEffect(() => {
@@ -61,6 +65,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
           fecha_detraccion: fechaFormateada,
           porcentaje_detraccion: det?.porcentaje_detraccion || "",
           monto_detraccion: det?.monto_detraccion || "",
+          serie_correlativo: det?.serie_correlativo || "",
           isModified: false,
           isSaving: false,
         };
@@ -174,6 +179,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
         fecha_detraccion: currentForm.fecha_detraccion,
         porcentaje_detraccion: currentForm.porcentaje_detraccion,
         monto_detraccion: currentForm.monto_detraccion,
+        serie_correlativo: currentForm.serie_correlativo,
       };
 
       const response = await axios.post(
@@ -182,15 +188,13 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
         config,
       );
 
-      // Si el backend nos devuelve la detracción creada/actualizada (en response.data.data),
-      // extraemos su ID para actualizar nuestro estado
       const updatedDetraccionId = response.data?.data?.id || detraccionId;
 
       setFormDetracciones((prev) => ({
         ...prev,
         [ordenId]: {
           ...prev[ordenId],
-          id: updatedDetraccionId, // Actualizamos el ID por si acaso recién se creó
+          id: updatedDetraccionId,
           isSaving: false,
           isModified: false,
         },
@@ -204,7 +208,6 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
     }
   };
 
-  // --- RENDERIZADO CONDICIONAL ---
   const renderStatusBadge = (saldo) => {
     const configBadge = {
       debe: { color: "bg-red-500", text: "Debe" },
@@ -220,7 +223,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
     return (
       <td
         colSpan="2"
-        className={`${status.color} py-3 px-3 text-center font-bold text-white uppercase tracking-widest`}
+        className={`${status.color} py-3 px-2 text-center font-bold text-white uppercase tracking-widest`}
       >
         {status.text}
       </td>
@@ -258,21 +261,21 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                 <tr>
                   <th
                     colSpan="7"
-                    className="bg-blue-700 text-white font-bold text-center py-3 px-3 tracking-wider border-r border-blue-800"
+                    className="bg-blue-700 text-white font-bold text-center py-3 px-2 tracking-wider border-r border-blue-800"
                   >
                     DETALLE DE ENVÍO
                   </th>
                   {tieneDetraccion && (
                     <th
                       colSpan="4"
-                      className="bg-amber-500 text-white font-bold text-center py-3 px-3 tracking-wider border-r border-amber-600"
+                      className="bg-amber-500 text-white font-bold text-center py-3 px-2 tracking-wider border-r border-amber-600"
                     >
                       DETRACCIONES
                     </th>
                   )}
                   <th
                     colSpan="5"
-                    className="bg-green-600 text-white font-bold text-center py-3 px-3 tracking-wider"
+                    className="bg-green-600 text-white font-bold text-center py-3 px-2 tracking-wider"
                   >
                     DETALLE DE PAGO
                   </th>
@@ -289,7 +292,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                   ].map((title, i) => (
                     <th
                       key={`envio-${i}`}
-                      className="bg-blue-100 text-slate-900 font-bold text-center py-2 px-3 border-b border-r border-slate-300"
+                      className="w-fit bg-blue-100 text-slate-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300"
                     >
                       {title}
                     </th>
@@ -300,7 +303,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                       (title, i) => (
                         <th
                           key={`detrac-${i}`}
-                          className="bg-amber-50 text-amber-900 font-bold text-center py-2 px-3 border-b border-r border-slate-300"
+                          className="bg-amber-50 text-amber-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300"
                         >
                           {title}
                         </th>
@@ -311,7 +314,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                     (title, i) => (
                       <th
                         key={`pago-${i}`}
-                        className="bg-green-50 text-slate-800 font-bold text-center py-2 px-3 border-b border-r last:border-r-0 border-slate-300"
+                        className="bg-green-50 text-slate-800 font-bold text-center py-2 px-2 border-b border-r last:border-r-0 border-slate-300"
                       >
                         {title}
                       </th>
@@ -348,45 +351,61 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                           <>
                             <td
                               rowSpan={maxRows}
-                              className="py-2 px-3 text-center align-top font-medium text-slate-700 border-r border-slate-200 bg-white"
+                              className="py-2 px-2 text-center align-center font-medium text-slate-700 border-r border-slate-200 bg-white"
                             >
                               {formatDate(orden.fechaEmision) || "-"}
                             </td>
                             <td
                               rowSpan={maxRows}
-                              className="py-2 px-3 text-center align-top font-bold text-slate-900 border-r border-slate-200 bg-white"
+                              className="py-2 px-2 text-center align-center font-bold text-slate-900 border-r border-slate-200 bg-white"
                             >
                               {`COD-000${formatWithLeadingZeros(orden?.id, 3)}`}
                             </td>
                             <td
                               rowSpan={maxRows}
-                              className="py-2 px-3 text-center align-top italic text-slate-600 border-r border-slate-200 bg-white"
+                              className="max-w-20 p-2 text-center border-r border-slate-200 bg-amber-50/20 align-center"
                             >
-                              {orden.comprobante?.serie || "-"}
+                              <input
+                                type="text"
+                                className="w-20 border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
+                                value={
+                                  formDetracciones[orden.id]
+                                    ?.serie_correlativo || ""
+                                }
+                                placeholder="serie-001"
+                                onChange={(e) =>
+                                  handleInputDetraccion(
+                                    orden.id,
+                                    "serie_correlativo",
+                                    e.target.value,
+                                  )
+                                }
+                              />{" "}
                             </td>
                           </>
                         ) : null}
 
                         <td
-                          className="py-2 px-3 text-left text-slate-800 max-w-[150px] truncate border-r border-slate-200 bg-white"
+                          className="py-2 px-2 text-left text-slate-800 min-w-[150px] truncate border-r border-slate-200 bg-white"
                           title={
-                            prod
-                              ? prod.descripcion_producto ||
-                                prod.producto.nombre
-                              : "-"
+                            (prod.descripcion_producto !== "null" &&
+                              prod.descripcion_producto) ||
+                            prod.producto?.nombre ||
+                            "-"
                           }
                         >
-                          {prod
-                            ? prod.descripcion_producto || prod.producto.nombre
-                            : "-"}
+                          {(prod.descripcion_producto !== "null" &&
+                            prod.descripcion_producto) ||
+                            prod.producto?.nombre ||
+                            "-"}
                         </td>
-                        <td className="py-2 px-3 text-center text-slate-700 border-r border-slate-200 bg-white">
+                        <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
                           {prod ? numberPeru(prod.cantidad) : "-"}
                         </td>
-                        <td className="py-2 px-3 text-right font-medium text-slate-700 border-r border-slate-200 bg-white">
+                        <td className="py-2 px-2 text-center font-medium text-slate-700 border-r border-slate-200 bg-white">
                           {prod ? `S/ ${numberPeru(prod.precioUnitario)}` : "-"}
                         </td>
-                        <td className="py-2 px-3 text-right font-bold text-slate-900 border-r border-slate-300 bg-white">
+                        <td className="py-2 px-2 text-center font-bold text-slate-900 border-r border-slate-300 bg-white">
                           {prod ? `S/ ${numberPeru(prod.total)}` : "-"}
                         </td>
 
@@ -395,7 +414,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                             <>
                               <td
                                 rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-top"
+                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-center"
                               >
                                 <input
                                   className="w-[60px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
@@ -415,11 +434,11 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                               </td>
                               <td
                                 rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-top"
+                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-center"
                               >
                                 <input
                                   type="date"
-                                  className="w-min border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
+                                  className="w-[110px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
                                   value={
                                     formDetracciones[orden.id]
                                       ?.fecha_detraccion || ""
@@ -435,11 +454,11 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                               </td>
                               <td
                                 rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-top"
+                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-center"
                               >
                                 <div className="flex items-center gap-1 justify-center">
                                   <input
-                                    className="w-12 border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-right bg-white"
+                                    className="w-12 border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-center bg-white"
                                     placeholder="12"
                                     value={
                                       formDetracciones[orden.id]
@@ -460,12 +479,12 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                               </td>
                               <td
                                 rowSpan={maxRows}
-                                className="p-2 text-right border-r border-slate-300 bg-amber-50/40 align-top relative"
+                                className="p-2 text-center border-r border-slate-300 bg-amber-50/40 align-center relative"
                               >
-                                <div className="flex flex-col gap-2 items-end min-w-[90px]">
+                                <div className="flex flex-col gap-2 items-end ">
                                   <input
                                     readOnly
-                                    className="w-full border border-slate-200 rounded px-2 py-1.5 text-xs outline-none text-right font-bold bg-slate-100 text-slate-600 cursor-not-allowed"
+                                    className="w-[100px] border border-slate-200 rounded px-2 py-1.5 text-xs outline-none text-center font-bold bg-slate-100 text-slate-600 cursor-not-allowed"
                                     placeholder="S/ 0"
                                     value={
                                       formDetracciones[orden.id]
@@ -478,7 +497,7 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                                       size="sm"
                                       color="warning"
                                       variant="solid"
-                                      className="h-7 text-[10px] w-full font-bold shadow-sm"
+                                      className="h-7 text-[10px] w-fit font-bold shadow-sm"
                                       isLoading={
                                         formDetracciones[orden.id]?.isSaving
                                       }
@@ -493,19 +512,19 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                           ) : null
                         ) : null}
 
-                        <td className="py-2 px-3 text-center text-slate-700 border-r border-slate-200 bg-white">
+                        <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
                           {pago ? pago.createdAt?.split("T")[0] : "-"}
                         </td>
-                        <td className="py-2 px-3 text-right font-bold text-slate-900 bg-slate-100/50 border-r border-slate-200">
+                        <td className="py-2 px-2 text-center font-bold text-slate-900 bg-slate-100/50 border-r border-slate-200">
                           {pago ? `S/ ${numberPeru(pago.monto)}` : "-"}
                         </td>
-                        <td className="py-2 px-3 text-right font-bold text-red-600 bg-red-50/40 border-r border-slate-300">
+                        <td className="py-2 px-2 text-center font-bold text-red-600 bg-red-50/40 border-r border-slate-300">
                           S/ {numberPeru(saldoActual)}
                         </td>
-                        <td className="py-2 px-3 text-center text-slate-700 bg-white border-r border-slate-200">
+                        <td className="py-2 px-2 text-center text-slate-700 bg-white border-r border-slate-200">
                           {pago ? pago.operacion : "-"}
                         </td>
-                        <td className="py-2 px-3 text-center text-slate-700 bg-white">
+                        <td className="py-2 px-2 text-center text-slate-700 bg-white">
                           {bancoNombre}
                         </td>
                       </tr>
@@ -528,12 +547,12 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                   <tr className="bg-slate-900 border-t-2 border-slate-700 text-xs text-white">
                     <td
                       colSpan={colSpanPrevioTotales}
-                      className="py-3 px-3 border-r border-slate-500 bg-white"
+                      className="py-3 px-2 border-r border-slate-500 bg-white"
                     ></td>
-                    <td className="py-3 px-3 text-right font-bold uppercase tracking-wide border-r border-slate-500">
+                    <td className="py-3 px-2 text-center font-bold uppercase tracking-wide border-r border-slate-500">
                       TOTALES
                     </td>
-                    <td className="py-3 px-3 text-right font-black border-r border-slate-500 text-[13px]">
+                    <td className="py-3 px-2 text-center font-black border-r border-slate-500 text-[13px]">
                       S/ {numberPeru(totalSaldo)}
                     </td>
                     {renderStatusBadge(totalSaldo)}
@@ -541,29 +560,29 @@ const TablaEECCProvedores = ({ selectProveedor, selectProducto }) => {
                 </tfoot>
               )}
             </table>
+            <footer className="p-4   flex justify-end gap-2 shrink-0">
+              <Button
+                color="success"
+                variant="flat"
+                isDisabled={rows.length === 0}
+                onClick={() => {
+                  descargarExcelProveedor(
+                    rows,
+                    totalSaldo,
+                    dataProveedor?.nombreComercial ||
+                      dataProveedor?.nombreApellidos ||
+                      "Sin_Nombre",
+                    formDetracciones, // Pasa tu estado React aquí
+                    tieneDetraccion, // Pasa la variable booleana que ya tenías
+                  );
+                }}
+              >
+                Exportar Excel
+              </Button>
+            </footer>
           </div>
         )}
       </section>
-      <footer className="p-4 bg-slate-100 border-t border-slate-200 flex justify-end gap-2 shrink-0">
-        <Button
-          color="success"
-          variant="flat"
-          isDisabled={rows.length === 0}
-          onClick={() => {
-            descargarExcelProveedor(
-              rows,
-              totalSaldo,
-              dataProveedor?.nombreComercial ||
-                dataProveedor?.nombreApellidos ||
-                "Sin_Nombre",
-              formDetracciones, // Pasa tu estado React aquí
-              tieneDetraccion, // Pasa la variable booleana que ya tenías
-            );
-          }}
-        >
-          Exportar Excel
-        </Button>
-      </footer>
     </div>
   );
 };

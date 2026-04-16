@@ -188,6 +188,7 @@ export const descargarExcelProveedor = (
       pago?.banco?.descripcion ||
       pago?.banco ||
       (isFirstRow ? orden.banco_beneficiario : "-");
+    const detracData = formDetracciones[orden.id] || {};
 
     // Datos de la orden (Solo primera fila del bloque)
     const rowData = [
@@ -200,7 +201,7 @@ export const descargarExcelProveedor = (
         s: styles.cellCentro,
       },
       {
-        v: isFirstRow ? orden.comprobante?.serie || "-" : "",
+        v: isFirstRow ? detracData.serie_correlativo || "-" : "",
         s: styles.cellCentro,
       },
 
@@ -209,7 +210,11 @@ export const descargarExcelProveedor = (
         v: prod ? prod.descripcion_producto || prod.producto?.nombre : "-",
         s: styles.cellGeneral,
       },
-      { v: prod ? Number(prod.cantidad) : "-", s: styles.cellCentro },
+      {
+        v: prod ? Number(prod.cantidad) : "-",
+        t: prod ? "n" : "s",
+        s: prod ? styles.cellMoneda : styles.cellDerecha,
+      },
       {
         v: prod ? Number(prod.precioUnitario) : "-",
         t: prod ? "n" : "s",
