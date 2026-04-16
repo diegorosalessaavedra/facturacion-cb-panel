@@ -8,6 +8,7 @@ import { formatWithLeadingZeros } from "../../../../assets/formats";
 import formatDate from "../../../../hooks/FormatDate";
 import { numberPeru } from "../../../../assets/onInputs";
 import { descargarExcelProveedor } from "../../../../utils/plantillasExel/exportExcelProveedor";
+import { SaveIcon } from "lucide-react";
 
 const TablaEECCProvedores = ({
   selectProveedor,
@@ -78,7 +79,6 @@ const TablaEECCProvedores = ({
   const { rows, totalSaldo } = useMemo(() => {
     if (!dataProveedor?.ordenesCompra) return { rows: [], totalSaldo: 0 };
 
-    // Este mantendrá el saldo total histórico solo para la fila de TOTALES al final de la tabla
     let acumuladorFooter = 0;
 
     const allRows = dataProveedor.ordenesCompra
@@ -92,19 +92,16 @@ const TablaEECCProvedores = ({
         const montoDetraccion =
           parseFloat(formDetracciones[orden.id]?.monto_detraccion) || 0;
 
-        // NUEVO: El saldo se inicializa en 0 POR CADA ORDEN DE COMPRA
         let saldoPorOrden = 0;
 
         return Array.from({ length: maxRows }, (_, i) => {
           const prod = productos[i];
           const pago = pagos[i];
 
-          // 1. Calculamos el saldo aislado de la orden actual
           if (prod) saldoPorOrden += parseFloat(prod.total || 0);
           if (pago) saldoPorOrden -= parseFloat(pago.monto || 0);
           if (i === 0) saldoPorOrden -= montoDetraccion;
 
-          // 2. Acumulamos para el Gran Total del proveedor (para el tfoot)
           if (prod) acumuladorFooter += parseFloat(prod.total || 0);
           if (pago) acumuladorFooter -= parseFloat(pago.monto || 0);
           if (i === 0) acumuladorFooter -= montoDetraccion;
@@ -115,7 +112,7 @@ const TablaEECCProvedores = ({
             pago,
             isFirstRow: i === 0,
             maxRows,
-            saldoActual: saldoPorOrden, // Pasamos el saldo individual de la orden a la fila
+            saldoActual: saldoPorOrden,
             key: `${orden.id}-${i}`,
           };
         });
@@ -170,7 +167,7 @@ const TablaEECCProvedores = ({
 
     try {
       const currentForm = formDetracciones[ordenId];
-      const detraccionId = currentForm.id || 0; // Usamos el ID de la detracción, o 0 si no existe
+      const detraccionId = currentForm.id || 0;
 
       const payload = {
         proveedor_id: selectProveedor,
@@ -231,8 +228,9 @@ const TablaEECCProvedores = ({
   };
 
   const tieneDetraccion = Boolean(dataProveedor?.detraccion_activo);
-  const colSpanPrevioTotales = tieneDetraccion ? 11 : 7;
-  const totalColSpanVacio = tieneDetraccion ? 16 : 12;
+  // Modificamos los colSpans sumándole +1 por la nueva columna "Acción"
+  const colSpanPrevioTotales = tieneDetraccion ? 12 : 8;
+  const totalColSpanVacio = tieneDetraccion ? 17 : 13;
 
   return (
     <div className="flex flex-col min-h-[90vh] max-h-[90vh] w-full max-w-[1800px] mx-auto bg-slate-50 shadow-xl rounded-lg overflow-hidden border border-slate-200">
@@ -259,8 +257,9 @@ const TablaEECCProvedores = ({
             <table className="w-full text-left border-collapse text-[11px] whitespace-nowrap">
               <thead className="sticky top-0 z-20 shadow-sm">
                 <tr>
+                  {/* Se ajusta a colSpan="8" para incluir la columna del botón */}
                   <th
-                    colSpan="7"
+                    colSpan="8"
                     className="bg-blue-700 text-white font-bold text-center py-3 px-2 tracking-wider border-r border-blue-800"
                   >
                     DETALLE DE ENVÍO
@@ -282,6 +281,7 @@ const TablaEECCProvedores = ({
                 </tr>
                 <tr>
                   {[
+                    "-", // <- Agregamos este título vacío para la columna del botón "Guardar"
                     "Fecha",
                     "SOLPED",
                     "Serie Correlativo",
@@ -292,7 +292,7 @@ const TablaEECCProvedores = ({
                   ].map((title, i) => (
                     <th
                       key={`envio-${i}`}
-                      className="w-fit bg-blue-100 text-slate-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300"
+                      className=" bg-blue-100 text-slate-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300"
                     >
                       {title}
                     </th>
@@ -349,21 +349,42 @@ const TablaEECCProvedores = ({
                       >
                         {isFirstRow ? (
                           <>
+                            {/* NUEVA CELDA: Fija para la columna del botón de guardar */}
                             <td
                               rowSpan={maxRows}
-                              className="py-2 px-2 text-center align-center font-medium text-slate-700 border-r border-slate-200 bg-white"
+                              className=" py-2  text-center align-middle border-r border-slate-200 bg-slate-50 min-w-[50px]"
+                            >
+                              {formDetracciones[orden.id]?.isModified ? (
+                                <Button
+                                  size="sm"
+                                  color="warning"
+                                  variant="solid"
+                                  className="h-7 text-[10px] min-w-fit font-bold shadow-sm"
+                                  isLoading={
+                                    formDetracciones[orden.id]?.isSaving
+                                  }
+                                  onClick={() => saveDetraccion(orden.id)}
+                                >
+                                  <SaveIcon size={18} />
+                                </Button>
+                              ) : null}
+                            </td>
+
+                            <td
+                              rowSpan={maxRows}
+                              className="py-2 px-2 text-center align-middle font-medium text-slate-700 border-r border-slate-200 bg-white"
                             >
                               {formatDate(orden.fechaEmision) || "-"}
                             </td>
                             <td
                               rowSpan={maxRows}
-                              className="py-2 px-2 text-center align-center font-bold text-slate-900 border-r border-slate-200 bg-white"
+                              className="py-2 px-2 text-center align-middle font-bold text-slate-900 border-r border-slate-200 bg-white"
                             >
                               {`COD-000${formatWithLeadingZeros(orden?.id, 3)}`}
                             </td>
                             <td
                               rowSpan={maxRows}
-                              className="max-w-20 p-2 text-center border-r border-slate-200 bg-amber-50/20 align-center"
+                              className="max-w-20 p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
                             >
                               <input
                                 type="text"
@@ -380,7 +401,7 @@ const TablaEECCProvedores = ({
                                     e.target.value,
                                   )
                                 }
-                              />{" "}
+                              />
                             </td>
                           </>
                         ) : null}
@@ -400,7 +421,7 @@ const TablaEECCProvedores = ({
                             "-"}
                         </td>
                         <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
-                          {prod ? numberPeru(prod.cantidad) : "-"}
+                          {prod ? Number(prod.cantidad).toFixed(0) : "-"}
                         </td>
                         <td className="py-2 px-2 text-center font-medium text-slate-700 border-r border-slate-200 bg-white">
                           {prod ? `S/ ${numberPeru(prod.precioUnitario)}` : "-"}
@@ -414,7 +435,7 @@ const TablaEECCProvedores = ({
                             <>
                               <td
                                 rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-center"
+                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
                               >
                                 <input
                                   className="w-[60px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
@@ -434,7 +455,7 @@ const TablaEECCProvedores = ({
                               </td>
                               <td
                                 rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-center"
+                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
                               >
                                 <input
                                   type="date"
@@ -454,12 +475,12 @@ const TablaEECCProvedores = ({
                               </td>
                               <td
                                 rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-center"
+                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
                               >
                                 <div className="flex items-center gap-1 justify-center">
                                   <input
                                     className="w-12 border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-center bg-white"
-                                    placeholder="12"
+                                    placeholder="0"
                                     value={
                                       formDetracciones[orden.id]
                                         ?.porcentaje_detraccion || ""
@@ -479,7 +500,7 @@ const TablaEECCProvedores = ({
                               </td>
                               <td
                                 rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-300 bg-amber-50/40 align-center relative"
+                                className="p-2 text-center border-r border-slate-300 bg-amber-50/40 align-middle relative"
                               >
                                 <div className="flex flex-col gap-2 items-end ">
                                   <input
@@ -491,21 +512,6 @@ const TablaEECCProvedores = ({
                                         ?.monto_detraccion || ""
                                     }
                                   />
-
-                                  {formDetracciones[orden.id]?.isModified && (
-                                    <Button
-                                      size="sm"
-                                      color="warning"
-                                      variant="solid"
-                                      className="h-7 text-[10px] w-fit font-bold shadow-sm"
-                                      isLoading={
-                                        formDetracciones[orden.id]?.isSaving
-                                      }
-                                      onClick={() => saveDetraccion(orden.id)}
-                                    >
-                                      Guardar
-                                    </Button>
-                                  )}
                                 </div>
                               </td>
                             </>
@@ -560,7 +566,7 @@ const TablaEECCProvedores = ({
                 </tfoot>
               )}
             </table>
-            <footer className="p-4   flex justify-end gap-2 shrink-0">
+            <footer className="p-4 flex justify-end gap-2 shrink-0">
               <Button
                 color="success"
                 variant="flat"
@@ -572,8 +578,8 @@ const TablaEECCProvedores = ({
                     dataProveedor?.nombreComercial ||
                       dataProveedor?.nombreApellidos ||
                       "Sin_Nombre",
-                    formDetracciones, // Pasa tu estado React aquí
-                    tieneDetraccion, // Pasa la variable booleana que ya tenías
+                    formDetracciones,
+                    tieneDetraccion,
                   );
                 }}
               >
