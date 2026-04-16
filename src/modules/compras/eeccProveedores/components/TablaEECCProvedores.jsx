@@ -229,7 +229,7 @@ const TablaEECCProvedores = ({
 
   const tieneDetraccion = Boolean(dataProveedor?.detraccion_activo);
   // Modificamos los colSpans sumándole +1 por la nueva columna "Acción"
-  const colSpanPrevioTotales = tieneDetraccion ? 12 : 8;
+  const colSpanPrevioTotales = tieneDetraccion ? 13 : 8;
   const totalColSpanVacio = tieneDetraccion ? 17 : 13;
 
   return (
@@ -566,7 +566,7 @@ const TablaEECCProvedores = ({
                 </tfoot>
               )}
             </table>
-            <footer className="p-4 flex justify-end gap-2 shrink-0">
+            <footer className=" w-full p-4 flex justify-end gap-2 shrink-0">
               <Button
                 color="success"
                 variant="flat"

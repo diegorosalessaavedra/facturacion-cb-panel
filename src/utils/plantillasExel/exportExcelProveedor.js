@@ -236,7 +236,10 @@ export const descargarExcelProveedor = (
         const detracData = formDetracciones[orden.id] || {};
         rowData.push(
           { v: detracData.codigo_detraccion || "-", s: styles.cellCentro },
-          { v: detracData.fecha_detraccion || "-", s: styles.cellCentro },
+          {
+            v: formatDate(detracData.fecha_detraccion) || "-",
+            s: styles.cellCentro,
+          },
           {
             v: detracData.porcentaje_detraccion
               ? `${detracData.porcentaje_detraccion}%`
@@ -281,7 +284,7 @@ export const descargarExcelProveedor = (
 
   // 4. Agregar el Footer (Gran Total)
   if (rows.length > 0) {
-    const totalColsToSkip = tieneDetraccion ? 11 : 7; // Columnas vacías antes de "TOTALES"
+    const totalColsToSkip = tieneDetraccion ? 12 : 7; // Columnas vacías antes de "TOTALES"
     const footerRow = [];
 
     // Rellenar celdas previas vacías
