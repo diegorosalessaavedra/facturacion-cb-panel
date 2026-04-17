@@ -6,6 +6,11 @@ import { generarPDFRendiciones } from "../../../../utils/plantillasPdf/generarPD
 import SolicitarAnularRendicion from "./SolicitarAnularRendicion";
 import { Trash2 } from "lucide-react";
 import CargarSustentoRendicion from "./CargarSustentoRendicion";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
+import { handleAxiosError } from "../../../../utils/handleAxiosError";
+import { API } from "../../../../utils/api";
+import config from "../../../../utils/getToken";
+import axios from "axios";
 
 const stickyHeader = "sticky top-0 z-20";
 const stickySubHeader = "sticky top-[30px] z-20";
@@ -28,6 +33,7 @@ const TablaHistoricoRendicion = ({
     onOpen: onOpenSustento,
     onOpenChange: onOpenChangeSustento,
   } = useDisclosure();
+  const [loading, setLoading] = useState(false);
 
   const [selectRendicion, setSelectedRendicion] = useState(null);
 
@@ -49,8 +55,23 @@ const TablaHistoricoRendicion = ({
     onOpenSustento();
   };
 
+  const handlePdf = (id) => {
+    setLoading(true);
+
+    const url = `${API}/caja-chica/rendicion/${id}`;
+    axios
+      .get(url, config)
+      .then((res) => {
+        generarPDFRendiciones(res.data.rendicion);
+      })
+      .catch((err) => handleAxiosError(err))
+      .finally(() => setLoading(false));
+  };
+
   return (
     <div className="relative w-full h-full flex flex-col gap-2 overflow-hidden">
+      {loading && <LoadingSpinner />}
+
       <div className="flex-1 w-full  pb-4 overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
         <div
           className="grid"
@@ -138,7 +159,7 @@ const TablaHistoricoRendicion = ({
                 <div
                   className={`${cellBase} font-semibold cursor-pointer`}
                   style={spanStyle}
-                  onClick={() => generarPDFRendiciones(item)}
+                  onClick={() => handlePdf(item.id)}
                 >
                   <Tooltip content="Generar pdf" showArrow={true} size="sm">
                     <p className="text-red-600">

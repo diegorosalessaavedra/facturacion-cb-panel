@@ -236,7 +236,7 @@ export const generarPDFRendiciones = (rendicion) => {
       cellPadding: 2.5,
     },
     columnStyles: {
-      0: { cellWidth: 7 },
+      0: { cellWidth: 10 },
       1: { cellWidth: 18 },
       3: { cellWidth: 25 },
       6: { halign: "right", fontStyle: "bold", cellWidth: 22 },

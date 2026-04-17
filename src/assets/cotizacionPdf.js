@@ -7,355 +7,358 @@ import { formatNumber, formatWithLeadingZeros } from "./formats";
 const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   const doc = new jsPDF();
 
-  // Asegúrate de que selectCotizacion no sea null o undefined
   if (!selectCotizacion || !selectCotizacion.cliente) {
     console.error("No se proporcionaron datos válidos para la cotización.");
     return;
   }
 
-  // Estilos generales
-  doc.setFontSize(8);
+  // ==========================================
+  // 🎨 PALETA DE COLORES (Slate / Amber / Red)
+  // ==========================================
+  const slate900 = [15, 23, 42]; // #0f172a
+  const amber500 = [245, 158, 11]; // #f59e0b
+  const red600 = [220, 38, 38]; // #dc2626 (Solo para destacar el total final)
+  const white = [255, 255, 255];
+  const black = [0, 0, 0];
+  const slate50 = [248, 250, 252];
+  const slate400 = [148, 163, 184];
 
-  // Verifica si el logo existe antes de agregarlo
+  // Configuración de márgenes más estrechos
+  const mX = 10; // Margen izquierdo y derecho (antes 14)
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const rightColX = pageWidth - mX;
+  const contentWidth = pageWidth - mX * 2;
+
+  // ==========================================
+  // 🏢 CABECERA: LOGO Y DATOS DE EMPRESA
+  // ==========================================
   const logoUrl = import.meta.env.VITE_LOGO;
   if (logoUrl) {
-    doc.addImage(logoUrl, "JPEG", 10, 12, 28, 23); // Añadir logo
+    doc.addImage(logoUrl, "JPEG", mX, 10, 32, 22);
   }
 
-  // Información de la empresa
+  // Empresa (Textos más pequeños)
+  doc.setTextColor(...slate900);
   doc.setFontSize(10);
-  doc.text(import.meta.env.VITE_NOMBRE, 45, 15);
-  doc.setFontSize(8);
-  doc.text(import.meta.env.VITE_RUC, 45, 19);
-  doc.text(import.meta.env.VITE_DIRRECION, 45, 23);
-  doc.text(`Central telefónica: ${import.meta.env.VITE_TELEFONO}`, 45, 27);
-  doc.text(`Email: ${import.meta.env.VITE_CORREO}`, 45, 32);
-  doc.text(`Web: ${import.meta.env.VITE_WEB}`, 45, 37);
+  doc.setFont("helvetica", "bold");
+  doc.text(import.meta.env.VITE_NOMBRE || "NOMBRE EMPRESA", rightColX, 15, {
+    align: "right",
+  });
 
-  //
-  // Caja de cotización
-  doc.setFillColor("WHITE"); // Color blanco para el fondo
-  doc.rect(160, 10, 40, 25, "FD"); // Dibuja el rectángulo con el borde y relleno
+  doc.setTextColor(...slate400);
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "normal");
+  doc.text(`RUC: ${import.meta.env.VITE_RUC || "-"}`, rightColX, 19, {
+    align: "right",
+  });
+  doc.text(`${import.meta.env.VITE_DIRRECION || "-"}`, rightColX, 23, {
+    align: "right",
+  });
+  doc.text(`Tel: ${import.meta.env.VITE_TELEFONO || "-"}`, rightColX, 27, {
+    align: "right",
+  });
+  doc.text(`Email: ${import.meta.env.VITE_CORREO || "-"}`, rightColX, 31, {
+    align: "right",
+  });
 
-  // Configuración del texto
-  doc.setTextColor("BLACK"); // Color negro para el texto
+  // ==========================================
+  // 🏷️ BLOQUE DE TÍTULO (Más compacto)
+  // ==========================================
+  doc.setFillColor(...slate900);
+  doc.rect(mX, 36, contentWidth, 12, "F"); // Altura reducida a 12
 
-  // Texto "COTIZACIÓN" centrado en el rectángulo
+  doc.setFillColor(...amber500);
+  doc.rect(mX, 36, 3, 12, "F");
+
+  doc.setTextColor(...white);
   doc.setFontSize(9);
-  const cotizacionText = "COTIZACIÓN";
-  const cotizacionWidth = doc.getTextWidth(cotizacionText); // Obtener el ancho del texto
-  const cotizacionX = 160 + (40 - cotizacionWidth) / 2; // Calcular la posición X para centrar
-  doc.text(cotizacionText, cotizacionX, 20); // Posición X centrada, Y en 20
+  doc.setFont("helvetica", "bold");
+  doc.text("COTIZACIÓN", mX + 6, 44);
 
-  // Texto "COT-00000017" centrado en el rectángulo
-  doc.setFontSize(12);
-  const cotizacionCodeText = `COT-${formatWithLeadingZeros(
-    selectCotizacion.id,
-    6,
-  )}`;
-  const cotizacionCodeWidth = doc.getTextWidth(cotizacionCodeText); // Obtener el ancho del texto
-  const cotizacionCodeX = 160 + (40 - cotizacionCodeWidth) / 2; // Calcular la posición X para centrar
-  doc.text(cotizacionCodeText, cotizacionCodeX, 25); // Posición X centrada, Y en 25
+  doc.text(
+    `N° COT-${formatWithLeadingZeros(selectCotizacion.id, 6)}`,
+    rightColX - 4,
+    44,
+    { align: "right" },
+  );
 
-  // Espaciado
-  doc.setFontSize(9);
+  // ==========================================
+  // 👤 BLOQUE DE CLIENTE (Fuentes tamaño 7)
+  // ==========================================
+  doc.setFillColor(...slate50);
+  doc.rect(mX, 50, contentWidth, 22, "F"); // Altura reducida a 22
 
-  // Información del cliente
-  doc.text("Cliente:", 10, 50);
+  doc.setTextColor(...slate900);
+  doc.setFontSize(7);
+
+  // Columna 1
+  const startYInfo = 55;
+  doc.setFont("helvetica", "bold");
+  doc.text("CLIENTE:", mX + 4, startYInfo);
+  doc.text(
+    `${selectCotizacion.cliente?.tipoDocIdentidad || "DOC"}:`,
+    mX + 4,
+    startYInfo + 4,
+  );
+  doc.text("DIRECCIÓN:", mX + 4, startYInfo + 8);
+  doc.text("VENDEDOR:", mX + 4, startYInfo + 12);
+
+  doc.setFont("helvetica", "normal");
   doc.text(
     selectCotizacion.cliente?.nombreComercial ||
       selectCotizacion.cliente?.nombreApellidos ||
       "N/A",
-    35,
-    50,
+    mX + 24,
+    startYInfo,
   );
-  doc.text(`${selectCotizacion.cliente?.tipoDocIdentidad}`, 10, 55);
+  doc.text(
+    selectCotizacion.cliente?.numeroDoc || "N/A",
+    mX + 24,
+    startYInfo + 4,
+  );
 
-  doc.text(` ${selectCotizacion.cliente?.numeroDoc || "N/A"}`, 35, 55);
-  doc.text("Dirección:", 10, 60);
-  doc.text(selectCotizacion.direccionEnvio || "N/A", 35, 60);
+  const direccion = selectCotizacion.direccionEnvio || "N/A";
+  const splitDir = doc.splitTextToSize(direccion, 90);
+  doc.text(splitDir, mX + 24, startYInfo + 8);
+  doc.text(
+    selectCotizacion.vendedor || "N/A",
+    mX + 24,
+    startYInfo + 12 + (splitDir.length - 1) * 3,
+  );
 
-  doc.text("Vendedor:", 10, 65);
-  doc.text(selectCotizacion.vendedor || "N/A", 35, 65);
-  doc.text("Observación:", 10, 70);
+  // Columna 2
+  doc.setFont("helvetica", "bold");
+  doc.text("FECHA EMISIÓN:", rightColX - 45, startYInfo);
+  doc.text("TIEMPO ENTREGA:", rightColX - 45, startYInfo + 4);
 
-  // Información adicional
-  doc.text("Fecha de emisión:", 150, 50);
-  doc.text(selectCotizacion.fechaEmision || "N/A", 180, 50);
-  doc.text("Tiempo de Entrega:", 150, 55);
-  doc.text(selectCotizacion.fechaEntrega || "N/A", 180, 55);
+  doc.setFont("helvetica", "normal");
+  doc.text(
+    selectCotizacion.fechaEmision
+      ? formatDate(selectCotizacion.fechaEmision)
+      : "N/A",
+    rightColX - 15,
+    startYInfo,
+  );
+  doc.text(
+    selectCotizacion.fechaEntrega || "N/A",
+    rightColX - 15,
+    startYInfo + 4,
+  );
 
-  // Tabla de productos
-  const productsColumns = [
-    "CANT",
-    "UNIDAD",
-    "DESCRIPCIÓN",
-    "V.UNIT",
-    "SUB TOTAL",
-  ];
-  const productsData = selectCotizacion?.productos
-    ?.slice() // copia el array para no mutarlo
-    .sort((a, b) => {
-      const nombreA = a.producto?.nombre?.toLowerCase() || "";
-      const nombreB = b.producto?.nombre?.toLowerCase() || "";
-      // mover "caja" al final
-      if (nombreA.includes("cajas") && !nombreB.includes("cajas")) return 1;
-      if (!nombreA.includes("cajas") && nombreB.includes("cajas")) return -1;
-      return 0;
-    })
-    .map((producto) => {
-      const precioUnitario =
-        typeof producto.precioUnitario === "number"
-          ? producto.precioUnitario
-          : parseFloat(producto.precioUnitario) || 0;
-      const total =
-        typeof producto.total === "number"
-          ? producto.total
-          : parseFloat(producto.total) || 0;
+  // ==========================================
+  // 📦 TABLA DE PRODUCTOS
+  // ==========================================
+  const productsData = selectCotizacion?.productos.map((producto) => {
+    const precioUnitario =
+      typeof producto.precioUnitario === "number"
+        ? producto.precioUnitario
+        : parseFloat(producto.precioUnitario) || 0;
+    const total =
+      typeof producto.total === "number"
+        ? producto.total
+        : parseFloat(producto.total) || 0;
 
-      return [
-        producto.cantidad || 0,
-        producto.producto?.codUnidad,
-        producto.producto?.nombre || "N/A",
-        precioUnitario.toFixed(2), // Aplicar .toFixed solo a números válidos
-        formatNumber(total),
-      ];
-    });
+    return [
+      producto.cantidad || 0,
+      producto.producto?.codUnidad || "-",
+      producto.producto?.nombre || "N/A",
+      `S/ ${precioUnitario.toFixed(2)}`,
+      `S/ ${formatNumber(total)}`,
+    ];
+  });
 
   doc.autoTable({
-    startY: 76,
-    head: [productsColumns],
+    startY: 75,
+    head: [["CANT", "UNIDAD", "DESCRIPCIÓN", "V. UNITARIO", "SUB TOTAL"]],
     body: productsData,
-    margin: { top: 10, left: 10, rigth: 5 },
-    styles: { fontSize: 8 },
-    headStyles: {
-      fillColor: [228, 228, 228], // Gris claro (RGB)
-      textColor: [0, 0, 0],
-      fontWeight: 400,
+    margin: { left: mX, right: mX },
+    theme: "plain",
+    styles: {
+      fontSize: 6, // Letra más pequeña
+      textColor: black,
+      cellPadding: 3,
     },
-    didDrawCell: (data) => {
-      // Asegurarse de dibujar un borde en la parte superior e inferior del encabezado
-      if (data.section === "head") {
-        // Borde superior (más grueso)
-        doc.setLineWidth(0.3); // Grosor del borde superior
-        doc.setDrawColor(0, 0, 0); // Color negro para los bordes
-
-        // Línea superior (borde superior)
-        doc.line(
-          data.cell.x, // Coordenada X inicial (inicio de la celda)
-          data.cell.y, // Coordenada Y inicial (arriba de la celda)
-          data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y, // Coordenada Y final (misma Y para línea horizontal)
-        );
-
-        // Borde inferior (más delgado)
-        doc.setLineWidth(0.8); // Grosor del borde inferior (más delgado)
-
-        // Línea inferior (borde inferior)
-        doc.line(
-          data.cell.x, // Coordenada X inicial (inicio de la celda)
-          data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
-          data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
-        );
-      }
-
-      if (data.section === "body") {
-        // Borde superior
-        doc.setLineWidth(0.3); // Grosor del borde, ajustado a 1 para hacerlo normal
-        doc.setDrawColor(0, 0, 0); // Color negro para los bordes
-
-        // Línea inferior
-        doc.line(
-          data.cell.x, // Coordenada X inicial (inicio de la celda)
-          data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
-          data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
-        );
-      }
+    headStyles: {
+      fillColor: slate900,
+      textColor: white,
+      fontStyle: "bold",
+      halign: "center",
+    },
+    bodyStyles: {
+      lineWidth: { bottom: 0.1 },
+      lineColor: [226, 232, 240],
+    },
+    alternateRowStyles: {
+      fillColor: slate50,
+    },
+    columnStyles: {
+      0: { halign: "center", cellWidth: 14 },
+      1: { halign: "center", cellWidth: 18 },
+      2: { halign: "center", cellWidth: "auto" },
+      3: { halign: "right", cellWidth: 25 },
+      4: { halign: "right", cellWidth: 25 },
     },
   });
 
-  // Totales
+  // ==========================================
+  // 💰 TOTALES
+  // ==========================================
+  let finalY = doc.lastAutoTable.finalY + 8;
   const opGravadas = Number(selectCotizacion.saldoInicial) / 1.18;
 
+  doc.setFontSize(7);
+  doc.setTextColor(...slate900);
+  doc.setFont("helvetica", "normal");
+  doc.text("OP. GRAVADAS:", rightColX - 30, finalY, { align: "right" });
+  doc.text(`S/ ${formatNumber(opGravadas)}`, rightColX, finalY, {
+    align: "right",
+  });
+
+  finalY += 5;
+  doc.text("IGV (18%):", rightColX - 30, finalY, { align: "right" });
+  doc.text(`S/ ${formatNumber(opGravadas * 0.18)}`, rightColX, finalY, {
+    align: "right",
+  });
+
+  // TOTAL A PAGAR
+  finalY += 6;
+  doc.setFillColor(...slate50);
+  doc.rect(rightColX - 55, finalY - 5, 55, 8, "F");
+
   doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...slate900);
+  doc.text("TOTAL A PAGAR:", rightColX - 30, finalY + 0.5, { align: "right" });
 
-  doc.text(`OP. GRAVADAS:`, 165, doc.lastAutoTable.finalY + 5, {
-    maxWidth: 30,
-    align: "right",
-  });
-  doc.text(`S/ ${formatNumber(opGravadas)}`, 171, doc.lastAutoTable.finalY + 5);
-  doc.text(`IGV:`, 165, doc.lastAutoTable.finalY + 10, {
-    maxWidth: 30,
-    align: "right",
-  });
-  doc.text(
-    `S/ ${formatNumber(opGravadas * 0.18)}`,
-    171,
-    doc.lastAutoTable.finalY + 10,
-  );
-
-  doc.text(`TOTAL A PAGAR:`, 165, doc.lastAutoTable.finalY + 15, {
-    maxWidth: 30,
-    align: "right",
-  });
+  doc.setTextColor(...red600);
   doc.text(
     `S/ ${formatNumber(selectCotizacion.saldoInicial)}`,
-    171,
-    doc.lastAutoTable.finalY + 15,
+    rightColX - 2,
+    finalY + 0.5,
+    { align: "right" },
   );
 
-  // Convertir el total a letras
-  const totalEnLetras = numeroALetras(selectCotizacion.saldoInicial, {
+  // Son Letras
+  const totalEnLetras = numeroALetras(Number(selectCotizacion.saldoInicial), {
     plural: "SOLES",
-    singular: "SOLES",
-    centPlural: "CENTIMOS",
-    centSingular: "CENTIMOS",
+    singular: "SOL",
+    centPlural: "CÉNTIMOS",
+    centSingular: "CÉNTIMO",
   });
+  doc.setTextColor(...slate400);
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "normal");
+  doc.text(`SON: ${totalEnLetras}`, mX, finalY);
+
+  // ==========================================
+  // 💳 HISTORIAL DE PAGOS
+  // ==========================================
+  if (selectCotizacion.pagos && selectCotizacion.pagos.length > 0) {
+    finalY += 12;
+
+    doc.setTextColor(...slate900);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text("HISTORIAL DE PAGOS", mX, finalY);
+
+    doc.setFillColor(...amber500);
+    doc.rect(mX, finalY + 1.5, 12, 0.8, "F");
+
+    const paymentData = selectCotizacion.pagos.map((pago) => [
+      pago.metodoPago?.descripcion || "N/A",
+      pago.banco?.descripcion || "N/A",
+      pago.operacion || "-",
+      `${formatDate(pago.fecha)}`,
+      `S/ ${formatNumber(pago.monto)}`,
+    ]);
+
+    doc.autoTable({
+      startY: finalY + 4,
+      head: [["MÉTODO DE PAGO", "BANCO", "OPERACIÓN", "FECHA", "MONTO"]],
+      body: paymentData,
+      margin: { left: mX, right: mX },
+      theme: "plain",
+      styles: { fontSize: 6, textColor: slate900, cellPadding: 2.5 },
+      headStyles: {
+        fillColor: slate900,
+        textColor: white,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: { fillColor: slate50 },
+    });
+
+    const totalPagos = selectCotizacion.pagos.reduce(
+      (acc, pago) => acc + Number(pago.monto),
+      0,
+    );
+    const saldoFinal = Number(selectCotizacion.saldoInicial) - totalPagos;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(...slate900);
+    doc.text(`SALDO PENDIENTE:`, rightColX - 30, doc.lastAutoTable.finalY + 6, {
+      align: "right",
+    });
+    doc.setTextColor(...red600);
+    doc.text(
+      `S/ ${formatNumber(saldoFinal)}`,
+      rightColX,
+      doc.lastAutoTable.finalY + 6,
+      { align: "right" },
+    );
+  }
+
+  // ==========================================
+  // 🏦 CUENTAS BANCARIAS
+  // ==========================================
+  let bancosStartY =
+    (doc.lastAutoTable ? doc.lastAutoTable.finalY : finalY) + 15;
+
+  doc.setTextColor(...slate900);
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text(`SON: ${totalEnLetras}`, 10, doc.lastAutoTable.finalY + 23);
+  doc.text("CUENTAS BANCARIAS", mX, bancosStartY);
 
-  // Información de pagos
-  const paymentColumns = [
-    "Método de pago",
-    "Banco",
-    "Operación",
-    "Monto",
-    "Fecha",
-  ];
-  const paymentData = selectCotizacion.pagos.map((pago) => [
-    pago.metodoPago.descripcion || "N/A",
-    pago.banco?.descripcion || "N/A",
-    pago.operacion || "N/A",
-    `S/${formatNumber(pago.monto)}` || "N/A",
-    `${formatDate(pago.fecha)}`,
-  ]);
-
-  doc.setFontSize(10);
-
-  doc.text(`PAGOS :`, 10, doc.lastAutoTable.finalY + 35);
-
-  doc.autoTable({
-    startY: doc.lastAutoTable.finalY + 40,
-    head: [paymentColumns],
-    body: paymentData,
-    margin: { top: 10, left: 10, rigth: 5 },
-
-    styles: { fontSize: 8 },
-    headStyles: {
-      fillColor: [228, 228, 228], // Gris claro (RGB)
-      textColor: [0, 0, 0],
-      fontWeight: 400,
-    },
-
-    didDrawCell: (data) => {
-      if (data.section === "head") {
-        doc.setLineWidth(0.3);
-        doc.setDrawColor(0, 0, 0);
-        doc.line(
-          data.cell.x, // Coordenada X inicial (inicio de la celda)
-          data.cell.y, // Coordenada Y inicial (arriba de la celda)
-          data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y, // Coordenada Y final (misma Y para línea horizontal)
-        );
-
-        // Borde inferior (más delgado)
-        doc.setLineWidth(0.8); // Grosor del borde inferior (más delgado)
-
-        // Línea inferior (borde inferior)
-        doc.line(
-          data.cell.x, // Coordenada X inicial (inicio de la celda)
-          data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
-          data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
-        );
-      }
-
-      if (data.section === "body") {
-        // Borde superior
-        doc.setLineWidth(0.3); // Grosor del borde, ajustado a 1 para hacerlo normal
-        doc.setDrawColor(0, 0, 0); // Color negro para los bordes
-
-        // Línea inferior
-        doc.line(
-          data.cell.x, // Coordenada X inicial (inicio de la celda)
-          data.cell.y + data.cell.height, // Coordenada Y final (abajo de la celda)
-          data.cell.x + data.cell.width, // Coordenada X final (ancho de la celda)
-          data.cell.y + data.cell.height, // Coordenada Y final (misma Y para línea horizontal)
-        );
-      }
-    },
-  });
-
-  // Saldo
-  const totalPagos = selectCotizacion.pagos.reduce(
-    (acc, pago) => acc + Number(pago.monto),
-    0,
-  );
-
-  doc.setFontSize(10);
-
-  doc.text(
-    `SALDO: S/ ${formatNumber(selectCotizacion.saldoInicial - totalPagos)}`,
-    10,
-    doc.lastAutoTable.finalY + 10,
-  );
-
-  const pageHeight = doc.internal.pageSize.height; // Altura total de la página
-  const bancosStartY = pageHeight - 45;
-
-  doc.setFontSize(8);
-  doc.text("CUENTAS BANCARIAS:", 10, bancosStartY + 5);
-
-  const bancosColumns = [
-    "Banco",
-    "Moneda",
-    "Código de Cuenta Interbancaria",
-    "Código de Cuenta",
-  ];
+  doc.setFillColor(...amber500);
+  doc.rect(mX, bancosStartY + 1.5, 12, 0.8, "F");
 
   const bancosBody = cuentasBancarias
     .filter(
-      (cuenta) =>
-        cuenta.descripcion !== "MORTANDAD" &&
-        cuenta.descripcion !== "JCESPEDES",
+      (c) => c.descripcion !== "MORTANDAD" && c.descripcion !== "JCESPEDES",
     )
-    .map((cuentaBancaria) => [
-      cuentaBancaria.descripcion,
-      "Soles",
-      cuentaBancaria.cci,
-      cuentaBancaria.numero,
-    ]);
+    .map((c) => [c.descripcion, "Soles", c.cci, c.numero]);
 
-  // Agregar la tabla al pie de página
   doc.autoTable({
-    startY: bancosStartY + 10, // Posición calculada
-    head: [bancosColumns],
-    margin: { top: 10, left: 10, rigth: 5, bottom: 5 },
-
+    startY: bancosStartY + 4,
+    head: [["BANCO", "MONEDA", "CÓDIGO INTERBANCARIO (CCI)", "NRO. DE CUENTA"]],
     body: bancosBody,
-    styles: { fontSize: 8 },
+    margin: { left: mX, right: mX, bottom: 10 },
+    theme: "plain",
+    styles: { fontSize: 7, textColor: slate900, cellPadding: 2.5 },
     headStyles: {
-      fillColor: [228, 228, 228], // Gris claro (RGB)
-      textColor: [0, 0, 0],
-      fontWeight: 400,
+      fillColor: slate50,
+      textColor: slate900,
+      fontStyle: "bold",
+      lineWidth: { top: 0.5, bottom: 0.5 },
+      lineColor: slate900,
+    },
+    bodyStyles: {
+      lineWidth: { bottom: 0.1 },
+      lineColor: [226, 232, 240],
     },
   });
 
+  // ==========================================
+  // 🚀 RENDERIZADO FINAL
+  // ==========================================
   const pdfOutput = doc.output("dataurlstring");
   const newWindow = window.open();
 
   if (newWindow) {
-    newWindow.document.title = `COT-${formatWithLeadingZeros(
-      selectCotizacion.id,
-      6,
-    )}`;
+    newWindow.document.title = `COT-${formatWithLeadingZeros(selectCotizacion.id, 6)}`;
     newWindow.document.write(`
       <html>
-        <head>
-          <title>COT-${formatWithLeadingZeros(selectCotizacion.id, 6)}</title>
-        </head>
+        <head><title>COT-${formatWithLeadingZeros(selectCotizacion.id, 6)}</title></head>
         <body style="margin:0;">
           <embed width="100%" height="100%" src="${pdfOutput}" type="application/pdf" />
         </body>

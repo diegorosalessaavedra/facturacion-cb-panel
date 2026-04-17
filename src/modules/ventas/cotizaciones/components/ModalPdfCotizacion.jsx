@@ -43,7 +43,7 @@ const ModalPdfCotizacion = ({ onOpenChange, isOpen, idCotizacion }) => {
 
   const totalPagos = cotizacion?.pagos.reduce(
     (acc, pago) => acc + Number(pago.monto),
-    0
+    0,
   );
 
   const opGravadas = Number(cotizacion?.saldoInicial) / 1.18;
@@ -137,40 +137,18 @@ const ModalPdfCotizacion = ({ onOpenChange, isOpen, idCotizacion }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {cotizacion?.productos
-                        ?.slice() // copia el array para no mutarlo
-                        .sort((a, b) => {
-                          const nombreA =
-                            a.producto?.nombre?.toLowerCase() || "";
-                          const nombreB =
-                            b.producto?.nombre?.toLowerCase() || "";
-                          // mover "caja" al final
-                          if (
-                            nombreA.includes("cajas") &&
-                            !nombreB.includes("cajas")
-                          )
-                            return 1;
-                          if (
-                            !nombreA.includes("cajas") &&
-                            nombreB.includes("cajas")
-                          )
-                            return -1;
-                          return 0;
-                        })
-                        .map((producto) => (
-                          <tr
-                            className="border-b-1 border-black text-[11px]"
-                            key={producto.id}
-                          >
-                            <td className="px-2 py-[3px]">
-                              {producto.cantidad}
-                            </td>
-                            <td>{producto.producto?.codUnidad}</td>
-                            <td>{producto.producto.nombre}</td>
-                            <td>{formatNumber(producto.precioUnitario)}</td>
-                            <td>{formatNumber(producto.total)}</td>
-                          </tr>
-                        ))}
+                      {cotizacion?.productos.map((producto) => (
+                        <tr
+                          className="border-b-1 border-black text-[11px]"
+                          key={producto.id}
+                        >
+                          <td className="px-2 py-[3px]">{producto.cantidad}</td>
+                          <td>{producto.producto?.codUnidad}</td>
+                          <td>{producto.producto.nombre}</td>
+                          <td>{formatNumber(producto.precioUnitario)}</td>
+                          <td>{formatNumber(producto.total)}</td>
+                        </tr>
+                      ))}
 
                       <tr className="text-[13px] font-semibold">
                         <td colSpan={2}></td>

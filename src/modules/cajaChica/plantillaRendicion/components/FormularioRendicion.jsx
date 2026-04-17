@@ -248,7 +248,7 @@ const FormularioRendicion = ({
               {desembolsos?.map((d) => (
                 <SelectItem
                   key={d.id}
-                  textValue={`S/ ${Math.abs(d.importe_desembolso)} - ${d.fecha_desembolso}`}
+                  textValue={`S/ ${Math.abs(d.importe_desembolso)} - ${d.fecha_desembolso} - ${getMetodoPago(d.egresos)}`}
                 >
                   <p className="text-xs">
                     S/ {Math.abs(d.importe_desembolso)} (

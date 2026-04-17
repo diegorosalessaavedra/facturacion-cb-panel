@@ -38,11 +38,7 @@ const HistoricoRendicion = () => {
 
     const url = `${API}/caja-chica/rendicion?${queryParams}`;
     axios
-      .get(
-        url,
-
-        config,
-      )
+      .get(url, config)
       .then((res) => {
         setRendiciones(res.data.rendiciones);
       })
