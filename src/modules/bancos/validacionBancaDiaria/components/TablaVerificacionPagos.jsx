@@ -215,6 +215,7 @@ const TablaVerificacionPagos = ({
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           selectPago={selectPago}
+          handleFindCotizaciones={handleFindCotizaciones}
         />
       )}
     </div>
