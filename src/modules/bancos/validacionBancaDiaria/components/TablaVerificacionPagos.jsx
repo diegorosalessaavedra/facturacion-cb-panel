@@ -154,7 +154,6 @@ const TablaVerificacionPagos = ({
                               <Button
                                 isIconOnly
                                 size="sm"
-                                variant="flat"
                                 className="h-7 w-7 min-w-7 text-white shadow-sm shadow-slate-900/30"
                                 onPress={() => handleReiniciar(pago)}
                                 color="warning"
@@ -171,7 +170,6 @@ const TablaVerificacionPagos = ({
                               <Button
                                 isIconOnly
                                 size="sm"
-                                variant="flat"
                                 className="h-7 w-7 min-w-7  text-white shadow-sm shadow-slate-900/30"
                                 onPress={() => handleVerHistorial(pago)}
                                 color="primary"
@@ -188,7 +186,6 @@ const TablaVerificacionPagos = ({
                               <Button
                                 isIconOnly
                                 size="sm"
-                                variant="flat"
                                 className="h-7 w-7 min-w-7 text-white shadow-sm shadow-slate-900/30"
                                 onPress={() => handleSeeMore(pago)}
                                 color="success"
