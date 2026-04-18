@@ -154,11 +154,11 @@ const TablaVerificacionPagos = ({
                               <Button
                                 isIconOnly
                                 size="sm"
-                                className="h-7 w-7 min-w-6 text-white shadow-sm shadow-slate-900/30"
+                                className="h-6 w-6 min-w-6 text-white shadow-sm shadow-slate-900/30"
                                 onPress={() => handleReiniciar(pago)}
                                 color="warning"
                               >
-                                <RiResetLeftFill size={14} />
+                                <RiResetLeftFill size={13} />
                               </Button>
                             </Tooltip>
                             <Tooltip
