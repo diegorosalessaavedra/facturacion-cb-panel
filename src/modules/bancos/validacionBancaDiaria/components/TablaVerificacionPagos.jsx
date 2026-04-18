@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Spinner, Button, useDisclosure } from "@nextui-org/react";
+import { Spinner, Button, useDisclosure, Tooltip } from "@nextui-org/react";
 import { Eye } from "lucide-react";
 import formatDate from "../../../../hooks/FormatDate";
 import { formatNumber } from "../../../../assets/formats";
@@ -145,33 +145,54 @@ const TablaVerificacionPagos = ({
                           </div>
 
                           <div className="flex gap-2">
-                            <Button
-                              isIconOnly
+                            <Tooltip
+                              content="Reiniciar Pago"
+                              placement="top"
                               size="sm"
-                              variant="flat"
-                              className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
-                              onPress={() => handleReiniciar(pago)}
+                              color="warning"
                             >
-                              <RiResetLeftFill size={14} />
-                            </Button>
-                            <Button
-                              isIconOnly
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                variant="flat"
+                                className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
+                                onPress={() => handleReiniciar(pago)}
+                              >
+                                <RiResetLeftFill size={14} />
+                              </Button>
+                            </Tooltip>
+                            <Tooltip
+                              content="Historial de validación"
+                              placement="top"
                               size="sm"
-                              variant="flat"
-                              className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
-                              onPress={() => handleVerHistorial(pago)}
+                              color="primary"
                             >
-                              <IoTimeSharp size={14} />
-                            </Button>
-                            <Button
-                              isIconOnly
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                variant="flat"
+                                className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
+                                onPress={() => handleVerHistorial(pago)}
+                              >
+                                <IoTimeSharp size={14} />
+                              </Button>
+                            </Tooltip>
+                            <Tooltip
+                              content="Validar pago"
+                              placement="top"
                               size="sm"
-                              variant="flat"
-                              className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
-                              onPress={() => handleSeeMore(pago)}
+                              color="success"
                             >
-                              <Eye size={14} />
-                            </Button>
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                variant="flat"
+                                className="h-7 w-7 min-w-7 bg-slate-900 text-white shadow-sm shadow-slate-900/30"
+                                onPress={() => handleSeeMore(pago)}
+                              >
+                                <Eye size={14} />
+                              </Button>
+                            </Tooltip>
                           </div>
                         </div>
                         {/* Se eliminó la celda extra de Estado que estaba rompiendo el grid aquí */}
