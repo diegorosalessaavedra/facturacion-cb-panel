@@ -19,17 +19,17 @@ const TablaVerificacionPagos = ({
   const [selectModal, setSelectModal] = useState("");
   const [selectPago, setSelectPago] = useState(null);
 
-  // Clases optimizadas con paddings ajustados y bordes sutiles
-  const stickyHeader = "sticky top-0 z-30 shadow-sm";
+  const stickyHeader = "sticky top-0 z-20";
   const headerBase =
-    "flex items-center justify-center font-bold text-[10px] uppercase tracking-wider py-2.5 px-2 text-center border-r border-slate-800";
+    "flex items-center justify-center font-bold text-[10px] uppercase tracking-wider py-3 px-2 text-center border-r border-b border-slate-400";
   const headerDark = `${headerBase} bg-slate-900 text-white`;
 
   const cellBase =
-    "flex items-center justify-center text-[11px] py-1.5 px-2 border-r border-b border-slate-200 min-h-[45px] transition-colors duration-300";
-  const cellData = `${cellBase} bg-white text-black hover:bg-slate-50`;
-  const cellHighlight = `${cellBase} bg-slate-50 text-black font-bold`;
+    "flex items-center justify-center text-[11px] py-2 px-2 border-r border-b border-slate-300 min-h-[50px]";
+  const cellData = `${cellBase} bg-white text-slate-700 font-medium`;
+  const cellHighlight = `${cellBase} bg-slate-50 text-slate-900 font-bold`;
 
+  // Tienes exactamente 6 columnas aquí
   const gridTemplate = "40px 90px 120px 300px 90px 1fr";
 
   const handleSeeMore = (pago) => {
@@ -51,249 +51,198 @@ const TablaVerificacionPagos = ({
   };
 
   return (
-    <>
-      {/* Estilos en línea para animaciones sin necesidad de configurar tailwind.config */}
-      <style>{`
-        @keyframes fade-in-up {
-          0% { opacity: 0; transform: translateY(10px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.4s ease-out forwards;
-        }
-      `}</style>
-
-      <div className="w-full h-[75vh] overflow-auto shadow-lg rounded-xl bg-white relative border border-slate-200 scrollbar-hide">
-        {loading ? (
-          <div className="flex h-full items-center justify-center bg-white/50 backdrop-blur-sm z-50">
-            <Spinner
-              size="lg"
-              color="danger"
-              label="Cargando pagos..."
-              labelColor="danger"
-            />
+    <div className="w-full h-[75vh] overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
+      {loading ? (
+        <div className="flex h-full items-center justify-center">
+          <Spinner label="Cargando..." color="success" />
+        </div>
+      ) : (
+        <div className="grid" style={{ gridTemplateColumns: gridTemplate }}>
+          {/* === CABECERAS (6 Columnas) === */}
+          <div className={headerDark + " " + stickyHeader}>#</div>
+          <div className={headerDark + " " + stickyHeader}>
+            Fecha de Despacho
           </div>
-        ) : (
-          <div
-            className="grid bg-slate-200 gap-[1px]"
-            style={{ gridTemplateColumns: gridTemplate }}
-          >
-            {/* === CABECERAS === */}
-            <div className={headerDark + " " + stickyHeader}>#</div>
-            <div className={headerDark + " " + stickyHeader}>Fecha</div>
-            <div className={headerDark + " " + stickyHeader}>Vendedor</div>
-            <div className={headerDark + " " + stickyHeader}>Cliente</div>
-            <div className={headerDark + " " + stickyHeader}>Total</div>
-            <div className={`${headerDark} ${stickyHeader}`}>
-              Detalle de Pagos
-            </div>
+          <div className={headerDark + " " + stickyHeader}>Vendedor</div>
+          <div className={headerDark + " " + stickyHeader}>Cliente</div>
+          <div className={headerDark + " " + stickyHeader}>Total</div>
+          <div className={`${headerDark} ${stickyHeader}`}>
+            Detalle de Pagos
+          </div>
 
-            {/* === CUERPO === */}
-            {cotizaciones?.map((cot, index) => {
-              const numPagos = cot.pagos?.length || 1;
-              const rowSpan = { gridRowEnd: `span ${numPagos}` };
-              // Calculamos un pequeño retraso para que las filas entren en cascada
-              const animationDelay = `${index * 0.05}s`;
+          {/* === CUERPO === */}
+          {cotizaciones?.map((cot, index) => {
+            const numPagos = cot.pagos?.length || 1;
+            const rowSpan = { gridRowEnd: `span ${numPagos}` };
 
-              return (
-                <React.Fragment key={cot.id}>
-                  {/* 1. # */}
-                  <div
-                    className={`${cellData} animate-fade-in-up opacity-0`}
-                    style={{ ...rowSpan, animationDelay }}
-                  >
-                    <span className="bg-slate-100 text-slate-500 px-2 py-1 rounded-md font-mono text-[9px]">
-                      {index + 1}
-                    </span>
-                  </div>
-                  {/* 2. Fecha */}
-                  <div
-                    className={`${cellData} animate-fade-in-up opacity-0`}
-                    style={{ ...rowSpan, animationDelay }}
-                  >
-                    {formatDate(cot.fechaEmision)}
-                  </div>
-                  {/* 3. Vendedor */}
-                  <div
-                    className={`${cellData} text-[10px] animate-fade-in-up opacity-0 text-slate-600`}
-                    style={{ ...rowSpan, animationDelay }}
-                  >
-                    {cot.vendedor}
-                  </div>
-                  {/* 4. Cliente */}
-                  <div
-                    className={`${cellData} flex-col items-start justify-center text-left animate-fade-in-up opacity-0 px-4`}
-                    style={{ ...rowSpan, animationDelay }}
-                  >
-                    <span className="font-bold text-black truncate w-full">
-                      {cot.cliente?.nombreApellidos ||
-                        cot.cliente?.nombreComercial}
-                    </span>
-                    <span className="text-[9px] text-slate-500 font-mono mt-0.5">
-                      DOC: {cot.cliente?.numeroDoc}
-                    </span>
-                  </div>
-                  {/* 5. Total */}
-                  <div
-                    className={`${cellHighlight} text-slate-900 animate-fade-in-up opacity-0`}
-                    style={{ ...rowSpan, animationDelay }}
-                  >
-                    S/. {formatNumber(cot.saldoInicial)}
-                  </div>
+            return (
+              <React.Fragment key={cot.id}>
+                {/* 1. # */}
+                <div className={cellData} style={rowSpan}>
+                  {index + 1}
+                </div>
+                {/* 2. Fecha */}
+                <div className={cellData} style={rowSpan}>
+                  {formatDate(cot.fechaEmision)}
+                </div>
+                {/* 3. Vendedor */}
+                <div className={`${cellData} text-[10px]`} style={rowSpan}>
+                  {cot.vendedor}
+                </div>
+                {/* 4. Cliente */}
+                <div
+                  className={`${cellData} flex-col items-start text-left`}
+                  style={rowSpan}
+                >
+                  <span className="font-bold">
+                    {cot.cliente?.nombreApellidos ||
+                      cot.cliente?.nombreComercial}
+                  </span>
+                  <span className="text-[9px] text-slate-500">
+                    {cot.cliente?.numeroDoc}
+                  </span>
+                </div>
+                {/* 5. Total */}
+                <div
+                  className={`${cellHighlight} text-blue-700`}
+                  style={rowSpan}
+                >
+                  S/. {formatNumber(cot.saldoInicial)}
+                </div>
 
-                  {/* COLUMNA DE PAGOS */}
-                  {cot.pagos && cot.pagos.length > 0 ? (
-                    cot.pagos.map((pago, pIndex) => {
-                      // Estilos basados en tu paleta
-                      const statusClass =
-                        pago.estado_verificacion === "Conforme"
-                          ? "bg-white border-l-slate-900 hover:bg-slate-50"
-                          : pago.estado_verificacion === "Observado"
-                            ? "bg-amber-50/50 border-l-amber-500 hover:bg-amber-50"
-                            : "bg-red-50/50 border-l-red-600 hover:bg-red-50";
+                {/* COLUMNA DE PAGOS */}
+                {cot.pagos && cot.pagos.length > 0 ? (
+                  cot.pagos.map((pago) => {
+                    const statusClass =
+                      pago.estado_verificacion === "Conforme"
+                        ? "bg-green-50 border-l-green-300 text-green-900"
+                        : pago.estado_verificacion === "Observado"
+                          ? "bg-amber-50 border-l-amber-300 text-amber-900"
+                          : "bg-red-50 border-l-red-300 text-red-900";
 
-                      const statusText =
-                        pago.estado_verificacion === "Observado"
-                          ? "text-amber-700"
-                          : pago.estado_verificacion === "Rechazado"
-                            ? "text-red-700"
-                            : "text-slate-500";
-
-                      return (
+                    return (
+                      <React.Fragment key={pago.id}>
+                        {/* 6. Detalle de Pagos (Se repite por cada pago) */}
                         <div
-                          key={pago.id}
-                          className={`${cellBase} ${statusClass} border-l-[3px] justify-between px-4 animate-fade-in-up opacity-0 group`}
-                          style={{
-                            animationDelay: `${index * 0.05 + pIndex * 0.02}s`,
-                          }}
+                          className={`${cellBase} ${statusClass} border-l-2 justify-between px-3`}
                         >
-                          {/* Info Monto y Fecha */}
-                          <div className="w-28 flex flex-col items-start">
-                            <span
-                              className={`text-[9px] font-bold uppercase tracking-wider ${statusText}`}
-                            >
+                          <div className="w-32 flex flex-col gap-0">
+                            <span className="text-[10px] font-bold uppercase">
                               {formatDate(pago.fecha)}
                             </span>
-                            <span className="text-[13px] font-black text-black">
+                            <span className="text-[12px] font-black">
                               S/. {formatNumber(pago.monto)}
                             </span>
                           </div>
 
-                          {/* Operación */}
-                          <div className="flex flex-col items-center justify-center flex-1">
-                            <span className="text-[8px] uppercase tracking-widest text-slate-400 mb-0.5">
-                              Operación
+                          <div className="flex flex-col items-center">
+                            <span className="text-[9px] opacity-70">
+                              Operación:
                             </span>
-                            <span className="text-[11px] font-mono font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+                            <span className="text-[10px] font-mono font-bold">
                               {pago.operacion || "---"}
                             </span>
                           </div>
 
-                          {/* Botones de Acción */}
-                          <div className="flex gap-1.5 ml-2 opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="flex gap-2">
                             <Tooltip
-                              content="Reiniciar"
+                              content="Reiniciar Pago"
                               placement="top"
                               size="sm"
                               color="warning"
-                              closeDelay={0}
                             >
                               <Button
                                 isIconOnly
                                 size="sm"
                                 variant="flat"
-                                className="h-7 w-7 min-w-7 bg-white border border-slate-200 text-amber-600 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all shadow-sm"
+                                className="h-7 w-7 min-w-7 text-white shadow-sm shadow-slate-900/30"
                                 onPress={() => handleReiniciar(pago)}
+                                color="warning"
                               >
                                 <RiResetLeftFill size={14} />
                               </Button>
                             </Tooltip>
-
                             <Tooltip
-                              content="Historial"
+                              content="Historial de validación"
                               placement="top"
                               size="sm"
-                              className="bg-slate-900 text-white"
-                              closeDelay={0}
+                              color="primary"
                             >
                               <Button
                                 isIconOnly
                                 size="sm"
                                 variant="flat"
-                                className="h-7 w-7 min-w-7 bg-white border border-slate-200 text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm"
+                                className="h-7 w-7 min-w-7  text-white shadow-sm shadow-slate-900/30"
                                 onPress={() => handleVerHistorial(pago)}
+                                color="primary"
                               >
                                 <IoTimeSharp size={14} />
                               </Button>
                             </Tooltip>
-
                             <Tooltip
-                              content="Validar"
+                              content="Validar pago"
                               placement="top"
                               size="sm"
-                              color="danger"
-                              closeDelay={0}
+                              color="success"
                             >
                               <Button
                                 isIconOnly
                                 size="sm"
                                 variant="flat"
-                                className="h-7 w-7 min-w-7 bg-white border border-slate-200 text-red-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all shadow-sm"
+                                className="h-7 w-7 min-w-7 text-white shadow-sm shadow-slate-900/30"
                                 onPress={() => handleSeeMore(pago)}
+                                color="success"
                               >
                                 <Eye size={14} />
                               </Button>
                             </Tooltip>
                           </div>
                         </div>
-                      );
-                    })
-                  ) : (
-                    <div
-                      className={`${cellData} italic text-slate-400 animate-fade-in-up opacity-0`}
-                      style={{ animationDelay }}
-                    >
-                      <span className="bg-slate-50 px-3 py-1 rounded-full border border-slate-200 text-[10px]">
-                        Sin pagos registrados
-                      </span>
+                        {/* Se eliminó la celda extra de Estado que estaba rompiendo el grid aquí */}
+                      </React.Fragment>
+                    );
+                  })
+                ) : (
+                  <>
+                    {/* 6. Detalle de Pagos (Vacío) */}
+                    <div className={`${cellData} italic text-slate-400`}>
+                      Sin pagos registrados
                     </div>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Modales */}
-        {selectModal === "ver_pago" && selectPago && (
-          <ModalVerPago
-            key={`ver-${selectPago.id}`}
-            isOpen={isOpen}
-            onOpenChange={onOpenChange}
-            selectPago={selectPago}
-            handleFindCotizaciones={handleFindCotizaciones}
-          />
-        )}
-        {selectModal === "ver_historial" && selectPago && (
-          <ModalVerHistorialValidacionPago
-            key={`hist-${selectPago.id}`}
-            isOpen={isOpen}
-            onOpenChange={onOpenChange}
-            selectPago={selectPago}
-            handleFindCotizaciones={handleFindCotizaciones}
-          />
-        )}
-        {selectModal === "reiniciar" && selectPago && (
-          <ModalReiniciarPago
-            key={`re-${selectPago.id}`}
-            isOpen={isOpen}
-            onOpenChange={onOpenChange}
-            selectPago={selectPago}
-            handleFindCotizaciones={handleFindCotizaciones}
-          />
-        )}
-      </div>
-    </>
+                  </>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      )}
+      {selectModal === "ver_pago" && selectPago && (
+        <ModalVerPago
+          key={selectPago.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectPago={selectPago}
+          handleFindCotizaciones={handleFindCotizaciones}
+        />
+      )}
+      {selectModal === "ver_historial" && selectPago && (
+        <ModalVerHistorialValidacionPago
+          key={selectPago.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectPago={selectPago}
+          handleFindCotizaciones={handleFindCotizaciones}
+        />
+      )}
+      {selectModal === "reiniciar" && selectPago && (
+        <ModalReiniciarPago
+          key={selectPago.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectPago={selectPago}
+          handleFindCotizaciones={handleFindCotizaciones}
+        />
+      )}
+    </div>
   );
 };
 
