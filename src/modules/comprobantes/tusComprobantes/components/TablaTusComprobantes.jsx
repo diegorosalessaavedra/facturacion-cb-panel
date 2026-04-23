@@ -77,7 +77,12 @@ const TablaMisComprobantes = ({
                 Notas de credito <br /> y debito
               </TableColumn>
               <TableColumn className=" text-xs text-white  bg-blue-700">
-                Archivos
+                Archivos de <br />
+                Comprobantes
+              </TableColumn>
+              <TableColumn className=" text-xs text-white  bg-blue-700">
+                Archivos de <br />
+                Nota de Credito o Debito
               </TableColumn>
               <TableColumn className=" text-xs text-white  bg-blue-700">
                 Acciones
@@ -174,19 +179,19 @@ const TablaMisComprobantes = ({
                                 .pop();
                               const response = await fetch(
                                 `${baseUrl}/api/download-xml?file=${encodeURIComponent(
-                                  fileName
+                                  fileName,
                                 )}`,
                                 {
                                   method: "GET",
                                   headers: {
                                     Accept: "application/xml",
                                   },
-                                }
+                                },
                               );
 
                               if (!response.ok)
                                 throw new Error(
-                                  "Error al descargar el archivo"
+                                  "Error al descargar el archivo",
                                 );
 
                               // Crear blob y descargar
@@ -234,6 +239,74 @@ const TablaMisComprobantes = ({
                           </Button>
                         </a>
                       )}
+                    </div>
+                  </TableCell>
+                  <TableCell className=" min-w-[180px] text-xs   ">
+                    <div className="w-full flex flex-wrap items-center justify-center">
+                      {comprobante?.notas_comprobante &&
+                        comprobante.notas_comprobante.urlXml !== null && (
+                          <Button
+                            className="scale-85 text-white"
+                            size="sm"
+                            color="success"
+                            onPress={async () => {
+                              try {
+                                const fileName =
+                                  comprobante?.notas_comprobante?.urlXml
+                                    .split("/")
+                                    .pop();
+                                const response = await fetch(
+                                  `${baseUrl}/api/download-xml?file=${encodeURIComponent(
+                                    fileName,
+                                  )}`,
+                                  {
+                                    method: "GET",
+                                    headers: {
+                                      Accept: "application/xml",
+                                    },
+                                  },
+                                );
+
+                                if (!response.ok)
+                                  throw new Error(
+                                    "Error al descargar el archivo",
+                                  );
+
+                                // Crear blob y descargar
+                                const blob = await response.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = fileName;
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                a.remove();
+                              } catch (error) {
+                                console.error("Error:", error);
+                                // Aquí podrías mostrar una notificación al usuario
+                              }
+                            }}
+                          >
+                            XML
+                          </Button>
+                        )}
+
+                      {comprobante?.notas_comprobante &&
+                        comprobante.notas_comprobante.cdr !== null && (
+                          <a
+                            href={`${baseUrl + comprobante.notas_comprobante.cdr}`}
+                            target="_blank"
+                          >
+                            <Button
+                              className="scale-85 text-white"
+                              size="sm"
+                              color="warning"
+                            >
+                              CDR
+                            </Button>
+                          </a>
+                        )}
                     </div>
                   </TableCell>
                   <TableCell className="min-w-[80px] text-xs ">

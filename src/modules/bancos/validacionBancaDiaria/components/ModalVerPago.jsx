@@ -138,6 +138,13 @@ const ModalVerPago = ({
   const incluyeBBVA =
     selectPago.banco?.descripcion?.toLowerCase().includes("bbva") || false;
 
+  const incluyeCAJACHICA =
+    selectPago.banco?.banco?.toLowerCase().includes("caja chica") || false;
+
+  const incluyeBANCARIZACION =
+    selectPago.banco?.banco?.toLowerCase().includes("sin bancarizacion") ||
+    false;
+
   return (
     <Modal
       isOpen={isOpen}
@@ -240,7 +247,11 @@ const ModalVerPago = ({
                               ? "BCP"
                               : incluyeBBVA
                                 ? "BBVA"
-                                : "AHORROS",
+                                : incluyeBANCARIZACION
+                                  ? "SIN BANCARIZACION"
+                                  : incluyeCAJACHICA
+                                    ? "CAJA CHICA"
+                                    : "AHORROS",
                           ]
                     }
                     isDisabled={loading}
@@ -253,6 +264,15 @@ const ModalVerPago = ({
                     </SelectItem>
                     <SelectItem key="AHORROS" value="AHORROS">
                       AHORROS
+                    </SelectItem>
+                    <SelectItem key="CAJA CHICA" value="CAJA CHICA">
+                      CAJA CHICA
+                    </SelectItem>
+                    <SelectItem
+                      key="SIN BANCARIZACION"
+                      value="SIN BANCARIZACION"
+                    >
+                      SIN BANCARIZACION
                     </SelectItem>
                   </Select>
 

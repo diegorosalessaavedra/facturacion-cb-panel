@@ -383,6 +383,7 @@ const plantillaComprobantePdf = async (
     .filter(
       (cuenta) =>
         cuenta.descripcion !== "MORTANDAD" &&
+        cuenta.descripcion !== "SIN BANCARIZACION" &&
         cuenta.descripcion !== "JCESPEDES",
     )
     .map((cuentaBancaria) => [

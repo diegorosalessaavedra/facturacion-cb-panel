@@ -324,7 +324,10 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
 
   const bancosBody = cuentasBancarias
     .filter(
-      (c) => c.descripcion !== "MORTANDAD" && c.descripcion !== "JCESPEDES",
+      (c) =>
+        c.descripcion !== "MORTANDAD" &&
+        c.descripcion !== "SIN BANCARIZACION" &&
+        c.descripcion !== "JCESPEDES",
     )
     .map((c) => [c.descripcion, "Soles", c.cci, c.numero]);
 
