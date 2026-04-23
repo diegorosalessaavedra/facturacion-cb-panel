@@ -409,15 +409,17 @@ const TablaEECCProvedores = ({
                         <td
                           className="py-2 px-2 text-left text-slate-800 min-w-[150px] truncate border-r border-slate-200 bg-white"
                           title={
-                            (prod.descripcion_producto !== "null" &&
+                            (prod?.descripcion_producto &&
+                              prod?.descripcion_producto !== "null" &&
                               prod.descripcion_producto) ||
-                            prod.producto?.nombre ||
+                            prod?.producto?.nombre ||
                             "-"
                           }
                         >
-                          {(prod.descripcion_producto !== "null" &&
+                          {(prod?.descripcion_producto &&
+                            prod?.descripcion_producto !== "null" &&
                             prod.descripcion_producto) ||
-                            prod.producto?.nombre ||
+                            prod?.producto?.nombre ||
                             "-"}
                         </td>
                         <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
