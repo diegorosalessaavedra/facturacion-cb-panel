@@ -19,12 +19,13 @@ const ReportesOrdenesCompra = () => {
   const [fechaInicio, setFechaInicio] = useState(getTodayDate2());
   const [fechaFinal, setFechaFinal] = useState(getTodayDate());
   const [estadoPago, setEstadoPago] = useState("TODOS");
+  const [validados, setValidados] = useState("TODOS");
 
   const handleFindoOrdenesCompra = () => {
     setLoading(true);
     const url = `${
       import.meta.env.VITE_URL_API
-    }/compras/orden-compra?fecha_inicio=${fechaInicio}&fecha_final=${fechaFinal}&estado_pago=${estadoPago}&estado=Activo`;
+    }/compras/orden-compra?fecha_inicio=${fechaInicio}&fecha_final=${fechaFinal}&estado_pago=${estadoPago}&estado=Activo&validacion_ingrid=${validados}`;
 
     axios
       .get(url, config)
@@ -89,6 +90,8 @@ const ReportesOrdenesCompra = () => {
           handleFindoOrdenesCompra={handleFindoOrdenesCompra}
           setEstadoPago={setEstadoPago}
           estadoPago={estadoPago}
+          validados={validados}
+          setValidados={setValidados}
         />
         <TablaReporteOrdenesCompra
           ordenesCompra={ordenesCompra}
