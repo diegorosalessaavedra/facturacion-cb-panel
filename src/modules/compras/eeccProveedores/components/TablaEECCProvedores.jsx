@@ -50,18 +50,16 @@ const TablaEECCProvedores = ({
     if (dataProveedor?.ordenesCompra) {
       const initialData = {};
       dataProveedor.ordenesCompra.forEach((orden) => {
-        // En caso de que Sequelize lo envíe como array o como objeto
         const det = Array.isArray(orden.detraccion)
           ? orden.detraccion[0]
           : orden.detraccion;
 
-        // Formatear la fecha para que el input type="date" la reconozca (YYYY-MM-DD)
         const fechaFormateada = det?.fecha_detraccion
           ? det.fecha_detraccion.split("T")[0]
           : "";
 
         initialData[orden.id] = {
-          id: det?.id || 0, // <--- GUARDAMOS EL ID AQUÍ
+          id: det?.id || 0,
           codigo_detraccion: det?.codigo_detraccion || "",
           fecha_detraccion: fechaFormateada,
           porcentaje_detraccion: det?.porcentaje_detraccion || "",
@@ -92,16 +90,22 @@ const TablaEECCProvedores = ({
         const montoDetraccion =
           parseFloat(formDetracciones[orden.id]?.monto_detraccion) || 0;
 
-        let saldoPorOrden = 0;
-
         return Array.from({ length: maxRows }, (_, i) => {
           const prod = productos[i];
-          const pago = pagos[i];
+          const pagoReal = pagos[i];
 
-          if (prod) saldoPorOrden += parseFloat(prod.total || 0);
-          if (pago) saldoPorOrden -= parseFloat(pago.monto || 0);
-          if (i === 0) saldoPorOrden -= montoDetraccion;
+          const pago =
+            pagoReal ||
+            (prod ? { monto: 0, operacion: "-", ficticio: true } : undefined);
 
+          // CORRECCIÓN: Saldo independiente por fila, no acumulado por orden
+          let saldoFila = 0;
+
+          if (prod) saldoFila += parseFloat(prod.total || 0);
+          if (pago) saldoFila -= parseFloat(pago.monto || 0);
+          if (i === 0) saldoFila -= montoDetraccion;
+
+          // El acumulador general sí debe sumar todo
           if (prod) acumuladorFooter += parseFloat(prod.total || 0);
           if (pago) acumuladorFooter -= parseFloat(pago.monto || 0);
           if (i === 0) acumuladorFooter -= montoDetraccion;
@@ -110,9 +114,10 @@ const TablaEECCProvedores = ({
             orden,
             prod,
             pago,
+            pagoReal,
             isFirstRow: i === 0,
             maxRows,
-            saldoActual: saldoPorOrden,
+            saldoActual: saldoFila, // Usamos el saldo calculado solo para esta fila
             key: `${orden.id}-${i}`,
           };
         });
@@ -228,7 +233,6 @@ const TablaEECCProvedores = ({
   };
 
   const tieneDetraccion = Boolean(dataProveedor?.detraccion_activo);
-  // Modificamos los colSpans sumándole +1 por la nueva columna "Acción"
   const colSpanPrevioTotales = tieneDetraccion ? 13 : 8;
   const totalColSpanVacio = tieneDetraccion ? 17 : 13;
 
@@ -257,7 +261,6 @@ const TablaEECCProvedores = ({
             <table className="w-full text-left border-collapse text-[11px] whitespace-nowrap">
               <thead className="sticky top-0 z-20 shadow-sm">
                 <tr>
-                  {/* Se ajusta a colSpan="8" para incluir la columna del botón */}
                   <th
                     colSpan="8"
                     className="bg-blue-700 text-white font-bold text-center py-3 px-2 tracking-wider border-r border-blue-800"
@@ -281,7 +284,7 @@ const TablaEECCProvedores = ({
                 </tr>
                 <tr>
                   {[
-                    "-", // <- Agregamos este título vacío para la columna del botón "Guardar"
+                    "-",
                     "Fecha",
                     "SOLPED",
                     "Serie Correlativo",
@@ -330,6 +333,7 @@ const TablaEECCProvedores = ({
                       orden,
                       prod,
                       pago,
+                      pagoReal,
                       isFirstRow,
                       maxRows,
                       saldoActual,
@@ -337,9 +341,9 @@ const TablaEECCProvedores = ({
                     } = row;
 
                     const bancoNombre =
-                      pago?.banco?.banco ||
-                      pago?.banco?.descripcion ||
-                      pago?.banco ||
+                      pagoReal?.banco?.banco ||
+                      pagoReal?.banco?.descripcion ||
+                      pagoReal?.banco ||
                       "-";
 
                     return (
@@ -349,7 +353,6 @@ const TablaEECCProvedores = ({
                       >
                         {isFirstRow ? (
                           <>
-                            {/* NUEVA CELDA: Fija para la columna del botón de guardar */}
                             <td
                               rowSpan={maxRows}
                               className=" py-2  text-center align-middle border-r border-slate-200 bg-slate-50 min-w-[50px]"
@@ -521,7 +524,7 @@ const TablaEECCProvedores = ({
                         ) : null}
 
                         <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
-                          {pago ? formatDate(pago.fecha) : "-"}
+                          {pagoReal ? formatDate(pagoReal.fecha) : "-"}
                         </td>
                         <td className="py-2 px-2 text-center font-bold text-slate-900 bg-slate-100/50 border-r border-slate-200">
                           {pago ? `S/ ${numberPeru(pago.monto)}` : "-"}
