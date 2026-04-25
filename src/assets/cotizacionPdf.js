@@ -17,15 +17,16 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   // ==========================================
   const slate900 = [15, 23, 42]; // #0f172a
   const amber500 = [245, 158, 11]; // #f59e0b
-  const red600 = [220, 38, 38]; // #dc2626 (Solo para destacar el total final)
+  const red600 = [220, 38, 38]; // #dc2626
   const white = [255, 255, 255];
   const black = [0, 0, 0];
   const slate50 = [248, 250, 252];
   const slate400 = [148, 163, 184];
 
-  // Configuración de márgenes más estrechos
-  const mX = 10; // Margen izquierdo y derecho (antes 14)
+  // Configuración de márgenes
+  const mX = 10;
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight(); // Obtenemos la altura de la página
   const rightColX = pageWidth - mX;
   const contentWidth = pageWidth - mX * 2;
 
@@ -37,7 +38,6 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     doc.addImage(logoUrl, "JPEG", mX, 10, 32, 22);
   }
 
-  // Empresa (Textos más pequeños)
   doc.setTextColor(...slate900);
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
@@ -62,10 +62,10 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   });
 
   // ==========================================
-  // 🏷️ BLOQUE DE TÍTULO (Más compacto)
+  // 🏷️ BLOQUE DE TÍTULO
   // ==========================================
   doc.setFillColor(...slate900);
-  doc.rect(mX, 36, contentWidth, 12, "F"); // Altura reducida a 12
+  doc.rect(mX, 36, contentWidth, 12, "F");
 
   doc.setFillColor(...amber500);
   doc.rect(mX, 36, 3, 12, "F");
@@ -83,10 +83,10 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   );
 
   // ==========================================
-  // 👤 BLOQUE DE CLIENTE (Fuentes tamaño 7)
+  // 👤 BLOQUE DE CLIENTE
   // ==========================================
   doc.setFillColor(...slate50);
-  doc.rect(mX, 50, contentWidth, 22, "F"); // Altura reducida a 22
+  doc.rect(mX, 50, contentWidth, 22, "F");
 
   doc.setTextColor(...slate900);
   doc.setFontSize(7);
@@ -174,7 +174,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     margin: { left: mX, right: mX },
     theme: "plain",
     styles: {
-      fontSize: 6, // Letra más pequeña
+      fontSize: 6,
       textColor: black,
       cellPadding: 3,
     },
@@ -253,7 +253,10 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   // ==========================================
   // 💳 HISTORIAL DE PAGOS
   // ==========================================
-  if (selectCotizacion.pagos && selectCotizacion.pagos.length > 0) {
+  const tienePagos =
+    selectCotizacion.pagos && selectCotizacion.pagos.length > 0;
+
+  if (tienePagos) {
     finalY += 12;
 
     doc.setTextColor(...slate900);
@@ -311,8 +314,17 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   // ==========================================
   // 🏦 CUENTAS BANCARIAS
   // ==========================================
-  let bancosStartY =
-    (doc.lastAutoTable ? doc.lastAutoTable.finalY : finalY) + 15;
+
+  let bancosStartY;
+
+  if (tienePagos) {
+    // Si hay pagos, renderizamos justo debajo de la tabla de pagos
+    bancosStartY = doc.lastAutoTable.finalY + 15;
+  } else {
+    // Si NO hay pagos, lo enviamos al final de la página (aprox - 50px desde el borde inferior)
+    // Usamos Math.max para asegurar que si los productos/totales ocupan mucho espacio, no se monte encima.
+    bancosStartY = Math.max(finalY + 15, pageHeight - 50);
+  }
 
   doc.setTextColor(...slate900);
   doc.setFont("helvetica", "bold");
