@@ -55,7 +55,6 @@ const ModalVerHistorialValidacionPago = ({
         return <FiAlertCircle size={14} />;
     }
   };
-  console.log(historial);
 
   return (
     <Modal

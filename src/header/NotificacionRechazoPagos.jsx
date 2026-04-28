@@ -9,7 +9,7 @@ import {
   Badge,
   ScrollShadow,
   useDisclosure,
-} from "@heroui/react";
+} from "@nextui-org/react";
 import { FaBell, FaRegSadTear, FaRegCalendarAlt } from "react-icons/fa";
 import {
   FiAlertCircle,
@@ -22,24 +22,24 @@ import { useNavigate } from "react-router-dom";
 import ChatRechazoModal from "./ChatRechazoModal";
 import { API } from "../utils/api";
 import config from "../utils/getToken";
+import { handleAxiosError } from "../utils/handleAxiosError";
+import formatDate from "../hooks/FormatDate";
+import { formatDateTime } from "../utils/formatDateTime";
 
 const NotificacionRechazoPagos = () => {
   const navigate = useNavigate();
   const socket = useSocketContext();
 
-  // Estados para las notificaciones
   const [pagosRechazados, setPagosRechazados] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // NUEVO: Estado para controlar si el Popover está abierto o cerrado
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-
-  // Estados y Hooks para el Chat Modal
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectNotificacion, setSelectNotificacion] = useState(null);
 
-  const audioRef = (useRef < HTMLAudioElement) | (null > null);
+  // Estado derivado: Calcula el total de no leídos basándose en el array
+  const unreadCount = pagosRechazados.length;
+
+  const audioRef = useRef(null);
 
   useEffect(() => {
     audioRef.current = new Audio("/notificacion.mp3");
@@ -48,15 +48,14 @@ const NotificacionRechazoPagos = () => {
   }, []);
 
   const handleFindNotificaciones = () => {
-    const url = `${API}/notificacion-rechazo-pago`;
+    const url = `${API}/datos-validacion-pago`;
     axios
       .get(url, config)
       .then((res) => {
-        const notificaciones = res.data.notificacionRechazoPagos;
+        const notificaciones = res.data.datos || [];
         setPagosRechazados(notificaciones);
-        setUnreadCount(notificaciones.length);
       })
-      .catch((err) => console.error("Error al obtener notificaciones", err));
+      .catch((err) => handleAxiosError(err));
   };
 
   useEffect(() => {
@@ -65,12 +64,9 @@ const NotificacionRechazoPagos = () => {
     const handleCreated = (notificacion) => {
       if (notificacion) {
         setPagosRechazados((prev) => [notificacion, ...prev]);
-        setUnreadCount((prev) => prev + 1);
 
         if (audioRef.current) {
-          audioRef.current
-            .play()
-            .catch((e) => console.log("Audio play blocked", e));
+          audioRef.current.play();
         }
       }
     };
@@ -81,19 +77,17 @@ const NotificacionRechazoPagos = () => {
     };
   }, [socket]);
 
-  // Modificado: Ahora controla el estado de apertura del Popover
   const handleOpenChangePopover = (open) => {
     setIsPopoverOpen(open);
     if (!open) {
-      setIsExpanded(false); // Si se cierra, resetea la altura
+      setIsExpanded(false);
     }
   };
 
-  // Modificado: Abre el modal y Cierra el Popover
   const handleAbrirChat = (notificacion) => {
     setSelectNotificacion(notificacion);
-    onOpen(); // Abre el modal de chat
-    setIsPopoverOpen(false); // Cierra el popover de notificaciones
+    onOpen();
+    setIsPopoverOpen(false);
   };
 
   return (
@@ -101,8 +95,8 @@ const NotificacionRechazoPagos = () => {
       <Popover
         placement="bottom-end"
         offset={12}
-        isOpen={isPopoverOpen} // Añadido el control de estado
-        onOpenChange={handleOpenChangePopover} // Manejador unificado
+        isOpen={isPopoverOpen}
+        onOpenChange={handleOpenChangePopover}
       >
         <PopoverTrigger>
           <Button
@@ -146,13 +140,13 @@ const NotificacionRechazoPagos = () => {
                 size="sm"
                 className="font-bold border border-danger-200/50 bg-danger-50/80 text-[10px] px-1.5"
               >
-                {pagosRechazados.length} Nuevos
+                {unreadCount} Nuevos
               </Badge>
             </div>
 
             <ScrollShadow
               className={`w-full bg-transparent transition-all duration-300 ease-in-out ${
-                isExpanded ? "h-[75vh]" : "max-h-[400px]"
+                isExpanded ? "h-[80vh]" : "max-h-[400px]"
               }`}
             >
               {pagosRechazados.length === 0 ? (
@@ -166,9 +160,14 @@ const NotificacionRechazoPagos = () => {
                     <div
                       key={notificacion.id}
                       onClick={() => {
-                        setIsPopoverOpen(false); // Cierra también si navegan al detalle
+                        setIsPopoverOpen(false);
+                        // Ajusta esta ruta a donde realmente necesites ir en tu app
+                        const cotizacionId =
+                          notificacion.pago_cotizacion?.cotizacionId;
                         navigate(
-                          `/despacho/${notificacion.despacho_dia.id}?cobro_id=${notificacion.cobroDespacho.id}`,
+                          cotizacionId
+                            ? `/cotizaciones/${cotizacionId}`
+                            : "/despacho",
                         );
                       }}
                       className="cursor-pointer h-auto p-2.5 bg-white/50 hover:bg-white/80 border border-white/60 shadow-sm backdrop-blur-sm rounded-xl transition-all duration-300 flex flex-col gap-1.5 group relative overflow-hidden whitespace-normal items-start min-w-full justify-start"
@@ -182,58 +181,58 @@ const NotificacionRechazoPagos = () => {
                           </h3>
                           <p className="text-[9px] text-slate-600 font-medium flex items-center gap-1 mt-0.5">
                             <FaRegCalendarAlt className="opacity-70" />
-                            Despacho:{" "}
+                            Fecha de Pago:{" "}
                             <span className="font-semibold">
-                              {formatDate(notificacion.despacho_dia.fecha)}
+                              {notificacion.pago_cotizacion?.fecha
+                                ? formatDate(notificacion.pago_cotizacion.fecha)
+                                : "N/A"}
                             </span>
                           </p>
                         </div>
-                        <span className="text-[9px] text-white bg-slate-800 px-1.5 py-0.5 rounded-md border border-white/80 shadow-sm">
-                          {formatDate(notificacion.fecha_rechazo)}
+                        <span className="text-[9px] text-slate-900 bg-amber-500 px-1.5 py-0.5 rounded-md border border-white/80 shadow-sm">
+                          {formatDateTime(notificacion.createdAt)}
                         </span>
                       </div>
 
                       <div className="flex flex-col gap-1.5 pl-1.5 w-full text-left">
-                        <p className="text-[11px] text-slate-700 bg-white/40 px-2 py-1 rounded-md border border-white/60 leading-tight">
-                          <span className="font-bold text-slate-900 mr-1">
-                            Cliente:
-                          </span>
-                          {notificacion.despacho.cliente}
-                        </p>
-
                         <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
                           <span className="bg-danger-50/80 text-danger-700 font-bold px-2 py-0.5 rounded border border-danger-200/50">
-                            S/ {notificacion.cobroDespacho.monto}
+                            S/ {notificacion.pago_cotizacion?.monto || "0.00"}
                           </span>
                           <span className="bg-white/60 text-slate-700 font-medium px-2 py-0.5 rounded border border-white/80 shadow-sm flex items-center gap-1">
                             <FiCreditCard className="opacity-60" /> Op:
                             <span className="font-mono font-bold">
-                              {notificacion.cobroDespacho.operacion}
+                              {notificacion.pago_cotizacion?.operacion || "S/N"}
                             </span>
                           </span>
                         </div>
 
-                        {notificacion.observaciones_rechazo && (
-                          <div className="mt-0.5 bg-red-50/40 border border-red-200/50 p-1.5 rounded-md backdrop-blur-sm w-full">
-                            <p className="text-[9px] font-bold text-danger-800 uppercase tracking-wider leading-none mb-0.5">
-                              Motivo:
-                            </p>
-                            <p className="text-[11px] text-slate-800 font-medium italic leading-tight">
-                              "{notificacion.observaciones_rechazo}"
-                            </p>
-                          </div>
-                        )}
+                        <div className="mt-0.5 bg-red-50/40 border border-red-200/50 p-1.5 rounded-md backdrop-blur-sm w-full">
+                          <p className="text-[9px] font-bold text-danger-800 uppercase tracking-wider leading-none mb-0.5">
+                            Motivo:
+                          </p>
+                          <p className="text-[11px] text-slate-800 font-medium italic leading-tight">
+                            "
+                            {notificacion.observacion_validacion ||
+                              notificacion.pago_cotizacion
+                                ?.observaciones_rechazo ||
+                              "Ninguna observación detallada"}
+                            "
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="w-full flex justify-end  border-t border-white/40 ">
+                      <div className="w-full flex justify-end border-t border-white/40 mt-1 pt-1.5">
                         <Button
                           size="sm"
-                          color="success"
-                          className="h-6 text-[10px] font-medium z-20 relative"
-                          onPress={() => handleAbrirChat(notificacion)}
+                          color="danger"
+                          className="h-6 bg-slate-900 text-[10px] font-medium z-20 relative"
+                          onPress={() => {
+                            handleAbrirChat(notificacion);
+                          }}
                         >
-                          <IoChatbubblesOutline className="text-sm mr-1" />
-                          Chat
+                          <IoChatbubblesOutline className="text-sm " />
+                          {notificacion.respuestas_validacion.length}
                         </Button>
                       </div>
                     </div>

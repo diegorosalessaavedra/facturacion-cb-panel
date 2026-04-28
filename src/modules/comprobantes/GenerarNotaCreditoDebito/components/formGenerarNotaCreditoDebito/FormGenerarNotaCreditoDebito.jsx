@@ -73,7 +73,6 @@ const FormGenerarNotaCreditoDebito = ({ userData, comprobanteElectronico }) => {
         setLoading(false);
       });
   };
-  console.log(comprobanteElectronico?.productos);
 
   const resetDatos = () => {
     const productosAcumulados = comprobanteElectronico?.productos.map(
@@ -95,8 +94,6 @@ const FormGenerarNotaCreditoDebito = ({ userData, comprobanteElectronico }) => {
   useEffect(() => {
     resetDatos();
   }, [comprobanteElectronico]);
-
-  console.log(productos);
 
   return (
     <div className="w-full  bg-white flex flex-col gap-4 p-6 rounded-md ">
