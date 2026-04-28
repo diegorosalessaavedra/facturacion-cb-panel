@@ -55,6 +55,7 @@ const ModalVerHistorialValidacionPago = ({
         return <FiAlertCircle size={14} />;
     }
   };
+  console.log(historial);
 
   return (
     <Modal
@@ -262,7 +263,7 @@ const ModalVerHistorialValidacionPago = ({
                                   </span>
                                   <p className="text-xs text-slate-700 italic">
                                     "
-                                    {item.observacion_validacion ||
+                                    {item.observacion_validac ||
                                       "Sin observaciones registradas"}
                                     "
                                   </p>

@@ -6,7 +6,7 @@ export default function useSocket() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const socketInstance = io(import.meta.env.VITE_URL_SOCKET); // tu backend
+    const socketInstance = io(import.meta.env.VITE_URL_SOCKET);
     setSocket(socketInstance);
 
     return () => {

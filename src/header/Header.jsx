@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import HeaderProfile from "./components/HeaderProfile";
 import { IoGrid } from "react-icons/io5";
 import HeaderNavLinks from "./components/headerNavLinks/HeaderNavLinks";
+import { SocketProvider } from "../context/SocketContext";
 
 const Header = ({ userData }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // Cambiado a false
@@ -18,7 +19,9 @@ const Header = ({ userData }) => {
       `}
     >
       {/* Perfil que se mueve con el sidebar */}
-      <HeaderProfile userData={userData} />
+      <SocketProvider>
+        <HeaderProfile userData={userData} />
+      </SocketProvider>
 
       <div className="w-full flex flex-col h-full pt-4  gap-4">
         {/* Logo area */}
