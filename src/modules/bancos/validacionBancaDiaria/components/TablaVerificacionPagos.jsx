@@ -7,8 +7,11 @@ import ModalVerPago from "./ModalVerPago";
 import { MdHistory } from "react-icons/md";
 import ModalVerHistorialValidacionPago from "./ModalVerHistorialValidacionPago";
 import { RiResetLeftFill } from "react-icons/ri";
-import { IoTimeSharp } from "react-icons/io5";
+import { IoChatbox, IoTimeSharp } from "react-icons/io5";
 import ModalReiniciarPago from "./ModalReiniciarPago";
+import HistorialDeChat from "./HistorialDeChat";
+import { MessageCircle, RotateCcw, History, CheckCircle2 } from "lucide-react";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 
 const TablaVerificacionPagos = ({
   cotizaciones,
@@ -43,7 +46,11 @@ const TablaVerificacionPagos = ({
     setSelectPago(pago);
     onOpen();
   };
-
+  const handleVerChat = (pago) => {
+    setSelectModal("chat");
+    setSelectPago(pago);
+    onOpen();
+  };
   const handleReiniciar = (pago) => {
     setSelectModal("reiniciar");
     setSelectPago(pago);
@@ -53,9 +60,7 @@ const TablaVerificacionPagos = ({
   return (
     <div className="w-full h-[75vh] overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
       {loading ? (
-        <div className="flex h-full items-center justify-center">
-          <Spinner label="Cargando..." color="success" />
-        </div>
+        <LoadingSpinner />
       ) : (
         <div className="grid" style={{ gridTemplateColumns: gridTemplate }}>
           {/* === CABECERAS (6 Columnas) === */}
@@ -144,53 +149,80 @@ const TablaVerificacionPagos = ({
                             </span>
                           </div>
 
-                          <div className="flex gap-2">
+                          <div className="flex items-center gap-1.5">
+                            {/* 1. CHAT - Acción de comunicación */}
                             <Tooltip
-                              content="Reiniciar Pago"
+                              content="Ver Chat"
                               placement="top"
+                              className=" bg-amber-400"
                               size="sm"
-                              color="warning"
+                              color="secondary"
+                              closeDelay={0}
                             >
                               <Button
                                 isIconOnly
                                 size="sm"
-                                className="h-6 w-6 min-w-6 text-white shadow-sm shadow-slate-900/30"
-                                onPress={() => handleReiniciar(pago)}
-                                color="warning"
+                                variant="flat" // Usamos flat para acciones secundarias
+                                className="h-7 w-7 min-w-7 bg-amber-400 text-slate-50 hover:text-white transition-all"
+                                onPress={() => handleVerChat(pago)}
                               >
-                                <RiResetLeftFill size={13} />
+                                <MessageCircle size={15} />
                               </Button>
                             </Tooltip>
+
+                            {/* 2. HISTORIAL - Acción informativa */}
                             <Tooltip
                               content="Historial de validación"
                               placement="top"
                               size="sm"
                               color="primary"
+                              closeDelay={0}
                             >
                               <Button
                                 isIconOnly
                                 size="sm"
-                                className="h-6 w-6 min-w-6  text-white shadow-sm shadow-slate-900/30"
+                                variant="flat"
+                                className="h-7 w-7 min-w-7 bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition-all"
                                 onPress={() => handleVerHistorial(pago)}
-                                color="primary"
                               >
-                                <IoTimeSharp size={14} />
+                                <History size={15} />
                               </Button>
                             </Tooltip>
+
+                            {/* 3. REINICIAR - Acción de corrección/alerta */}
                             <Tooltip
-                              content="Validar pago"
+                              content="Reiniciar Pago"
+                              placement="top"
+                              size="sm"
+                              color="warning"
+                              closeDelay={0}
+                            >
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                variant="flat"
+                                className="h-7 w-7 min-w-7 bg-orange-100 text-orange-600 hover:bg-orange-600 hover:text-white transition-all"
+                                onPress={() => handleReiniciar(pago)}
+                              >
+                                <RotateCcw size={15} />
+                              </Button>
+                            </Tooltip>
+
+                            {/* 4. VALIDAR - Acción Principal (Destacada) */}
+                            <Tooltip
+                              content="Validar pago ahora"
                               placement="top"
                               size="sm"
                               color="success"
+                              closeDelay={0}
                             >
                               <Button
                                 isIconOnly
                                 size="sm"
-                                className="h-6 w-6 min-w-6 text-white shadow-sm shadow-slate-900/30"
+                                className="h-7 w-7 min-w-7 bg-green-500 text-white shadow-md shadow-green-200 hover:bg-green-600 transition-transform active:scale-90"
                                 onPress={() => handleSeeMore(pago)}
-                                color="success"
                               >
-                                <Eye size={14} />
+                                <CheckCircle2 size={16} strokeWidth={2.5} />
                               </Button>
                             </Tooltip>
                           </div>
@@ -236,6 +268,15 @@ const TablaVerificacionPagos = ({
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           selectPago={selectPago}
+          handleFindCotizaciones={handleFindCotizaciones}
+        />
+      )}
+      {selectModal === "chat" && selectPago && (
+        <HistorialDeChat
+          key={selectPago.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          id={selectPago.id}
           handleFindCotizaciones={handleFindCotizaciones}
         />
       )}

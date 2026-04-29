@@ -166,7 +166,7 @@ const NotificacionRechazoPagos = () => {
                           notificacion.pago_cotizacion?.cotizacionId;
                         navigate(
                           cotizacionId
-                            ? `/cotizaciones/${cotizacionId}`
+                            ? `/bancos/validacion-banca-diaria?fecha_inicio=${notificacion.pago_cotizacion.fecha}&fecha_final=${notificacion.pago_cotizacion.fecha}`
                             : "/despacho",
                         );
                       }}
