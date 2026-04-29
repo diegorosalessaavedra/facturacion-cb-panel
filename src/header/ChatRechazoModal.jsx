@@ -127,7 +127,8 @@ const ChatRechazoModal = ({ isOpen, onOpenChange, selectNotificacion }) => {
   };
 
   const handleEnviarMensaje = async () => {
-    if ((!nuevoMensaje.trim() && !archivo) || !selectNotificacion) return;
+    // AHORA VALIDA QUE SÍ O SÍ EXISTA TEXTO EN EL MENSAJE
+    if (!nuevoMensaje.trim() || !selectNotificacion) return;
 
     setIsLoading(true);
     try {
@@ -446,11 +447,18 @@ const ChatRechazoModal = ({ isOpen, onOpenChange, selectNotificacion }) => {
                     autoFocus
                     size="sm"
                     radius="full"
-                    placeholder="Escribe tu respuesta..."
+                    // Placeholder condicional si hay archivo
+                    placeholder={
+                      archivo
+                        ? "Añade un mensaje a tu archivo..."
+                        : "Escribe tu respuesta..."
+                    }
                     value={nuevoMensaje}
                     onValueChange={setNuevoMensaje}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") handleEnviarMensaje();
+                      // Verifica que haya texto antes de enviar al presionar Enter
+                      if (e.key === "Enter" && nuevoMensaje.trim())
+                        handleEnviarMensaje();
                     }}
                     className="flex-1"
                     classNames={{
@@ -465,7 +473,9 @@ const ChatRechazoModal = ({ isOpen, onOpenChange, selectNotificacion }) => {
                     isIconOnly
                     size="sm"
                     radius="full"
-                    className="bg-gradient-to-tr from-slate-700 to-slate-900 text-amber-400 shadow-[0_4px_15px_rgba(15,23,42,0.3)] border border-slate-600/50 hover:scale-105 hover:shadow-[0_6px_20px_rgba(15,23,42,0.5)] transition-all duration-300 h-9 w-9 min-w-9"
+                    // AHORA EL BOTÓN ESTARÁ DESHABILITADO SI NO HAY TEXTO
+                    isDisabled={!nuevoMensaje.trim()}
+                    className="bg-gradient-to-tr from-slate-700 to-slate-900 text-amber-400 shadow-[0_4px_15px_rgba(15,23,42,0.3)] border border-slate-600/50 hover:scale-105 hover:shadow-[0_6px_20px_rgba(15,23,42,0.5)] transition-all duration-300 h-9 w-9 min-w-9 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
                     isLoading={isLoading}
                     onPress={handleEnviarMensaje}
                   >
