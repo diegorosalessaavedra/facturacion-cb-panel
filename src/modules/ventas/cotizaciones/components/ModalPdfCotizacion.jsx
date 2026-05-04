@@ -144,7 +144,25 @@ const ModalPdfCotizacion = ({ onOpenChange, isOpen, idCotizacion }) => {
                         >
                           <td className="px-2 py-[3px]">{producto.cantidad}</td>
                           <td>{producto.producto?.codUnidad}</td>
-                          <td>{producto.producto.nombre}</td>
+
+                          {/* Columna de DESCRIPCIÓN con mejora visual para el BONO */}
+                          <td>
+                            <div className="flex items-center mt-1 mb-1">
+                              {(producto.bono ||
+                                producto.tipo_producto === "BONO") && (
+                                <span className="bg-emerald-100 text-emerald-700 border border-emerald-300 px-2 py-[2px] rounded-md text-[9px] font-bold tracking-wider mr-2 shadow-sm whitespace-nowrap">
+                                  BONO
+                                </span>
+                              )}
+                              <span>
+                                {producto.producto?.nombre ||
+                                  (producto.tipo_producto === "BONO"
+                                    ? "Producto de Bono"
+                                    : "")}
+                              </span>
+                            </div>
+                          </td>
+
                           <td>{formatNumber(producto.precioUnitario)}</td>
                           <td>{formatNumber(producto.total)}</td>
                         </tr>

@@ -26,7 +26,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   // Configuración de márgenes
   const mX = 10;
   const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight(); // Obtenemos la altura de la página
+  const pageHeight = doc.internal.pageSize.getHeight();
   const rightColX = pageWidth - mX;
   const contentWidth = pageWidth - mX * 2;
 
@@ -158,10 +158,20 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
         ? producto.total
         : parseFloat(producto.total) || 0;
 
+    const esBono = producto.bono || producto.tipo_producto === "BONO";
+    const nombreProductoBase =
+      producto.producto?.nombre || (esBono ? "Producto de Bono" : "N/A");
+
+    // 👇 Si es bono, enviamos un objeto que permite identificarlo y le agregamos espacios
+    // para que deje lugar visual al rectángulo que dibujaremos después.
+    const descripcionCelda = esBono
+      ? { content: `        ${nombreProductoBase}`, esBono: true }
+      : nombreProductoBase;
+
     return [
       producto.cantidad || 0,
       producto.producto?.codUnidad || "-",
-      producto.producto?.nombre || "N/A",
+      descripcionCelda,
       `S/ ${precioUnitario.toFixed(2)}`,
       `S/ ${formatNumber(total)}`,
     ];
@@ -197,6 +207,39 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
       2: { halign: "center", cellWidth: "auto" },
       3: { halign: "right", cellWidth: 25 },
       4: { halign: "right", cellWidth: 25 },
+    },
+    // 👇 ESTO DIBUJA LA ETIQUETA "BONO" EN EL PDF 👇
+    didDrawCell: (data) => {
+      // Verifica si es la columna de Descripción y si la fila es un BONO
+      if (data.column.index === 2 && data.cell.raw && data.cell.raw.esBono) {
+        const x = data.cell.x + 3; // Posición X + padding
+        const y = data.cell.y + 1.5; // Ajuste vertical
+
+        // Guardar estilos actuales para no afectar otras celdas
+        const currentTextColor = doc.getTextColor();
+        const currentFillColor = doc.getFillColor();
+
+        // Fondo verde esmeralda (emerald-100)
+        doc.setFillColor(209, 250, 229);
+        // Borde verde (emerald-300)
+        doc.setDrawColor(110, 231, 183);
+        doc.setLineWidth(0.2);
+
+        // Dibujar el pill (rectángulo con bordes redondeados)
+        doc.roundedRect(x, y, 12.5, 4.5, 1, 1, "FD");
+
+        // Dibujar el texto dentro de la etiqueta (emerald-700)
+        doc.setTextColor(4, 120, 87);
+        doc.setFontSize(4.5);
+        doc.setFont("helvetica", "bold");
+        doc.text("BONO", x + 1.5, y + 3.2);
+
+        // Restaurar estilos de la tabla
+        doc.setTextColor(currentTextColor);
+        doc.setFillColor(currentFillColor);
+        doc.setFontSize(6); // Regresa a fuente normal de la tabla
+        doc.setFont("helvetica", "normal");
+      }
     },
   });
 
@@ -318,11 +361,8 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   let bancosStartY;
 
   if (tienePagos) {
-    // Si hay pagos, renderizamos justo debajo de la tabla de pagos
     bancosStartY = doc.lastAutoTable.finalY + 15;
   } else {
-    // Si NO hay pagos, lo enviamos al final de la página (aprox - 50px desde el borde inferior)
-    // Usamos Math.max para asegurar que si los productos/totales ocupan mucho espacio, no se monte encima.
     bancosStartY = Math.max(finalY + 15, pageHeight - 50);
   }
 
