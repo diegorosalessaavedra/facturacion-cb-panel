@@ -9,9 +9,9 @@ import ModalGenerarComprobante from "./components/modalGenerarComprobante/ModalG
 import ModalPdfCotizacion from "./components/ModalPdfCotizacion";
 import FiltrarCotizaciones from "./components/FiltrarCotizaciones";
 import { getTodayDate, getTodayDate2 } from "../../../assets/getTodayDate";
-import ModalPdfComprobanteElectronico from "./components/ModalPdfComprobanteElectronico";
 import ModalAnularCotizacion from "./components/ModalAnularCotizacion";
 import Loading from "../../../hooks/Loading";
+import ModalPdfComprobanteElectronico from "../comprobantesCotizacion/components/ModalPdfComprobanteElectronico";
 
 const Cotizaciones = ({ userData }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();

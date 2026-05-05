@@ -10,150 +10,180 @@ const plantillaComprobantePdf = async (
   comprobanteElectronico,
   cuentasBancarias,
 ) => {
-  // Crear un nuevo documento PDF con fuente Arial
   const doc = new jsPDF();
 
-  // Agregar la fuente Arial (que viene incorporada en jsPDF)
-  doc.setFont("helvetica"); // "helvetica" es el equivalente a Arial en jsPDF
-
-  // Asegúrate de que comprobanteElectronico no sea null o undefined
   if (!comprobanteElectronico || !comprobanteElectronico.cliente) {
+    console.error("No se proporcionaron datos válidos para el comprobante.");
     return;
   }
 
-  // Estilos generales - usando siempre la misma fuente
-  doc.setFontSize(8);
+  const slate900 = [15, 23, 42];
+  const amber500 = [245, 158, 11];
+  const red600 = [220, 38, 38];
+  const white = [255, 255, 255];
+  const black = [0, 0, 0];
+  const slate50 = [248, 250, 252];
+  const slate400 = [148, 163, 184];
 
-  // Verifica si el logo existe antes de agregarlo
+  const mX = 10;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const rightColX = pageWidth - mX;
+  const contentWidth = pageWidth - mX * 2;
+
+  // CABECERA
   const logoUrl = import.meta.env.VITE_LOGO;
   if (logoUrl) {
-    doc.addImage(logoUrl, "JPEG", 5, 5, 28, 23); // Añadir logo
+    doc.addImage(logoUrl, "JPEG", mX, 10, 32, 22);
   }
 
-  // Información de la empresa
-  // Información de la empresa - sin saltos de línea automáticos
-  // Información de la empresa - prevenir saltos de línea de manera más estricta
-  doc.setFontSize(8);
-  // Eliminar cualquier salto de línea que pudiera existir en las variables
-  const nombre = (import.meta.env.VITE_NOMBRE || "").replace(/\n/g, " ");
-  doc.text(nombre, 40, 9);
-
-  doc.setFontSize(7);
-  const ruc = (import.meta.env.VITE_RUC || "").replace(/\n/g, " ");
-  doc.text(ruc, 40, 13);
-
-  const direccion = (import.meta.env.VITE_DIRRECION || "").replace(/\n/g, " ");
-  doc.text(direccion, 40, 17);
-
-  const telefono = `Central telefónica: ${(
-    import.meta.env.VITE_TELEFONO || ""
-  ).replace(/\n/g, " ")}`;
-  doc.text(telefono, 40, 21);
-
-  const correo = `Email: ${(import.meta.env.VITE_CORREO || "").replace(
-    /\n/g,
-    " ",
-  )}`;
-  doc.text(correo, 40, 25);
-
-  const web = `Web: ${(import.meta.env.VITE_WEB || "").replace(/\n/g, " ")}`;
-  doc.text(web, 40, 29);
-  // Caja de cotización
-  doc.setFillColor("WHITE"); // Color blanco para el fondo
-  doc.rect(145, 5, 55, 25, "FD"); // Dibuja el rectángulo con el borde y relleno
-
-  // Configuración del texto
-  doc.setTextColor("BLACK"); // Color negro para el texto
-
-  // Texto "COTIZACIÓN" centrado en el rectángulo
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "bold"); // Usar helvetica bold para títulos
-  const cotizacionText = comprobanteElectronico.tipoComprobante;
-  const cotizacionWidth = doc.getTextWidth(cotizacionText); // Obtener el ancho del texto
-  const cotizacionX = 153 + (40 - cotizacionWidth) / 2; // Calcular la posición X para centrar
-  doc.text(cotizacionText, cotizacionX, 15); // Posición X centrada, Y en 20
-
-  // Texto "COT-00000017" centrado en el rectángulo
+  doc.setTextColor(...slate900);
   doc.setFontSize(10);
-  const cotizacionCodeText = `${comprobanteElectronico.serie}-${comprobanteElectronico.numeroSerie}`;
-  const cotizacionCodeWidth = doc.getTextWidth(cotizacionCodeText); // Obtener el ancho del texto
-  const cotizacionCodeX = 153 + (40 - cotizacionCodeWidth) / 2; // Calcular la posición X para centrar
-  doc.text(cotizacionCodeText, cotizacionCodeX, 20); // Posición X centrada, Y en 25
+  doc.setFont("helvetica", "bold");
+  const nombreEmpresa = (
+    import.meta.env.VITE_NOMBRE || "NOMBRE EMPRESA"
+  ).replace(/\n/g, " ");
+  doc.text(nombreEmpresa, rightColX, 15, { align: "right" });
 
-  // Espaciado
+  doc.setTextColor(...slate400);
   doc.setFontSize(7);
-  doc.setFont("helvetica", "bold"); // Mantener bold para etiquetas
-
-  // Información del cliente
-  doc.text("CLIENTE:", 10, 35);
-  doc.setFont("helvetica", "normal"); // Cambiar a normal para valores
-  doc.text(
-    comprobanteElectronico.cliente?.nombreComercial ||
-      comprobanteElectronico.cliente?.nombreApellidos ||
-      " ",
-    35,
-    35,
-  );
-
-  doc.setFont("helvetica", "bold");
-  doc.text(`${comprobanteElectronico.cliente?.tipoDocIdentidad}:`, 10, 40);
-  doc.setFont("helvetica", "normal");
-  doc.text(` ${comprobanteElectronico.cliente?.numeroDoc || " "}`, 35, 40);
-
-  doc.setFont("helvetica", "bold");
-  doc.text("DIRECCIÓN:", 10, 45);
   doc.setFont("helvetica", "normal");
   doc.text(
-    `${comprobanteElectronico?.cliente?.direccion} - ${comprobanteElectronico?.cliente?.provincia.provincia} - ${comprobanteElectronico?.cliente?.distrito.distrito} - ${comprobanteElectronico?.cliente?.departamento.departamento}` ||
-      " ",
-    35,
-    45,
+    `RUC: ${(import.meta.env.VITE_RUC || "-").replace(/\n/g, " ")}`,
+    rightColX,
+    19,
+    { align: "right" },
+  );
+  doc.text(
+    `${(import.meta.env.VITE_DIRRECION || "-").replace(/\n/g, " ")}`,
+    rightColX,
+    23,
+    { align: "right" },
+  );
+  doc.text(
+    `Tel: ${(import.meta.env.VITE_TELEFONO || "-").replace(/\n/g, " ")}`,
+    rightColX,
+    27,
+    { align: "right" },
+  );
+  doc.text(
+    `Email: ${(import.meta.env.VITE_CORREO || "-").replace(/\n/g, " ")}`,
+    rightColX,
+    31,
+    { align: "right" },
   );
 
-  doc.setFont("helvetica", "bold");
-  doc.text("VENDEDOR:", 10, 50);
-  doc.setFont("helvetica", "normal");
-  doc.text(comprobanteElectronico.vendedor || " ", 35, 50);
-
-  doc.setFont("helvetica", "bold");
-  doc.text("OBSERVACIONES:", 10, 55);
-  doc.setFont("helvetica", "normal");
-  doc.text(comprobanteElectronico.observacion || " ", 50, 55);
-
-  if (comprobanteElectronico?.cotizacion) {
-    doc.setFont("helvetica", "bold");
-    doc.text("COTIZACION:", 10, 60);
-    doc.setFont("helvetica", "normal");
+  if (import.meta.env.VITE_WEB) {
     doc.text(
-      `COT-${formatWithLeadingZeros(
-        comprobanteElectronico?.cotizacion?.id,
-        6,
-      )}`,
+      `Web: ${(import.meta.env.VITE_WEB || "").replace(/\n/g, " ")}`,
+      rightColX,
       35,
-      60,
+      { align: "right" },
     );
   }
 
-  // Información adicional
-  doc.setFont("helvetica", "bold");
-  doc.text("FECHA DE EMISIÓN :", 145, 38);
-  doc.setFont("helvetica", "normal");
-  doc.text(formatDate(comprobanteElectronico.fechaEmision) || " ", 185, 38);
+  // TÍTULO
+  doc.setFillColor(...slate900);
+  doc.rect(mX, 38, contentWidth, 12, "F");
 
-  doc.setFont("helvetica", "bold");
-  doc.text("FECHA DE VENCIMIENTO:", 145, 42);
-  doc.setFont("helvetica", "normal");
-  doc.text(formatDate(comprobanteElectronico.fechaVencimiento) || " ", 185, 42);
+  doc.setFillColor(...amber500);
+  doc.rect(mX, 38, 3, 12, "F");
 
-  // Tabla de productos
-  const productsColumns = [
-    "CANT",
-    "UNIDAD",
-    "DESCRIPCIÓN",
-    "V.UNIT",
-    "SUB TOTAL",
-  ];
-  const productsData = comprobanteElectronico.productos.map((producto) => {
+  doc.setTextColor(...white);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text(
+    (comprobanteElectronico.tipoComprobante || "COMPROBANTE").toUpperCase(),
+    mX + 6,
+    46,
+  );
+  doc.text(
+    `${comprobanteElectronico.serie}-${comprobanteElectronico.numeroSerie}`,
+    rightColX - 4,
+    46,
+    { align: "right" },
+  );
+
+  // CLIENTE
+  doc.setFillColor(...slate50);
+  doc.rect(mX, 52, contentWidth, 26, "F");
+
+  doc.setTextColor(...slate900);
+  doc.setFontSize(7);
+
+  const startYInfo = 57;
+  doc.setFont("helvetica", "bold");
+  doc.text("CLIENTE:", mX + 4, startYInfo);
+  doc.text(
+    `${comprobanteElectronico.cliente?.tipoDocIdentidad || "DOC"}:`,
+    mX + 4,
+    startYInfo + 4,
+  );
+  doc.text("DIRECCIÓN:", mX + 4, startYInfo + 8);
+  doc.text("VENDEDOR:", mX + 4, startYInfo + 16);
+
+  doc.setFont("helvetica", "normal");
+  doc.text(
+    comprobanteElectronico.cliente?.nombreComercial ||
+      comprobanteElectronico.cliente?.nombreApellidos ||
+      "N/A",
+    mX + 24,
+    startYInfo,
+  );
+  doc.text(
+    comprobanteElectronico.cliente?.numeroDoc || "N/A",
+    mX + 24,
+    startYInfo + 4,
+  );
+
+  const direccionCompleta = comprobanteElectronico?.cliente?.direccion
+    ? `${comprobanteElectronico.cliente.direccion} - ${comprobanteElectronico.cliente.provincia?.provincia || ""} - ${comprobanteElectronico.cliente.distrito?.distrito || ""} - ${comprobanteElectronico.cliente.departamento?.departamento || ""}`
+    : "N/A";
+  const splitDir = doc.splitTextToSize(direccionCompleta, 90);
+  doc.text(splitDir, mX + 24, startYInfo + 8);
+  doc.text(comprobanteElectronico.vendedor || "N/A", mX + 24, startYInfo + 16);
+
+  const col2X = rightColX - 55;
+  doc.setFont("helvetica", "bold");
+  doc.text("F. EMISIÓN:", col2X, startYInfo);
+  doc.text("F. VENCIMIENTO:", col2X, startYInfo + 4);
+  doc.text("COTIZACIÓN:", col2X, startYInfo + 8);
+  doc.text("OBSERVACIÓN:", col2X, startYInfo + 12);
+
+  doc.setFont("helvetica", "normal");
+  doc.text(
+    comprobanteElectronico.fechaEmision
+      ? formatDate(comprobanteElectronico.fechaEmision)
+      : "N/A",
+    col2X + 25,
+    startYInfo,
+  );
+  doc.text(
+    comprobanteElectronico.fechaVencimiento
+      ? formatDate(comprobanteElectronico.fechaVencimiento)
+      : "N/A",
+    col2X + 25,
+    startYInfo + 4,
+  );
+
+  if (comprobanteElectronico?.cotizacion) {
+    doc.text(
+      `COT-${formatWithLeadingZeros(comprobanteElectronico.cotizacion.id, 6)}`,
+      col2X + 25,
+      startYInfo + 8,
+    );
+  } else {
+    doc.text("N/A", col2X + 25, startYInfo + 8);
+  }
+
+  const splitObs = doc.splitTextToSize(
+    comprobanteElectronico.observacion || "Ninguna",
+    30,
+  );
+  doc.text(splitObs, col2X + 25, startYInfo + 12);
+
+  // TABLA DE PRODUCTOS
+  const productsData = comprobanteElectronico?.productos.map((producto) => {
     const precioUnitario =
       typeof producto.precioUnitario === "number"
         ? producto.precioUnitario
@@ -163,252 +193,315 @@ const plantillaComprobantePdf = async (
         ? producto.total
         : parseFloat(producto.total) || 0;
 
+    const esBono = producto.bono || producto.tipo_producto === "BONO";
+    const nombreProductoBase =
+      producto.producto?.nombre || (esBono ? "Producto de Bono" : "N/A");
+
+    const descripcionCelda = esBono
+      ? { content: "", nombreProducto: nombreProductoBase, esBono: true }
+      : nombreProductoBase;
+
     return [
       producto.cantidad || 0,
-      producto.producto?.codUnidad,
-      producto.producto?.nombre || " ",
-      precioUnitario.toFixed(2),
-      formatNumber(total),
+      producto.producto?.codUnidad || "-",
+      descripcionCelda,
+      `S/ ${precioUnitario.toFixed(2)}`,
+      `S/ ${formatNumber(total)}`,
     ];
   });
 
   doc.autoTable({
-    startY: 65,
-    head: [productsColumns],
+    startY: 82,
+    head: [["CANT", "UNIDAD", "DESCRIPCIÓN", "V. UNITARIO", "SUB TOTAL"]],
     body: productsData,
-    margin: { top: 10, left: 10, rigth: 5 },
-    styles: {
-      fontSize: 8,
-      font: "helvetica", // Aplicar Arial a toda la tabla
-    },
-    bodyStyles: { fillColor: [235, 235, 235] },
+    margin: { left: mX, right: mX },
+    theme: "plain",
+    styles: { fontSize: 6, textColor: black, cellPadding: 3 },
     headStyles: {
-      fillColor: [220, 220, 220],
-      textColor: [0, 0, 0],
-      fontStyle: "bold", // Usar bold para encabezados
+      fillColor: slate900,
+      textColor: white,
+      fontStyle: "bold",
+      halign: "center",
+    },
+    bodyStyles: {
+      lineWidth: { bottom: 0.1 },
+      lineColor: [226, 232, 240],
+    },
+    alternateRowStyles: { fillColor: slate50 },
+    columnStyles: {
+      0: { halign: "center", cellWidth: 14 },
+      1: { halign: "center", cellWidth: 18 },
+      2: { halign: "center", cellWidth: "auto" },
+      3: { halign: "right", cellWidth: 25 },
+      4: { halign: "right", cellWidth: 25 },
+    },
+    didDrawCell: (data) => {
+      if (data.column.index === 2 && data.cell.raw?.esBono) {
+        const cellX = data.cell.x;
+        const cellY = data.cell.y;
+        const cellW = data.cell.width;
+        const cellH = data.cell.height;
+
+        const nombreProducto = data.cell.raw.nombreProducto || "";
+
+        const pillW = 14;
+        const pillH = 4.5;
+        const gap = 2.5;
+
+        doc.setFontSize(6);
+        doc.setFont("helvetica", "normal");
+        const textW = doc.getTextWidth(nombreProducto);
+
+        // Bloque total: nombre + gap + pastilla, centrado en la celda
+        const blockW = textW + gap + pillW;
+        const blockStartX = cellX + (cellW - blockW) / 2;
+        const centerY = cellY + cellH / 2;
+
+        // 1. Nombre del producto
+        doc.setTextColor(...black);
+        doc.text(nombreProducto, blockStartX, centerY, { baseline: "middle" });
+
+        // 2. Pastilla BONO a la derecha del nombre
+        const pillX = blockStartX + textW + gap;
+        const pillY = centerY - pillH / 2;
+
+        doc.setFillColor(209, 250, 229);
+        doc.setDrawColor(110, 231, 183);
+        doc.setLineWidth(0.2);
+        doc.roundedRect(pillX, pillY, pillW, pillH, 1, 1, "FD");
+
+        doc.setTextColor(4, 120, 87);
+        doc.setFontSize(4.5);
+        doc.setFont("helvetica", "bold");
+        doc.text("BONO", pillX + pillW / 2, pillY + pillH / 2, {
+          align: "center",
+          baseline: "middle",
+        });
+
+        // Restaurar
+        doc.setTextColor(...black);
+        doc.setFontSize(6);
+        doc.setFont("helvetica", "normal");
+      }
     },
   });
 
-  // Totales
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
+  // TOTALES
+  let finalY = doc.lastAutoTable.finalY + 8;
 
-  doc.text(`OP. GRAVADAS:`, 165, doc.lastAutoTable.finalY + 5, {
-    maxWidth: 30,
-    align: "right",
-  });
+  doc.setFontSize(7);
+  doc.setTextColor(...slate900);
   doc.setFont("helvetica", "normal");
+  doc.text("OP. GRAVADAS:", rightColX - 30, finalY, { align: "right" });
   doc.text(
     `S/ ${formatNumber(comprobanteElectronico?.total_valor_venta)}`,
-    171,
-    doc.lastAutoTable.finalY + 5,
+    rightColX,
+    finalY,
+    { align: "right" },
   );
 
-  doc.setFont("helvetica", "bold");
-  doc.text(`IGV:`, 165, doc.lastAutoTable.finalY + 10, {
-    maxWidth: 30,
-    align: "right",
-  });
-  doc.setFont("helvetica", "normal");
+  finalY += 5;
+  doc.text("IGV (18%):", rightColX - 30, finalY, { align: "right" });
   doc.text(
     `S/ ${formatNumber(comprobanteElectronico?.total_igv)}`,
-    171,
-    doc.lastAutoTable.finalY + 10,
+    rightColX,
+    finalY,
+    { align: "right" },
   );
 
+  finalY += 6;
+  doc.setFillColor(...slate50);
+  doc.rect(rightColX - 55, finalY - 5, 55, 8, "F");
+
   doc.setFont("helvetica", "bold");
-  doc.text(`TOTAL A PAGAR:`, 165, doc.lastAutoTable.finalY + 15, {
-    maxWidth: 30,
-    align: "right",
-  });
-  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(...slate900);
+  doc.text("TOTAL A PAGAR:", rightColX - 30, finalY + 0.5, { align: "right" });
+
+  doc.setTextColor(...red600);
   doc.text(
     `S/ ${formatNumber(comprobanteElectronico.total_venta)}`,
-    171,
-    doc.lastAutoTable.finalY + 15,
+    rightColX - 2,
+    finalY + 0.5,
+    { align: "right" },
   );
 
-  // Convertir el total a letras
-  const totalEnLetras = comprobanteElectronico.legend;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.text(`SON: ${totalEnLetras}`, 10, doc.lastAutoTable.finalY + 23);
+  doc.setTextColor(...slate400);
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "normal");
+  doc.text(`SON: ${comprobanteElectronico.legend}`, mX, finalY);
 
-  // Información de pagos
-  const paymentColumns = [
-    "MÉTODO DE PAGO",
-    "BANCO",
-    "OPERACIÓN",
-    "MONTO",
-    "FECHA",
-  ];
-  const paymentData = comprobanteElectronico.pagos.map((pago) => [
-    pago.metodoPago.descripcion || " ",
-    pago.banco?.descripcion || " ",
-    pago.operacion || " ",
-    `S/${formatNumber(pago.monto)}` || " ",
-    `${formatDate(pago.fecha)}`,
-  ]);
+  finalY += 10;
 
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  if (comprobanteElectronico.detraccion) {
-    doc.text(
-      `Información de la detracción :`,
-      10,
-      doc.lastAutoTable.finalY + 28,
-    );
-
-    doc.setFontSize(9);
-    doc.text(`Bien o Servicio:`, 10, doc.lastAutoTable.finalY + 32);
-    const bienEncontrado = codigosBienes.find(
-      (codigo) =>
-        codigo.codigo === comprobanteElectronico.detraccion.codBienDetraccion,
-    );
-
-    doc.setFont("helvetica", "normal");
-    doc.text(
-      `${bienEncontrado.codigo} - ${bienEncontrado?.descripcion || ""}`,
-      60,
-      doc.lastAutoTable.finalY + 32,
-    );
-
-    doc.setFont("helvetica", "bold");
-    doc.text(`Medio de pago:`, 10, doc.lastAutoTable.finalY + 36);
-    const medioPagoEncontrado = mediosDePago.find(
-      (pago) => pago.codigo === comprobanteElectronico.detraccion.codMedioPago,
-    );
-
-    doc.setFont("helvetica", "normal");
-    doc.text(
-      `${medioPagoEncontrado.codigo} - ${
-        medioPagoEncontrado?.descripcion || ""
-      }`,
-      60,
-      doc.lastAutoTable.finalY + 36,
-    );
-
-    doc.setFont("helvetica", "bold");
-    doc.text(
-      `Nro. Cta. Banco de la Nación:`,
-      10,
-      doc.lastAutoTable.finalY + 40,
-    );
-    doc.setFont("helvetica", "normal");
-    doc.text(
-      `${comprobanteElectronico.detraccion.ctaBancaria}      Porcentaje de detracción:     ${comprobanteElectronico.detraccion.porcentaje}      Monto detracción:    ${comprobanteElectronico.detraccion.montoDetraccion} `,
-      60,
-      doc.lastAutoTable.finalY + 40,
-    );
-
-    doc.setFont("helvetica", "bold");
-    doc.text(`PAGOS :`, 10, doc.lastAutoTable.finalY + 47);
-
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 49,
-      head: [paymentColumns],
-      margin: { top: 10, left: 10, rigth: 5 },
-      body: paymentData,
-      styles: {
-        fontSize: 8,
-        font: "helvetica", // Aplicar Arial a toda la tabla
-      },
-      bodyStyles: { fillColor: [235, 235, 235] },
-      headStyles: {
-        fillColor: [220, 220, 220],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-      },
-    });
-  } else {
-    doc.text(`PAGOS :`, 10, doc.lastAutoTable.finalY + 30);
-
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 33,
-      head: [paymentColumns],
-      body: paymentData,
-      margin: { top: 10, left: 10, rigth: 5 },
-      styles: {
-        fontSize: 8,
-        font: "helvetica", // Aplicar Arial a toda la tabla
-      },
-      bodyStyles: { fillColor: [235, 235, 235] },
-      headStyles: {
-        fillColor: [220, 220, 220],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-      },
-    });
-  }
-
-  doc.setFontSize(8);
-
+  // QR Y HASH
   const qrContent = `${comprobanteElectronico.qrContent}`;
-
-  // Crear un elemento canvas temporal para el QR
   const qrDataUrl = await QRCode.toDataURL(qrContent);
+
   if (comprobanteElectronico.digestValue !== null) {
-    doc.addImage(qrDataUrl, "PNG", 160, doc.lastAutoTable.finalY, 35, 35);
-    doc.text("Código Hash:", 133, doc.lastAutoTable.finalY + 37);
-    doc.text(
+    doc.addImage(qrDataUrl, "PNG", rightColX - 35, finalY, 35, 35);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    doc.setTextColor(...slate900);
+    doc.text("Código Hash:", rightColX - 35, finalY + 38);
+    doc.setFont("helvetica", "normal");
+    const splitHash = doc.splitTextToSize(
       comprobanteElectronico.digestValue,
-      150,
-      doc.lastAutoTable.finalY + 37,
+      35,
     );
+    doc.text(splitHash, rightColX - 35, finalY + 42);
   }
 
-  // doc.text(
-  //   `TOTAL PAGADO: S/ ${formatNumber(
-  //     comprobanteElectronico.saldoInicial - totalPagos
-  //   )}`,
-  //   15,
-  //   doc.lastAutoTable.finalY + 10
-  // );
+  // DETRACCIÓN
+  if (comprobanteElectronico.detraccion) {
+    doc.setTextColor(...slate900);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text("INFORMACIÓN DE LA DETRACCIÓN", mX, finalY);
 
-  const pageHeight = doc.internal.pageSize.height; // Altura total de la página
+    doc.setFillColor(...amber500);
+    doc.rect(mX, finalY + 1.5, 12, 0.8, "F");
 
-  const bancosStartY = pageHeight - 45;
+    doc.setFontSize(7);
+    const detStartY = finalY + 6;
 
+    const bienEncontrado = codigosBienes.find(
+      (c) => c.codigo === comprobanteElectronico.detraccion.codBienDetraccion,
+    );
+    doc.text("Bien o Servicio:", mX, detStartY);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `${bienEncontrado?.codigo || ""} - ${bienEncontrado?.descripcion || ""}`,
+      mX + 25,
+      detStartY,
+    );
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Medio de pago:", mX, detStartY + 5);
+    const medioPagoEncontrado = mediosDePago.find(
+      (p) => p.codigo === comprobanteElectronico.detraccion.codMedioPago,
+    );
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `${medioPagoEncontrado?.codigo || ""} - ${medioPagoEncontrado?.descripcion || ""}`,
+      mX + 25,
+      detStartY + 5,
+    );
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Nro. Cta. Banco de la Nación:", mX, detStartY + 10);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `${comprobanteElectronico.detraccion.ctaBancaria}`,
+      mX + 45,
+      detStartY + 10,
+    );
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Porcentaje de detracción:", mX, detStartY + 15);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `${comprobanteElectronico.detraccion.porcentaje}%`,
+      mX + 45,
+      detStartY + 15,
+    );
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Monto detracción:", mX, detStartY + 20);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `S/ ${comprobanteElectronico.detraccion.montoDetraccion}`,
+      mX + 45,
+      detStartY + 20,
+    );
+
+    finalY += 30;
+  }
+
+  // HISTORIAL DE PAGOS
+  const tienePagos =
+    comprobanteElectronico.pagos && comprobanteElectronico.pagos.length > 0;
+
+  if (tienePagos) {
+    doc.setTextColor(...slate900);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    let pagosY = comprobanteElectronico.detraccion ? finalY : finalY + 4;
+
+    doc.text("HISTORIAL DE PAGOS", mX, pagosY);
+    doc.setFillColor(...amber500);
+    doc.rect(mX, pagosY + 1.5, 12, 0.8, "F");
+
+    const paymentData = comprobanteElectronico.pagos.map((pago) => [
+      pago.metodoPago?.descripcion || "N/A",
+      pago.banco?.descripcion || "N/A",
+      pago.operacion || "-",
+      `${formatDate(pago.fecha)}`,
+      `S/ ${formatNumber(pago.monto)}`,
+    ]);
+
+    doc.autoTable({
+      startY: pagosY + 4,
+      head: [["MÉTODO DE PAGO", "BANCO", "OPERACIÓN", "FECHA", "MONTO"]],
+      body: paymentData,
+      margin: {
+        left: mX,
+        right: comprobanteElectronico.digestValue ? mX + 40 : mX,
+      },
+      theme: "plain",
+      styles: { fontSize: 6, textColor: slate900, cellPadding: 2.5 },
+      headStyles: { fillColor: slate900, textColor: white, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: slate50 },
+    });
+
+    finalY = doc.lastAutoTable.finalY + 8;
+  } else {
+    finalY += 40;
+  }
+
+  // CUENTAS BANCARIAS
+  let bancosStartY = Math.max(finalY, pageHeight - 50);
+
+  doc.setTextColor(...slate900);
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text("CUENTAS BANCARIAS:", 10, bancosStartY + 5);
+  doc.text("CUENTAS BANCARIAS", mX, bancosStartY);
 
-  const bancosColumns = [
-    "Banco",
-    "Moneda",
-    "Código de Cuenta Interbancaria",
-    "Código de Cuenta",
-  ];
+  doc.setFillColor(...amber500);
+  doc.rect(mX, bancosStartY + 1.5, 12, 0.8, "F");
 
   const bancosBody = cuentasBancarias
     .filter(
-      (cuenta) =>
-        cuenta.descripcion !== "MORTANDAD" &&
-        cuenta.descripcion !== "SIN BANCARIZACION" &&
-        cuenta.descripcion !== "JCESPEDES",
+      (c) =>
+        c.descripcion !== "MORTANDAD" &&
+        c.descripcion !== "SIN BANCARIZACION" &&
+        c.descripcion !== "JCESPEDES",
     )
-    .map((cuentaBancaria) => [
-      cuentaBancaria.descripcion,
-      "Soles",
-      cuentaBancaria.cci,
-      cuentaBancaria.numero,
-    ]);
-  // Agregar la tabla al pie de página
-  doc.autoTable({
-    startY: bancosStartY + 10, // Posición calculada
-    head: [bancosColumns],
-    margin: { top: 10, left: 10, rigth: 5, bottom: 5 },
+    .map((c) => [c.descripcion, "Soles", c.cci, c.numero]);
 
+  doc.autoTable({
+    startY: bancosStartY + 4,
+    head: [["BANCO", "MONEDA", "CÓDIGO INTERBANCARIO (CCI)", "NRO. DE CUENTA"]],
     body: bancosBody,
-    styles: { fontSize: 8 },
+    margin: { left: mX, right: mX, bottom: 10 },
+    theme: "plain",
+    styles: { fontSize: 7, textColor: slate900, cellPadding: 2.5 },
     headStyles: {
-      fillColor: [228, 228, 228], // Gris claro (RGB)
-      textColor: [0, 0, 0],
-      fontWeight: 400,
+      fillColor: slate50,
+      textColor: slate900,
+      fontStyle: "bold",
+      lineWidth: { top: 0.5, bottom: 0.5 },
+      lineColor: slate900,
+    },
+    bodyStyles: {
+      lineWidth: { bottom: 0.1 },
+      lineColor: [226, 232, 240],
     },
   });
 
+  // RENDERIZADO FINAL
   const pdfOutput = doc.output("dataurlstring");
   const newWindow = window.open("", "_blank");
+
   if (newWindow) {
     newWindow.document.title = `${comprobanteElectronico.serie}-${comprobanteElectronico.numeroSerie}`;
     newWindow.document.write(`

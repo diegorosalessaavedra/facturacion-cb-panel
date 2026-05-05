@@ -10,8 +10,8 @@ import TablaAgregarProducto from "../../ventas/creartCotizacion/components/FormC
 import Loading from "../../../hooks/Loading";
 import CamposMetodosDePago from "../../ventas/creartCotizacion/components/FormCrearCotizacion/components/CamposMetodosDePago";
 import ModalNuevoCliente from "../../clientesProveedores/tusClientes/components/ModalNuevoCliente/ModalNuevoCliente";
-import ModalPdfComprobanteElectronico from "../tusComprobantes/components/ModalPdfComprobanteElectronico copy";
 import { handleAxiosError } from "../../../utils/handleAxiosError";
+import ModalPdfComprobanteElectronico from "../../ventas/comprobantesCotizacion/components/ModalPdfComprobanteElectronico";
 
 const ComprobanteElectronico = ({ userData }) => {
   const {

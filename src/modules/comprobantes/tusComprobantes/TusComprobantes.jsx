@@ -10,7 +10,7 @@ import ModalPdfNotaComprobante from "./components/ModalPdfNotaCreditoDebito";
 import Loading from "../../../hooks/Loading";
 import FiltrarComprobantes from "./components/FiltrarComprobantes";
 import ModalAnularComprobante from "./components/ModalAnularComprobante";
-import ModalPdfComprobanteElectronico from "./components/ModalPdfComprobanteElectronico copy";
+import ModalPdfComprobanteElectronico from "../../ventas/comprobantesCotizacion/components/ModalPdfComprobanteElectronico";
 
 const TusComprobantes = ({ userData }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();

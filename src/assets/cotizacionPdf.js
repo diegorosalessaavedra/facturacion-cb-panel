@@ -12,27 +12,21 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     return;
   }
 
-  // ==========================================
-  // 🎨 PALETA DE COLORES (Slate / Amber / Red)
-  // ==========================================
-  const slate900 = [15, 23, 42]; // #0f172a
-  const amber500 = [245, 158, 11]; // #f59e0b
-  const red600 = [220, 38, 38]; // #dc2626
+  const slate900 = [15, 23, 42];
+  const amber500 = [245, 158, 11];
+  const red600 = [220, 38, 38];
   const white = [255, 255, 255];
   const black = [0, 0, 0];
   const slate50 = [248, 250, 252];
   const slate400 = [148, 163, 184];
 
-  // Configuración de márgenes
   const mX = 10;
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const rightColX = pageWidth - mX;
   const contentWidth = pageWidth - mX * 2;
 
-  // ==========================================
-  // 🏢 CABECERA: LOGO Y DATOS DE EMPRESA
-  // ==========================================
+  // CABECERA
   const logoUrl = import.meta.env.VITE_LOGO;
   if (logoUrl) {
     doc.addImage(logoUrl, "JPEG", mX, 10, 32, 22);
@@ -61,9 +55,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     align: "right",
   });
 
-  // ==========================================
-  // 🏷️ BLOQUE DE TÍTULO
-  // ==========================================
+  // TÍTULO
   doc.setFillColor(...slate900);
   doc.rect(mX, 36, contentWidth, 12, "F");
 
@@ -74,7 +66,6 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
   doc.text("COTIZACIÓN", mX + 6, 44);
-
   doc.text(
     `N° COT-${formatWithLeadingZeros(selectCotizacion.id, 6)}`,
     rightColX - 4,
@@ -82,16 +73,13 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     { align: "right" },
   );
 
-  // ==========================================
-  // 👤 BLOQUE DE CLIENTE
-  // ==========================================
+  // CLIENTE
   doc.setFillColor(...slate50);
   doc.rect(mX, 50, contentWidth, 22, "F");
 
   doc.setTextColor(...slate900);
   doc.setFontSize(7);
 
-  // Columna 1
   const startYInfo = 55;
   doc.setFont("helvetica", "bold");
   doc.text("CLIENTE:", mX + 4, startYInfo);
@@ -126,7 +114,6 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     startYInfo + 12 + (splitDir.length - 1) * 3,
   );
 
-  // Columna 2
   doc.setFont("helvetica", "bold");
   doc.text("FECHA EMISIÓN:", rightColX - 45, startYInfo);
   doc.text("TIEMPO ENTREGA:", rightColX - 45, startYInfo + 4);
@@ -145,9 +132,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     startYInfo + 4,
   );
 
-  // ==========================================
-  // 📦 TABLA DE PRODUCTOS
-  // ==========================================
+  // TABLA DE PRODUCTOS
   const productsData = selectCotizacion?.productos.map((producto) => {
     const precioUnitario =
       typeof producto.precioUnitario === "number"
@@ -162,10 +147,8 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     const nombreProductoBase =
       producto.producto?.nombre || (esBono ? "Producto de Bono" : "N/A");
 
-    // 👇 Si es bono, enviamos un objeto que permite identificarlo y le agregamos espacios
-    // para que deje lugar visual al rectángulo que dibujaremos después.
     const descripcionCelda = esBono
-      ? { content: `        ${nombreProductoBase}`, esBono: true }
+      ? { content: "", nombreProducto: nombreProductoBase, esBono: true }
       : nombreProductoBase;
 
     return [
@@ -183,11 +166,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     body: productsData,
     margin: { left: mX, right: mX },
     theme: "plain",
-    styles: {
-      fontSize: 6,
-      textColor: black,
-      cellPadding: 3,
-    },
+    styles: { fontSize: 6, textColor: black, cellPadding: 3 },
     headStyles: {
       fillColor: slate900,
       textColor: white,
@@ -198,9 +177,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
       lineWidth: { bottom: 0.1 },
       lineColor: [226, 232, 240],
     },
-    alternateRowStyles: {
-      fillColor: slate50,
-    },
+    alternateRowStyles: { fillColor: slate50 },
     columnStyles: {
       0: { halign: "center", cellWidth: 14 },
       1: { halign: "center", cellWidth: 18 },
@@ -208,44 +185,58 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
       3: { halign: "right", cellWidth: 25 },
       4: { halign: "right", cellWidth: 25 },
     },
-    // 👇 ESTO DIBUJA LA ETIQUETA "BONO" EN EL PDF 👇
     didDrawCell: (data) => {
-      // Verifica si es la columna de Descripción y si la fila es un BONO
-      if (data.column.index === 2 && data.cell.raw && data.cell.raw.esBono) {
-        const x = data.cell.x + 3; // Posición X + padding
-        const y = data.cell.y + 1.5; // Ajuste vertical
+      if (data.column.index === 2 && data.cell.raw?.esBono) {
+        const cellX = data.cell.x;
+        const cellY = data.cell.y;
+        const cellW = data.cell.width;
+        const cellH = data.cell.height;
 
-        // Guardar estilos actuales para no afectar otras celdas
-        const currentTextColor = doc.getTextColor();
-        const currentFillColor = doc.getFillColor();
+        const nombreProducto = data.cell.raw.nombreProducto || "";
 
-        // Fondo verde esmeralda (emerald-100)
+        const pillW = 14;
+        const pillH = 4.5;
+        const gap = 2.5;
+
+        doc.setFontSize(6);
+        doc.setFont("helvetica", "normal");
+        const textW = doc.getTextWidth(nombreProducto);
+
+        // Bloque total: nombre + gap + pastilla, centrado en la celda
+        const blockW = textW + gap + pillW;
+        const blockStartX = cellX + (cellW - blockW) / 2;
+        const centerY = cellY + cellH / 2;
+
+        // 1. Nombre del producto
+        doc.setTextColor(...black);
+        doc.text(nombreProducto, blockStartX, centerY, { baseline: "middle" });
+
+        // 2. Pastilla BONO a la derecha del nombre
+        const pillX = blockStartX + textW + gap;
+        const pillY = centerY - pillH / 2;
+
         doc.setFillColor(209, 250, 229);
-        // Borde verde (emerald-300)
         doc.setDrawColor(110, 231, 183);
         doc.setLineWidth(0.2);
+        doc.roundedRect(pillX, pillY, pillW, pillH, 1, 1, "FD");
 
-        // Dibujar el pill (rectángulo con bordes redondeados)
-        doc.roundedRect(x, y, 12.5, 4.5, 1, 1, "FD");
-
-        // Dibujar el texto dentro de la etiqueta (emerald-700)
         doc.setTextColor(4, 120, 87);
         doc.setFontSize(4.5);
         doc.setFont("helvetica", "bold");
-        doc.text("BONO", x + 1.5, y + 3.2);
+        doc.text("BONO", pillX + pillW / 2, pillY + pillH / 2, {
+          align: "center",
+          baseline: "middle",
+        });
 
-        // Restaurar estilos de la tabla
-        doc.setTextColor(currentTextColor);
-        doc.setFillColor(currentFillColor);
-        doc.setFontSize(6); // Regresa a fuente normal de la tabla
+        // Restaurar
+        doc.setTextColor(...black);
+        doc.setFontSize(6);
         doc.setFont("helvetica", "normal");
       }
     },
   });
 
-  // ==========================================
-  // 💰 TOTALES
-  // ==========================================
+  // TOTALES
   let finalY = doc.lastAutoTable.finalY + 8;
   const opGravadas = Number(selectCotizacion.saldoInicial) / 1.18;
 
@@ -263,7 +254,6 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     align: "right",
   });
 
-  // TOTAL A PAGAR
   finalY += 6;
   doc.setFillColor(...slate50);
   doc.rect(rightColX - 55, finalY - 5, 55, 8, "F");
@@ -281,7 +271,6 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     { align: "right" },
   );
 
-  // Son Letras
   const totalEnLetras = numeroALetras(Number(selectCotizacion.saldoInicial), {
     plural: "SOLES",
     singular: "SOL",
@@ -293,9 +282,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
   doc.setFont("helvetica", "normal");
   doc.text(`SON: ${totalEnLetras}`, mX, finalY);
 
-  // ==========================================
-  // 💳 HISTORIAL DE PAGOS
-  // ==========================================
+  // HISTORIAL DE PAGOS
   const tienePagos =
     selectCotizacion.pagos && selectCotizacion.pagos.length > 0;
 
@@ -325,11 +312,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
       margin: { left: mX, right: mX },
       theme: "plain",
       styles: { fontSize: 6, textColor: slate900, cellPadding: 2.5 },
-      headStyles: {
-        fillColor: slate900,
-        textColor: white,
-        fontStyle: "bold",
-      },
+      headStyles: { fillColor: slate900, textColor: white, fontStyle: "bold" },
       alternateRowStyles: { fillColor: slate50 },
     });
 
@@ -354,12 +337,8 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     );
   }
 
-  // ==========================================
-  // 🏦 CUENTAS BANCARIAS
-  // ==========================================
-
+  // CUENTAS BANCARIAS
   let bancosStartY;
-
   if (tienePagos) {
     bancosStartY = doc.lastAutoTable.finalY + 15;
   } else {
@@ -403,9 +382,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     },
   });
 
-  // ==========================================
-  // 🚀 RENDERIZADO FINAL
-  // ==========================================
+  // RENDERIZADO FINAL
   const pdfOutput = doc.output("dataurlstring");
   const newWindow = window.open();
 

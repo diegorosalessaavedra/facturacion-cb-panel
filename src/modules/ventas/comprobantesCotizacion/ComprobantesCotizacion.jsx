@@ -6,10 +6,10 @@ import axios from "axios";
 import config from "../../../utils/getToken";
 import FiltrarCotizaciones from "./components/FiltrarCotizaciones";
 import { getTodayDate, getTodayDate2 } from "../../../assets/getTodayDate";
-import ModalPdfComprobanteElectronico from "./components/ModalPdfComprobanteElectronico";
 import TablaComprobantesCotizacion from "./components/TablaComprobantesCotizacion";
 import ExcelComprobantesCotizacion from "../../../assets/excelComprobantesCotizacion";
 import { PiFileXlsFill } from "react-icons/pi";
+import ModalPdfComprobanteElectronico from "./components/ModalPdfComprobanteElectronico";
 
 const ComprobantesCotizacion = ({ userData }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -56,7 +56,7 @@ const ComprobantesCotizacion = ({ userData }) => {
       await ExcelComprobantesCotizacion.exportToExcel(
         comprobantes,
         inicioFecha,
-        finalFecha
+        finalFecha,
       );
       ("Excel exportado exitosamente");
     } catch (error) {
