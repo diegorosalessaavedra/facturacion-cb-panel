@@ -31,9 +31,9 @@ const TablaTusClientes = ({
       ) : (
         <Table
           aria-label="Tabla de tus clientes"
-          color="default"
+          color="primary"
           isStriped
-          removeWrapper // Removemos el wrapper por defecto para usar nuestro propio fondo
+          isHeaderSticky
           classNames={{
             base: "min-w-full h-[70vh] overflow-auto",
             // Estilos globales para el encabezado (Slate-900 y texto Blanco)
