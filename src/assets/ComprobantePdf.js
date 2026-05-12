@@ -221,7 +221,7 @@ const plantillaComprobantePdf = async (
       fillColor: slate900,
       textColor: white,
       fontStyle: "bold",
-      halign: "center",
+      // Removido 'halign: "center"' para que la cabecera herede la alineación de las columnas
     },
     bodyStyles: {
       lineWidth: { bottom: 0.1 },
@@ -229,17 +229,16 @@ const plantillaComprobantePdf = async (
     },
     alternateRowStyles: { fillColor: slate50 },
     columnStyles: {
-      0: { halign: "center", cellWidth: 14 },
-      1: { halign: "center", cellWidth: 18 },
-      2: { halign: "center", cellWidth: "auto" },
-      3: { halign: "right", cellWidth: 25 },
-      4: { halign: "right", cellWidth: 25 },
+      0: { halign: "center", cellWidth: 14 }, // Centrado
+      1: { halign: "center", cellWidth: 18 }, // Centrado
+      2: { halign: "left", cellWidth: "auto" }, // Izquierda
+      3: { halign: "right", cellWidth: 25 }, // Derecha
+      4: { halign: "right", cellWidth: 25 }, // Derecha
     },
     didDrawCell: (data) => {
       if (data.column.index === 2 && data.cell.raw?.esBono) {
         const cellX = data.cell.x;
         const cellY = data.cell.y;
-        const cellW = data.cell.width;
         const cellH = data.cell.height;
 
         const nombreProducto = data.cell.raw.nombreProducto || "";
@@ -252,9 +251,8 @@ const plantillaComprobantePdf = async (
         doc.setFont("helvetica", "normal");
         const textW = doc.getTextWidth(nombreProducto);
 
-        // Bloque total: nombre + gap + pastilla, centrado en la celda
-        const blockW = textW + gap + pillW;
-        const blockStartX = cellX + (cellW - blockW) / 2;
+        // MODIFICADO: Alineado a la izquierda (con padding de 3), igual que los demás productos
+        const blockStartX = cellX + 3;
         const centerY = cellY + cellH / 2;
 
         // 1. Nombre del producto
@@ -451,6 +449,14 @@ const plantillaComprobantePdf = async (
       styles: { fontSize: 6, textColor: slate900, cellPadding: 2.5 },
       headStyles: { fillColor: slate900, textColor: white, fontStyle: "bold" },
       alternateRowStyles: { fillColor: slate50 },
+      // Alineando la tabla de pagos para mantener consistencia
+      columnStyles: {
+        0: { halign: "left" },
+        1: { halign: "left" },
+        2: { halign: "center" },
+        3: { halign: "center" },
+        4: { halign: "right" },
+      },
     });
 
     finalY = doc.lastAutoTable.finalY + 8;
@@ -495,6 +501,13 @@ const plantillaComprobantePdf = async (
     bodyStyles: {
       lineWidth: { bottom: 0.1 },
       lineColor: [226, 232, 240],
+    },
+    // Alineando tabla de bancos
+    columnStyles: {
+      0: { halign: "left" },
+      1: { halign: "center" },
+      2: { halign: "left" },
+      3: { halign: "left" },
     },
   });
 

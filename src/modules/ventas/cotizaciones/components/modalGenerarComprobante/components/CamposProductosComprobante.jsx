@@ -12,6 +12,7 @@ import React from "react";
 import { formatNumber } from "../../../../../../assets/formats";
 
 const CamposProductosComprobante = ({ selectCotizacion }) => {
+  console.log(selectCotizacion?.productos);
   // 1. Modificamos la suma: Si es bono (true) suma 0, si es false suma el total
   const total = selectCotizacion.productos.reduce(
     (acc, producto) => acc + (producto.bono ? 0 : Number(producto.total)),
@@ -85,18 +86,9 @@ const CamposProductosComprobante = ({ selectCotizacion }) => {
 
                 {/* Sub Total: Tachado si es Bono */}
                 <TableCell className="text-xs text-right font-bold">
-                  {producto.bono ? (
-                    <span
-                      className="text-gray-400 line-through decoration-red-400"
-                      title="No suma al total (Es un bono)"
-                    >
-                      S/ {formatNumber(producto.total)}
-                    </span>
-                  ) : (
-                    <span className="text-slate-900">
-                      S/ {formatNumber(producto.total)}
-                    </span>
-                  )}
+                  <span className="text-slate-900">
+                    S/ {formatNumber(producto.total)}
+                  </span>
                 </TableCell>
               </TableRow>
             ))}
