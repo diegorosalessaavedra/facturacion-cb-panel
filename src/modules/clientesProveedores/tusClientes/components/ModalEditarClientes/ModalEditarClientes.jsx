@@ -7,6 +7,7 @@ import {
   Input,
   Select,
   SelectItem,
+  Checkbox, // 1. Importamos el Checkbox
 } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -45,6 +46,9 @@ const ModalEditarClientes = ({
   const [tipoDoc, setTipoDoc] = useState("DNI");
   const [nombre, setNombre] = useState();
 
+  // 2. Agregamos el estado para el Checkbox (booleano)
+  const [permisoCredito, setPermisoCredito] = useState(false);
+
   const submit = (data) => {
     if (tipoDoc === "DNI" && !nombre) {
       setError("nombre", { message: "El nombre es obligatorio." });
@@ -75,6 +79,7 @@ const ModalEditarClientes = ({
       direccion: dataRuc.direccion,
       telefono: data.telefono,
       eecc: data.eecc,
+      permiso_credito: permisoCredito, // 3. Lo incluimos en los datos a enviar
     };
 
     const url = `${import.meta.env.VITE_URL_API}/clientes/${
@@ -91,7 +96,7 @@ const ModalEditarClientes = ({
       .catch((err) => {
         toast.error(
           err.response?.data?.error ||
-            "Hubo un error al editar el cliente por favor verifique bine los datos"
+            "Hubo un error al editar el cliente por favor verifique bien los datos",
         );
       });
   };
@@ -109,7 +114,14 @@ const ModalEditarClientes = ({
       nombre_o_razon_social: selectProveedor.nombreComercial,
       direccion: selectProveedor.direccion,
     });
-  }, [isOpen]);
+
+    // 4. Inicializamos el estado del Checkbox al abrir el modal.
+    // Validamos si viene como booleano (true) o como string ("Activo")
+    setPermisoCredito(
+      selectProveedor.permiso_credito === true ||
+        selectProveedor.permiso_credito === "Activo",
+    );
+  }, [isOpen, selectProveedor]);
 
   return (
     <Modal
@@ -153,9 +165,9 @@ const ModalEditarClientes = ({
                 dataRuc={dataRuc}
                 selectProveedor={selectProveedor}
               />
-              <div className="w-full flex gap-2">
+              <div className="w-full flex gap-4 items-end">
                 <Input
-                  className="w-full"
+                  className="w-1/2"
                   classNames={inputClassNames}
                   labelPlacement="outside"
                   type="text"
@@ -176,8 +188,21 @@ const ModalEditarClientes = ({
                   radius="sm"
                   size="sm"
                 />
+
+                {/* 5. Checkbox Reemplazado */}
+                <div className="w-1/4 flex items-center h-10">
+                  <Checkbox
+                    isSelected={permisoCredito}
+                    onValueChange={setPermisoCredito}
+                    color="primary"
+                    size="md"
+                  >
+                    Permiso Crédito
+                  </Checkbox>
+                </div>
+
                 <Select
-                  className="w-1/3"
+                  className="w-1/4"
                   label="EECC"
                   labelPlacement="outside"
                   variant="bordered"
@@ -198,8 +223,9 @@ const ModalEditarClientes = ({
                   onPress={() => {
                     onOpenChange();
                     setNumero("");
-                    setDataDni({ nombre_completo: null });
-                    setDataRuc({ nombre_o_razon_social: null });
+                    // setDataDni({ nombre_completo: null }); <-- ESTO DABA ERROR PORQUE setDataDni NO EXISTE EN TU CÓDIGO
+                    setDataRuc({ nombre_o_razon_social: null, direccion: "" });
+                    setPermisoCredito(false);
                     reset();
                   }}
                 >
