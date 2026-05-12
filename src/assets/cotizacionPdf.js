@@ -171,7 +171,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
       fillColor: slate900,
       textColor: white,
       fontStyle: "bold",
-      halign: "center",
+      // Removido 'halign: "center"' para heredar alineación de las columnas
     },
     bodyStyles: {
       lineWidth: { bottom: 0.1 },
@@ -181,7 +181,7 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     columnStyles: {
       0: { halign: "center", cellWidth: 14 },
       1: { halign: "center", cellWidth: 18 },
-      2: { halign: "center", cellWidth: "auto" },
+      2: { halign: "left", cellWidth: "auto" }, // Alineado a la izquierda
       3: { halign: "right", cellWidth: 25 },
       4: { halign: "right", cellWidth: 25 },
     },
@@ -189,7 +189,6 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
       if (data.column.index === 2 && data.cell.raw?.esBono) {
         const cellX = data.cell.x;
         const cellY = data.cell.y;
-        const cellW = data.cell.width;
         const cellH = data.cell.height;
 
         const nombreProducto = data.cell.raw.nombreProducto || "";
@@ -202,9 +201,8 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
         doc.setFont("helvetica", "normal");
         const textW = doc.getTextWidth(nombreProducto);
 
-        // Bloque total: nombre + gap + pastilla, centrado en la celda
-        const blockW = textW + gap + pillW;
-        const blockStartX = cellX + (cellW - blockW) / 2;
+        // MODIFICADO: Alineado a la izquierda (con padding de 3), igual que los demás productos
+        const blockStartX = cellX + 3;
         const centerY = cellY + cellH / 2;
 
         // 1. Nombre del producto
@@ -314,6 +312,14 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
       styles: { fontSize: 6, textColor: slate900, cellPadding: 2.5 },
       headStyles: { fillColor: slate900, textColor: white, fontStyle: "bold" },
       alternateRowStyles: { fillColor: slate50 },
+      // Añadida alineación a la tabla de pagos
+      columnStyles: {
+        0: { halign: "left" },
+        1: { halign: "left" },
+        2: { halign: "center" },
+        3: { halign: "center" },
+        4: { halign: "right" },
+      },
     });
 
     const totalPagos = selectCotizacion.pagos.reduce(
@@ -379,6 +385,13 @@ const plantillaCotizacionPdf = (selectCotizacion, cuentasBancarias) => {
     bodyStyles: {
       lineWidth: { bottom: 0.1 },
       lineColor: [226, 232, 240],
+    },
+    // Añadida alineación a la tabla de cuentas bancarias
+    columnStyles: {
+      0: { halign: "left" },
+      1: { halign: "center" },
+      2: { halign: "left" },
+      3: { halign: "left" },
     },
   });
 
