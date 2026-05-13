@@ -132,7 +132,7 @@ const ModalEditarClientes = ({
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 text-base">
-          Editar Proveedor
+          Editar Cliente
         </ModalHeader>
         <ModalBody>
           <div className="w-full flex flex-col gap-2">
@@ -197,7 +197,7 @@ const ModalEditarClientes = ({
                     color="primary"
                     size="md"
                   >
-                    Permiso Crédito
+                    Crédito
                   </Checkbox>
                 </div>
 

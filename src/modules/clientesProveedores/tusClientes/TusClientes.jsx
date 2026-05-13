@@ -117,7 +117,7 @@ const TusClientes = () => {
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center gap-2 text-slate-600">
             <FaWpforms className="text-2xl" />
-            <h2>Listado de clientes</h2>
+            <h2>Listado de Clientes</h2>
           </div>
           <Button
             onPress={handleNuevoClick}
