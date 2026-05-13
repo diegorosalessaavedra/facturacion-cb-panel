@@ -92,7 +92,7 @@ const TablaTusClientes = ({
                     variant="flat"
                     className="font-bold border border-transparent"
                   >
-                    {cliente.permiso_credito ? "Autorizado" : "Sin permiso"}
+                    {cliente.permiso_credito ? "Habilitado" : "Deshabilitado"}
                   </Chip>
                 </TableCell>
 
