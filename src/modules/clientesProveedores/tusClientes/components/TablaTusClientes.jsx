@@ -49,7 +49,7 @@ const TablaTusClientes = ({
             <TableColumn>TIPO DOC.</TableColumn>
             <TableColumn>NÚMERO DOC.</TableColumn>
             <TableColumn>TELÉFONO</TableColumn>
-            <TableColumn align="center">PERMISO CRÉDITO</TableColumn>
+            <TableColumn align="center">CRÉDITO</TableColumn>
             <TableColumn align="center">EECC</TableColumn>
             <TableColumn align="center">ACCIONES</TableColumn>
           </TableHeader>
