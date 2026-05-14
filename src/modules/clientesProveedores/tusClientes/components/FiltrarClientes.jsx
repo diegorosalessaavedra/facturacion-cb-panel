@@ -1,5 +1,8 @@
 import { useCallback, useMemo } from "react";
-import { inputClassNames } from "../../../../assets/classNames";
+import {
+  inputClassNames,
+  selectClassNames,
+} from "../../../../assets/classNames";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react"; // <-- Importar Select
 
 const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
@@ -65,11 +68,15 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
 
       {/* <-- Nuevo Select para filtrar por crédito */}
       <Select
-        {...inputProps}
+        labelPlacement="outside"
+        variant="bordered"
+        radius="sm"
+        size="sm"
         className="w-[100%] max-w-[150px]"
         label="Permiso de Crédito"
         selectedKeys={[dataFilter.permiso_credito]}
         onChange={handlePermisoCreditoChange}
+        classNames={selectClassNames}
       >
         <SelectItem key="todos" value="todos">
           Todos
