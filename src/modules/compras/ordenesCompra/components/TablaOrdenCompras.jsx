@@ -65,7 +65,7 @@ const TablaOrdenCompras = ({
             Nro cuenta
           </TableColumn>
           <TableColumn className="text-xs text-white  bg-blue-700">
-            Saldo
+            Saldo Acumulado
           </TableColumn>
           <TableColumn className="text-xs text-white  bg-blue-700">
             Estado de <br /> Pago
@@ -120,7 +120,7 @@ const TablaOrdenCompras = ({
                 {ordenCompra.nro_cuenta_bco || "-"}
               </TableCell>
               <TableCell className="min-w-[110px]  text-xs  ">
-                S/. {formatNumber(ordenCompra.saldo)}
+                S/. {formatNumber(ordenCompra.proveedor.saldo_acumulado)}
               </TableCell>
               <TableCell
                 className={`${

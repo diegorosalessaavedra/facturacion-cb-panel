@@ -70,7 +70,7 @@ const FiltrarReporteOrdenesCompra = ({
         </Select>
         <Select
           className="w-[100%] max-w-[180px]"
-          label="Validaddos"
+          label="Validados"
           labelPlacement="outside"
           variant="bordered"
           selectedKeys={[validados]}
