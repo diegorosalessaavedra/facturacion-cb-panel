@@ -17,10 +17,14 @@ const TablaEECCProvedores = ({
 }) => {
   const [dataProveedor, setDataProveedor] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // --- ESTADO PARA DETRACCIONES ---
   const [formDetracciones, setFormDetracciones] = useState({});
 
+  // 1. Efecto para obtener datos del proveedor
   useEffect(() => {
     if (!selectProveedor) return;
+
     let isMounted = true;
     setLoading(true);
 
@@ -41,6 +45,7 @@ const TablaEECCProvedores = ({
     };
   }, [selectProveedor, selectGastos, selectComercial]);
 
+  // 2. Efecto para inicializar el estado de los inputs de detracción
   useEffect(() => {
     if (dataProveedor?.ordenesCompra) {
       const initialData = {};
@@ -48,6 +53,7 @@ const TablaEECCProvedores = ({
         const det = Array.isArray(orden.detraccion)
           ? orden.detraccion[0]
           : orden.detraccion;
+
         const fechaFormateada = det?.fecha_detraccion
           ? det.fecha_detraccion.split("T")[0]
           : "";
@@ -67,7 +73,7 @@ const TablaEECCProvedores = ({
     }
   }, [dataProveedor]);
 
-  // --- LÓGICA DE CÁLCULO ACTUALIZADA ---
+  // 3. Lógica para calcular filas y saldos
   const { rows, totalSaldo } = useMemo(() => {
     if (!dataProveedor?.ordenesCompra) return { rows: [], totalSaldo: 0 };
 
@@ -85,25 +91,38 @@ const TablaEECCProvedores = ({
           parseFloat(formDetracciones[orden.id]?.monto_detraccion) || 0;
 
         return Array.from({ length: maxRows }, (_, i) => {
-          const prod = productos[i];
-          const pagoReal = pagos[i];
+          const prodOriginal = productos[i];
+          let prod = undefined;
 
-          // Lógica para detectar Anticipos y forzar total a 0
-          const esAnticipo =
-            prod?.descripcion_producto === "Anticipos" ||
-            prod?.producto?.nombre === "Anticipos";
-          const valorProducto = esAnticipo ? 0 : parseFloat(prod?.total || 0);
+          // MODIFICACIÓN: Identificamos si es anticipo y forzamos sus precios a 0
+          if (prodOriginal) {
+            const esAnticipo =
+              prodOriginal.descripcion_producto === "Anticipos" ||
+              prodOriginal.producto?.nombre === "Anticipos";
+
+            prod = {
+              ...prodOriginal,
+              precioUnitario: esAnticipo
+                ? 0
+                : parseFloat(prodOriginal.precioUnitario || 0),
+              total: esAnticipo ? 0 : parseFloat(prodOriginal.total || 0),
+            };
+          }
+
+          const pagoReal = pagos[i];
 
           const pago =
             pagoReal ||
             (prod ? { monto: 0, operacion: "-", ficticio: true } : undefined);
 
           let saldoFila = 0;
-          if (prod) saldoFila += valorProducto;
+
+          if (prod) saldoFila += parseFloat(prod.total || 0);
           if (pago) saldoFila -= parseFloat(pago.monto || 0);
           if (i === 0) saldoFila -= montoDetraccion;
 
-          if (prod) acumuladorFooter += valorProducto;
+          // El acumulador general sí debe sumar todo
+          if (prod) acumuladorFooter += parseFloat(prod.total || 0);
           if (pago) acumuladorFooter -= parseFloat(pago.monto || 0);
           if (i === 0) acumuladorFooter -= montoDetraccion;
 
@@ -115,7 +134,6 @@ const TablaEECCProvedores = ({
             isFirstRow: i === 0,
             maxRows,
             saldoActual: saldoFila,
-            esAnticipo, // Pasamos la bandera para el renderizado
             key: `${orden.id}-${i}`,
           };
         });
@@ -124,6 +142,7 @@ const TablaEECCProvedores = ({
     return { rows: allRows, totalSaldo: acumuladorFooter };
   }, [dataProveedor, formDetracciones]);
 
+  // --- MANEJADORES DE DETRACCIÓN ---
   const handleInputDetraccion = (ordenId, field, value) => {
     setFormDetracciones((prev) => {
       const currentForm = prev[ordenId] || {};
@@ -133,20 +152,23 @@ const TablaEECCProvedores = ({
         const ordenOriginal = dataProveedor.ordenesCompra.find(
           (o) => o.id === ordenId,
         );
-        // También filtramos anticipos aquí para que el cálculo de la detracción sea correcto
+
+        // MODIFICACIÓN: Asegurarnos de que el porcentaje de detracción excluya los anticipos
         const totalOrden =
           ordenOriginal?.productos?.reduce((sum, p) => {
-            const esAnt =
-              p.descripcion_producto === "Anticipos" ||
-              p.producto?.nombre === "Anticipos";
-            return sum + (esAnt ? 0 : parseFloat(p.total || 0));
+            const esAnticipo =
+              p?.descripcion_producto === "Anticipos" ||
+              p?.producto?.nombre === "Anticipos";
+            const valorCalculado = esAnticipo ? 0 : parseFloat(p.total || 0);
+            return sum + valorCalculado;
           }, 0) || 0;
 
         const porcentajeParsed = parseFloat(value);
-        newMonto =
-          !isNaN(porcentajeParsed) && porcentajeParsed >= 0
-            ? Math.round(totalOrden * (porcentajeParsed / 100))
-            : "";
+        if (!isNaN(porcentajeParsed) && porcentajeParsed >= 0) {
+          newMonto = Math.round(totalOrden * (porcentajeParsed / 100));
+        } else {
+          newMonto = "";
+        }
       }
 
       return {
@@ -168,8 +190,11 @@ const TablaEECCProvedores = ({
       ...prev,
       [ordenId]: { ...prev[ordenId], isSaving: true },
     }));
+
     try {
       const currentForm = formDetracciones[ordenId];
+      const detraccionId = currentForm.id || 0;
+
       const payload = {
         proveedor_id: selectProveedor,
         orden_compra_id: ordenId,
@@ -179,16 +204,20 @@ const TablaEECCProvedores = ({
         monto_detraccion: currentForm.monto_detraccion,
         serie_correlativo: currentForm.serie_correlativo,
       };
+
       const response = await axios.post(
-        `${API}/proveedores/detraccion/${currentForm.id || 0}`,
+        `${API}/proveedores/detraccion/${detraccionId}`,
         payload,
         config,
       );
+
+      const updatedDetraccionId = response.data?.data?.id || detraccionId;
+
       setFormDetracciones((prev) => ({
         ...prev,
         [ordenId]: {
           ...prev[ordenId],
-          id: response.data?.data?.id || currentForm.id,
+          id: updatedDetraccionId,
           isSaving: false,
           isModified: false,
         },
@@ -287,11 +316,12 @@ const TablaEECCProvedores = ({
                   ].map((title, i) => (
                     <th
                       key={`envio-${i}`}
-                      className="bg-blue-100 text-slate-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300"
+                      className=" bg-blue-100 text-slate-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300"
                     >
                       {title}
                     </th>
                   ))}
+
                   {tieneDetraccion &&
                     ["Cód Dr", "Fecha Dr", "Porcentaje Dr", "Monto Dr"].map(
                       (title, i) => (
@@ -303,6 +333,7 @@ const TablaEECCProvedores = ({
                         </th>
                       ),
                     )}
+
                   {["Fecha Pago", "Monto", "Saldo", "Operación", "Banco"].map(
                     (title, i) => (
                       <th
@@ -315,6 +346,7 @@ const TablaEECCProvedores = ({
                   )}
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-slate-200">
                 {rows.length > 0 ? (
                   rows.map((row) => {
@@ -326,9 +358,9 @@ const TablaEECCProvedores = ({
                       isFirstRow,
                       maxRows,
                       saldoActual,
-                      esAnticipo,
                       key,
                     } = row;
+
                     const bancoNombre =
                       pagoReal?.banco?.banco ||
                       pagoReal?.banco?.descripcion ||
@@ -340,13 +372,13 @@ const TablaEECCProvedores = ({
                         key={key}
                         className="hover:bg-blue-50/40 transition-colors"
                       >
-                        {isFirstRow && (
+                        {isFirstRow ? (
                           <>
                             <td
                               rowSpan={maxRows}
-                              className="py-2 text-center align-middle border-r border-slate-200 bg-slate-50 min-w-[50px]"
+                              className=" py-2  text-center align-middle border-r border-slate-200 bg-slate-50 min-w-[50px]"
                             >
-                              {formDetracciones[orden.id]?.isModified && (
+                              {formDetracciones[orden.id]?.isModified ? (
                                 <Button
                                   size="sm"
                                   color="warning"
@@ -359,8 +391,9 @@ const TablaEECCProvedores = ({
                                 >
                                   <SaveIcon size={18} />
                                 </Button>
-                              )}
+                              ) : null}
                             </td>
+
                             <td
                               rowSpan={maxRows}
                               className="py-2 px-2 text-center align-middle font-medium text-slate-700 border-r border-slate-200 bg-white"
@@ -370,7 +403,9 @@ const TablaEECCProvedores = ({
                             <td
                               rowSpan={maxRows}
                               className="py-2 px-2 text-center align-middle font-bold text-slate-900 border-r border-slate-200 bg-white"
-                            >{`COD-000${formatWithLeadingZeros(orden?.id, 3)}`}</td>
+                            >
+                              {`COD-000${formatWithLeadingZeros(orden?.id, 3)}`}
+                            </td>
                             <td
                               rowSpan={maxRows}
                               className="max-w-20 p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
@@ -393,118 +428,121 @@ const TablaEECCProvedores = ({
                               />
                             </td>
                           </>
-                        )}
+                        ) : null}
+
                         <td
                           className="py-2 px-2 text-left text-slate-800 min-w-[150px] truncate border-r border-slate-200 bg-white"
                           title={
-                            prod?.descripcion_producto ||
+                            (prod?.descripcion_producto &&
+                              prod?.descripcion_producto !== "null" &&
+                              prod.descripcion_producto) ||
                             prod?.producto?.nombre ||
                             "-"
                           }
                         >
-                          {prod?.descripcion_producto ||
+                          {(prod?.descripcion_producto &&
+                            prod?.descripcion_producto !== "null" &&
+                            prod.descripcion_producto) ||
                             prod?.producto?.nombre ||
                             "-"}
                         </td>
                         <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
                           {prod ? Number(prod.cantidad).toFixed(0) : "-"}
                         </td>
-                        {/* P.U CONDICIONADO */}
                         <td className="py-2 px-2 text-center font-medium text-slate-700 border-r border-slate-200 bg-white">
-                          {prod
-                            ? `S/ ${numberPeru(esAnticipo ? 0 : prod.precioUnitario)}`
-                            : "-"}
+                          {prod ? `S/ ${numberPeru(prod.precioUnitario)}` : "-"}
                         </td>
-                        {/* TOTAL CONDICIONADO */}
                         <td className="py-2 px-2 text-center font-bold text-slate-900 border-r border-slate-300 bg-white">
-                          {prod
-                            ? `S/ ${numberPeru(esAnticipo ? 0 : prod.total)}`
-                            : "-"}
+                          {prod ? `S/ ${numberPeru(prod.total)}` : "-"}
                         </td>
 
-                        {tieneDetraccion && isFirstRow && (
-                          <>
-                            <td
-                              rowSpan={maxRows}
-                              className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
-                            >
-                              <input
-                                className="w-[60px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
-                                placeholder="Ej: 020"
-                                value={
-                                  formDetracciones[orden.id]
-                                    ?.codigo_detraccion || ""
-                                }
-                                onChange={(e) =>
-                                  handleInputDetraccion(
-                                    orden.id,
-                                    "codigo_detraccion",
-                                    e.target.value,
-                                  )
-                                }
-                              />
-                            </td>
-                            <td
-                              rowSpan={maxRows}
-                              className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
-                            >
-                              <input
-                                type="date"
-                                className="w-[110px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
-                                value={
-                                  formDetracciones[orden.id]
-                                    ?.fecha_detraccion || ""
-                                }
-                                onChange={(e) =>
-                                  handleInputDetraccion(
-                                    orden.id,
-                                    "fecha_detraccion",
-                                    e.target.value,
-                                  )
-                                }
-                              />
-                            </td>
-                            <td
-                              rowSpan={maxRows}
-                              className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
-                            >
-                              <div className="flex items-center gap-1 justify-center">
+                        {tieneDetraccion ? (
+                          isFirstRow ? (
+                            <>
+                              <td
+                                rowSpan={maxRows}
+                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
+                              >
                                 <input
-                                  className="w-12 border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-center bg-white"
-                                  placeholder="0"
+                                  className="w-[60px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
+                                  placeholder="Ej: 020"
                                   value={
                                     formDetracciones[orden.id]
-                                      ?.porcentaje_detraccion || ""
+                                      ?.codigo_detraccion || ""
                                   }
                                   onChange={(e) =>
                                     handleInputDetraccion(
                                       orden.id,
-                                      "porcentaje_detraccion",
+                                      "codigo_detraccion",
                                       e.target.value,
                                     )
                                   }
                                 />
-                                <span className="text-slate-500 font-bold">
-                                  %
-                                </span>
-                              </div>
-                            </td>
-                            <td
-                              rowSpan={maxRows}
-                              className="p-2 text-center border-r border-slate-300 bg-amber-50/40 align-middle relative"
-                            >
-                              <input
-                                readOnly
-                                className="w-[100px] border border-slate-200 rounded px-2 py-1.5 text-xs outline-none text-center font-bold bg-slate-100 text-slate-600 cursor-not-allowed"
-                                placeholder="S/ 0"
-                                value={
-                                  formDetracciones[orden.id]
-                                    ?.monto_detraccion || ""
-                                }
-                              />
-                            </td>
-                          </>
-                        )}
+                              </td>
+                              <td
+                                rowSpan={maxRows}
+                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
+                              >
+                                <input
+                                  type="date"
+                                  className="w-[110px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
+                                  value={
+                                    formDetracciones[orden.id]
+                                      ?.fecha_detraccion || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleInputDetraccion(
+                                      orden.id,
+                                      "fecha_detraccion",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              </td>
+                              <td
+                                rowSpan={maxRows}
+                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
+                              >
+                                <div className="flex items-center gap-1 justify-center">
+                                  <input
+                                    className="w-12 border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-center bg-white"
+                                    placeholder="0"
+                                    value={
+                                      formDetracciones[orden.id]
+                                        ?.porcentaje_detraccion || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleInputDetraccion(
+                                        orden.id,
+                                        "porcentaje_detraccion",
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                  <span className="text-slate-500 font-bold">
+                                    %
+                                  </span>
+                                </div>
+                              </td>
+                              <td
+                                rowSpan={maxRows}
+                                className="p-2 text-center border-r border-slate-300 bg-amber-50/40 align-middle relative"
+                              >
+                                <div className="flex flex-col gap-2 items-end ">
+                                  <input
+                                    readOnly
+                                    className="w-[100px] border border-slate-200 rounded px-2 py-1.5 text-xs outline-none text-center font-bold bg-slate-100 text-slate-600 cursor-not-allowed"
+                                    placeholder="S/ 0"
+                                    value={
+                                      formDetracciones[orden.id]
+                                        ?.monto_detraccion || ""
+                                    }
+                                  />
+                                </div>
+                              </td>
+                            </>
+                          ) : null
+                        ) : null}
 
                         <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
                           {pagoReal ? formatDate(pagoReal.fecha) : "-"}
@@ -535,6 +573,7 @@ const TablaEECCProvedores = ({
                   </tr>
                 )}
               </tbody>
+
               {rows.length > 0 && (
                 <tfoot className="sticky bottom-0 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                   <tr className="bg-slate-900 border-t-2 border-slate-700 text-xs text-white">
@@ -553,12 +592,12 @@ const TablaEECCProvedores = ({
                 </tfoot>
               )}
             </table>
-            <footer className="w-full p-4 flex justify-end gap-2 shrink-0">
+            <footer className=" w-full p-4 flex justify-end gap-2 shrink-0">
               <Button
                 color="success"
                 variant="flat"
                 isDisabled={rows.length === 0}
-                onClick={() =>
+                onClick={() => {
                   descargarExcelProveedor(
                     rows,
                     totalSaldo,
@@ -567,8 +606,8 @@ const TablaEECCProvedores = ({
                       "Sin_Nombre",
                     formDetracciones,
                     tieneDetraccion,
-                  )
-                }
+                  );
+                }}
               >
                 Exportar Excel
               </Button>
