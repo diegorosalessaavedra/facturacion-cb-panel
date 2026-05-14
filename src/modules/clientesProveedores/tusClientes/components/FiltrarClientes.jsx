@@ -73,7 +73,7 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
         radius="sm"
         size="sm"
         className="w-[100%] max-w-[150px]"
-        label="Permiso de Crédito"
+        label="PCrédito"
         selectedKeys={[dataFilter.permiso_credito]}
         onChange={handlePermisoCreditoChange}
         classNames={selectClassNames}
@@ -82,10 +82,10 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
           Todos
         </SelectItem>
         <SelectItem key="true" value="true">
-          Con Crédito
+          Habilitado
         </SelectItem>
         <SelectItem key="false" value="false">
-          Sin Crédito
+          Deshabilitado{" "}
         </SelectItem>
       </Select>
 
