@@ -73,7 +73,7 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
         radius="sm"
         size="sm"
         className="w-[100%] max-w-[150px]"
-        label="PCrédito"
+        label="Crédito"
         selectedKeys={[dataFilter.permiso_credito]}
         onChange={handlePermisoCreditoChange}
         classNames={selectClassNames}
