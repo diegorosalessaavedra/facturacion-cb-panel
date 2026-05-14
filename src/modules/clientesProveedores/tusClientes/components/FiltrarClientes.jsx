@@ -1,9 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { inputClassNames } from "../../../../assets/classNames";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Input, Select, SelectItem } from "@nextui-org/react"; // <-- Importar Select
 
 const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
-  // Memoizar el handler del submit
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
@@ -12,7 +11,6 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
     [findClients],
   );
 
-  // Memoizar los handlers de onChange para evitar recreaciones
   const handleNumeroDocChange = useCallback(
     (e) => {
       setDataFilter((prev) => ({ ...prev, numeroDoc: e.target.value }));
@@ -27,7 +25,14 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
     [setDataFilter],
   );
 
-  // Memoizar props que no cambian
+  // <-- Nuevo handler para el Select de crédito
+  const handlePermisoCreditoChange = useCallback(
+    (e) => {
+      setDataFilter((prev) => ({ ...prev, permiso_credito: e.target.value }));
+    },
+    [setDataFilter],
+  );
+
   const inputProps = useMemo(
     () => ({
       labelPlacement: "outside",
@@ -35,7 +40,6 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
       radius: "sm",
       size: "sm",
       classNames: inputClassNames,
-      className: "w-[100%] max-w-[300px]",
     }),
     [],
   );
@@ -44,6 +48,7 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
     <form onSubmit={handleSubmit} className="flex gap-2 px-2 items-end">
       <Input
         {...inputProps}
+        className="w-[100%] max-w-[200px]"
         value={dataFilter.numeroDoc}
         onChange={handleNumeroDocChange}
         type="text"
@@ -51,11 +56,32 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
       />
       <Input
         {...inputProps}
+        className="w-[100%] max-w-[250px]"
         value={dataFilter.nombreComercial}
         onChange={handleNombreComercialChange}
         type="text"
-        label="Nombre Comercial / Nombre Apellidos"
+        label="Nombre Comercial / Apellidos"
       />
+
+      {/* <-- Nuevo Select para filtrar por crédito */}
+      <Select
+        {...inputProps}
+        className="w-[100%] max-w-[150px]"
+        label="Permiso de Crédito"
+        selectedKeys={[dataFilter.permiso_credito]}
+        onChange={handlePermisoCreditoChange}
+      >
+        <SelectItem key="todos" value="todos">
+          Todos
+        </SelectItem>
+        <SelectItem key="true" value="true">
+          Con Crédito
+        </SelectItem>
+        <SelectItem key="false" value="false">
+          Sin Crédito
+        </SelectItem>
+      </Select>
+
       <Button className="bg-slate-900" color="primary" type="submit">
         Buscar
       </Button>

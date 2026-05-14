@@ -19,13 +19,17 @@ const TusClientes = () => {
   const [dataFilter, setDataFilter] = useState({
     numeroDoc: "",
     nombreComercial: "",
+    permiso_credito: "todos",
   });
 
   // Memoizar la función findClients para evitar recreaciones
   const findClients = useCallback(() => {
-    const url = `${API}/clientes?numeroDoc=${
-      dataFilter.numeroDoc
-    }&nombreComercial=${dataFilter.nombreComercial}`;
+    let url = `${API}/clientes?numeroDoc=${dataFilter.numeroDoc}&nombreComercial=${dataFilter.nombreComercial}`;
+
+    // Solo concatenamos el parámetro si NO es "todos"
+    if (dataFilter.permiso_credito && dataFilter.permiso_credito !== "todos") {
+      url += `&permiso_credito=${dataFilter.permiso_credito}`;
+    }
 
     setLoading(true);
 
@@ -37,9 +41,12 @@ const TusClientes = () => {
         setClientes([]);
       })
       .finally(() => setLoading(false));
-  }, [dataFilter.numeroDoc, dataFilter.nombreComercial]);
+  }, [
+    dataFilter.numeroDoc,
+    dataFilter.nombreComercial,
+    dataFilter.permiso_credito,
+  ]);
 
-  // Memoizar el handler del botón nuevo
   const handleNuevoClick = useCallback(() => {
     setSelectModal("nuevo");
     onOpen();
