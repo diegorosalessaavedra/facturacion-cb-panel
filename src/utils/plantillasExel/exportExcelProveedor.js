@@ -212,9 +212,21 @@ export const descargarExcelProveedor = (
   let currentRowIdx = 2; // Las cabeceras ocupan la fila 0 y 1
 
   rows.forEach((row) => {
-    // 🟢 Extraemos maxRows para saber cuántas filas ocupa esta orden
-    const { orden, prod, pago, pagoReal, isFirstRow, saldoActual, maxRows } =
-      row;
+    // 🟢 Extraemos variables y calculamos isAnticipo por si acaso no viene en la prop
+    const {
+      orden,
+      prod,
+      pago,
+      pagoReal,
+      isFirstRow,
+      saldoActual,
+      maxRows,
+      esAnticipo,
+    } = row;
+    const isAnticipo =
+      esAnticipo ||
+      prod?.descripcion_producto === "Anticipos" ||
+      prod?.producto?.nombre === "Anticipos";
 
     // 🟢 CÁLCULO DE UNIÓN DE CELDAS VERTICALES
     if (isFirstRow && maxRows > 1) {
@@ -290,13 +302,15 @@ export const descargarExcelProveedor = (
         t: prod ? "n" : "s",
         s: prod ? styles.cellNumero : styles.cellDerecha,
       },
+      // CONDICIONAL APLICADA AQUÍ PARA P.U
       {
-        v: prod ? Number(prod.precioUnitario) : "-",
+        v: prod ? (isAnticipo ? 0 : Number(prod.precioUnitario)) : "-",
         t: prod ? "n" : "s",
         s: prod ? styles.cellMoneda : styles.cellDerecha,
       },
+      // CONDICIONAL APLICADA AQUÍ PARA EL TOTAL
       {
-        v: prod ? Number(prod.total) : "-",
+        v: prod ? (isAnticipo ? 0 : Number(prod.total)) : "-",
         t: prod ? "n" : "s",
         s: prod ? styles.cellMonedaNegrita : styles.cellNegritaDerecha,
       },
