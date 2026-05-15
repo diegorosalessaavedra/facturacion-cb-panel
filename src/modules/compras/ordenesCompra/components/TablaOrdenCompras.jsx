@@ -84,8 +84,8 @@ const TablaOrdenCompras = ({
           <TableColumn>Tipos de Productos</TableColumn>
           <TableColumn>Forma de Pago</TableColumn>
           <TableColumn>Moneda</TableColumn>
-          <TableColumn>Total</TableColumn>
-          <TableColumn>Saldo SOLPED</TableColumn>
+          <TableColumn>Total FAC</TableColumn>
+          <TableColumn>Saldo Dsct o Detrac</TableColumn>
           <TableColumn>
             Estado de <br /> Pago
           </TableColumn>
