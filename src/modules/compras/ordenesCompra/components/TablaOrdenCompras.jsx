@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import {
   Button,
   Table,
@@ -6,6 +7,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  Chip,
 } from "@nextui-org/react";
 import { formatNumber } from "../../../../assets/formats";
 import { Link } from "react-router-dom";
@@ -18,319 +20,373 @@ const TablaOrdenCompras = ({
   setSelectModal,
   setSelectOrdenCompra,
   userData,
+  filtros,
 }) => {
+  const ordenesFiltradas = useMemo(() => {
+    if (!ordenCompras) return [];
+
+    if (
+      !filtros?.estado_saldo_proveedor ||
+      filtros.estado_saldo_proveedor === "Todos"
+    ) {
+      return ordenCompras;
+    }
+
+    return ordenCompras.filter((orden) => {
+      const saldoAcum = orden.proveedor?.saldo_acumulado || 0;
+
+      switch (filtros.estado_saldo_proveedor) {
+        case "DEBE":
+          return saldoAcum > 0;
+        case "A FAVOR":
+          return saldoAcum < 0;
+        case "SALDO CERO":
+          return saldoAcum === 0;
+        default:
+          return true;
+      }
+    });
+  }, [ordenCompras, filtros?.estado_saldo_proveedor]);
+
+  // --- DEFINICIÓN DE PERMISOS ---
+  const role = userData?.role;
+  const isAdminContador = [
+    "GERENTE",
+    "CONTADOR",
+    "PRACTICANTE CONTABLE",
+  ].includes(role);
+  const isCompradorVendedor = role === "COMPRADOR/VENDEDOR";
+  const canEditOrAnular = isAdminContador || isCompradorVendedor;
+  const isGerente = role === "GERENTE";
+
   return (
-    <div className="w-full flex ">
+    <div className="w-full flex">
       <Table
-        aria-label="Tabla de itinerarios"
+        aria-label="Tabla de órdenes de compra"
         color="default"
         isStriped
         classNames={{
-          base: "w-full  h-[70vh] overflow-auto p-4 ",
+          base: "w-full h-[70vh] overflow-auto p-4",
           wrapper: "p-0",
+          th: "bg-slate-900 text-white text-xs text-center",
+          td: "text-xs",
         }}
         radius="sm"
         isCompact={true}
         isHeaderSticky
       >
         <TableHeader>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            #
+          <TableColumn>#</TableColumn>
+          <TableColumn>
+            Fecha <br /> Emisión
           </TableColumn>
-
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Fecha <br />
-            Emisión
-          </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Proveedor
-          </TableColumn>
-
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Tipos de Productos
-          </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Forma de Pago
-          </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Moneda
-          </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Total
-          </TableColumn>
-          <TableColumn className="text-xs text-white bg-blue-700">
-            Banco
-          </TableColumn>
-          <TableColumn className="text-xs text-white bg-blue-700">
-            Nro cuenta
-          </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Saldo Acumulado
-          </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
+          <TableColumn>Proveedor</TableColumn>
+          <TableColumn>Tipos de Productos</TableColumn>
+          <TableColumn>Forma de Pago</TableColumn>
+          <TableColumn>Moneda</TableColumn>
+          <TableColumn>Total</TableColumn>
+          <TableColumn>Saldo SOLPED</TableColumn>
+          <TableColumn>
             Estado de <br /> Pago
           </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Estado SOLPED
+          <TableColumn>Banco</TableColumn>
+          <TableColumn>Nro cuenta</TableColumn>
+          <TableColumn>
+            Saldo <br /> Acumulado
           </TableColumn>
-          <TableColumn className="text-xs text-center text-white  bg-blue-700">
-            PDF
+          <TableColumn>
+            Estado <br /> Saldo Acumulado
           </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Acciones
-          </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700">
-            Validacion
-          </TableColumn>
-          <TableColumn className="text-xs text-white  bg-blue-700 text-center">
-            Enviar a Pago
-            <br /> Masivo
+          <TableColumn>Estado SOLPED</TableColumn>
+          <TableColumn className="text-center">PDF</TableColumn>
+          <TableColumn className="text-center">Acciones</TableColumn>
+          <TableColumn className="text-center">Validacion</TableColumn>
+          <TableColumn className="text-center">
+            Enviar a Pago <br /> Masivo
           </TableColumn>
         </TableHeader>
-        <TableBody>
-          {ordenCompras?.map((ordenCompra, index) => (
-            <TableRow key={ordenCompra.id}>
-              <TableCell className=" text-xs  ">{index + 1}</TableCell>
-              <TableCell className=" min-w-[90px]   text-xs  ">
-                {formatDate(ordenCompra.fechaEmision)}
-              </TableCell>
-              <TableCell className="  min-w-[200px]  text-xs  ">
-                {ordenCompra.proveedor.nombreApellidos ||
-                  ordenCompra.proveedor.nombreComercial}
-              </TableCell>
 
-              <TableCell className="  text-xs  ">
-                {ordenCompra.tipo_productos}
-              </TableCell>
-              <TableCell className="  text-xs  ">
-                {ordenCompra.formaPago}
-              </TableCell>
+        {/* Mapeamos 'ordenesFiltradas' en lugar de 'ordenCompras' */}
+        <TableBody emptyContent={"No hay datos que coincidan con los filtros"}>
+          {ordenesFiltradas.map((ordenCompra, index) => {
+            const saldoAcum = ordenCompra.proveedor?.saldo_acumulado || 0;
+            const tieneComprobante =
+              ordenCompra.comprobanteOrdenCompraId !== null;
 
-              <TableCell className="  text-xs  ">
-                {ordenCompra.moneda}
-              </TableCell>
+            return (
+              <TableRow key={ordenCompra.id}>
+                <TableCell className="text-center">{index + 1}</TableCell>
+                <TableCell className="min-w-[90px]">
+                  {formatDate(ordenCompra.fechaEmision)}
+                </TableCell>
+                <TableCell className="min-w-[200px]">
+                  {ordenCompra.proveedor.nombreApellidos ||
+                    ordenCompra.proveedor.nombreComercial}
+                </TableCell>
+                <TableCell>{ordenCompra.tipo_productos}</TableCell>
+                <TableCell>{ordenCompra.formaPago}</TableCell>
+                <TableCell>{ordenCompra.moneda}</TableCell>
 
-              <TableCell className=" min-w-[110px]  text-xs  ">
-                S/. {formatNumber(ordenCompra.saldoInicial)}
-              </TableCell>
-              <TableCell className="  text-xs  ">
-                {ordenCompra.banco_beneficiario || "-"}
-              </TableCell>
-              <TableCell className="  text-xs  ">
-                {ordenCompra.nro_cuenta_bco || "-"}
-              </TableCell>
-              <TableCell className="min-w-[110px]  text-xs  ">
-                S/. {formatNumber(ordenCompra.proveedor.saldo_acumulado)}
-              </TableCell>
-              <TableCell
-                className={`${
-                  ordenCompra.estadoPago === "ENVIADO A PAGO"
-                    ? "text-amber-500"
-                    : ordenCompra.estadoPago === "PENDIENTE"
-                      ? "text-red-500"
-                      : ordenCompra.estadoPago === "ANULADO"
-                        ? "text-red-500"
-                        : "text-blue-500"
-                }  text-xs  font-semibold `}
-              >
-                {ordenCompra.estadoPago}
-              </TableCell>
-              <TableCell
-                className={`${
-                  ordenCompra.status === "Activo"
-                    ? "text-green-600"
-                    : "text-red-500"
-                }  text-xs  font-semibold `}
-              >
-                {ordenCompra.status}
-              </TableCell>
-              <TableCell className="  text-xs  ">
-                <div className="flex gap-2">
-                  <Button
-                    className={` scale-85 ${
-                      ordenCompra.prioridad_solped === "Alta"
-                        ? "bg-red-500"
-                        : ordenCompra.prioridad_solped === "Mediana"
-                          ? "bg-amber-500"
-                          : "bg-green-500"
-                    }`}
+                <TableCell className="min-w-[110px] font-semibold">
+                  S/. {formatNumber(ordenCompra.saldoInicial)}
+                </TableCell>
+                <TableCell className="min-w-[110px] font-semibold text-blue-600">
+                  S/. {formatNumber(ordenCompra.saldo)}
+                </TableCell>
+
+                {/* Estado de Pago */}
+                <TableCell className="text-center">
+                  <Chip
                     size="sm"
-                    color="danger"
-                    onPress={() => {
-                      setSelectOrdenCompra(ordenCompra);
-                      setSelectModal("pdf");
-                      onOpen();
-                    }}
+                    variant="flat"
+                    className="font-bold text-[10px]"
+                    color={
+                      ordenCompra.estadoPago === "ENVIADO A PAGO"
+                        ? "warning"
+                        : ordenCompra.estadoPago === "PENDIENTE" ||
+                            ordenCompra.estadoPago === "ANULADO"
+                          ? "danger"
+                          : "primary"
+                    }
                   >
-                    SOLPED
-                  </Button>
+                    {ordenCompra.estadoPago}
+                  </Chip>
+                </TableCell>
 
-                  {ordenCompra.solped_adjunto && (
-                    <a
-                      href={`${import.meta.env.VITE_LARAVEL_URL}/solped/${
-                        ordenCompra?.solped_adjunto
+                <TableCell>{ordenCompra.banco_beneficiario || "-"}</TableCell>
+                <TableCell>{ordenCompra.nro_cuenta_bco || "-"}</TableCell>
+
+                <TableCell className="min-w-[110px] text-center font-semibold">
+                  S/. {formatNumber(saldoAcum)}
+                </TableCell>
+
+                {/* Estado Saldo Acumulado */}
+                <TableCell className="text-center">
+                  <Chip
+                    size="sm"
+                    variant="dot"
+                    className="font-bold border-none text-[10px]"
+                    color={
+                      saldoAcum < 0
+                        ? "success"
+                        : saldoAcum > 0
+                          ? "danger"
+                          : "default"
+                    }
+                  >
+                    {saldoAcum < 0
+                      ? "A FAVOR"
+                      : saldoAcum > 0
+                        ? "DEBE"
+                        : "SALDO CERO"}
+                  </Chip>
+                </TableCell>
+
+                {/* Estado SOLPED */}
+                <TableCell className="text-center">
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    color={
+                      ordenCompra.status === "Activo" ? "success" : "danger"
+                    }
+                  >
+                    {ordenCompra.status}
+                  </Chip>
+                </TableCell>
+
+                {/* PDF */}
+                <TableCell>
+                  <div className="flex gap-2 justify-center">
+                    <Button
+                      className={`scale-85 text-white ${
+                        ordenCompra.prioridad_solped === "Alta"
+                          ? "bg-red-500"
+                          : ordenCompra.prioridad_solped === "Mediana"
+                            ? "bg-amber-500"
+                            : "bg-green-500"
                       }`}
-                      target="_blank"
+                      size="sm"
+                      onPress={() => {
+                        setSelectOrdenCompra(ordenCompra);
+                        setSelectModal("pdf");
+                        onOpen();
+                      }}
                     >
-                      <Button className="scale-85" size="sm" color="danger">
-                        Ver COMP. P
-                      </Button>
-                    </a>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col  items-center">
-                  {ordenCompra.comprobanteOrdenCompraId === null
-                    ? (userData?.role === "GERENTE" ||
-                        userData?.role === "CONTADOR" ||
-                        userData?.role === "PRACTICANTE CONTABLE") && (
+                      SOLPED
+                    </Button>
+
+                    {ordenCompra.solped_adjunto && (
+                      <a
+                        href={`${import.meta.env.VITE_LARAVEL_URL}/solped/${ordenCompra.solped_adjunto}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Button
+                          className="scale-85 shadow-sm"
+                          size="sm"
+                          color="danger"
+                        >
+                          Ver COMP. P
+                        </Button>
+                      </a>
+                    )}
+                  </div>
+                </TableCell>
+
+                {/* Acciones */}
+                <TableCell>
+                  <div className="flex flex-col items-center gap-1">
+                    {!tieneComprobante
+                      ? isAdminContador && (
+                          <Link
+                            to={`/compras/comprobante-orden-compra/${ordenCompra.id}`}
+                          >
+                            <Button
+                              className="scale-85"
+                              size="sm"
+                              color="primary"
+                            >
+                              Generar Comprobante
+                            </Button>
+                          </Link>
+                        )
+                      : isAdminContador && (
+                          <div className="flex">
+                            <Button
+                              className="scale-85 text-white"
+                              size="sm"
+                              color="success"
+                              onPress={() => {
+                                setSelectOrdenCompra(ordenCompra);
+                                setSelectModal("verComprobante");
+                                onOpen();
+                              }}
+                            >
+                              Ver Comprobante
+                            </Button>
+                            <Button
+                              className="scale-85 text-white"
+                              size="sm"
+                              color="warning"
+                              onPress={() => {
+                                setSelectOrdenCompra(ordenCompra);
+                                setSelectModal("editarComprobante");
+                                onOpen();
+                              }}
+                            >
+                              Editar C.
+                            </Button>
+                          </div>
+                        )}
+
+                    {canEditOrAnular && (
+                      <div className="flex">
                         <Link
-                          to={`/compras/comprobante-orden-compra/${ordenCompra.id}`}
+                          to={`/compras/editar/orden-compra/${ordenCompra.id}`}
                         >
                           <Button
                             className="scale-85"
                             size="sm"
                             color="primary"
                           >
-                            Generar Comprobante
+                            Editar
                           </Button>
                         </Link>
-                      )
-                    : (userData?.role === "GERENTE" ||
-                        userData?.role === "CONTADOR" ||
-                        userData?.role === "PRACTICANTE CONTABLE") && (
-                        <div className="flex ">
+
+                        {tieneComprobante &&
+                          ordenCompra.comprobante?.status === "Activo" && (
+                            <Button
+                              className="scale-85 text-white"
+                              size="sm"
+                              color="warning"
+                              onPress={() => {
+                                setSelectOrdenCompra(ordenCompra.comprobante);
+                                setSelectModal("anular");
+                                onOpen();
+                              }}
+                            >
+                              Anular Comprobante
+                            </Button>
+                          )}
+
+                        {ordenCompra.status === "Activo" && (
                           <Button
-                            className="scale-85 text-white"
+                            className="scale-85"
                             size="sm"
-                            color="success"
+                            color="danger"
                             onPress={() => {
                               setSelectOrdenCompra(ordenCompra);
-                              setSelectModal("verComprobante");
+                              setSelectModal("anular_solped");
                               onOpen();
                             }}
                           >
-                            Ver Comprobante
-                          </Button>
-                          <Button
-                            className="scale-85 text-white"
-                            size="sm"
-                            color="warning"
-                            onPress={() => {
-                              setSelectOrdenCompra(ordenCompra);
-                              setSelectModal("editarComprobante");
-                              onOpen();
-                            }}
-                          >
-                            Editar C.
-                          </Button>
-                        </div>
-                      )}
-                  {(userData?.role === "GERENTE" ||
-                    userData?.role === "CONTADOR" ||
-                    userData?.role === "COMPRADOR/VENDEDOR" ||
-                    userData?.role === "PRACTICANTE CONTABLE") && (
-                    <div className="flex">
-                      <Link
-                        to={`/compras/editar/orden-compra/${ordenCompra.id}`}
-                      >
-                        <Button className="scale-85" size="sm" color="primary">
-                          Editar
-                        </Button>
-                      </Link>
-                      {ordenCompra.comprobanteOrdenCompraId !== null &&
-                        ordenCompra.comprobante.status === "Activo" && (
-                          <Button
-                            className="scale-85 text-white"
-                            size="sm"
-                            color="warning"
-                            onPress={() => {
-                              setSelectOrdenCompra(ordenCompra.comprobante);
-                              onOpen();
-                              setSelectModal("anular");
-                            }}
-                          >
-                            Anular Comprobante
+                            Anular SOLPED
                           </Button>
                         )}
-                      {ordenCompra.status === "Activo" && (
-                        <Button
-                          className="scale-85"
-                          size="sm"
-                          color="danger"
-                          onPress={() => {
-                            setSelectOrdenCompra(ordenCompra);
-                            setSelectModal("anular_solped");
-                            onOpen();
-                          }}
-                        >
-                          Anular SOLPED
-                        </Button>
+                      </div>
+                    )}
+
+                    {canEditOrAnular && (
+                      <Button
+                        className="scale-85 text-white"
+                        size="sm"
+                        color="danger"
+                        onPress={() => {
+                          setSelectOrdenCompra(ordenCompra);
+                          setSelectModal("adjuntar_solped");
+                          onOpen();
+                        }}
+                      >
+                        Comprobante de Pago
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+
+                <TableCell className="text-center">
+                  {role !== "VENDEDOR" && (
+                    <div
+                      className={`m-auto w-5 h-5 border-2 p-0.5 flex items-center justify-center ${
+                        ordenCompra.validacion_ingrid
+                          ? "border-green-500 bg-green-50"
+                          : "border-neutral-300"
+                      } rounded-md`}
+                    >
+                      {ordenCompra.validacion_ingrid ? (
+                        <FaCheck className="text-green-500 text-[10px]" />
+                      ) : (
+                        ""
                       )}
                     </div>
                   )}
-                  {(userData?.role === "GERENTE" ||
-                    userData?.role === "CONTADOR" ||
-                    userData?.role === "PRACTICANTE CONTABLE" ||
-                    userData?.role === "COMPRADOR/VENDEDOR") && (
-                    <Button
-                      className="scale-85 text-white"
-                      size="sm"
-                      color="danger"
-                      onPress={() => {
+                </TableCell>
+
+                <TableCell className="text-center">
+                  {isGerente && (
+                    <button
+                      className={`m-auto w-5 h-5 border-2 p-0.5 flex items-center justify-center ${
+                        ordenCompra.validacion
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-neutral-300"
+                      } rounded-md`}
+                      onClick={() => {
+                        setSelectModal("cambiar_validacion");
                         setSelectOrdenCompra(ordenCompra);
-                        setSelectModal("adjuntar_solped");
                         onOpen();
                       }}
                     >
-                      Comprobante de Pago
-                    </Button>
+                      {ordenCompra.validacion ? (
+                        <FaCheck className="text-blue-500 text-[10px]" />
+                      ) : (
+                        ""
+                      )}
+                    </button>
                   )}
-                </div>
-              </TableCell>
-              <TableCell className="  text-xs  text-center ">
-                {userData?.role !== "VENDEDOR" && (
-                  <button
-                    disabled
-                    className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
-                      ordenCompra.validacion
-                        ? "border-green-500"
-                        : "border-neutral-400"
-                    }  rounded-sm`}
-                  >
-                    {ordenCompra.validacion_ingrid ? (
-                      <FaCheck className="text-green-500" />
-                    ) : (
-                      ""
-                    )}
-                  </button>
-                )}
-              </TableCell>
-              <TableCell className="  text-xs  text-center ">
-                {userData?.role === "GERENTE" && (
-                  <button
-                    className={`m-auto w-4 h-4 border-1.5 p-0.5 flex items-center justify-center ${
-                      ordenCompra.validacion
-                        ? "border-blue-500"
-                        : "border-neutral-400"
-                    }  rounded-sm`}
-                    onClick={() => {
-                      setSelectModal("cambiar_validacion");
-                      setSelectOrdenCompra(ordenCompra);
-                      onOpen();
-                    }}
-                  >
-                    {ordenCompra.validacion ? (
-                      <FaCheck className="text-blue-500" />
-                    ) : (
-                      ""
-                    )}
-                  </button>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

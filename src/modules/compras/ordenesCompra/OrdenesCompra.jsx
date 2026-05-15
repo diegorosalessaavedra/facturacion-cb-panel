@@ -29,6 +29,7 @@ const OrdenesCompra = ({ userData }) => {
   const [filtros, setFiltros] = useState({
     proveedor: "", // Mejor vacío que "Todos" para un input de texto
     estado_pago: "Todos",
+    estado_saldo_proveedor: "Todos",
     fecha_inicio: getTodayDate2(),
     fecha_final: getTodayDate(),
   });
@@ -59,7 +60,7 @@ const OrdenesCompra = ({ userData }) => {
 
   useEffect(() => {
     handleFindOrdenCompras();
-  }, []);
+  }, [filtros.estado_pago]);
 
   return (
     <div className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
@@ -98,6 +99,7 @@ const OrdenesCompra = ({ userData }) => {
           setSelectModal={setSelectModal}
           setSelectOrdenCompra={setSelectOrdenCompra}
           userData={userData}
+          filtros={filtros}
         />
       </div>
 

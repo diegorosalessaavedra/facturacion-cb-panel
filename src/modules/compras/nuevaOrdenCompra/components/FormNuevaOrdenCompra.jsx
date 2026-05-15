@@ -10,6 +10,7 @@ import Loading from "../../../../hooks/Loading";
 import CamposMetodosDePago from "../../../ventas/creartCotizacion/components/FormCrearCotizacion/components/CamposMetodosDePago";
 import ModalPdfOrdenCompraId from "../../ordenesCompra/components/ModalPdfOrdenCompraId";
 import { toast } from "sonner";
+import CamposDetracciones from "./formNuevaOrdenCompra/CamposDetracciones";
 
 const FormNuevaOrdenCompra = ({ userData }) => {
   const {
@@ -19,6 +20,7 @@ const FormNuevaOrdenCompra = ({ userData }) => {
     watch,
     formState: { errors },
   } = useForm();
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectModal, setSelectModal] = useState("pdf");
   const [selectProveedor, setSelectProveedor] = useState("");
@@ -33,11 +35,19 @@ const FormNuevaOrdenCompra = ({ userData }) => {
     nro_cuenta_bco: "",
   });
 
+  // --- ESTADO PARA DETRACCIONES ---
+  const [detraccion, setDetraccion] = useState({
+    codigo_detraccion: "",
+    fecha_detraccion: "",
+    porcentaje_detraccion: "",
+    monto_detraccion: "",
+  });
+
   const findProveedores = () => {
     const url = `${import.meta.env.VITE_URL_API}/proveedores`;
-
     axios.get(url, config).then((res) => setProveedores(res.data.proveedores));
   };
+
   useEffect(() => {
     findProveedores();
   }, []);
@@ -48,6 +58,7 @@ const FormNuevaOrdenCompra = ({ userData }) => {
       return;
     }
 
+    // Unimos todos los datos para enviar al Backend
     const newData = {
       ...data,
       productos: productos,
@@ -56,7 +67,13 @@ const FormNuevaOrdenCompra = ({ userData }) => {
       usuarioId: userData?.id,
       banco_beneficiario: dataSelects.banco_beneficiario,
       nro_cuenta_bco: dataSelects.nro_cuenta_bco,
+      // --- ENVIAMOS LA DETRACCIÓN AQUÍ ---
+      codigo_detraccion: detraccion.codigo_detraccion,
+      fecha_detraccion: detraccion.fecha_detraccion,
+      porcentaje_detraccion: detraccion.porcentaje_detraccion,
+      monto_detraccion: detraccion.monto_detraccion,
     };
+
     setLoading(true);
 
     const url = `${import.meta.env.VITE_URL_API}/compras/orden-compra`;
@@ -67,7 +84,14 @@ const FormNuevaOrdenCompra = ({ userData }) => {
         reset();
         setArrayPagos([]);
         setProductos([]);
-        toast.success("El SOLPED  se registro correctamente");
+        // Reseteamos el formulario de detracción
+        setDetraccion({
+          codigo_detraccion: "",
+          fecha_detraccion: "",
+          porcentaje_detraccion: "",
+          monto_detraccion: "",
+        });
+        toast.success("El SOLPED se registró correctamente");
         setId(res.data.ordenCompra.id);
         setSelectModal("pdf");
         onOpenChange(true);
@@ -82,11 +106,11 @@ const FormNuevaOrdenCompra = ({ userData }) => {
   };
 
   return (
-    <div className="w-full pb-6 ">
+    <div className="w-full pb-6">
       {loading && <Loading />}
 
       <form
-        className="w-full flex flex-col gap-4 "
+        className="w-full flex flex-col gap-4"
         onSubmit={handleSubmit(submit)}
       >
         <CampoDatosProveedorOrdenCompra
@@ -99,24 +123,35 @@ const FormNuevaOrdenCompra = ({ userData }) => {
           proveedores={proveedores}
           setDataSelects={setDataSelects}
         />
+
         <CamposMetodosDePago
           register={register}
           errors={errors}
           arrayPagos={arrayPagos}
           setArrayPagos={setArrayPagos}
         />
+
+        {/* --- COMPONENTE DE DETRACCIÓN --- */}
+        <CamposDetracciones
+          detraccion={detraccion}
+          setDetraccion={setDetraccion}
+          productos={productos}
+        />
+
         <TablaAgregarProducto
           productos={productos}
           setProductos={setProductos}
           setSelectModal={setSelectModal}
           tipo_productos={watch("tipo_productos")}
         />
-        <div className="w-full flex items-center justify-end">
+
+        <div className="w-full flex items-center justify-end mt-4">
           <Button type="submit" color="primary">
             Guardar
           </Button>
         </div>
       </form>
+
       {selectModal === "proveedor" && (
         <ModalNuevoProveedor
           isOpen={isOpen}

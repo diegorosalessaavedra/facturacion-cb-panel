@@ -25,6 +25,13 @@ const FiltrarOrdenesCompra = ({
     }));
   };
 
+  const handleSelectSaldo = (e) => {
+    setFiltros((prev) => ({
+      ...prev,
+      estado_saldo_proveedor: e.target.value,
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     handleFindOrdenCompras();
@@ -85,7 +92,7 @@ const FiltrarOrdenesCompra = ({
 
         <Select
           className="w-[100%] max-w-[300px]"
-          label="Estado de pago"
+          label="Estado de Pago SOLPED"
           labelPlacement="outside"
           variant="bordered"
           selectedKeys={[filtros.estado_pago]} // Vinculado al estado global
@@ -100,6 +107,22 @@ const FiltrarOrdenesCompra = ({
           <SelectItem key="ANTICIPO">ANTICIPO</SelectItem>
           <SelectItem key="ENVIADO A PAGO">ENVIADO A PAGO</SelectItem>
           <SelectItem key="ANULADO">ANULADO</SelectItem>
+        </Select>
+        <Select
+          className="w-[100%] max-w-[300px]"
+          label="Estado Saldo Proveedor"
+          labelPlacement="outside"
+          variant="bordered"
+          selectedKeys={[filtros.estado_saldo_proveedor]} // Vinculado al estado global
+          radius="sm"
+          size="sm"
+          onChange={handleSelectSaldo}
+          classNames={selectClassNames}
+        >
+          <SelectItem key="Todos">TODOS</SelectItem>
+          <SelectItem key="DEBE">DEBE</SelectItem>
+          <SelectItem key="A FAVOR">A FAVOR</SelectItem>
+          <SelectItem key="SALDO CERO">SALDO CERO</SelectItem>
         </Select>
 
         <Button color="primary" type="submit">

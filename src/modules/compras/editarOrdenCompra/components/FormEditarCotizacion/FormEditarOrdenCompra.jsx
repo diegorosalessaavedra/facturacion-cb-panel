@@ -10,6 +10,8 @@ import ModalNuevoProveedor from "../../../../clientesProveedores/tusProveedores/
 import TablaEditarProducto from "../../../../ventas/editarCotizacion/components/FormEditarCotizacion/components/TablaEditarProducto";
 import CamposEditarMetodosDePago from "../../../../ventas/editarCotizacion/components/FormEditarCotizacion/components/CamposEditarMetodosDePago";
 import CamposEditarDatosProveedorOrdenCompra from "./components/CamposEditarDatosProveedorOrdenCompra";
+import CamposDetracciones from "../../../nuevaOrdenCompra/components/formNuevaOrdenCompra/CamposDetracciones";
+// ✅ CORRECCIÓN 1: Importar el componente de detracciones (Ajusta la ruta si es necesario)
 
 const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
   const {
@@ -19,6 +21,7 @@ const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
     watch,
     formState: { errors },
   } = useForm();
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [proveedores, setProveedores] = useState([]);
@@ -34,11 +37,18 @@ const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
     nro_cuenta_bco: "",
   });
 
+  const [detraccion, setDetraccion] = useState({
+    codigo_detraccion: "",
+    fecha_detraccion: "",
+    porcentaje_detraccion: "",
+    monto_detraccion: "",
+  });
+
   const findProveedores = () => {
     const url = `${import.meta.env.VITE_URL_API}/proveedores`;
-
     axios.get(url, config).then((res) => setProveedores(res.data.proveedores));
   };
+
   useEffect(() => {
     findProveedores();
   }, []);
@@ -63,6 +73,10 @@ const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
       tipo_productos: dataSelects.tipo_productos,
       banco_beneficiario: dataSelects.banco_beneficiario,
       nro_cuenta_bco: dataSelects.nro_cuenta_bco,
+      codigo_detraccion: detraccion.codigo_detraccion,
+      fecha_detraccion: detraccion.fecha_detraccion,
+      porcentaje_detraccion: detraccion.porcentaje_detraccion,
+      monto_detraccion: detraccion.monto_detraccion,
     };
     setLoading(true);
 
@@ -73,12 +87,12 @@ const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
     axios
       .patch(url, newData, config)
       .then(() => {
-        toast.success("La orden Compra se edito correctamente");
-        resetDatos();
+        toast.success("La orden Compra se editó correctamente");
       })
       .catch((err) => {
+        console.error(err);
         toast.error(
-          "hubo un error al editar la orden Compra por favor verifique bien los campos"
+          "Hubo un error al editar la orden Compra. Por favor verifique bien los campos.",
         );
       })
       .finally(() => {
@@ -87,41 +101,57 @@ const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
   };
 
   const resetDatos = () => {
+    if (!ordenCompra) return; // Protección por si la data tarda en llegar
+
     setSelectProveedor(ordenCompra.proveedorId);
-    const pagosAcumulados = ordenCompra?.pagos.map((pago) => ({
-      id: Date.now(),
-      metodoPago: `${pago.metodoPago.id}`,
-      banco: `${pago.banco.id}`,
-      operacion: pago.operacion,
-      monto: pago.monto,
-      fecha: pago.fecha,
-    }));
 
-    // Acumular productos
+    // ✅ CORRECCIÓN 2: Sintaxis correcta y segura para extraer la detracción
+    const det = Array.isArray(ordenCompra?.detraccion)
+      ? ordenCompra.detraccion[0]
+      : ordenCompra?.detraccion;
 
-    const productosAcumulados = ordenCompra?.productos.map((producto) => ({
-      id: producto.id,
-      productoId: `${producto.producto.id}`,
-      nombre: producto?.producto.nombre,
-      descripcion: `${producto.descripcion_producto}`,
-      cantidad: producto.cantidad,
-      precioUnitario: producto.precioUnitario,
-      total: producto.total,
-      stock: producto?.producto.stock,
-      centroCostoId: producto.centro_costo_id,
-    }));
+    setDetraccion({
+      codigo_detraccion: det?.codigo_detraccion || "",
+      fecha_detraccion: det?.fecha_detraccion || "",
+      porcentaje_detraccion: det?.porcentaje_detraccion || "",
+      monto_detraccion: det?.monto_detraccion || "",
+    });
+
+    const pagosAcumulados =
+      ordenCompra?.pagos?.map((pago) => ({
+        id: Date.now() + Math.random(), // Mejoramos la key para evitar duplicados en el map
+        metodoPago: `${pago.metodoPago?.id || pago.metodoPagoId}`, // Adaptación por si la prop varía
+        banco: `${pago.banco?.id || pago.bancoId}`,
+        operacion: pago.operacion,
+        monto: pago.monto,
+        fecha: pago.fecha,
+      })) || [];
+
+    const productosAcumulados =
+      ordenCompra?.productos?.map((producto) => ({
+        id: producto.id,
+        productoId: `${producto.producto?.id || producto.productoId}`,
+        nombre: producto?.producto?.nombre,
+        descripcion: `${producto.descripcion_producto}`,
+        cantidad: producto.cantidad,
+        precioUnitario: producto.precioUnitario,
+        total: producto.total,
+        stock: producto?.producto?.stock,
+        centroCostoId: producto.centro_costo_id,
+      })) || [];
 
     setArrayPagos(pagosAcumulados);
     setProductos(productosAcumulados);
+
     setDataSelects({
-      moneda: ordenCompra.moneda,
-      autorizado: ordenCompra.autorizado,
-      comprador: ordenCompra.comprador,
-      tipoOrdenCompra: ordenCompra.tipoOrdenCompra,
-      formaPago: ordenCompra.formaPago,
-      tipo_productos: ordenCompra.tipo_productos,
-      banco_beneficiario: ordenCompra.banco_beneficiario,
-      nro_cuenta_bco: ordenCompra.nro_cuenta_bco,
+      moneda: ordenCompra.moneda || "",
+      autorizado: ordenCompra.autorizado || "",
+      comprador: ordenCompra.comprador || "",
+      tipoOrdenCompra: ordenCompra.tipoOrdenCompra || "",
+      formaPago: ordenCompra.formaPago || "",
+      tipo_productos: ordenCompra.tipo_productos || "",
+      banco_beneficiario: ordenCompra.banco_beneficiario || "",
+      nro_cuenta_bco: ordenCompra.nro_cuenta_bco || "",
     });
   };
 
@@ -154,12 +184,19 @@ const FormEditarOrdenCompra = ({ userData, ordenCompra }) => {
           arrayPagos={arrayPagos}
           setArrayPagos={setArrayPagos}
         />
+        <CamposDetracciones
+          detraccion={detraccion}
+          setDetraccion={setDetraccion}
+          productos={productos}
+        />
 
+        {/* ✅ CORRECCIÓN 3: Se agregó la tabla de productos que habías olvidado renderizar */}
         <TablaEditarProducto
           productos={productos}
           setProductos={setProductos}
-          tipo_productos={dataSelects.tipo_productos}
+          tipo_productos={watch("tipo_productos") || dataSelects.tipo_productos}
         />
+
         <div className="w-full flex gap-4 items-center justify-end">
           <Link to="/compras/ordenes-compra">
             <Button type="button" color="danger">
