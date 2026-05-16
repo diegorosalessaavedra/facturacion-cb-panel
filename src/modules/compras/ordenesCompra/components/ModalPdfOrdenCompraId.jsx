@@ -32,7 +32,16 @@ const ModalPdfOrdenCompraId = ({ onOpenChange, isOpen, id }) => {
 
   const opGravadas = Number(ordenCompra?.saldoInicial) / 1.18;
 
-  const totalEnLetras = numeroALetras(ordenCompra?.saldoInicial, {
+  // Extraemos el monto de detracción si existe, de lo contrario es 0
+  const montoDetraccion = ordenCompra?.detraccion?.monto_detraccion
+    ? Number(ordenCompra.detraccion.monto_detraccion)
+    : 0;
+
+  // Calculamos el total neto restando la detracción al saldo inicial (total de la compra)
+  const totalNeto = Number(ordenCompra?.saldoInicial || 0) - montoDetraccion;
+
+  // El texto en letras ahora se basará en el total con la detracción ya restada
+  const totalEnLetras = numeroALetras(totalNeto, {
     plural: "SOLES",
     singular: "SOLES",
     centPlural: "CENTIMOS",
@@ -89,9 +98,7 @@ const ModalPdfOrdenCompraId = ({ onOpenChange, isOpen, id }) => {
                       <li>Proveedor:</li>
                       <li>{ordenCompra?.proveedor?.tipoDocIdentidad}:</li>
                       <li>Dirección:</li>
-
                       <li>Comprador:</li>
-
                       <li>Referencia:</li>
                     </ul>
                     <ul className="flex flex-col text-[11px]">
@@ -149,7 +156,7 @@ const ModalPdfOrdenCompraId = ({ onOpenChange, isOpen, id }) => {
                       <tr className="text-[13px] font-semibold">
                         <td colSpan={2}></td>
                         <td className="text-end px-2" colSpan={2}>
-                          OP. GRAVADAS:S/
+                          OP. GRAVADAS: S/
                         </td>
                         <td className="px-2">{formatNumber(opGravadas)}</td>
                       </tr>
@@ -165,17 +172,79 @@ const ModalPdfOrdenCompraId = ({ onOpenChange, isOpen, id }) => {
                       <tr className="text-[13px] font-semibold">
                         <td colSpan={2}></td>
                         <td className="text-end px-2" colSpan={2}>
-                          TOTAL A PAGAR: S/
+                          TOTAL COMPRA: S/
                         </td>
                         <td className="px-2">
                           {formatNumber(ordenCompra?.saldoInicial)}
                         </td>
                       </tr>
+
+                      {/* Fila de detracción si existe */}
+                      {ordenCompra?.detraccion && (
+                        <tr className="text-[13px] font-semibold text-red-600">
+                          <td colSpan={2}></td>
+                          <td className="text-end px-2" colSpan={2}>
+                            DETRACCIÓN: S/
+                          </td>
+                          <td className="px-2">
+                            - {formatNumber(montoDetraccion)}
+                          </td>
+                        </tr>
+                      )}
+
+                      <tr className="text-[13px] font-bold">
+                        <td colSpan={2}></td>
+                        <td className="text-end px-2" colSpan={2}>
+                          TOTAL A PAGAR (NETO): S/
+                        </td>
+                        <td className="px-2">{formatNumber(totalNeto)}</td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
 
-                <p className="text-[10px]">SON: {totalEnLetras}</p>
+                <p className="text-[10px] uppercase">SON: {totalEnLetras}</p>
+
+                {/* Tabla de Detracción renderizada si existe detracción */}
+                {ordenCompra?.detraccion && (
+                  <div className="w-full flex flex-col gap-2">
+                    <h3>Detracción:</h3>
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-t-1 border-b-1 border-black text-[12px] h-[27px]">
+                          <th className="text-start pl-2">Código</th>
+                          <th className="text-start">N° Serie / Correlativo</th>
+                          <th className="text-start">Porcentaje</th>
+                          <th className="text-start">Monto</th>
+                          <th className="text-start">Fecha</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="text-[11px]">
+                          <td className="px-2 py-[3px]">
+                            {ordenCompra.detraccion.codigo_detraccion}
+                          </td>
+                          <td>{ordenCompra.detraccion.serie_correlativo}</td>
+                          <td>
+                            {ordenCompra.detraccion.porcentaje_detraccion}%
+                          </td>
+                          <td>
+                            S/{" "}
+                            {formatNumber(
+                              ordenCompra.detraccion.monto_detraccion,
+                            )}
+                          </td>
+                          <td>
+                            {formatDate(
+                              ordenCompra.detraccion.fecha_detraccion,
+                            )}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
                 <div className="w-full flex flex-col gap-2">
                   <h3>Pagos:</h3>
                   <table className="w-full">
@@ -204,7 +273,11 @@ const ModalPdfOrdenCompraId = ({ onOpenChange, isOpen, id }) => {
                   </table>
                 </div>
                 <h4 className="text-[14px]">
-                  <b>SALDO:</b> S/ {formatNumber(ordenCompra?.saldo)}
+                  {/* Se ajusta el SALDO para que se muestre en base al Total Neto si aplica, o mantenemos el saldo enviado por base de datos si ya consideró la detracción */}
+                  <b>SALDO:</b> S/{" "}
+                  {formatNumber(
+                    Number(ordenCompra?.saldo || 0) - montoDetraccion,
+                  )}{" "}
                 </h4>
               </div>
             </ModalBody>

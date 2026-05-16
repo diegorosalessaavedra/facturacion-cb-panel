@@ -131,7 +131,11 @@ const TablaOrdenCompras = ({
                   S/. {formatNumber(ordenCompra.saldoInicial)}
                 </TableCell>
                 <TableCell className="min-w-[110px] font-semibold text-blue-600">
-                  S/. {formatNumber(ordenCompra.saldo)}
+                  S/.{" "}
+                  {formatNumber(
+                    ordenCompra.saldo -
+                      ordenCompra?.detraccion?.monto_detraccion || 0,
+                  )}
                 </TableCell>
 
                 {/* Estado de Pago */}
