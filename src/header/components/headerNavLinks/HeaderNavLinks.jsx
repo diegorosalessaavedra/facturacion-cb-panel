@@ -189,11 +189,20 @@ const HeaderNavLinks = ({
       icon: FaHandshake,
       id: "clientes",
       show: userPermissions.canAccessClientes,
-      submenu: [
-        { to: "/clientes/tus-clientes", label: "Clientes" },
-        { to: "/clientes/tus-proveedores", label: "Proveedores" },
-        { to: "/clientes/agencias", label: "Agencias" },
-      ],
+      submenu:
+        userData?.role !== "COMPRADOR/VENDEDOR"
+          ? [
+              {
+                to: "/clientes/tus-clientes",
+                label: "Clientes",
+              },
+              { to: "/clientes/tus-proveedores", label: "Proveedores" },
+              { to: "/clientes/agencias", label: "Agencias" },
+            ]
+          : [
+              { to: "/clientes/tus-proveedores", label: "Proveedores" },
+              { to: "/clientes/agencias", label: "Agencias" },
+            ],
     },
     {
       title: "RRHH",
