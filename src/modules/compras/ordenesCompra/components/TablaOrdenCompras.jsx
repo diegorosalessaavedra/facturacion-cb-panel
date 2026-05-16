@@ -134,7 +134,7 @@ const TablaOrdenCompras = ({
                   S/.{" "}
                   {formatNumber(
                     ordenCompra.saldo -
-                      ordenCompra?.detraccion?.monto_detraccion || 0,
+                      Number(ordenCompra?.detraccion?.monto_detraccion || 0),
                   )}
                 </TableCell>
 

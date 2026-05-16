@@ -7,10 +7,11 @@ import {
   ModalHeader,
   Input,
   Checkbox,
+  Divider,
 } from "@nextui-org/react";
 import axios from "axios";
 import { toast } from "sonner";
-import { useState, useEffect } from "react"; // 1. Usamos useEffect para sincronizar datos
+import { useState, useEffect } from "react";
 import config from "../../../../utils/getToken";
 import { inputClassNames } from "../../../../assets/classNames";
 import { onInputPrice } from "../../../../assets/onInputs";
@@ -22,21 +23,18 @@ const ModalCambiarValidacion = ({
   handleFindOrdenCompras,
   selectOrdenCompra,
 }) => {
-  // 2. Estados inicializados con lógica de cortocircuito
   const [montoTxt, setMontoTxt] = useState(0);
   const [validacionFlag, setValidacionFlag] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // 3. Estado de carga para el botón
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 4. Sincronizar el modal con la orden seleccionada cada vez que abra
   useEffect(() => {
     if (isOpen && selectOrdenCompra) {
       setMontoTxt(selectOrdenCompra.monto_txt || 0);
-      setValidacionFlag(!!selectOrdenCompra.validacion_flag); // Convierte a booleano real
+      setValidacionFlag(!!selectOrdenCompra.validacion_flag);
     }
   }, [isOpen, selectOrdenCompra]);
 
   const updateValidacion = async () => {
-    // 5. Validación simple antes de enviar
     if (!selectOrdenCompra?.id) return;
 
     setIsLoading(true);
@@ -48,7 +46,7 @@ const ModalCambiarValidacion = ({
         {
           validacion: !selectOrdenCompra.validacion,
           monto_txt: montoTxt,
-          validacion_flag: validacionFlag, // 6. Normalización de datos para el backend
+          validacion_flag: validacionFlag,
         },
         config,
       );
@@ -64,97 +62,171 @@ const ModalCambiarValidacion = ({
     }
   };
 
+  // Cálculos seguros para evitar crasheos si el objeto viene vacío o sin detracción
+  const saldoNeto =
+    Number(selectOrdenCompra?.saldo || 0) -
+    Number(selectOrdenCompra?.detraccion?.monto_detraccion || 0);
+
+  const saldoAcumulado = Number(
+    selectOrdenCompra?.proveedor?.saldo_acumulado || 0,
+  );
+
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       backdrop="blur"
       placement="center"
+      size="md"
     >
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex items-center justify-between gap-1 text-primary">
-              <p>Validación SOLPED</p>
-              <span className="text-xs text-slate-900 pr-4">
-                S/. {formatNumber(selectOrdenCompra.saldo || 0)}
-              </span>
-            </ModalHeader>
-            <ModalBody>
-              <p className="text-default-600">
+            <ModalHeader className="flex flex-col gap-1 pb-2">
+              <h2 className="text-xl font-bold text-slate-800">
+                Validación SOLPED
+              </h2>
+              <p className="text-xs font-normal text-slate-500">
                 {selectOrdenCompra?.validacion
-                  ? "¿Está seguro de que quiere desactivar la validación?"
-                  : "¿Está seguro de confirmar la validación?"}
+                  ? "Revertir validación de orden de compra"
+                  : "Configurar montos y parámetros para TXT"}
               </p>
+            </ModalHeader>
 
-              {/* Sección de información si ya está validado */}
+            <ModalBody className="pt-0">
+              {/* Tarjetas de Resumen Financiero */}
+              <div className="flex gap-3 w-full my-3">
+                <div className="flex-1 bg-primary-50 border border-primary-100 rounded-xl p-3 flex flex-col items-start justify-center">
+                  <span className="text-[10px] text-primary-600 font-semibold uppercase tracking-wider">
+                    Saldo a Pagar
+                  </span>
+                  <span className="text-lg font-bold text-primary-800">
+                    S/ {formatNumber(saldoNeto)}
+                  </span>
+                </div>
+                <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col items-start justify-center">
+                  <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
+                    Saldo Acumulado
+                  </span>
+                  <span className="text-lg font-bold text-slate-700">
+                    S/ {formatNumber(saldoAcumulado)}
+                  </span>
+                </div>
+              </div>
+
+              <Divider className="mb-2" />
+
+              {/* Lógica de Renderizado Condicional */}
               {selectOrdenCompra?.validacion ? (
-                <div className="p-3 bg-default-100 rounded-lg">
-                  <span className="font-semibold">Monto actual:</span> S/{" "}
-                  {selectOrdenCompra.monto_txt}
+                <div className="flex flex-col items-center justify-center p-4 bg-danger-50 text-danger-700 rounded-xl border border-danger-100 text-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-danger"
+                  >
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                    <line x1="12" x2="12" y1="9" y2="13" />
+                    <line x1="12" x2="12.01" y1="17" y2="17" />
+                  </svg>
+                  <div>
+                    <p className="font-semibold text-sm">
+                      ¿Seguro que desea desactivar esta validación?
+                    </p>
+                    <p className="text-xs mt-1">
+                      El monto validado actual es de{" "}
+                      <span className="font-bold">
+                        S/ {formatNumber(selectOrdenCompra.monto_txt)}
+                      </span>
+                    </p>
+                  </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-4 mt-2">
                   <Input
                     isRequired
                     classNames={inputClassNames}
                     labelPlacement="outside"
                     type="text"
                     variant="bordered"
-                    label="Monto TXT"
+                    label="Monto para TXT"
                     color="primary"
                     placeholder="0.00"
-                    description="Monto exacto que figurará en el TXT"
+                    description="Monto exacto que figurará en el archivo de texto."
                     value={montoTxt}
                     onChange={(e) => setMontoTxt(e.target.value)}
                     onInput={onInputPrice}
-                    size="sm"
+                    size="md"
+                    startContent={
+                      <div className="pointer-events-none flex items-center">
+                        <span className="text-default-400 text-small font-medium">
+                          S/
+                        </span>
+                      </div>
+                    }
                   />
 
-                  <div className="flex flex-col gap-2">
-                    <label className="text-tiny text-foreground-500 ml-1">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-foreground-700">
                       Opciones adicionales
                     </label>
                     <div
-                      className={`flex items-center p-3 border-2 rounded-medium transition-all ${
+                      className={`flex flex-col p-3 border-2 rounded-xl transition-colors cursor-pointer ${
                         validacionFlag
-                          ? "border-success bg-success-50"
-                          : "border-default-200"
+                          ? "border-primary bg-primary-50/50"
+                          : "border-default-200 bg-transparent hover:bg-default-50"
                       }`}
+                      onClick={() => setValidacionFlag(!validacionFlag)}
                     >
                       <Checkbox
                         isSelected={validacionFlag}
                         onValueChange={setValidacionFlag}
-                        color="success"
+                        color="primary"
+                        classNames={{
+                          label: "w-full",
+                        }}
                       >
-                        <span className="text-small font-medium">
-                          Activar Validación Flag
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-foreground">
+                            Activar Validación Flag
+                          </span>
+                          <span className="text-xs text-default-400">
+                            Considerar únicamente entre cuentas BCP.
+                          </span>
+                        </div>
                       </Checkbox>
                     </div>
-                    <span className="text-slate-500 text-[11px] px-4">
-                      Solo considerar entre cuentas BCP
-                    </span>
                   </div>
                 </div>
               )}
             </ModalBody>
-            <ModalFooter>
+
+            <ModalFooter className="border-t border-slate-100 mt-2">
               <Button
-                color="danger"
+                color="default"
                 variant="light"
                 onPress={onClose}
                 isDisabled={isLoading}
+                className="font-medium"
               >
                 Cancelar
               </Button>
               <Button
-                color="primary"
+                color={selectOrdenCompra?.validacion ? "danger" : "primary"}
                 onPress={updateValidacion}
-                isLoading={isLoading} // Feedback visual de carga
+                isLoading={isLoading}
                 shadow
+                className="font-medium"
               >
-                Confirmar
+                {selectOrdenCompra?.validacion
+                  ? "Desactivar"
+                  : "Confirmar Validación"}
               </Button>
             </ModalFooter>
           </>
