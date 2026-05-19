@@ -184,7 +184,6 @@ const FormularioRendicion = ({
             </Select>
           </motion.div>
 
-          {/* ÁREA */}
           <motion.div variants={itemVariants} className="w-full">
             <Input
               type="text"
