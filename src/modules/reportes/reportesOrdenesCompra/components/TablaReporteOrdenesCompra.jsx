@@ -39,49 +39,52 @@ const TablaReporteOrdenesCompra = ({
             isHeaderSticky
           >
             <TableHeader>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 #
               </TableColumn>
 
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Fecha <br />
                 Emisión
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Fecha <br />
                 Vencimiento
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Proveedor
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Forma de Pago
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Moneda
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Descripción
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Precio Unitario
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Total
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
-                Saldo
+              <TableColumn className="text-xs text-white bg-slate-900">
+                Saldo Dsct o Detrac
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Estado de <br /> pago
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Banco
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
+                Saldo <br /> Acumulado
+              </TableColumn>
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Nro cuenta
               </TableColumn>
-              <TableColumn className="text-xs text-white bg-blue-700">
+              <TableColumn className="text-xs text-white bg-slate-900">
                 Validación
               </TableColumn>
             </TableHeader>
@@ -132,13 +135,21 @@ const TablaReporteOrdenesCompra = ({
                     S/. {formatNumber(ordenCompra.saldoInicial)}
                   </TableCell>
                   <TableCell className="min-w-[110px]  text-xs  ">
-                    S/. {formatNumber(ordenCompra.saldo)}
+                    S/.{" "}
+                    {formatNumber(
+                      ordenCompra.saldo -
+                        Number(ordenCompra?.detraccion?.monto_detraccion || 0),
+                    )}
                   </TableCell>
                   <TableCell className="  text-xs  ">
                     {ordenCompra.estadoPago}
                   </TableCell>
                   <TableCell className="  text-xs  ">
                     {ordenCompra.banco_beneficiario || "-"}
+                  </TableCell>
+                  <TableCell className="min-w-[120px]  text-xs  ">
+                    S/{" "}
+                    {formatNumber(ordenCompra.proveedor?.saldo_acumulado || 0)}
                   </TableCell>
                   <TableCell className="  text-xs  ">
                     {ordenCompra.nro_cuenta_bco || "-"}

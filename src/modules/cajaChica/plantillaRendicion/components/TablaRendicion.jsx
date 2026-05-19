@@ -1,7 +1,9 @@
 import React from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Search, Trash2 } from "lucide-react";
 import { Button } from "@nextui-org/react";
 import { numberPeru, onInputPrice } from "../../../../assets/onInputs";
+import { API } from "../../../../utils/api";
+import axios from "axios"; // Asegúrate de tener axios importado
 
 const TIPOS_COMPROBANTE = [
   { value: "SIN SUSTENTO", label: "SIN SUSTENTO" },
@@ -48,8 +50,35 @@ const TablaRendicion = ({
     newRows[index][field] = value;
     setRows(newRows);
 
-    const findSelect = categorias.find((c) => c.categoria === value);
-    setSelectCategoria(findSelect);
+    if (field === "categoria") {
+      const findSelect = categorias.find((c) => c.categoria === value);
+      setSelectCategoria(findSelect);
+    }
+  };
+
+  // Función adaptada para recibir el index de la fila y el valor del RUC
+  const findRuc = async (index, rucValue) => {
+    if (!rucValue || rucValue.length !== 11) {
+      alert("El RUC debe tener exactamente 11 dígitos");
+      return;
+    }
+
+    try {
+      const url = `${API}/apiPeru/ruc?ruc=${rucValue}`;
+      const res = await axios.get(url);
+
+      const nombreRazonSocial = res.data?.data?.nombre_o_razon_social;
+
+      if (nombreRazonSocial) {
+        // Actualizamos la razón social en la fila correspondiente
+        handleChange(index, "razon_social", nombreRazonSocial);
+      } else {
+        alert("RUC no encontrado o no válido");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error al conectar con la API de RUC");
+    }
   };
 
   const stickyHeader = "sticky top-0 z-20";
@@ -75,15 +104,14 @@ const TablaRendicion = ({
   const porDevolver = montoRendicion - totalGastos;
 
   return (
-    <div className="relative w-full h-full   flex flex-col gap-2">
-      <div className="flex-1 w-full  overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
+    <div className="relative w-full h-full flex flex-col gap-2">
+      <div className="flex-1 w-full overflow-auto shadow-md rounded-lg bg-white relative border border-slate-300">
         <div
           className="grid"
           style={{
             minWidth: "1600px",
-
             gridTemplateColumns:
-              "40px 90px 1fr 100px 90px 110px 100px 140px 1fr 90px 150px 40px",
+              "40px 90px 1fr 120px 90px 110px 100px 140px 1fr 90px 150px 40px",
             gridAutoRows: "max-content",
           }}
         >
@@ -131,7 +159,7 @@ const TablaRendicion = ({
 
           {rows.map((item, index) => (
             <React.Fragment key={index}>
-              <div className={`${cellBase}font-bold text-slate-500`}>
+              <div className={`${cellBase} font-bold text-slate-500`}>
                 {index + 1}
               </div>
 
@@ -166,11 +194,12 @@ const TablaRendicion = ({
                 />
               </div>
 
-              <div className={cellInput}>
+              {/* CONTENEDOR MODIFICADO PARA EL RUC */}
+              <div className={`${cellInput} flex items-center pr-1`}>
                 <input
                   required
                   type="text"
-                  maxLength={13}
+                  maxLength={11} // RUC tiene 11 caracteres en Perú
                   className={inputClass}
                   placeholder="RUC"
                   value={item.ruc}
@@ -178,7 +207,22 @@ const TablaRendicion = ({
                     const val = e.target.value.replace(/\D/g, "");
                     handleChange(index, "ruc", val);
                   }}
+                  onKeyDown={(e) => {
+                    // Permite buscar al presionar "Enter" dentro del input
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      findRuc(index, item.ruc);
+                    }
+                  }}
                 />
+                <button
+                  type="button"
+                  onClick={() => findRuc(index, item.ruc)}
+                  className="text-slate-400 hover:text-blue-600 transition-colors bg-slate-100 hover:bg-blue-50 p-1 rounded"
+                  title="Buscar Razón Social"
+                >
+                  <Search size={14} />
+                </button>
               </div>
 
               <div className={cellInput}>
@@ -242,7 +286,7 @@ const TablaRendicion = ({
                     Seleccionar Categoria
                   </option>
 
-                  {categorias.map((opt) => (
+                  {categorias?.map((opt) => (
                     <option key={opt.categoria} value={opt.categoria}>
                       {opt.categoria}
                     </option>
@@ -256,7 +300,7 @@ const TablaRendicion = ({
                   type="text"
                   className={`${inputClass} text-left pl-2`}
                   placeholder="Descripción del gasto"
-                  categoria={item.detalle}
+                  value={item.detalle} // Corregido: antes decía categoria={item.detalle}
                   onChange={(e) =>
                     handleChange(index, "detalle", e.target.value)
                   }
@@ -292,8 +336,9 @@ const TablaRendicion = ({
 
               <div className={`${cellBase} bg-white`}>
                 <button
+                  type="button"
                   onClick={() => handleRemoveRow(index)}
-                  className="text-red-400 hover:text-red-500 transition-colors p-1"
+                  className="text-red-400 hover:text-red-500 transition-colors p-1 bg-red-50 hover:bg-red-100 rounded"
                 >
                   <Trash2 size={14} />
                 </button>

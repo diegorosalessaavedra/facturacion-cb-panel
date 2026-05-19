@@ -175,7 +175,13 @@ export const generarExcelRendiciones = (
         { v: isFirst ? item.area_rendicion || "-" : "", s: cellStyle },
         { v: isFirst ? item.concepto_rendicion || "-" : "", s: cellStyle },
         {
-          v: isFirst ? item.desembolso?.rutas_desembolso || "-" : "",
+          v: isFirst
+            ? item.desembolso?.rutas_desembolso ||
+              item.desembolsos_multiples
+                .map((d) => d.rutas_desembolso)
+                .join(", ") ||
+              "-"
+            : "",
           s: cellStyle,
         },
         {

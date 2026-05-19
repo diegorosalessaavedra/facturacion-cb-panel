@@ -46,7 +46,7 @@ const ExcelReporteOrdenCompra = {
       .flat();
 
     const endColumns = [
-      { header: "Saldo", key: "saldo", width: 15 },
+      { header: "Saldo Dsct o Detrac", key: "saldo", width: 15 },
       { header: "Estado del Pago", key: "estadoPago", width: 15 },
       { header: "Observaciones", key: "observacion", width: 15 },
     ];
@@ -94,10 +94,10 @@ const ExcelReporteOrdenCompra = {
           orden.comprobante?.tipoComprobante === "NOTA DE VENTA"
             ? "NV"
             : orden.comprobante?.tipoComprobante === "FACTURA ELECTRÓNICA"
-            ? "FT"
-            : orden.comprobante?.tipoComprobante === "BOLETA DE VENTA"
-            ? "BV"
-            : "",
+              ? "FT"
+              : orden.comprobante?.tipoComprobante === "BOLETA DE VENTA"
+                ? "BV"
+                : "",
         serie: parte1 || "",
         numero: parte2 || "",
         observacion: orden.observacion || "",
@@ -125,7 +125,10 @@ const ExcelReporteOrdenCompra = {
             producto_total: total,
             ...pagos,
             // CORREGIDO: Mantener saldo como número
-            saldo: parseFloat(orden.saldo) || 0,
+            saldo:
+              parseFloat(
+                orden.saldo - Number(orden?.detraccion?.monto_detraccion || 0),
+              ) || 0,
             estadoPago: orden.estadoPago || "",
             _rowCount: rowCount,
             _productsInGroup: (orden.productos || []).filter((p) => p?.producto)
@@ -276,7 +279,7 @@ const ExcelReporteOrdenCompra = {
           productos: Math.max(max.productos, orden.productos?.length || 0),
           pagos: Math.max(max.pagos, orden.pagos?.length || 0),
         }),
-        { productos: 0, pagos: 0 }
+        { productos: 0, pagos: 0 },
       );
 
       const ordenConMasPagos = { pagos: { length: maxLengths.pagos } };
@@ -291,12 +294,12 @@ const ExcelReporteOrdenCompra = {
         columns,
         maxLengths.pagos,
         fechaInicio,
-        fechaFinal
+        fechaFinal,
       );
 
       const data = this.transformData(ordenesCompra, formatDate);
       const matrixData = data.map((item) =>
-        columns.map((col) => item[col.key] ?? "")
+        columns.map((col) => item[col.key] ?? ""),
       );
 
       const headers = columns.map((col) => col.header);
