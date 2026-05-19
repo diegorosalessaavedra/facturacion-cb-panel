@@ -203,6 +203,7 @@ const FormularioRendicion = ({
           {/* CONCEPTOS */}
           <motion.div variants={itemVariants} className="w-full">
             <Select
+              isRequired
               label="Concepto Para Flujo de Caja"
               labelPlacement="outside"
               variant="bordered"
