@@ -13,9 +13,11 @@ import {
   TableCell,
   Chip,
   useDisclosure,
+  Tooltip,
 } from "@nextui-org/react";
-import ModalElminarContrato from "./ModalElminarContrato";
 import { useState } from "react";
+import ModalSolicitarEliminarContrato from "./ModalElminarContrato";
+import { FileText, Trash2, Clock, Briefcase, AlertCircle } from "lucide-react";
 
 const ModalVerContratos = ({
   isOpen,
@@ -31,6 +33,7 @@ const ModalVerContratos = ({
   const [selectContrato, setSelectContrato] = useState();
 
   const parseFecha = (fecha) => {
+    if (!fecha) return null;
     const [dia, mes, anio] = fecha.split("/");
     return new Date(`${anio}-${mes}-${dia}`); // formato aceptado por Date
   };
@@ -54,129 +57,197 @@ const ModalVerContratos = ({
         onOpenChange={onOpenChange}
         backdrop="blur"
         size="4xl"
+        classNames={{
+          base: "bg-white",
+          header: "border-b border-slate-200",
+          footer: "border-t border-slate-200",
+        }}
       >
         <ModalContent>
-          <ModalHeader className="flex flex-col gap-1 text-base">
-            Contratos del colaborador {selectColaborador.nombre_colaborador}
+          <ModalHeader className="flex items-center gap-3">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+              <Briefcase size={20} />
+            </div>
+            <div className="flex flex-col">
+              <h2 className="text-lg font-bold text-slate-800">
+                Historial de Contratos
+              </h2>
+              <span className="text-sm font-normal text-slate-500">
+                Colaborador:{" "}
+                <span className="font-semibold text-slate-700">
+                  {selectColaborador.nombre_colaborador}{" "}
+                  {selectColaborador.apellidos_colaborador}
+                </span>
+              </span>
+            </div>
           </ModalHeader>
-          <ModalBody>
+
+          <ModalBody className="py-6 bg-slate-50/50">
             <Table
-              aria-label="Tabla de itinerarios"
-              color="default"
+              aria-label="Tabla de contratos del colaborador"
               isStriped
+              removeWrapper
               classNames={{
-                base: "min-w-full  max-h-[75vh]  p-4 ",
-                wrapper: "p-0",
+                base: "min-w-full max-h-[65vh] overflow-y-auto overflow-x-hidden border border-slate-200 rounded-xl bg-white shadow-sm",
+                th: "bg-slate-900 text-slate-50 font-semibold text-[11px] uppercase tracking-wider py-3",
+                td: "py-3 text-sm text-slate-700",
               }}
-              radius="sm"
-              isCompact={true}
-              isHeaderSticky
             >
               <TableHeader>
-                <TableColumn className=" text-xs text-white  bg-blue-700">
-                  #
-                </TableColumn>
-
-                <TableColumn className=" text-xs text-white  bg-blue-700">
-                  TIPO DE CONTRATO
-                </TableColumn>
-                <TableColumn className=" text-xs text-white  bg-blue-700">
-                  FECHA DE INICIO
-                </TableColumn>
-                <TableColumn className=" text-xs text-white  bg-blue-700">
-                  FECHA FINAL
-                </TableColumn>
-                <TableColumn className=" text-xs text-white  bg-blue-700">
-                  DIAS POR <br />
-                  VENCER
-                </TableColumn>
-                <TableColumn className=" text-xs text-white  bg-blue-700">
-                  ARCHIVO ADJUNTO
-                </TableColumn>
-                <TableColumn className=" text-xs text-white  bg-blue-700">
-                  ELIMINAR CONTRATO
-                </TableColumn>
+                <TableColumn width={40}>#</TableColumn>
+                <TableColumn>TIPO DE CONTRATO</TableColumn>
+                <TableColumn>INICIO</TableColumn>
+                <TableColumn>FINAL</TableColumn>
+                <TableColumn>ESTADO / VENCIMIENTO</TableColumn>
+                <TableColumn align="center">DOCUMENTO</TableColumn>
+                <TableColumn align="center">ACCIONES</TableColumn>
               </TableHeader>
-              <TableBody>
-                {selectColaborador.contratos?.map((contrato, index) => (
-                  <TableRow key={contrato.id}>
-                    <TableCell className="text-xs py-2">{index + 1}</TableCell>
-                    <TableCell className="text-xs py-2">
-                      {contrato.tipo_contrato}
-                    </TableCell>
-                    <TableCell className="text-xs py-2">
-                      {contrato.fecha_inicio}
-                    </TableCell>
-                    <TableCell className="text-xs py-2">
-                      {contrato.fecha_final}
-                    </TableCell>
-                    <TableCell
-                      className={`"text-xs py-2" ${
-                        contrato.estado_contrato === "expirado"
-                          ? "text-red-500"
-                          : ""
-                      }`}
+
+              <TableBody
+                emptyContent={
+                  <div className="text-slate-500 py-4">
+                    No hay contratos registrados para este colaborador.
+                  </div>
+                }
+              >
+                {selectColaborador.contratos?.map((contrato, index) => {
+                  const diasRestantes = calcularDiasRestantes(
+                    contrato.fecha_inicio,
+                    contrato.fecha_final,
+                  );
+                  const isExpirado =
+                    contrato.estado_contrato === "expirado" ||
+                    diasRestantes < 0;
+                  // Usamos trim() para evitar bugs por espacios ocultos como en el código original
+                  const isPendiente =
+                    contrato.estado_contrato?.trim() ===
+                    "pendiente_eliminacion";
+
+                  return (
+                    <TableRow
+                      key={contrato.id}
+                      className="hover:bg-slate-50 transition-colors"
                     >
-                      {contrato.estado_contrato === "expirado"
-                        ? contrato.estado_contrato
-                        : `${calcularDiasRestantes(
-                            contrato.fecha_inicio,
-                            contrato.fecha_final
-                          )}  días restantes`}
-                    </TableCell>
-                    <TableCell className="text-xs py-2">
-                      <a
-                        href={`${import.meta.env.VITE_LARAVEL_URL}/contratos/${
-                          contrato.documento_contrato
-                        }`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Chip color="danger" size="sm">
-                          Ver Archivo{" "}
-                        </Chip>
-                      </a>
-                    </TableCell>
-                    <TableCell className="text-xs py-2">
-                      <Button
-                        onPress={() => {
-                          setSelectContrato(contrato);
-                          onOpenCon();
-                        }}
-                        size="sm"
-                        color="danger"
-                      >
-                        Eliminar
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      <TableCell className="font-medium text-slate-400">
+                        {index + 1}
+                      </TableCell>
+                      <TableCell className="font-medium text-slate-800">
+                        {contrato.tipo_contrato}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5 text-slate-600">
+                          {contrato.fecha_inicio}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5 text-slate-600">
+                          {contrato.fecha_final}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {isExpirado ? (
+                          <Chip
+                            size="sm"
+                            color="danger"
+                            variant="flat"
+                            startContent={<AlertCircle size={14} />}
+                            className="font-medium"
+                          >
+                            Expirado
+                          </Chip>
+                        ) : (
+                          <Chip
+                            size="sm"
+                            color={diasRestantes <= 15 ? "warning" : "success"}
+                            variant="flat"
+                            startContent={<Clock size={14} />}
+                            className="font-medium"
+                          >
+                            {diasRestantes} días restantes
+                          </Chip>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <a
+                          href={`${import.meta.env.VITE_LARAVEL_URL}/contratos/${contrato.documento_contrato}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex justify-center"
+                        >
+                          <Tooltip content="Ver documento PDF">
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              variant="light"
+                              color="primary"
+                              className="text-blue-600 hover:bg-blue-50"
+                            >
+                              <FileText size={18} />
+                            </Button>
+                          </Tooltip>
+                        </a>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center">
+                          {!isPendiente ? (
+                            <Tooltip
+                              content="Solicitar eliminación"
+                              color="danger"
+                            >
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                variant="light"
+                                color="danger"
+                                onPress={() => {
+                                  setSelectContrato(contrato);
+                                  onOpenCon();
+                                }}
+                                className="hover:bg-red-50"
+                              >
+                                <Trash2 size={18} />
+                              </Button>
+                            </Tooltip>
+                          ) : (
+                            <Chip
+                              size="sm"
+                              color="warning"
+                              variant="dot"
+                              className="border-warning-200 text-warning-700 bg-warning-50"
+                            >
+                              Pendiente revisión
+                            </Chip>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </ModalBody>
           <ModalFooter>
             <Button
-              color="primary"
-              type="button"
-              onPress={() => {
-                onOpenChange();
-                reset();
-              }}
+              variant="light"
+              className="text-slate-600 font-medium hover:bg-slate-100"
+              onPress={() => onOpenChange(false)}
             >
               Cerrar
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-      {
-        <ModalElminarContrato
+
+      {/* Modal para solicitar eliminación */}
+      {isOpenCon && (
+        <ModalSolicitarEliminarContrato
           isOpen={isOpenCon}
           onOpenChange={onOpenChangeCon}
           handleFindColaboradores={handleFindColaboradores}
           selectContrato={selectContrato}
           selectColaborador={selectColaborador}
         />
-      }
+      )}
     </>
   );
 };

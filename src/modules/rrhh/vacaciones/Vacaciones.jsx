@@ -3,9 +3,12 @@ import { useEffect, useState } from "react";
 import { FaWpforms } from "react-icons/fa";
 import axios from "axios";
 import config from "../../../utils/getToken";
-import TablaVacaciones from "./components/TablaDescanzoMedicos";
+import TablaVacaciones from "./components/TablaVacaciones";
 // import ModalAgregarVaciones from "./components/ModalAgregarVaciones";
 import ModalVerPeriodo from "./components/modalVerPeriodo/ModalVerPeriodo";
+import ModalAgregarVaciones from "./components/ModalAgregarVaciones";
+import ModalVerVacaciones from "./components/ModalVerVacaciones";
+import ModalHistorialVacaciones from "./components/ModalHistorialVacaciones";
 
 const Vacaciones = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -14,6 +17,7 @@ const Vacaciones = () => {
   const [colaboradores, setColaboradores] = useState([]);
   const [selectColaborador, setSelectColaborador] = useState();
   const [selectPeriodo, setSelectPeriodo] = useState();
+  const [selectVacacion, setSelectVacacion] = useState();
 
   const handleFindColaboradores = () => {
     setLoading(true);
@@ -47,16 +51,10 @@ const Vacaciones = () => {
           setSelectModal={setSelectModal}
           setSelectColaborador={setSelectColaborador}
           setSelectPeriodo={setSelectPeriodo}
+          setSelectVacacion={setSelectVacacion}
         />
       </div>
-      {/* {selectModal === "nuevo" && (
-        <ModalAgregarVaciones
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-          handleFindColaboradores={handleFindColaboradores}
-          selectColaborador={selectColaborador}
-        />
-      )} */}
+
       {selectModal === "verPeriodo" && (
         <ModalVerPeriodo
           key={selectPeriodo?.id}
@@ -64,6 +62,34 @@ const Vacaciones = () => {
           onOpenChange={onOpenChange}
           selectPeriodo={selectPeriodo}
           selectColaborador={selectColaborador}
+        />
+      )}
+      {selectModal === "nuevo" && selectColaborador && (
+        <ModalAgregarVaciones
+          key={selectColaborador?.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          handleFindColaboradores={handleFindColaboradores}
+          selectColaborador={selectColaborador}
+        />
+      )}
+      {selectModal === "verVacaciones" && selectVacacion && (
+        <ModalVerVacaciones
+          key={selectVacacion.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectVacacion={selectVacacion}
+          selectColaborador={selectColaborador}
+          handleFindColaboradores={handleFindColaboradores}
+        />
+      )}
+      {selectModal === "historial" && selectColaborador && (
+        <ModalHistorialVacaciones
+          key={selectColaborador.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectColaborador={selectColaborador}
+          handleFindColaboradores={handleFindColaboradores}
         />
       )}
     </div>

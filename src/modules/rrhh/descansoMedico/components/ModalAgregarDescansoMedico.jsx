@@ -11,6 +11,8 @@ import {
 import axios from "axios";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+// IMPORTAMOS I18nProvider PARA EL IDIOMA
+import { I18nProvider } from "@react-aria/i18n";
 
 import config from "../../../../utils/getToken";
 import { inputClassNames } from "../../../../assets/classNames";
@@ -39,11 +41,11 @@ const ModalAgregarDescansoMedico = ({
 
     formData.append(
       "periodo_inicio",
-      `${date.start.day}/${date.start.month}/${date.start.year}`
+      `${date.start.day}/${date.start.month}/${date.start.year}`,
     );
     formData.append(
       "periodo_final",
-      `${date.end.day}/${date.end.month}/${date.end.year}`
+      `${date.end.day}/${date.end.month}/${date.end.year}`,
     );
     formData.append("titulo_descanso_medico", data.titulo_descanso_medico);
     if (data.archivo_descanso_medico && data.archivo_descanso_medico[0]) {
@@ -53,14 +55,15 @@ const ModalAgregarDescansoMedico = ({
     axios
       .post(url, formData, config)
       .then(() => {
-        handleFindDescansoMedicos(), reset();
+        handleFindDescansoMedicos();
+        reset();
         onOpenChange(false);
         toast.success(`El descanso medico se registro correctamente`);
       })
       .catch((err) => {
         toast.error(
           err?.response?.data?.error ||
-            "Hubo un error al registrar el descanso medico "
+            "Hubo un error al registrar el descanso medico ",
         );
       })
       .finally(() => {
@@ -77,49 +80,52 @@ const ModalAgregarDescansoMedico = ({
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 text-base">
-          Agregar Descanso Medico para {selectColaborador.nombre_colaborador}
+          Agregar Descanso Médico para {selectColaborador.nombre_colaborador}
         </ModalHeader>
         <ModalBody>
           {loading && <Loading />}
-          <div className="w-full flex flex-col ">
+          <div className="w-full flex flex-col">
             <form
               className="flex flex-col gap-3"
               onSubmit={handleSubmit(submit)}
             >
               <div className="m-auto">
-                <RangeCalendar
-                  aria-label="Date (Visible Month)"
-                  classNames={{
-                    prevButton: "text-neutral-50",
-                    nextButton: "text-neutral-50",
-                    title: "text-neutral-50",
-                    gridHeaderRow:
-                      " bg-neutral-900 text-neutral-50 border-t-1 pt-2",
-                    headerWrapper: "bg-neutral-900 text-neutral-50",
-                  }}
-                  visibleMonths={2}
-                  value={date}
-                  onChange={setDate}
-                  color="danger"
-                />
+                {/* ENVOLVEMOS EL CALENDARIO CON EL PROVIDER EN ESPAÑOL */}
+                <I18nProvider locale="es-ES">
+                  <RangeCalendar
+                    aria-label="Date (Visible Month)"
+                    classNames={{
+                      prevButton: "text-neutral-50",
+                      nextButton: "text-neutral-50",
+                      title: "text-neutral-50",
+                      gridHeaderRow:
+                        " bg-neutral-900 text-neutral-50 border-t-1 pt-2",
+                      headerWrapper: "bg-neutral-900 text-neutral-50",
+                    }}
+                    visibleMonths={2}
+                    value={date}
+                    onChange={setDate}
+                    color="danger"
+                  />
+                </I18nProvider>
               </div>
               <div className="w-full flex flex-col gap-2">
                 <Input
-                  isrequired
+                  isRequired // <-- Cambiado de isrequired a isRequired
                   className="w-full"
                   classNames={inputClassNames}
                   labelPlacement="outside"
                   type="text"
                   label="Diagnostico"
-                  variant="Titulo"
+                  variant="bordered" // <-- Agregado para que tenga estilo coherente (cambiado de "Titulo")
                   placeholder="..."
                   {...register("titulo_descanso_medico")}
-                  errorMessage="El archivo del descanso medico  es obligatorio."
+                  errorMessage="El título del diagnóstico es obligatorio."
                   radius="sm"
                   size="sm"
                 />
                 <Input
-                  isrequired
+                  isRequired // <-- Cambiado de isrequired a isRequired
                   className="w-full"
                   classNames={inputClassNames}
                   labelPlacement="outside"
@@ -128,7 +134,7 @@ const ModalAgregarDescansoMedico = ({
                   label="Adjuntar descanso medico"
                   placeholder="..."
                   {...register("archivo_descanso_medico")}
-                  errorMessage="El archivo del descanso medico  es obligatorio."
+                  errorMessage="El archivo del descanso medico es obligatorio."
                   radius="sm"
                   size="sm"
                 />
@@ -138,9 +144,9 @@ const ModalAgregarDescansoMedico = ({
                   color="danger"
                   type="button"
                   onPress={() => {
-                    onOpenChange();
+                    onOpenChange(false);
                     reset();
-                    setArchivosComplementarios([]); // Limpiar archivos complementarios al cancelar
+                    // setArchivosComplementarios([]); // <-- Lo comenté porque no está declarado en este componente
                   }}
                 >
                   Cancelar

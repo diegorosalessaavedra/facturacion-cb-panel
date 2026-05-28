@@ -214,23 +214,7 @@ const HeaderNavLinks = ({
         { to: "/rrhh/colaboradores-baja", label: "Colaboradores de baja" },
         { to: "/rrhh/cargo-laboral", label: "Cargo Laboral" },
         { to: "/rrhh/descanso-medicos", label: "Descanso Médicos" },
-        ...(userData?.role === "GERENTE"
-          ? [
-              {
-                to: "/rrhh/solicitudes-descansos-medicos",
-                label: "Solicitudes descansos médicos",
-              },
-            ]
-          : []),
         { to: "/rrhh/vacaciones", label: "Vacaciones" },
-        ...(userData?.role === "GERENTE"
-          ? [
-              {
-                to: "/rrhh/solicitudes-vacaciones",
-                label: "Solicitudes Vacaciones",
-              },
-            ]
-          : []),
       ],
     },
     {

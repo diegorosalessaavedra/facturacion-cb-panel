@@ -102,6 +102,10 @@ const Colaboradores = lazy(
   () => import("./modules/rrhh/colaboradores/Colaboradores"),
 );
 
+const AdministrarEliminacionContrato = lazy(
+  () => import("./modules/rrhh/colaboradores/AdministrarEliminacionContrato"),
+);
+
 const ColaboradoresDeBaja = lazy(
   () => import("./modules/rrhh/colaboradoresDeBaja/ColaboradoresDeBaja"),
 );
@@ -430,6 +434,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <Colaboradores />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/rrhh/colaboradores/administrar-contrato/:id"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <AdministrarEliminacionContrato />
               </ProtectedRouteWrapper>
             }
           />
