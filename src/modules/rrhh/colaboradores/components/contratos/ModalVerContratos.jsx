@@ -18,6 +18,7 @@ import {
 import { useState } from "react";
 import ModalSolicitarEliminarContrato from "./ModalElminarContrato";
 import { FileText, Trash2, Clock, Briefcase, AlertCircle } from "lucide-react";
+import formatDate from "../../../../../hooks/FormatDate";
 
 const ModalVerContratos = ({
   isOpen,
@@ -136,12 +137,12 @@ const ModalVerContratos = ({
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5 text-slate-600">
-                          {contrato.fecha_inicio}
+                          {formatDate(contrato.fecha_inicio)}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5 text-slate-600">
-                          {contrato.fecha_final}
+                          {formaDate(contrato.fecha_final)}
                         </div>
                       </TableCell>
                       <TableCell>
