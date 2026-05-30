@@ -241,8 +241,8 @@ const ModalAgregarVaciones = ({
                   radius="sm"
                   size="sm"
                 >
-                  <SelectItem key="SOLICITUD" value="SOLICITUD">
-                    SOLICITUD
+                  <SelectItem key="PROGRAMADAS" value="PROGRAMADAS">
+                    PROGRAMADAS
                   </SelectItem>
                   <SelectItem key="COMPRA" value="COMPRA">
                     COMPRA
