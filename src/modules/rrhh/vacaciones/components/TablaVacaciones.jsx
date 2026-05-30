@@ -99,7 +99,7 @@ const TablaVacaciones = ({
             <div className={`${headerDark2} ${stickyHeader2}`}>FECHA HOY</div>
             <div className={`${headerDark2} ${stickyHeader2}`}>DÍAS TRANS.</div>
             <div className={`${headerDark2} ${stickyHeader2}`}>REQUISITO</div>
-            <div className={`${headerDark2} ${stickyHeader2}`}>NETO</div>
+            <div className={`${headerDark2} ${stickyHeader2}`}>ACUMULADO</div>
 
             {/* Años */}
             {uniqueYears.map((year) => (
