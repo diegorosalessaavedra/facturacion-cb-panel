@@ -82,7 +82,7 @@ const TablaVacaciones = ({
               className={`${headerBlue1} ${stickyHeader1}`}
               style={{ gridColumn: `span ${uniqueYears.length}` }}
             >
-              VACACIONES SOLICITADAS
+              VACACIONES EFECTIVAS POR AÑO
             </div>
             {/* CORRECCIÓN 3: Se ajusta el col-span final (2 para vacaciones, 1 para gestión) */}
             <div className={`${headerBlue1} ${stickyHeader1} col-span-2`}>
