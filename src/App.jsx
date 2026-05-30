@@ -122,8 +122,8 @@ const SolicitudesDescansoMedico = lazy(
 );
 
 const Vacaciones = lazy(() => import("./modules/rrhh/vacaciones/Vacaciones"));
-const SolicitudesVacaciones = lazy(
-  () => import("./modules/rrhh/solicitudesVacaciones/SolicitudesVacaciones"),
+const AdministrarSolicitudVacaciones = lazy(
+  () => import("./modules/rrhh/vacaciones/AdministrarSolicitudVacaciones"),
 );
 
 // Ajustes
@@ -486,11 +486,12 @@ function App() {
               </ProtectedRouteWrapper>
             }
           />
+
           <Route
-            path="/rrhh/solicitudes-vacaciones"
+            path="/rrhh/colaboradores/solicitudes-vacaciones/:id"
             element={
               <ProtectedRouteWrapper userRole={userRole}>
-                <SolicitudesVacaciones />
+                <AdministrarSolicitudVacaciones />
               </ProtectedRouteWrapper>
             }
           />

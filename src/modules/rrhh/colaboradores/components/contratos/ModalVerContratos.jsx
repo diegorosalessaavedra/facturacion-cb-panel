@@ -142,7 +142,7 @@ const ModalVerContratos = ({
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5 text-slate-600">
-                          {formaDate(contrato.fecha_final)}
+                          {formatDate(contrato.fecha_final)}
                         </div>
                       </TableCell>
                       <TableCell>

@@ -70,6 +70,97 @@ const buildHeaderRels = () =>
   <Relationship Id="rId10" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo_header.png"/>
 </Relationships>`;
 
+// =========================================================================
+// NUEVA LÓGICA: CÁLCULO CRONOLÓGICO DE SALDOS DE VACACIONES
+// =========================================================================
+const calcularSaldosPorPeriodo = (
+  fechaInicioStr,
+  vacacionesArr,
+  idVacacionActual,
+) => {
+  if (!fechaInicioStr) return [];
+
+  // 1. Configurar fecha de inicio
+  const inicio = new Date(fechaInicioStr);
+  inicio.setMinutes(inicio.getMinutes() + inicio.getTimezoneOffset());
+  const hoy = new Date();
+
+  let periodos = [];
+  let currentDate = new Date(inicio);
+
+  // 2. Crear las bolsas anuales de vacaciones (15 días por año)
+  while (currentDate <= hoy) {
+    let nextDate = new Date(currentDate);
+    nextDate.setFullYear(currentDate.getFullYear() + 1);
+
+    let diasGanados = 15;
+
+    // Proporcional si el periodo actual aún no se termina
+    if (nextDate > hoy) {
+      const diferenciaMilisegundos = hoy - currentDate;
+      const diasTranscurridos = Math.floor(
+        diferenciaMilisegundos / (1000 * 60 * 60 * 24),
+      );
+      diasGanados = Math.round((diasTranscurridos * 15) / 365);
+    }
+
+    periodos.push({
+      label: `${currentDate.getFullYear()} - ${nextDate.getFullYear()}`,
+      disponible: diasGanados,
+      vencimiento: nextDate.toLocaleDateString("es-PE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
+    });
+
+    currentDate = nextDate;
+  }
+
+  let totalDiasTomados = 0;
+
+  // 3. Ordenar las vacaciones por fecha de inicio (Cronológicamente)
+  if (vacacionesArr && Array.isArray(vacacionesArr)) {
+    const historialOrdenado = [...vacacionesArr]
+      .filter(
+        (vac) =>
+          vac.pendiente_autorizacion !== "RECHAZADO" ||
+          vac.id === idVacacionActual,
+      )
+      .sort((a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio)); // Orden ascendente
+
+    // 4. Recorrer el historial y acumular días hasta la vacación que queremos imprimir
+    for (const vac of historialOrdenado) {
+      totalDiasTomados += vac.dias_totales || 0;
+
+      // Si llegamos a la vacación que el usuario seleccionó para descargar,
+      // nos detenemos. Ignoramos todo lo que pasó después en el futuro.
+      if (vac.id === idVacacionActual) {
+        break;
+      }
+    }
+  }
+
+  // 5. Restar la deuda total a las "bolsas" anuales disponibles
+  for (let p of periodos) {
+    if (totalDiasTomados <= 0) break; // Si ya cobramos la deuda, terminamos
+
+    if (totalDiasTomados >= p.disponible) {
+      // Gastamos todos los días de este año y seguimos arrastrando deuda
+      totalDiasTomados -= p.disponible;
+      p.disponible = 0;
+    } else {
+      // Pagamos la deuda restante con este año
+      p.disponible -= totalDiasTomados;
+      totalDiasTomados = 0;
+    }
+  }
+
+  // 6. Retornar solo los periodos donde aún quedan días a favor
+  return periodos.filter((p) => p.disponible > 0);
+};
+// =========================================================================
+
 export const generarDocumentoWordVacaciones = async (
   tipo_solicitud,
   selectColaborador,
@@ -85,7 +176,7 @@ export const generarDocumentoWordVacaciones = async (
     }
     const templateBytes = new Uint8Array(await response.arrayBuffer());
 
-    // 2. Cargar logo PNG directamente (ya debe ser PNG)
+    // 2. Cargar logo PNG
     let logoPngBytes = null;
     let logoWidth = 150;
     let logoHeight = 50;
@@ -96,7 +187,6 @@ export const generarDocumentoWordVacaciones = async (
         logoPngBytes = resultado.bytes;
         logoWidth = resultado.width;
         logoHeight = resultado.height;
-        console.log(`✅ Logo cargado: ${logoWidth}x${logoHeight}pt`);
       }
     } catch (e) {
       console.warn("⚠️ No se pudo cargar el logo:", e.message);
@@ -105,15 +195,11 @@ export const generarDocumentoWordVacaciones = async (
     // 3. Abrir ZIP
     const zip = new PizZip(templateBytes);
 
-    // 4. Inyectar logo directamente en el ZIP
+    // 4. Inyectar logo
     if (logoPngBytes) {
-      // 4a. Imagen PNG en word/media/
       zip.file("word/media/logo_header.png", logoPngBytes, { binary: true });
-
-      // 4b. Relaciones del header
       zip.file("word/_rels/header1.xml.rels", buildHeaderRels());
 
-      // 4c. Reemplazar {%logo} en header1.xml con <w:drawing> real
       const headerXml = zip.file("word/header1.xml").asText();
       const drawingXml = buildDrawingXml(logoWidth, logoHeight);
       const headerModificado = headerXml.replace(
@@ -121,14 +207,10 @@ export const generarDocumentoWordVacaciones = async (
         drawingXml,
       );
 
-      if (headerModificado === headerXml) {
-        console.warn("⚠️ No se encontró {%logo} en header1.xml");
-      } else {
+      if (headerModificado !== headerXml) {
         zip.file("word/header1.xml", headerModificado);
-        console.log("✅ Logo inyectado en header");
       }
 
-      // 4d. Registrar tipo PNG en [Content_Types].xml
       const contentTypesXml = zip.file("[Content_Types].xml").asText();
       if (!contentTypesXml.includes('Extension="png"')) {
         zip.file(
@@ -140,7 +222,6 @@ export const generarDocumentoWordVacaciones = async (
         );
       }
     } else {
-      // Sin logo: limpiar el tag para no dejar texto suelto
       const headerXml = zip.file("word/header1.xml").asText();
       zip.file(
         "word/header1.xml",
@@ -148,7 +229,7 @@ export const generarDocumentoWordVacaciones = async (
       );
     }
 
-    // 5. Docxtemplater solo para tags de texto
+    // 5. Docxtemplater
     const doc = new Docxtemplater(zip, {
       paragraphLoop: true,
       linebreaks: true,
@@ -166,18 +247,43 @@ export const generarDocumentoWordVacaciones = async (
       year: "numeric",
     });
 
+    // LÍNEA CLAVE: Calculamos los saldos con la lógica cronológica
+    const periodosConSaldo = calcularSaldosPorPeriodo(
+      primerContrato?.fecha_inicio,
+      selectColaborador.vacaciones,
+      selectVacacion.id,
+    );
+
+    // Tomamos el periodo más antiguo disponible
+    const periodoPrincipal =
+      periodosConSaldo.length > 0
+        ? periodosConSaldo[0]
+        : { label: "Sin saldo pendiente", disponible: 0, vencimiento: "-" };
+
     // 7. Render
     doc.render({
       nombre: selectColaborador.nombre_colaborador || "",
       cargo:
         selectColaborador.cargo_laboral?.cargo || "Área/Gerencia no asignada",
       fecha_ingreso: fechaIngreso,
+      fecha_solicitud: selectVacacion.fecha_solicitud
+        ? formatDate(selectVacacion.fecha_solicitud)
+        : "",
       correlativo: selectVacacion.id
         ? `  ${selectVacacion.id}-${new Date().getFullYear()}`
         : "",
       fecha_hoy: fechaHoy,
+
+      // === DATOS DE VACACIONES PENDIENTES (Lógica cronológica aplicada) ===
+      periodo_1: periodoPrincipal.label,
+      dias_1: periodoPrincipal.disponible,
+      vencimiento_1: periodoPrincipal.vencimiento,
+      // =======================================================================
+
       uso_efectivo: tipo_solicitud === "SOLICITUD" ? "X" : " ",
       compensacion: tipo_solicitud === "COMPRA" ? "X" : " ",
+
+      // Datos de la vacación SOLICITADA actualmente
       periodo: selectVacacion.year_vacaciones || "",
       dias: selectVacacion.dias_totales || "",
       fecha_inicio: selectVacacion.fecha_inicio || "",
