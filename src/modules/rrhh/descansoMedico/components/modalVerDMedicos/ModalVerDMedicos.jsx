@@ -178,10 +178,7 @@ const ModalVerDMedicos = ({ isOpen, onOpenChange, selectColaborador }) => {
                 onOpenChange();
               }}
             >
-              Cancelar
-            </Button>
-            <Button color="primary" type="submit">
-              Guardar
+              Cerrar
             </Button>
           </div>
         </ModalFooter>
