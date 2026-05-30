@@ -41,7 +41,6 @@ const TablaVacaciones = ({
   };
 
   const calcularNeto = (dias) => {
-    if (dias < 365) return 0;
     return Math.round((dias / 365) * 15);
   };
 
