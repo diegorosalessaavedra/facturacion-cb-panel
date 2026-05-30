@@ -91,9 +91,9 @@ const ModalVerDMedicos = ({ isOpen, onOpenChange, selectColaborador }) => {
                 <TableColumn className=" text-xs text-white  bg-blue-700">
                   VER DOCUMENTO
                 </TableColumn>
-                <TableColumn className=" text-xs text-white  bg-blue-700">
+                {/* <TableColumn className=" text-xs text-white  bg-blue-700">
                   ESTADO
-                </TableColumn>
+                </TableColumn> */}
                 {/* <TableColumn className=" text-xs text-white  bg-blue-700">
                   ACCIONES
                 </TableColumn> */}
@@ -126,7 +126,7 @@ const ModalVerDMedicos = ({ isOpen, onOpenChange, selectColaborador }) => {
                         </Button>
                       </a>
                     </TableCell>
-                    <TableCell className="text-xs py-2">
+                    {/* <TableCell className="text-xs py-2">
                       <p
                         className={`font-semibold ${
                           descanzoMedico.pendiente_autorizacion === "PENDIENTE"
@@ -139,7 +139,7 @@ const ModalVerDMedicos = ({ isOpen, onOpenChange, selectColaborador }) => {
                       >
                         {descanzoMedico.pendiente_autorizacion}
                       </p>
-                    </TableCell>
+                    </TableCell> */}
                     {/* 
                     <TableCell className="text-xs py-2">
                       <div className="flex gap-4 items-center">
