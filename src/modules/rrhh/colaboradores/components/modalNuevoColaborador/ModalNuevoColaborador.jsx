@@ -46,7 +46,7 @@ const ModalNuevoColaborador = ({
   // Función para eliminar un par de campos de archivo complementario
   const handleRemoveArchivo = (id) => {
     setArchivosComplementarios(
-      archivosComplementarios.filter((archivo) => archivo.id !== id)
+      archivosComplementarios.filter((archivo) => archivo.id !== id),
     );
   };
 
@@ -54,8 +54,8 @@ const ModalNuevoColaborador = ({
   const handleFileNameChange = (id, value) => {
     setArchivosComplementarios(
       archivosComplementarios.map((archivo) =>
-        archivo.id === id ? { ...archivo, name: value } : archivo
-      )
+        archivo.id === id ? { ...archivo, name: value } : archivo,
+      ),
     );
   };
 
@@ -63,8 +63,8 @@ const ModalNuevoColaborador = ({
   const handleFileChange = (id, selectedFile) => {
     setArchivosComplementarios(
       archivosComplementarios.map((archivo) =>
-        archivo.id === id ? { ...archivo, file: selectedFile } : archivo
-      )
+        archivo.id === id ? { ...archivo, file: selectedFile } : archivo,
+      ),
     );
   };
 
@@ -78,42 +78,42 @@ const ModalNuevoColaborador = ({
     formData.append("apellidos_colaborador", data.apellidos_colaborador);
     formData.append(
       "fecha_nacimiento_colaborador",
-      data.fecha_nacimiento_colaborador
+      data.fecha_nacimiento_colaborador,
     );
     formData.append("dni_colaborador", data.dni_colaborador);
     formData.append("telefono_colaborador", data.telefono_colaborador);
     formData.append("correo_colaborador", data.correo_colaborador);
     formData.append(
       "nombre_contacto_emergencia",
-      data.nombre_contacto_emergencia
+      data.nombre_contacto_emergencia,
     );
     formData.append(
       "apellidos_contacto_emergencia",
-      data.apellidos_contacto_emergencia
+      data.apellidos_contacto_emergencia,
     );
     formData.append(
       "telefono_contacto_emergencia",
-      data.telefono_contacto_emergencia
+      data.telefono_contacto_emergencia,
     );
     formData.append(
       "vinculo_contacto_emergencia",
-      data.vinculo_contacto_emergencia
+      data.vinculo_contacto_emergencia,
     );
     formData.append(
       "nombre_contacto_emergencia2",
-      data.nombre_contacto_emergencia2
+      data.nombre_contacto_emergencia2,
     );
     formData.append(
       "apellidos_contacto_emergencia2",
-      data.apellidos_contacto_emergencia2
+      data.apellidos_contacto_emergencia2,
     );
     formData.append(
       "telefono_contacto_emergencia2",
-      data.telefono_contacto_emergencia2
+      data.telefono_contacto_emergencia2,
     );
     formData.append(
       "vinculo_contacto_emergencia2",
-      data.vinculo_contacto_emergencia2
+      data.vinculo_contacto_emergencia2,
     );
 
     formData.append("direccion_colaborador", data.direccion_colaborador);
@@ -122,6 +122,7 @@ const ModalNuevoColaborador = ({
     formData.append("distrito_colaborador", distrito.Distrito);
 
     formData.append("cargo_laboral_id", data.cargo_laboral_id);
+    formData.append("empresa", data.empresa);
 
     if (foto) {
       formData.append("foto_colaborador", foto);
@@ -140,7 +141,7 @@ const ModalNuevoColaborador = ({
         // También enviamos los nombres ingresados por el usuario en un array separado
         formData.append(
           `archivos_complementarios_names[${index}]`,
-          archivo.name
+          archivo.name,
         );
       }
     });
@@ -158,7 +159,7 @@ const ModalNuevoColaborador = ({
       .catch((err) => {
         toast.error(
           err.response.data?.error ||
-            "Hubo un error al registrar al colaborador. Revisa la consola para más detalles."
+            "Hubo un error al registrar al colaborador. Revisa la consola para más detalles.",
         );
       })
       .finally(() => {

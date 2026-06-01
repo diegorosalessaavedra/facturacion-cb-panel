@@ -13,7 +13,6 @@ const cargarLogoPng = (url) =>
         const res = await fetch(url);
         const buf = await res.arrayBuffer();
         const bytes = new Uint8Array(buf);
-        // Altura fija 50pt, ancho proporcional
         const alturaTarget = 50;
         const ratio = img.naturalWidth / img.naturalHeight;
         const anchoTarget = Math.round(alturaTarget * ratio);
@@ -26,7 +25,6 @@ const cargarLogoPng = (url) =>
     img.src = url;
   });
 
-// XML del <w:drawing> con dimensiones dinámicas en EMUs (1pt = 12700 EMUs)
 const buildDrawingXml = (widthPt, heightPt) => {
   const cx = Math.round(widthPt * 12700);
   const cy = Math.round(heightPt * 12700);
@@ -63,7 +61,6 @@ const buildDrawingXml = (widthPt, heightPt) => {
   </w:drawing>`;
 };
 
-// Relaciones del header apuntando a la imagen
 const buildHeaderRels = () =>
   `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
@@ -71,7 +68,7 @@ const buildHeaderRels = () =>
 </Relationships>`;
 
 // =========================================================================
-// NUEVA LÓGICA: CÁLCULO CRONOLÓGICO DE SALDOS DE VACACIONES
+// NUEVA LÓGICA INFALIBLE: CÁLCULO PROPORCIONAL Y DESCUENTO HISTÓRICO
 // =========================================================================
 const calcularSaldosPorPeriodo = (
   fechaInicioStr,
@@ -80,83 +77,77 @@ const calcularSaldosPorPeriodo = (
 ) => {
   if (!fechaInicioStr) return [];
 
-  // 1. Configurar fecha de inicio
-  const inicio = new Date(fechaInicioStr);
-  inicio.setMinutes(inicio.getMinutes() + inicio.getTimezoneOffset());
+  // Evitamos problemas de zona horaria forzando la hora a las 00:00:00
+  const inicio = new Date(fechaInicioStr + "T00:00:00");
   const hoy = new Date();
 
   let periodos = [];
-  let currentDate = new Date(inicio);
+  let currentYear = inicio.getFullYear();
+  let endYear = hoy.getFullYear();
 
-  // 2. Crear las bolsas anuales de vacaciones (15 días por año)
-  while (currentDate <= hoy) {
-    let nextDate = new Date(currentDate);
-    nextDate.setFullYear(currentDate.getFullYear() + 1);
-
-    let diasGanados = 15;
-
-    // Proporcional si el periodo actual aún no se termina
-    if (nextDate > hoy) {
-      const diferenciaMilisegundos = hoy - currentDate;
-      const diasTranscurridos = Math.floor(
-        diferenciaMilisegundos / (1000 * 60 * 60 * 24),
-      );
-      diasGanados = Math.round((diasTranscurridos * 15) / 365);
+  // 1. Calculamos los días ganados por año calendario (Ej. 2024, 2025, 2026)
+  for (let year = currentYear; year <= endYear; year++) {
+    let startOfPeriod = new Date(year, 0, 1); // 1 de enero
+    if (year === currentYear) {
+      startOfPeriod = new Date(inicio); // Si es el año inicial, empieza en la fecha de contrato
     }
 
-    periodos.push({
-      label: `${currentDate.getFullYear()} - ${nextDate.getFullYear()}`,
-      disponible: diasGanados,
-      vencimiento: nextDate.toLocaleDateString("es-PE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }),
-    });
+    let endOfPeriod = new Date(year, 11, 31); // 31 de diciembre
+    if (year === endYear) {
+      endOfPeriod = new Date(hoy); // Si es el año actual, corta el día de hoy
+    }
 
-    currentDate = nextDate;
+    // Diferencia en días
+    const diffTime = endOfPeriod.getTime() - startOfPeriod.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 para ser inclusivo
+
+    // Regla de 3 simple: Si por 365 días tocan 15, por diffDays tocan X
+    let diasGanados = Math.round((diffDays / 365) * 15);
+
+    if (diasGanados > 0) {
+      periodos.push({
+        label: year.toString(),
+        disponible: diasGanados,
+      });
+    }
   }
 
-  let totalDiasTomados = 0;
-
-  // 3. Ordenar las vacaciones por fecha de inicio (Cronológicamente)
+  // 2. Ordenar TODAS las vacaciones de la más antigua a la más reciente
+  let historialOrdenado = [];
   if (vacacionesArr && Array.isArray(vacacionesArr)) {
-    const historialOrdenado = [...vacacionesArr]
-      .filter(
-        (vac) =>
-          vac.pendiente_autorizacion !== "RECHAZADO" ||
-          vac.id === idVacacionActual,
-      )
-      .sort((a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio)); // Orden ascendente
+    historialOrdenado = [...vacacionesArr].sort((a, b) => {
+      return (
+        new Date(a.fecha_inicio + "T00:00:00") -
+        new Date(b.fecha_inicio + "T00:00:00")
+      );
+    });
+  }
 
-    // 4. Recorrer el historial y acumular días hasta la vacación que queremos imprimir
-    for (const vac of historialOrdenado) {
-      totalDiasTomados += vac.dias_totales || 0;
+  // 3. Descontar los días usados en el pasado ANTES de la vacación actual
+  for (const vac of historialOrdenado) {
+    // Si llegamos a la vacación que queremos imprimir AHORA, nos detenemos.
+    if (String(vac.id) === String(idVacacionActual)) {
+      break;
+    }
 
-      // Si llegamos a la vacación que el usuario seleccionó para descargar,
-      // nos detenemos. Ignoramos todo lo que pasó después en el futuro.
-      if (vac.id === idVacacionActual) {
-        break;
+    let diasADescontar = Number(vac.dias_totales) || 0;
+
+    // Repartir la resta desde el año más antiguo
+    for (let p of periodos) {
+      if (diasADescontar <= 0) break;
+      if (p.disponible > 0) {
+        if (diasADescontar >= p.disponible) {
+          diasADescontar -= p.disponible;
+          p.disponible = 0; // Se agotaron los días de este año
+        } else {
+          p.disponible -= diasADescontar;
+          diasADescontar = 0;
+        }
       }
     }
   }
 
-  // 5. Restar la deuda total a las "bolsas" anuales disponibles
-  for (let p of periodos) {
-    if (totalDiasTomados <= 0) break; // Si ya cobramos la deuda, terminamos
-
-    if (totalDiasTomados >= p.disponible) {
-      // Gastamos todos los días de este año y seguimos arrastrando deuda
-      totalDiasTomados -= p.disponible;
-      p.disponible = 0;
-    } else {
-      // Pagamos la deuda restante con este año
-      p.disponible -= totalDiasTomados;
-      totalDiasTomados = 0;
-    }
-  }
-
-  // 6. Retornar solo los periodos donde aún quedan días a favor
+  // 4. Retornamos solo los periodos que aún conservan días libres (disponible > 0)
   return periodos.filter((p) => p.disponible > 0);
 };
 // =========================================================================
@@ -167,7 +158,6 @@ export const generarDocumentoWordVacaciones = async (
   selectVacacion,
 ) => {
   try {
-    // 1. Cargar plantilla
     const response = await fetch("/plantilla_vacaciones.docx");
     if (!response.ok) {
       throw new Error(
@@ -176,12 +166,16 @@ export const generarDocumentoWordVacaciones = async (
     }
     const templateBytes = new Uint8Array(await response.arrayBuffer());
 
-    // 2. Cargar logo PNG
     let logoPngBytes = null;
     let logoWidth = 150;
     let logoHeight = 50;
     try {
-      const url = import.meta.env.VITE_LOGO;
+      const url =
+        selectColaborador.empresa === "Granjas Peruanas"
+          ? "/logo.png"
+          : selectColaborador.empresa === "Multinacional Services"
+            ? "/logoM.png"
+            : "/logoDiego.png";
       if (url) {
         const resultado = await cargarLogoPng(url);
         logoPngBytes = resultado.bytes;
@@ -192,10 +186,8 @@ export const generarDocumentoWordVacaciones = async (
       console.warn("⚠️ No se pudo cargar el logo:", e.message);
     }
 
-    // 3. Abrir ZIP
     const zip = new PizZip(templateBytes);
 
-    // 4. Inyectar logo
     if (logoPngBytes) {
       zip.file("word/media/logo_header.png", logoPngBytes, { binary: true });
       zip.file("word/_rels/header1.xml.rels", buildHeaderRels());
@@ -229,13 +221,11 @@ export const generarDocumentoWordVacaciones = async (
       );
     }
 
-    // 5. Docxtemplater
     const doc = new Docxtemplater(zip, {
       paragraphLoop: true,
       linebreaks: true,
     });
 
-    // 6. Preparar datos
     const primerContrato = selectColaborador.contratos?.[0];
     const fechaIngreso = primerContrato?.fecha_inicio
       ? formatDate(primerContrato.fecha_inicio)
@@ -247,22 +237,31 @@ export const generarDocumentoWordVacaciones = async (
       year: "numeric",
     });
 
-    // LÍNEA CLAVE: Calculamos los saldos con la lógica cronológica
+    // EJECUCIÓN DEL CÁLCULO
     const periodosConSaldo = calcularSaldosPorPeriodo(
       primerContrato?.fecha_inicio,
       selectColaborador.vacaciones,
       selectVacacion.id,
     );
 
-    // Tomamos el periodo más antiguo disponible
-    const periodoPrincipal =
+    // Extraemos los dos primeros periodos con días libres
+    const p1 =
       periodosConSaldo.length > 0
         ? periodosConSaldo[0]
-        : { label: "Sin saldo pendiente", disponible: 0, vencimiento: "-" };
+        : { label: "", disponible: "" };
+    const p2 =
+      periodosConSaldo.length > 1
+        ? periodosConSaldo[1]
+        : { label: "", disponible: "" };
 
-    // 7. Render
     doc.render({
       nombre: selectColaborador.nombre_colaborador || "",
+      empresa:
+        selectColaborador.empresa === "Granjas Peruanas"
+          ? "GRANJAS PERUANAS S.A.C."
+          : selectColaborador.empresa === "Multinacional Services"
+            ? "MULTINACIONAL SERVICES S.A.C."
+            : selectColaborador.empresa || "",
       cargo:
         selectColaborador.cargo_laboral?.cargo || "Área/Gerencia no asignada",
       fecha_ingreso: fechaIngreso,
@@ -274,23 +273,29 @@ export const generarDocumentoWordVacaciones = async (
         : "",
       fecha_hoy: fechaHoy,
 
-      // === DATOS DE VACACIONES PENDIENTES (Lógica cronológica aplicada) ===
-      periodo_1: periodoPrincipal.label,
-      dias_1: periodoPrincipal.disponible,
-      vencimiento_1: periodoPrincipal.vencimiento,
-      // =======================================================================
+      // === IMPRESIÓN DINÁMICA DE LOS PERIODOS ===
+      periodo_1: p1.label,
+      dias_1: p1.disponible,
 
-      uso_efectivo: tipo_solicitud === "SOLICITUD" ? "X" : " ",
+      periodo_2: p2.label,
+      dias_2: p2.disponible,
+      // ==========================================
+
+      uso_efectivo: tipo_solicitud === "PROGRAMADAS" ? "X" : " ",
       compensacion: tipo_solicitud === "COMPRA" ? "X" : " ",
 
-      // Datos de la vacación SOLICITADA actualmente
       periodo: selectVacacion.year_vacaciones || "",
       dias: selectVacacion.dias_totales || "",
       fecha_inicio: selectVacacion.fecha_inicio || "",
       fecha_final: selectVacacion.fecha_final || "",
+      compras_periodo:
+        selectVacacion.tipo_solicitud === "COMPRA"
+          ? selectVacacion.year_vacaciones
+          : " ",
+      compras_dia:
+        selectVacacion.tipo_solicitud === "COMPRA" ? selectVacacion.dias : " ",
     });
 
-    // 8. Descargar
     const out = doc.getZip().generate({
       type: "blob",
       mimeType:

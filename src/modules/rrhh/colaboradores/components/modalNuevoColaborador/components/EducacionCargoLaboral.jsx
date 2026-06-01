@@ -63,6 +63,34 @@ const EducacionCargoLaboral = ({ register }) => {
             size="sm"
             errorMessage="El cv del colaborador  es obligatorio."
           />
+          <Select
+            className="w-full"
+            isRequired
+            classNames={{
+              ...selectClassNames,
+            }}
+            labelPlacement="outside"
+            label="Empresa"
+            placeholder="..."
+            variant="bordered"
+            {...register("empresa")}
+            errorMessage="La  empresa  es obligatorio."
+            radius="sm"
+            size="sm"
+          >
+            <SelectItem key="Granjas Peruanas" value="Granjas Peruanas">
+              Granjas Peruanas
+            </SelectItem>
+            <SelectItem
+              key="Multinacional Services"
+              value="Multinacional Services"
+            >
+              Multinacional Services
+            </SelectItem>
+            <SelectItem key="Diego Rosales" value="Diego Rosales">
+              Diego Rosales
+            </SelectItem>
+          </Select>
         </div>
       </div>
     </div>

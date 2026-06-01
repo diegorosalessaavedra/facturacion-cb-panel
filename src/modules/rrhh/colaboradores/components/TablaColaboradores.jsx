@@ -60,19 +60,21 @@ const TablaColaboradores = ({
             <TableColumn className=" text-xs text-white  bg-blue-700">
               #
             </TableColumn>
-
             <TableColumn className=" text-xs text-white  bg-blue-700">
-              NOMBRE Y APELLIDO
+              EMPRESA
+            </TableColumn>
+            <TableColumn className=" text-xs text-white  bg-blue-700">
+              NOMBRE Y APELLIDOS
             </TableColumn>
             <TableColumn className=" text-xs text-white  bg-blue-700">
               DNI
             </TableColumn>
-            <TableColumn className=" text-xs text-white  bg-blue-700">
+            {/* <TableColumn className=" text-xs text-white  bg-blue-700">
               TELÉFONO
             </TableColumn>
             <TableColumn className=" text-xs text-white  bg-blue-700">
               CORREO
-            </TableColumn>
+            </TableColumn> */}
             {/* <TableColumn className=" text-xs text-white  bg-blue-700">
               DIRRECCIÓN DE DOMICILIO
             </TableColumn> */}
@@ -100,18 +102,21 @@ const TablaColaboradores = ({
               <TableRow key={colaborador.id}>
                 <TableCell className="text-xs py-2">{index + 1}</TableCell>
                 <TableCell className="text-xs py-2">
+                  {colaborador.empresa}
+                </TableCell>
+                <TableCell className="text-xs py-2">
                   {colaborador.apellidos_colaborador}{" "}
                   {colaborador.nombre_colaborador}
                 </TableCell>
                 <TableCell className="text-xs py-2">
                   {colaborador.dni_colaborador}
                 </TableCell>
-                <TableCell className="text-xs py-2">
+                {/* <TableCell className="text-xs py-2">
                   {colaborador.telefono_colaborador}
                 </TableCell>
                 <TableCell className="text-xs py-2">
                   {colaborador.correo_colaborador}
-                </TableCell>
+                </TableCell> */}
                 {/* <TableCell className="text-xs py-2">
                   {colaborador.direccion_colaborador}
                 </TableCell> */}
@@ -131,7 +136,7 @@ const TablaColaboradores = ({
                         ? colaborador.contratos[0]?.estado_contrato
                         : `${calcularDiasRestantes(
                             colaborador.contratos[0]?.fecha_inicio,
-                            colaborador.contratos[0]?.fecha_final
+                            colaborador.contratos[0]?.fecha_final,
                           )} días restantes`
                       : "sin contratos"}
                   </p>

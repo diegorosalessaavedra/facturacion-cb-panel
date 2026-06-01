@@ -59,7 +59,7 @@ const TablaVacaciones = ({
   }, [colaboradores]);
 
   return (
-    <div className="w-full mx-auto  flex items-center h-[75vh] p-4">
+    <div className="w-full mx-auto flex items-center h-[75vh] p-4">
       {loading ? (
         <Spinner className="m-auto" label="Cargando..." color="primary" />
       ) : (
@@ -67,15 +67,15 @@ const TablaVacaciones = ({
           <div
             className="grid"
             style={{
-              // CORRECCIÓN 1: Se ajustan las columnas finales (110px 90px 140px) para las 3 columnas restantes
-              gridTemplateColumns: `minmax(150px, 1fr) 90px 90px 90px 90px 90px 80px repeat(${uniqueYears.length}, 90px) 110px 90px 140px`,
+              // CORRECCIÓN 1: 'minmax' corregido y se añadieron 8 valores explícitos iniciales antes de los años
+              gridTemplateColumns: `100px minmax(150px, 1fr) 90px 90px 90px 90px 90px 80px repeat(${uniqueYears.length}, 90px) 110px 90px 140px`,
               gridAutoRows: "max-content",
-              // CORRECCIÓN 2: Se ajusta el ancho mínimo calculado
-              minWidth: `${1030 + uniqueYears.length * 90}px`,
+              // CORRECCIÓN 2: Se ajustó el ancho mínimo sumando la columna adicional
+              minWidth: `${1130 + uniqueYears.length * 90}px`,
             }}
           >
             {/* SÚPER CABECERAS */}
-            <div className={`col-span-7 ${headerDark1} ${stickyHeader1}`}>
+            <div className={`col-span-8 ${headerDark1} ${stickyHeader1}`}>
               INFORMACIÓN DEL TRABAJADOR
             </div>
             <div
@@ -84,7 +84,6 @@ const TablaVacaciones = ({
             >
               VACACIONES EFECTIVAS POR AÑO
             </div>
-            {/* CORRECCIÓN 3: Se ajusta el col-span final (2 para vacaciones, 1 para gestión) */}
             <div className={`${headerBlue1} ${stickyHeader1} col-span-2`}>
               VACACIONES
             </div>
@@ -93,6 +92,7 @@ const TablaVacaciones = ({
             </div>
 
             {/* CABECERAS DE COLUMNA */}
+            <div className={`${headerDark2} ${stickyHeader2}`}>EMPRESA</div>
             <div className={`${headerDark2} ${stickyHeader2}`}>NOMBRE</div>
             <div className={`${headerDark2} ${stickyHeader2}`}>DNI</div>
             <div className={`${headerDark2} ${stickyHeader2}`}>F. INGRESO</div>
@@ -137,8 +137,10 @@ const TablaVacaciones = ({
               return (
                 <React.Fragment key={colab.id}>
                   {/* Datos personales y fechas */}
+                  <div className={cellData}>{colab.empresa}</div>
+
                   <div
-                    className={`${cellData} font-black  text-slate-800 justify-start text-left px-3`}
+                    className={`${cellData} font-black text-slate-800 justify-start text-left px-3`}
                   >
                     {colab.nombre_colaborador} {colab.apellidos_colaborador}
                   </div>
@@ -229,7 +231,7 @@ const TablaVacaciones = ({
                       startContent={<Eye size={12} />}
                       onPress={() => {
                         setSelectColaborador(colab);
-                        setSelectModal("historial"); // Asumiendo que usas setSelectModal para controlar qué modal abrir
+                        setSelectModal("historial");
                         onOpen();
                       }}
                     >

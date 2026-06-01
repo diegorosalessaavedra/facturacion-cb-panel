@@ -44,23 +44,23 @@ const ModalEditarColaborador = ({
 
   const handleRemoveArchivo = (id) => {
     setArchivosComplementarios(
-      archivosComplementarios.filter((archivo) => archivo.id !== id)
+      archivosComplementarios.filter((archivo) => archivo.id !== id),
     );
   };
 
   const handleFileNameChange = (id, value) => {
     setArchivosComplementarios(
       archivosComplementarios.map((archivo) =>
-        archivo.id === id ? { ...archivo, name: value } : archivo
-      )
+        archivo.id === id ? { ...archivo, name: value } : archivo,
+      ),
     );
   };
 
   const handleFileChange = (id, selectedFile) => {
     setArchivosComplementarios(
       archivosComplementarios.map((archivo) =>
-        archivo.id === id ? { ...archivo, file: selectedFile } : archivo
-      )
+        archivo.id === id ? { ...archivo, file: selectedFile } : archivo,
+      ),
     );
   };
 
@@ -77,43 +77,43 @@ const ModalEditarColaborador = ({
     formData.append("apellidos_colaborador", data.apellidos_colaborador);
     formData.append(
       "fecha_nacimiento_colaborador",
-      data.fecha_nacimiento_colaborador
+      data.fecha_nacimiento_colaborador,
     );
     formData.append("dni_colaborador", data.dni_colaborador);
     formData.append("telefono_colaborador", data.telefono_colaborador);
     formData.append("correo_colaborador", data.correo_colaborador);
     formData.append(
       "nombre_contacto_emergencia",
-      data.nombre_contacto_emergencia
+      data.nombre_contacto_emergencia,
     );
     formData.append(
       "apellidos_contacto_emergencia",
-      data.apellidos_contacto_emergencia
+      data.apellidos_contacto_emergencia,
     );
     formData.append(
       "telefono_contacto_emergencia",
-      data.telefono_contacto_emergencia
+      data.telefono_contacto_emergencia,
     );
     formData.append(
       "vinculo_contacto_emergencia",
-      data.vinculo_contacto_emergencia
+      data.vinculo_contacto_emergencia,
     );
 
     formData.append(
       "nombre_contacto_emergencia2",
-      data.nombre_contacto_emergencia2
+      data.nombre_contacto_emergencia2,
     );
     formData.append(
       "apellidos_contacto_emergencia2",
-      data.apellidos_contacto_emergencia2
+      data.apellidos_contacto_emergencia2,
     );
     formData.append(
       "telefono_contacto_emergencia2",
-      data.telefono_contacto_emergencia2
+      data.telefono_contacto_emergencia2,
     );
     formData.append(
       "vinculo_contacto_emergencia2",
-      data.vinculo_contacto_emergencia2
+      data.vinculo_contacto_emergencia2,
     );
     formData.append("direccion_colaborador", data.direccion_colaborador);
     formData.append("departamento_colaborador", departamento.Departamento);
@@ -121,6 +121,8 @@ const ModalEditarColaborador = ({
     formData.append("distrito_colaborador", distrito.Distrito);
 
     formData.append("cargo_laboral_id", data.cargo_laboral_id);
+    formData.append("empresa", data.empresa);
+
     deletesDocsId.forEach((id) => {
       formData.append("deletesDocsId[]", id);
     });
@@ -141,7 +143,7 @@ const ModalEditarColaborador = ({
         // También enviamos los nombres ingresados por el usuario en un array separado
         formData.append(
           `archivos_complementarios_names[${index}]`,
-          archivo.name
+          archivo.name,
         );
       }
     });
@@ -159,7 +161,7 @@ const ModalEditarColaborador = ({
       .catch((err) => {
         toast.error(
           err.response.data?.error ||
-            "Hubo un error al registrar al colaborador. Revisa la consola para más detalles."
+            "Hubo un error al registrar al colaborador. Revisa la consola para más detalles.",
         );
       })
       .finally(() => {
@@ -176,7 +178,7 @@ const ModalEditarColaborador = ({
     >
       <ModalContent className="h-[80svh]">
         <ModalHeader className="flex flex-col gap-1 text-base">
-          Registrar nuevo colaborador
+          Editar colaborador
         </ModalHeader>
         <ModalBody className="h-full overflow-y-auto">
           {loading && <Loading />}
@@ -218,7 +220,7 @@ const ModalEditarColaborador = ({
                           onClick={() => {
                             if (deletesDocsId.some((d) => d === doc.id)) {
                               setDeletesDocsId((prev) =>
-                                prev.filter((d) => d !== doc.id)
+                                prev.filter((d) => d !== doc.id),
                               );
                             } else {
                               setDeletesDocsId((prev) => [...prev, doc.id]);

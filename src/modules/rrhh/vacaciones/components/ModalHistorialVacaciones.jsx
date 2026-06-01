@@ -112,7 +112,7 @@ const ModalHistorialVacaciones = ({
                         <th className="py-3 px-2 border-r border-[#005a9e]">
                           Tipo
                           <br />
-                          Constancia
+                          Vacaciones
                         </th>
                         <th className="py-3 px-2 border-r border-[#005a9e]">
                           Fecha Inicio
@@ -264,8 +264,8 @@ const ModalHistorialVacaciones = ({
               <ModalBody className="py-4">
                 <p className="text-sm text-slate-600 mb-2">
                   ¿Estás seguro de enviar esta solicitud de vacaciones para su
-                  revisión? Se enviará una notificación por correo a la
-                  administración para su aprobación.
+                  revisión? Se enviará una notificación por correo a gerencía
+                  para su aprobación.
                 </p>
 
                 {vacacionToSend && (
