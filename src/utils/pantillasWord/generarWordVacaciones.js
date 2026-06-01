@@ -3,28 +3,34 @@ import Docxtemplater from "docxtemplater";
 import { saveAs } from "file-saver";
 import formatDate from "../../hooks/FormatDate";
 
-// Carga el logo PNG y retorna { bytes: Uint8Array, width, height }
-const cargarLogoPng = (url) =>
-  new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = async () => {
-      try {
-        const res = await fetch(url);
-        const buf = await res.arrayBuffer();
-        const bytes = new Uint8Array(buf);
-        const alturaTarget = 50;
-        const ratio = img.naturalWidth / img.naturalHeight;
-        const anchoTarget = Math.round(alturaTarget * ratio);
-        resolve({ bytes, width: anchoTarget, height: alturaTarget });
-      } catch (e) {
-        reject(e);
-      }
-    };
-    img.onerror = () => reject(new Error("No se pudo cargar la imagen"));
-    img.src = url;
-  });
+// =========================================================================
+// CARGA DE LOGO PNG
+// =========================================================================
+const cargarLogoPng = async (url) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`No se pudo descargar la imagen desde: ${url}`);
 
+  const buf = await res.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const alturaTarget = 50;
+      const ratio = img.naturalWidth / img.naturalHeight;
+      const anchoTarget = Math.round(alturaTarget * ratio);
+      resolve({ bytes, width: anchoTarget, height: alturaTarget });
+    };
+    img.onerror = () =>
+      reject(new Error("Error al procesar las dimensiones de la imagen."));
+    const blob = new Blob([buf], { type: "image/png" });
+    img.src = URL.createObjectURL(blob);
+  });
+};
+
+// =========================================================================
+// XML DEL DIBUJO INLINE
+// =========================================================================
 const buildDrawingXml = (widthPt, heightPt) => {
   const cx = Math.round(widthPt * 12700);
   const cy = Math.round(heightPt * 12700);
@@ -44,7 +50,7 @@ const buildDrawingXml = (widthPt, heightPt) => {
               <pic:cNvPicPr/>
             </pic:nvPicPr>
             <pic:blipFill>
-              <a:blip r:embed="rId10" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
+              <a:blip r:embed="rIdLogo100" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
               <a:stretch><a:fillRect/></a:stretch>
             </pic:blipFill>
             <pic:spPr>
@@ -61,14 +67,8 @@ const buildDrawingXml = (widthPt, heightPt) => {
   </w:drawing>`;
 };
 
-const buildHeaderRels = () =>
-  `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId10" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo_header.png"/>
-</Relationships>`;
-
 // =========================================================================
-// NUEVA LÓGICA INFALIBLE: CÁLCULO PROPORCIONAL Y DESCUENTO HISTÓRICO
+// LÓGICA DE SALDOS DE VACACIONES
 // =========================================================================
 const calcularSaldosPorPeriodo = (
   fechaInicioStr,
@@ -77,7 +77,6 @@ const calcularSaldosPorPeriodo = (
 ) => {
   if (!fechaInicioStr) return [];
 
-  // Evitamos problemas de zona horaria forzando la hora a las 00:00:00
   const inicio = new Date(fechaInicioStr + "T00:00:00");
   const hoy = new Date();
 
@@ -85,23 +84,20 @@ const calcularSaldosPorPeriodo = (
   let currentYear = inicio.getFullYear();
   let endYear = hoy.getFullYear();
 
-  // 1. Calculamos los días ganados por año calendario (Ej. 2024, 2025, 2026)
   for (let year = currentYear; year <= endYear; year++) {
-    let startOfPeriod = new Date(year, 0, 1); // 1 de enero
+    let startOfPeriod = new Date(year, 0, 1);
     if (year === currentYear) {
-      startOfPeriod = new Date(inicio); // Si es el año inicial, empieza en la fecha de contrato
+      startOfPeriod = new Date(inicio);
     }
 
-    let endOfPeriod = new Date(year, 11, 31); // 31 de diciembre
+    let endOfPeriod = new Date(year, 11, 31);
     if (year === endYear) {
-      endOfPeriod = new Date(hoy); // Si es el año actual, corta el día de hoy
+      endOfPeriod = new Date(hoy);
     }
 
-    // Diferencia en días
     const diffTime = endOfPeriod.getTime() - startOfPeriod.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 para ser inclusivo
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-    // Regla de 3 simple: Si por 365 días tocan 15, por diffDays tocan X
     let diasGanados = Math.round((diffDays / 365) * 15);
 
     if (diasGanados > 0) {
@@ -112,7 +108,6 @@ const calcularSaldosPorPeriodo = (
     }
   }
 
-  // 2. Ordenar TODAS las vacaciones de la más antigua a la más reciente
   let historialOrdenado = [];
   if (vacacionesArr && Array.isArray(vacacionesArr)) {
     historialOrdenado = [...vacacionesArr].sort((a, b) => {
@@ -123,22 +118,19 @@ const calcularSaldosPorPeriodo = (
     });
   }
 
-  // 3. Descontar los días usados en el pasado ANTES de la vacación actual
   for (const vac of historialOrdenado) {
-    // Si llegamos a la vacación que queremos imprimir AHORA, nos detenemos.
     if (String(vac.id) === String(idVacacionActual)) {
       break;
     }
 
     let diasADescontar = Number(vac.dias_totales) || 0;
 
-    // Repartir la resta desde el año más antiguo
     for (let p of periodos) {
       if (diasADescontar <= 0) break;
       if (p.disponible > 0) {
         if (diasADescontar >= p.disponible) {
           diasADescontar -= p.disponible;
-          p.disponible = 0; // Se agotaron los días de este año
+          p.disponible = 0;
         } else {
           p.disponible -= diasADescontar;
           diasADescontar = 0;
@@ -147,10 +139,8 @@ const calcularSaldosPorPeriodo = (
     }
   }
 
-  // 4. Retornamos solo los periodos que aún conservan días libres (disponible > 0)
   return periodos.filter((p) => p.disponible > 0);
 };
-// =========================================================================
 
 export const generarDocumentoWordVacaciones = async (
   tipo_solicitud,
@@ -158,6 +148,10 @@ export const generarDocumentoWordVacaciones = async (
   selectVacacion,
 ) => {
   try {
+    // -----------------------------------------------------------------------
+    // IMPORTANTE: Usar la plantilla corregida (plantilla_vacaciones_fixed.docx)
+    // que tiene {logo}, {uso_efectivo} y {compensacion} en runs unificados.
+    // -----------------------------------------------------------------------
     const response = await fetch("/plantilla_vacaciones.docx");
     if (!response.ok) {
       throw new Error(
@@ -169,6 +163,7 @@ export const generarDocumentoWordVacaciones = async (
     let logoPngBytes = null;
     let logoWidth = 150;
     let logoHeight = 50;
+
     try {
       const url =
         selectColaborador.empresa === "Granjas Peruanas"
@@ -176,6 +171,7 @@ export const generarDocumentoWordVacaciones = async (
           : selectColaborador.empresa === "Multinacional Services"
             ? "/logoM.png"
             : "/logoDiego.png";
+
       if (url) {
         const resultado = await cargarLogoPng(url);
         logoPngBytes = resultado.bytes;
@@ -189,20 +185,34 @@ export const generarDocumentoWordVacaciones = async (
     const zip = new PizZip(templateBytes);
 
     if (logoPngBytes) {
-      zip.file("word/media/logo_header.png", logoPngBytes, { binary: true });
-      zip.file("word/_rels/header1.xml.rels", buildHeaderRels());
+      // 1. Guardar la imagen en word/media/
+      zip.file("word/media/logo_body.png", logoPngBytes, { binary: true });
 
-      const headerXml = zip.file("word/header1.xml").asText();
-      const drawingXml = buildDrawingXml(logoWidth, logoHeight);
-      const headerModificado = headerXml.replace(
-        /<w:t[^>]*>\{%logo\}<\/w:t>/,
-        drawingXml,
-      );
-
-      if (headerModificado !== headerXml) {
-        zip.file("word/header1.xml", headerModificado);
+      // 2. Agregar la relación en document.xml.rels
+      const relsPath = "word/_rels/document.xml.rels";
+      let relsXml = zip.file(relsPath)?.asText() || "";
+      if (relsXml && !relsXml.includes('Target="media/logo_body.png"')) {
+        const relacionLogo = `  <Relationship Id="rIdLogo100" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo_body.png"/>\n</Relationships>`;
+        relsXml = relsXml.replace("</Relationships>", relacionLogo);
+        zip.file(relsPath, relsXml);
       }
 
+      // 3. Reemplazar {logo} por el XML del dibujo ANTES de que docxtemplater lo procese.
+      //    La plantilla ahora usa {logo} (sin %) para que no sea interpretado como loop.
+      //    Hacemos el reemplazo a nivel de XML crudo.
+      let documentXml = zip.file("word/document.xml")?.asText() || "";
+      const drawingXml = buildDrawingXml(logoWidth, logoHeight);
+      if (documentXml) {
+        // FIX: Cerramos temporalmente <w:t>, insertamos el dibujo (que quedará dentro de <w:r>),
+        // y volvemos a abrir <w:t> para mantener la validez del XML.
+        documentXml = documentXml.replace(
+          /\{logo\}/g,
+          `</w:t>${drawingXml}<w:t>`,
+        );
+        zip.file("word/document.xml", documentXml);
+      }
+
+      // 4. Registrar extensión PNG en Content_Types si no existe
       const contentTypesXml = zip.file("[Content_Types].xml").asText();
       if (!contentTypesXml.includes('Extension="png"')) {
         zip.file(
@@ -214,13 +224,20 @@ export const generarDocumentoWordVacaciones = async (
         );
       }
     } else {
-      const headerXml = zip.file("word/header1.xml").asText();
-      zip.file(
-        "word/header1.xml",
-        headerXml.replace(/<w:t[^>]*>\{%logo\}<\/w:t>/, "<w:t/>"),
-      );
+      // Si no hay logo, limpiar la etiqueta {logo} del XML para que no aparezca impresa
+      let documentXml = zip.file("word/document.xml")?.asText() || "";
+      if (documentXml) {
+        documentXml = documentXml.replace(/\{logo\}/g, "");
+        zip.file("word/document.xml", documentXml);
+      }
     }
 
+    // -----------------------------------------------------------------------
+    // Renderizar con docxtemplater
+    // El logo ya fue procesado arriba; pasamos logo: "" solo como seguridad.
+    // uso_efectivo y compensacion ahora están en runs limpios en la plantilla
+    // y se renderizan correctamente con "X" o " ".
+    // -----------------------------------------------------------------------
     const doc = new Docxtemplater(zip, {
       paragraphLoop: true,
       linebreaks: true,
@@ -237,14 +254,12 @@ export const generarDocumentoWordVacaciones = async (
       year: "numeric",
     });
 
-    // EJECUCIÓN DEL CÁLCULO
     const periodosConSaldo = calcularSaldosPorPeriodo(
       primerContrato?.fecha_inicio,
       selectColaborador.vacaciones,
       selectVacacion.id,
     );
 
-    // Extraemos los dos primeros periodos con días libres
     const p1 =
       periodosConSaldo.length > 0
         ? periodosConSaldo[0]
@@ -255,6 +270,8 @@ export const generarDocumentoWordVacaciones = async (
         : { label: "", disponible: "" };
 
     doc.render({
+      logo: "", // La etiqueta ya fue eliminada del XML arriba; este valor no se usa
+
       nombre: selectColaborador.nombre_colaborador || "",
       empresa:
         selectColaborador.empresa === "Granjas Peruanas"
@@ -273,14 +290,13 @@ export const generarDocumentoWordVacaciones = async (
         : "",
       fecha_hoy: fechaHoy,
 
-      // === IMPRESIÓN DINÁMICA DE LOS PERIODOS ===
       periodo_1: p1.label,
       dias_1: p1.disponible,
-
       periodo_2: p2.label,
       dias_2: p2.disponible,
-      // ==========================================
 
+      // FIX: uso_efectivo y compensacion ahora están en runs unificados en la
+      // plantilla corregida, por lo que docxtemplater los reemplaza correctamente.
       uso_efectivo: tipo_solicitud === "PROGRAMADAS" ? "X" : " ",
       compensacion: tipo_solicitud === "COMPRA" ? "X" : " ",
 
