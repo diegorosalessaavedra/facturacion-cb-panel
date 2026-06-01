@@ -71,14 +71,14 @@ const loadIcon = async (url, size = 32) => {
 };
 
 /**
- * Función corregida para dibujar filas de información
+ * Función corregida para dibujar filas de información (Modificada para mayúsculas)
  */
 const drawInfoRow = (
   pdf,
-  { icon, label, text, x, y, iconSize, textOffset }
+  { icon, label, text, x, y, iconSize, textOffset },
 ) => {
   const lineHeight = 5;
-  if (!text || text.trim() === "") return y;
+  if (!text || String(text).trim() === "") return y;
 
   // Dibujar icono si está disponible
   if (icon) {
@@ -89,9 +89,9 @@ const drawInfoRow = (
     }
   }
 
-  // Preparar texto
-  const labelPart = label ? `${label}: ` : "";
-  const valuePart = text || "";
+  // Preparar texto en mayúsculas
+  const labelPart = label ? `${String(label).toUpperCase()}: ` : "";
+  const valuePart = text ? String(text).toUpperCase() : "";
 
   // Configurar fuente para etiqueta
   if (label) {
@@ -151,12 +151,14 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     const photoSize = 32;
     const infoX = margin + photoSize + 10;
 
-    // Título
+    // Título en mayúsculas
     pdf.setFont("helvetica", "bold").setFontSize(16);
     const fullName = `${data.nombre_colaborador || ""} ${
       data.apellidos_colaborador || ""
-    }`.trim();
-    pdf.text(fullName || "Sin nombre", infoX, yPos);
+    }`
+      .trim()
+      .toUpperCase();
+    pdf.text(fullName || "SIN NOMBRE", infoX, yPos);
 
     // Foto con manejo de errores mejorado
     if (data.foto_colaborador) {
@@ -191,7 +193,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
             photoSize,
             photoSize,
             undefined,
-            "FAST"
+            "FAST",
           );
         } else {
           throw new Error("No se pudo cargar la imagen");
@@ -202,7 +204,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
         pdf.setDrawColor(200);
         pdf.rect(margin, yPos, photoSize, photoSize);
         pdf.setFont("helvetica", "normal").setFontSize(8);
-        pdf.text("Sin foto", margin + photoSize / 2, yPos + photoSize / 2, {
+        pdf.text("SIN FOTO", margin + photoSize / 2, yPos + photoSize / 2, {
           align: "center",
         });
       }
@@ -210,7 +212,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
 
     // Chip de estado
     if (data.estado) {
-      const isActivo = data.estado === "ACTIVO";
+      const isActivo = data.estado.toUpperCase() === "ACTIVO";
       const chipColor = isActivo ? [26, 179, 148] : [237, 85, 101];
       const chipY = yPos + photoSize + 3;
 
@@ -220,16 +222,21 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
         .setFont("helvetica", "bold")
         .setFontSize(9)
         .setTextColor(255, 255, 255);
-      pdf.text(data.estado, margin + photoSize / 2, chipY + 4.5, {
-        align: "center",
-      });
+      pdf.text(
+        String(data.estado).toUpperCase(),
+        margin + photoSize / 2,
+        chipY + 4.5,
+        {
+          align: "center",
+        },
+      );
       pdf.setTextColor(0, 0, 0);
     }
 
     // Datos personales
     let personalInfoY = yPos + 8;
     pdf.setFont("helvetica", "bold").setFontSize(11).setTextColor(0, 0, 0);
-    pdf.text("Datos Personales", infoX, personalInfoY);
+    pdf.text("DATOS PERSONALES", infoX, personalInfoY);
     personalInfoY += 6;
 
     // Información personal con validación
@@ -327,7 +334,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     // DATOS LABORALES
     // ======================================================
     pdf.setFont("helvetica", "bold").setFontSize(11);
-    pdf.text("Datos Laborales", margin, yPos);
+    pdf.text("DATOS LABORALES", margin, yPos);
     yPos += 6;
 
     if (data.cargo_laboral?.cargo) {
@@ -365,7 +372,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     // CONTACTOS DE EMERGENCIA
     // ======================================================
     pdf.setFont("helvetica", "bold").setFontSize(11);
-    pdf.text("Contactos de Emergencia", margin, yPos);
+    pdf.text("CONTACTOS DE EMERGENCIA", margin, yPos);
     yPos += 6;
 
     const colWidth = (pageWidth - margin * 2 - 10) / 2;
@@ -376,7 +383,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     // Contacto 1
     if (data.nombre_contacto_emergencia || data.telefono_contacto_emergencia) {
       pdf.setFont("helvetica", "bold").setFontSize(10);
-      pdf.text("Contacto 1", margin, yCol1);
+      pdf.text("CONTACTO 1", margin, yCol1);
       yCol1 += 5;
 
       const nombreCompleto1 = `${data.nombre_contacto_emergencia || ""} ${
@@ -425,7 +432,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
       data.telefono_contacto_emergencia2
     ) {
       pdf.setFont("helvetica", "bold").setFontSize(10);
-      pdf.text("Contacto 2", col2X, yCol2);
+      pdf.text("CONTACTO 2", col2X, yCol2);
       yCol2 += 5;
 
       const nombreCompleto2 = `${data.nombre_contacto_emergencia2 || ""} ${
@@ -479,7 +486,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     // DOCUMENTOS
     // ======================================================
     pdf.setFont("helvetica", "bold").setFontSize(11);
-    pdf.text("Documentos", margin, yPos);
+    pdf.text("DOCUMENTOS", margin, yPos);
     yPos += 6;
 
     pdf.setFont("helvetica", "normal").setFontSize(10);
@@ -488,7 +495,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     if (data.cv_colaborador) {
       const cvUrl = `${laravelUrl}/colaboradores/${data.cv_colaborador}`;
       pdf.setTextColor(43, 108, 176);
-      pdf.textWithLink(" Descargar CV", margin, yPos, { url: cvUrl });
+      pdf.textWithLink(" DESCARGAR CV", margin, yPos, { url: cvUrl });
       pdf.setTextColor(0, 0, 0);
       yPos += 6;
       hasDocuments = true;
@@ -498,7 +505,10 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
       data.documentos_complementarios.forEach((doc) => {
         const docUrl = `${laravelUrl}/colaboradores/${doc.link_doc_complementario}`;
         pdf.setTextColor(43, 108, 176);
-        pdf.textWithLink(` ${doc.nombre_doc_complementario}`, margin, yPos, {
+        const docNombre = doc.nombre_doc_complementario
+          ? String(doc.nombre_doc_complementario).toUpperCase()
+          : "";
+        pdf.textWithLink(` ${docNombre}`, margin, yPos, {
           url: docUrl,
         });
         pdf.setTextColor(0, 0, 0);
@@ -512,7 +522,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
         .setFont("helvetica", "italic")
         .setFontSize(9)
         .setTextColor(150, 150, 150);
-      pdf.text("No hay documentos registrados.", margin, yPos);
+      pdf.text("NO HAY DOCUMENTOS REGISTRADOS.", margin, yPos);
       pdf.setTextColor(0, 0, 0);
       yPos += 6;
     }
@@ -532,40 +542,44 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
 
     // Contratos
     pdf.setFont("helvetica", "bold").setFontSize(11);
-    pdf.text("Contratos", margin, yColContratos);
+    pdf.text("CONTRATOS", margin, yColContratos);
     yColContratos += 6;
 
     pdf.setFont("helvetica", "normal").setFontSize(9);
     if (data.contratos?.length > 0) {
       data.contratos.forEach((c) => {
+        const estado = c?.estado_contrato
+          ? String(c.estado_contrato).toUpperCase()
+          : "";
         pdf.text(
-          ` ${c.fecha_inicio} - ${c.fecha_final} ${c?.estado_contrato}`,
+          ` ${c.fecha_inicio} - ${c.fecha_final} ${estado}`,
           margin,
-          yColContratos
+          yColContratos,
         );
         yColContratos += 5;
       });
     } else {
       pdf.setFont("helvetica", "italic").setTextColor(150, 150, 150);
-      pdf.text("No hay contratos registrados.", margin, yColContratos);
+      pdf.text("NO HAY CONTRATOS REGISTRADOS.", margin, yColContratos);
       pdf.setTextColor(0, 0, 0);
       yColContratos += 5;
     }
 
     // Memos
     pdf.setFont("helvetica", "bold").setFontSize(11);
-    pdf.text("Memos", col2X, yColMemos);
+    pdf.text("MEMOS", col2X, yColMemos);
     yColMemos += 6;
 
     pdf.setFont("helvetica", "normal").setFontSize(9);
     if (data.memos?.length > 0) {
       data.memos.forEach((m) => {
-        pdf.text(`• ${m.motivo_memo}`, col2X, yColMemos);
+        const motivo = m.motivo_memo ? String(m.motivo_memo).toUpperCase() : "";
+        pdf.text(`• ${motivo}`, col2X, yColMemos);
         yColMemos += 5;
       });
     } else {
       pdf.setFont("helvetica", "italic").setTextColor(150, 150, 150);
-      pdf.text("No hay memos registrados.", col2X, yColMemos);
+      pdf.text("NO HAY MEMOS REGISTRADOS.", col2X, yColMemos);
       pdf.setTextColor(0, 0, 0);
       yColMemos += 5;
     }
@@ -582,19 +596,19 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     try {
       const pdf = new jsPDF("p", "mm", "a4");
       pdf.setFont("helvetica", "bold").setFontSize(16);
-      pdf.text("Error al generar PDF completo", 20, 30);
+      pdf.text("ERROR AL GENERAR PDF COMPLETO", 20, 30);
       pdf.setFont("helvetica", "normal").setFontSize(12);
       pdf.text(
-        "Se ha producido un error al generar el PDF con todos los elementos.",
+        "SE HA PRODUCIDO UN ERROR AL GENERAR EL PDF CON TODOS LOS ELEMENTOS.",
         20,
-        50
+        50,
       );
-      pdf.text("Por favor, contacte al administrador del sistema.", 20, 60);
+      pdf.text("POR FAVOR, CONTACTE AL ADMINISTRADOR DEL SISTEMA.", 20, 60);
       pdf.save("Error_PDF_Colaborador.pdf");
     } catch (fallbackError) {
       console.error("Error en PDF de fallback:", fallbackError);
       alert(
-        "Error crítico al generar el PDF. Por favor, recargue la página e intente nuevamente."
+        "ERROR CRÍTICO AL GENERAR EL PDF. POR FAVOR, RECARGUE LA PÁGINA E INTENTE NUEVAMENTE.",
       );
     }
   }

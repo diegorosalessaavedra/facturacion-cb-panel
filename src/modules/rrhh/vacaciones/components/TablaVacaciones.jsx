@@ -30,6 +30,7 @@ const TablaVacaciones = ({
   const cellData = `${cellBase} bg-white text-slate-700 `;
   const cellHighlight = `${cellBase} bg-amber-50 text-amber-900 font-bold`;
   const cellAlert = `${cellBase} bg-red-50 text-red-600 font-bold`;
+  const cellGreen = `${cellBase} bg-green-50 text-green-600 font-bold`;
 
   // === 2. FUNCIONES DE CÁLCULO MATEMÁTICO ===
   const obtenerDiasTranscurridos = (fechaInicio) => {
@@ -217,7 +218,13 @@ const TablaVacaciones = ({
 
                   {/* Celda Disponible con cálculo */}
                   <div
-                    className={diasDisponibles <= 0 ? cellAlert : cellHighlight}
+                    className={
+                      diasDisponibles >= 0 && diasDisponibles <= 7
+                        ? cellHighlight
+                        : diasDisponibles >= 8 && diasDisponibles <= 15
+                          ? cellGreen
+                          : cellAlert
+                    }
                   >
                     {diasDisponibles} días
                   </div>

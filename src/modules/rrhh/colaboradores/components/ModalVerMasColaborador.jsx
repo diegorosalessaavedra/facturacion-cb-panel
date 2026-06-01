@@ -16,12 +16,10 @@ import { RiMapPin5Fill } from "react-icons/ri";
 import formatDate from "../../../../hooks/FormatDate";
 import generateColaboradorPdf from "../../../../assets/plantillapdfcolaboradores";
 
-// Constante para la URL base de la API
 const laravelUrl = import.meta.env.VITE_LARAVEL_URL;
 
-// Componente reutilizable para mostrar una fila de información
 const InfoRow = ({ icon, label, children }) => {
-  if (!children) return null; // No renderizar si no hay contenido
+  if (!children) return null;
 
   return (
     <li className="flex items-start gap-3 text-sm">
@@ -36,7 +34,6 @@ const InfoRow = ({ icon, label, children }) => {
   );
 };
 
-// Componente reutilizable para las cabeceras de sección
 const SectionHeader = ({ children }) => (
   <h4 className="text-base font-semibold text-neutral-800 mt-2">{children}</h4>
 );
@@ -46,12 +43,10 @@ const ModalVerMasColaborador = ({
   onOpenChange,
   selectColaborador,
 }) => {
-  // Retorna null si no hay un colaborador seleccionado para evitar errores
   if (!selectColaborador) {
     return null;
   }
 
-  // Desestructuramos los datos del colaborador para un acceso más fácil
   const {
     nombre_colaborador,
     apellidos_colaborador,
@@ -97,7 +92,7 @@ const ModalVerMasColaborador = ({
               {apellidos_colaborador} {nombre_colaborador}
             </ModalHeader>
 
-            <ModalBody className="overflow-y-auto p-4">
+            <ModalBody className="overflow-y-auto p-4 uppercase">
               <div className="flex flex-col gap-4">
                 {/* SECCIÓN PRINCIPAL: FOTO Y DATOS PERSONALES */}
                 <div className="flex flex-col md:flex-row gap-6 items-start">

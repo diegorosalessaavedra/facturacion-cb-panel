@@ -302,8 +302,8 @@ export const generarDocumentoWordVacaciones = async (
 
       periodo: selectVacacion.year_vacaciones || "",
       dias: selectVacacion.dias_totales || "",
-      fecha_inicio: selectVacacion.fecha_inicio || "",
-      fecha_final: selectVacacion.fecha_final || "",
+      fecha_inicio: formatDate(selectVacacion.fecha_inicio) || "",
+      fecha_final: formatDate(selectVacacion.fecha_final) || "",
       compras_periodo:
         selectVacacion.tipo_solicitud === "COMPRA"
           ? selectVacacion.year_vacaciones
