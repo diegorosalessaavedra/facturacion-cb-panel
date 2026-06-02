@@ -263,7 +263,8 @@ const ModalVerMasColaborador = ({
                       {contratos.length > 0 ? (
                         contratos.map((c) => (
                           <li key={c.id} className="text-sm">
-                            {c.fecha_inicio} - {c.fecha_final}{" "}
+                            {formatDate(c.fecha_inicio)} -{" "}
+                            {formatDate(c.fecha_final)}{" "}
                             <span
                               className={`${
                                 c.estado_contrato === "vigente"

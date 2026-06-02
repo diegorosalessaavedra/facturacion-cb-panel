@@ -552,7 +552,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
           ? String(c.estado_contrato).toUpperCase()
           : "";
         pdf.text(
-          ` ${c.fecha_inicio} - ${c.fecha_final} ${estado}`,
+          ` ${formatDate(c.fecha_inicio)} - ${formatDate(c.fecha_final)} ${estado}`,
           margin,
           yColContratos,
         );
