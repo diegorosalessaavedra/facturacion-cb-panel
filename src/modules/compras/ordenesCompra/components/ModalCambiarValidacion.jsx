@@ -98,7 +98,7 @@ const ModalCambiarValidacion = ({
               <div className="flex gap-3 w-full my-3">
                 <div className="flex-1 bg-primary-50 border border-primary-100 rounded-xl p-3 flex flex-col items-start justify-center">
                   <span className="text-[10px] text-primary-600 font-semibold uppercase tracking-wider">
-                    Saldo a Pagar
+                    INSTRUCCIÓN DE PAGO
                   </span>
                   <span className="text-lg font-bold text-primary-800">
                     S/ {formatNumber(saldoNeto)}
@@ -106,7 +106,7 @@ const ModalCambiarValidacion = ({
                 </div>
                 <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col items-start justify-center">
                   <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
-                    Saldo Acumulado
+                    SALDO ACUMULADO
                   </span>
                   <span className="text-lg font-bold text-slate-700">
                     S/ {formatNumber(saldoAcumulado)}
