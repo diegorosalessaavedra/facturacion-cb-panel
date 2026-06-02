@@ -278,7 +278,7 @@ export const generarDocumentoWordVacaciones = async (
         selectColaborador.empresa === "Granjas Peruanas"
           ? "GRANJAS PERUANAS CHICKENBABY S.A.C. - 20614310694"
           : selectColaborador.empresa === "Multinacional Services"
-            ? "MULTINACIONAL SERVICE CORRP S.A.C. - 20606198826"
+            ? "MULTINACIONAL SERVICE CORP S.A.C. - 20606198826"
             : "DIEGO ALONSO ROSALES SAAVEDRA - 10436760693",
       cargo:
         selectColaborador.cargo_laboral?.cargo || "Área/Gerencia no asignada",
