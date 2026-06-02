@@ -298,19 +298,19 @@ export const generarDocumentoWordVacaciones = async (
 
       // FIX: uso_efectivo y compensacion ahora están en runs unificados en la
       // plantilla corregida, por lo que docxtemplater los reemplaza correctamente.
-      uso_efectivo: selectVacacion.tipo_solicitud === "PROGRAMADAS" ? "X" : " ",
-      compensacion: selectVacacion.tipo_solicitud === "COMPRA" ? "X" : " ",
+      uso_efectivo: selectVacacion.tipo_vaciones === "PROGRAMADAS" ? "X" : " ",
+      compensacion: selectVacacion.tipo_vaciones === "COMPRA" ? "X" : " ",
 
       periodo: selectVacacion.year_vacaciones || "",
       dias: selectVacacion.dias_totales || "",
       fecha_inicio: formatDate(selectVacacion.fecha_inicio) || "",
       fecha_final: formatDate(selectVacacion.fecha_final) || "",
       compras_periodo:
-        selectVacacion.tipo_solicitud === "COMPRA"
+        selectVacacion.tipo_vaciones === "COMPRA"
           ? selectVacacion.year_vacaciones
           : " ",
       compras_dia:
-        selectVacacion.tipo_solicitud === "COMPRA" ? selectVacacion.dias : " ",
+        selectVacacion.tipo_vaciones === "COMPRA" ? selectVacacion.dias : " ",
     });
 
     const out = doc.getZip().generate({
@@ -321,7 +321,7 @@ export const generarDocumentoWordVacaciones = async (
 
     saveAs(
       out,
-      `Formato_${selectVacacion.tipo_solicitud}_Vacaciones_${selectColaborador.nombre_colaborador}.docx`,
+      `Formato_${selectVacacion.tipo_vaciones}_Vacaciones_${selectColaborador.nombre_colaborador}.docx`,
     );
 
     return true;
