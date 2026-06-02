@@ -268,6 +268,7 @@ export const generarDocumentoWordVacaciones = async (
       periodosConSaldo.length > 1
         ? periodosConSaldo[1]
         : { label: "", disponible: "" };
+    console.log(tipo_solicitud === "PROGRAMADAS");
 
     doc.render({
       logo: "", // La etiqueta ya fue eliminada del XML arriba; este valor no se usa
@@ -297,8 +298,8 @@ export const generarDocumentoWordVacaciones = async (
 
       // FIX: uso_efectivo y compensacion ahora están en runs unificados en la
       // plantilla corregida, por lo que docxtemplater los reemplaza correctamente.
-      uso_efectivo: tipo_solicitud === "PROGRAMADAS" ? "X" : " ",
-      compensacion: tipo_solicitud === "COMPRA" ? "X" : " ",
+      uso_efectivo: selectVacacion.tipo_solicitud === "PROGRAMADAS" ? "X" : " ",
+      compensacion: selectVacacion.tipo_solicitud === "COMPRA" ? "X" : " ",
 
       periodo: selectVacacion.year_vacaciones || "",
       dias: selectVacacion.dias_totales || "",
@@ -320,7 +321,7 @@ export const generarDocumentoWordVacaciones = async (
 
     saveAs(
       out,
-      `Formato_${tipo_solicitud}_Vacaciones_${selectColaborador.nombre_colaborador}.docx`,
+      `Formato_${selectVacacion.tipo_solicitud}_Vacaciones_${selectColaborador.nombre_colaborador}.docx`,
     );
 
     return true;
