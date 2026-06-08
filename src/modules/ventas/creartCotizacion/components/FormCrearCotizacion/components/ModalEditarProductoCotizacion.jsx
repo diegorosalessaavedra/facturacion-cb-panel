@@ -65,7 +65,7 @@ const ModalEditarProductoCotizacion = ({
 
   const isCostosYGastos = useMemo(
     () => tipo_productos === "Costos y gastos",
-    [tipo_productos]
+    [tipo_productos],
   );
 
   const handleFindProductos = useCallback(async () => {
@@ -127,7 +127,7 @@ const ModalEditarProductoCotizacion = ({
         return updatedData;
       });
     },
-    [calculateTotal]
+    [calculateTotal],
   );
 
   const onSelectionChange = useCallback(
@@ -135,13 +135,13 @@ const ModalEditarProductoCotizacion = ({
       setSelectProducto(value);
 
       const selectedProduct = findProductos.find(
-        (product) => product.id.toString() === value
+        (product) => product.id.toString() === value,
       );
 
       if (selectedProduct) {
         const total = calculateTotal(
           dataProducto.cantidad,
-          selectedProduct.precioUnitario
+          selectedProduct.precioUnitario,
         );
 
         setDataProducto((prevData) => ({
@@ -155,7 +155,7 @@ const ModalEditarProductoCotizacion = ({
         }));
       }
     },
-    [findProductos, dataProducto.cantidad, calculateTotal]
+    [findProductos, dataProducto.cantidad, calculateTotal],
   );
 
   const isFormValid = useMemo(() => {
@@ -176,7 +176,7 @@ const ModalEditarProductoCotizacion = ({
   const selectedProduct = useMemo(
     () =>
       findProductos.find((product) => product.id.toString() === selectProducto),
-    [findProductos, selectProducto]
+    [findProductos, selectProducto],
   );
 
   // Determinar el tipo de input para cantidad
@@ -286,7 +286,7 @@ const ModalEditarProductoCotizacion = ({
                       size="sm"
                       selectedKeys={
                         dataProducto.centroCostoId
-                          ? [dataProducto.centroCostoId]
+                          ? [`${dataProducto.centroCostoId}`]
                           : []
                       }
                       onChange={(e) =>
