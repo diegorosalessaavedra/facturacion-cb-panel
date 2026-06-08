@@ -149,7 +149,7 @@ const ModalPdfOrdenCompraId = ({ onOpenChange, isOpen, id }) => {
                           <td className="px-2 py-[3px]">{producto.cantidad}</td>
                           <td>{producto.producto?.codUnidad}</td>
                           <td>{producto?.producto?.nombre}</td>
-                          <td>{formatNumber(producto.precioUnitario)}</td>
+                          <td>{producto.precioUnitario}</td>
                           <td>{formatNumber(producto.total)}</td>
                         </tr>
                       ))}

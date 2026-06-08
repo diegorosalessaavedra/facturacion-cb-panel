@@ -450,7 +450,7 @@ const TablaEECCProvedores = ({
                           {prod ? Number(prod.cantidad).toFixed(0) : "-"}
                         </td>
                         <td className="py-2 px-2 text-center font-medium text-slate-700 border-r border-slate-200 bg-white">
-                          {prod ? `S/ ${numberPeru(prod.precioUnitario)}` : "-"}
+                          {prod ? `S/ ${prod.precioUnitario}` : "-"}
                         </td>
                         <td className="py-2 px-2 text-center font-bold text-slate-900 border-r border-slate-300 bg-white">
                           {prod ? `S/ ${numberPeru(prod.total)}` : "-"}
