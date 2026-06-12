@@ -256,7 +256,9 @@ export const generarDocumentoWordVacaciones = async (
 
     const periodosConSaldo = calcularSaldosPorPeriodo(
       primerContrato?.fecha_inicio,
-      selectColaborador.vacaciones,
+      selectColaborador.vacaciones.filter(
+        (v) => v.pendiente_autorizacion !== "RECHAZADO",
+      ),
       selectVacacion.id,
     );
 
@@ -296,8 +298,6 @@ export const generarDocumentoWordVacaciones = async (
       periodo_2: p2.label,
       dias_2: p2.disponible,
 
-      // FIX: uso_efectivo y compensacion ahora están en runs unificados en la
-      // plantilla corregida, por lo que docxtemplater los reemplaza correctamente.
       uso_efectivo: selectVacacion.tipo_vaciones === "PROGRAMADAS" ? "X" : " ",
       compensacion: selectVacacion.tipo_vaciones === "COMPRA" ? "X" : " ",
 

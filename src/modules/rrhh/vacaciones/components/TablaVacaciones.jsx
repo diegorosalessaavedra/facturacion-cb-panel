@@ -127,11 +127,14 @@ const TablaVacaciones = ({
 
               // 1. CÁLCULO DE DÍAS DISPONIBLES
               const totalDiasSolicitados =
-                colab.vacaciones?.reduce(
-                  (acumulador, vacacion) =>
-                    acumulador + (vacacion.dias_totales || 0),
-                  0,
-                ) || 0;
+                colab.vacaciones?.reduce((acumulador, vacacion) => {
+                  // Si el estado es RECHAZADO, no sumamos los días
+                  if (vacacion.pendiente_autorizacion === "RECHAZADO") {
+                    return acumulador;
+                  }
+                  // En caso de estar PENDIENTE o ACEPTADO, sumamos los días
+                  return acumulador + (vacacion.dias_totales || 0);
+                }, 0) || 0;
 
               const diasDisponibles = netoCalculado - totalDiasSolicitados;
 
@@ -171,23 +174,39 @@ const TablaVacaciones = ({
                       >
                         {vacacionesEnEsteAnio &&
                         vacacionesEnEsteAnio.length > 0 ? (
-                          vacacionesEnEsteAnio.map((vac) => (
-                            <Button
-                              key={vac.id}
-                              size="sm"
-                              color="primary"
-                              variant="flat"
-                              className="h-6 min-h-[24px] text-[10px] font-bold w-full px-1"
-                              onPress={() => {
-                                setSelectModal("verVacaciones");
-                                setSelectColaborador(colab);
-                                setSelectVacacion(vac);
-                                onOpen();
-                              }}
-                            >
-                              {vac.dias_totales} d
-                            </Button>
-                          ))
+                          vacacionesEnEsteAnio.map((vac) => {
+                            // Determinamos el color de NextUI basado en el estado
+                            let colorEstado = "primary"; // Color por defecto por si acaso
+                            if (vac.pendiente_autorizacion === "ACEPTADO") {
+                              colorEstado = "success"; // Verde
+                            } else if (
+                              vac.pendiente_autorizacion === "RECHAZADO"
+                            ) {
+                              colorEstado = "danger"; // Rojo
+                            } else if (
+                              vac.pendiente_autorizacion === "PENDIENTE"
+                            ) {
+                              colorEstado = "warning"; // Ámbar
+                            }
+
+                            return (
+                              <Button
+                                key={vac.id}
+                                size="sm"
+                                color={colorEstado}
+                                variant="flat"
+                                className="h-6 min-h-[24px] text-[10px] font-bold w-full px-1"
+                                onPress={() => {
+                                  setSelectModal("verVacaciones");
+                                  setSelectColaborador(colab);
+                                  setSelectVacacion(vac);
+                                  onOpen();
+                                }}
+                              >
+                                {vac.dias_totales} d
+                              </Button>
+                            );
+                          })
                         ) : (
                           <span className="text-slate-300">-</span>
                         )}
