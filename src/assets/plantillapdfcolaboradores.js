@@ -288,7 +288,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
       });
     }
 
-    // Lugar de nacimiento
+    // Lugar de Residencia
     const lugarNacimiento = [
       data.departamento_colaborador,
       data.provincia_colaborador,
@@ -300,7 +300,7 @@ const generateColaboradorPdf = async (data, laravelUrl) => {
     if (lugarNacimiento) {
       personalInfoY = drawInfoRow(pdf, {
         icon: icons.point,
-        label: "Lugar de Nacimiento",
+        label: "Lugar de Residencia",
         text: lugarNacimiento,
         x: infoX,
         y: personalInfoY,

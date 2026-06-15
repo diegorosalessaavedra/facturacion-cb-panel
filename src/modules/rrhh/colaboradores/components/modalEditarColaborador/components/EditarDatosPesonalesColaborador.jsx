@@ -29,13 +29,13 @@ const EditarDatosPesonalesColaborador = ({
   // Obtención inicial de valores seleccionados
   useEffect(() => {
     const dep = departamentos.find(
-      (d) => d.Departamento === selectColaborador.departamento_colaborador
+      (d) => d.Departamento === selectColaborador.departamento_colaborador,
     );
     const prov = provincias.find(
-      (p) => p.Provincia === selectColaborador.provincia_colaborador
+      (p) => p.Provincia === selectColaborador.provincia_colaborador,
     );
     const dist = distritos.find(
-      (d) => d.Distrito === selectColaborador.distrito_colaborador
+      (d) => d.Distrito === selectColaborador.distrito_colaborador,
     );
 
     if (dep) setSelectDepartamento(String(dep.id));
@@ -73,12 +73,12 @@ const EditarDatosPesonalesColaborador = ({
   // Provincias y distritos filtrados
   const provinciasFiltradas = useMemo(
     () => provincias.filter((p) => p.UbigeoId === Number(selectDepartamento)),
-    [selectDepartamento]
+    [selectDepartamento],
   );
 
   const distritosFiltrados = useMemo(
     () => distritos.filter((d) => d.UbigeoProvId === Number(selectProvincia)),
-    [selectProvincia]
+    [selectProvincia],
   );
 
   return (
@@ -215,7 +215,7 @@ const EditarDatosPesonalesColaborador = ({
       {/* UBIGEO */}
       <section className="flex flex-col gap-2">
         <h3 className="font-semibold text-sm text-blue-800">
-          Lugar de nacimiento:
+          Lugar de Residencia:
         </h3>
         <div className="flex gap-2">
           <Select

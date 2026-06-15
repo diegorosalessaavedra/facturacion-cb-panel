@@ -140,7 +140,7 @@ const ModalVerMasColaborador = ({
                       </InfoRow>
                       <InfoRow
                         icon={<RiMapPin5Fill />}
-                        label="Lugar de Nacimiento"
+                        label="Lugar de Residencia"
                       >
                         <strong>{`${departamento_colaborador} - ${provincia_colaborador} - ${distrito_colaborador}`}</strong>
                       </InfoRow>

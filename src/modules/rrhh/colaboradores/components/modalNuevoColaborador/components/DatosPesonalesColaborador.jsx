@@ -28,13 +28,13 @@ const DatosPesonalesColaborador = ({
 
   useEffect(() => {
     const departamentoSeleccionado = departamentos.find(
-      (departamento) => departamento.id === Number(selectDepartamento)
+      (departamento) => departamento.id === Number(selectDepartamento),
     );
     const provinciaSeleccionada = provincias.find(
-      (provincia) => provincia.id === Number(selectProvincia)
+      (provincia) => provincia.id === Number(selectProvincia),
     );
     const distritoSeleccionado = distritos.find(
-      (distrito) => distrito.id === Number(selectDistrito)
+      (distrito) => distrito.id === Number(selectDistrito),
     );
 
     setDepartamento(departamentoSeleccionado);
@@ -205,7 +205,7 @@ const DatosPesonalesColaborador = ({
       </div>
       <div className="w-full flex flex-col gap-2  pb-2">
         <h3 className="font-semibold text-sm text-blue-800">
-          Lugar de nacimiento:
+          Lugar de Residencia:
         </h3>
 
         <div className="w-full flex gap-2">
@@ -251,7 +251,8 @@ const DatosPesonalesColaborador = ({
           >
             {provincias
               .filter(
-                (provincia) => provincia.UbigeoId === Number(selectDepartamento)
+                (provincia) =>
+                  provincia.UbigeoId === Number(selectDepartamento),
               )
               .map((provincia) => (
                 <SelectItem key={provincia.id} value={provincia.id}>
@@ -278,7 +279,7 @@ const DatosPesonalesColaborador = ({
           >
             {distritos
               .filter(
-                (distrito) => distrito.UbigeoProvId === Number(selectProvincia)
+                (distrito) => distrito.UbigeoProvId === Number(selectProvincia),
               )
               .map((distrito) => (
                 <SelectItem key={distrito.id} value={distrito.id}>
