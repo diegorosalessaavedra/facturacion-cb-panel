@@ -63,7 +63,7 @@ const HeaderProfile = ({ userData }) => {
                 className="transition-transform ring-0 ring-amber-500 bg-slate-900"
                 color="warning"
                 size="sm"
-                src="/gp.png"
+                src="/nexus.png"
               />
             </div>
           </DropdownTrigger>
@@ -119,7 +119,7 @@ const HeaderProfile = ({ userData }) => {
               href="https://facturacion-granjas-peruanas.netlify.app"
               startContent={
                 <img
-                  className="w-8 h-8 rounded-sm shadow-sm object-contain border bg-slate-900 border-slate-100"
+                  className="w-8 h-8 rounded-sm shadow-sm object-contain border border-slate-100"
                   src="/logo.png"
                   alt=""
                 />
