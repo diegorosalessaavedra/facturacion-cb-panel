@@ -143,7 +143,7 @@ const HeaderProfile = ({ userData }) => {
                   }
                 >
                   <span className="font-medium text-xs">
-                    Facturación Multinacional
+                    Multinacional Service Corp
                   </span>
                 </DropdownItem>
               )}
