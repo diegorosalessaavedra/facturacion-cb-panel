@@ -99,22 +99,22 @@ const HeaderProfile = ({ userData }) => {
               </div>
             </DropdownItem>
 
-            {/* Enlaces a otros sistemas */}
-            <DropdownItem
-              key="Chicken"
-              href="https://sistema-facturacion-chicken-baby.netlify.app"
-              startContent={
-                <img
-                  className="w-8 h-8 rounded-sm shadow-sm object-contain border border-slate-100"
-                  src="/logo.jpg"
-                  alt=""
-                />
-              }
-            >
-              <span className="font-medium text-xs">
-                Facturación Chicken baby
-              </span>
-            </DropdownItem>
+            {userData.role !== "RRHH" &&
+              userData.role !== "PRACTICANTE CONTABLE" && (
+                <DropdownItem
+                  key="Despacho"
+                  href="https://despacho-en-tiempo-real.netlify.app"
+                  startContent={
+                    <div className="bg-amber-100 p-2 rounded-sm text-amber-600">
+                      <FaBoxOpen size={16} />
+                    </div>
+                  }
+                >
+                  <span className="font-medium text-xs">
+                    Despacho En Tiempo Real
+                  </span>
+                </DropdownItem>
+              )}
 
             {userData.role !== "VENDEDOR" &&
               userData.role !== "COMPRADOR/VENDEDOR" && (
@@ -150,23 +150,6 @@ const HeaderProfile = ({ userData }) => {
                 Facturación Granjas Peruanas
               </span>
             </DropdownItem>
-
-            {userData.role !== "RRHH" &&
-              userData.role !== "PRACTICANTE CONTABLE" && (
-                <DropdownItem
-                  key="Despacho"
-                  href="https://despacho-en-tiempo-real.netlify.app"
-                  startContent={
-                    <div className="bg-amber-100 p-2 rounded-sm text-amber-600">
-                      <FaBoxOpen size={16} />
-                    </div>
-                  }
-                >
-                  <span className="font-medium text-xs">
-                    Despacho En Tiempo Real
-                  </span>
-                </DropdownItem>
-              )}
 
             {/* Cerrar sesión */}
             <DropdownItem
