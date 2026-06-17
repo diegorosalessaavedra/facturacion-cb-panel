@@ -222,7 +222,7 @@ function App() {
     document.title = "Sistema de Facturacion y Cotizaciones";
     const favicon = document.querySelector('link[rel="icon"]');
     if (favicon) {
-      favicon.href = "./logo.svg";
+      favicon.href = "./gp.png";
     }
   }, []);
 
