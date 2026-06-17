@@ -120,7 +120,7 @@ const HeaderProfile = ({ userData }) => {
               startContent={
                 <img
                   className="w-8 h-8 rounded-sm shadow-sm object-contain border bg-slate-900 border-slate-100"
-                  src="/gp.png"
+                  src="/logo.png"
                   alt=""
                 />
               }
