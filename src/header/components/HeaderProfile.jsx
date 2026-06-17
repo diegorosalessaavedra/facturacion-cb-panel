@@ -110,7 +110,7 @@ const HeaderProfile = ({ userData }) => {
                   }
                 >
                   <span className="font-medium text-xs">
-                    Despacho En Tiempo Real
+                    Despacho en tiempo real
                   </span>
                 </DropdownItem>
               )}
