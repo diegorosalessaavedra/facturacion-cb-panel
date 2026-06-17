@@ -98,7 +98,6 @@ const HeaderProfile = ({ userData }) => {
                 </p>
               </div>
             </DropdownItem>
-
             {userData.role !== "RRHH" &&
               userData.role !== "PRACTICANTE CONTABLE" && (
                 <DropdownItem
@@ -115,7 +114,21 @@ const HeaderProfile = ({ userData }) => {
                   </span>
                 </DropdownItem>
               )}
-
+            <DropdownItem
+              key="Granjas Peruanas"
+              href="https://facturacion-granjas-peruanas.netlify.app"
+              startContent={
+                <img
+                  className="w-8 h-8 rounded-sm shadow-sm object-contain border border-slate-100"
+                  src="/gp.png"
+                  alt=""
+                />
+              }
+            >
+              <span className="font-medium text-xs">
+                Facturación Granjas Peruanas
+              </span>
+            </DropdownItem>
             {userData.role !== "VENDEDOR" &&
               userData.role !== "COMPRADOR/VENDEDOR" && (
                 <DropdownItem
@@ -134,23 +147,6 @@ const HeaderProfile = ({ userData }) => {
                   </span>
                 </DropdownItem>
               )}
-
-            <DropdownItem
-              key="Granjas Peruanas"
-              href="https://facturacion-granjas-peruanas.netlify.app"
-              startContent={
-                <img
-                  className="w-8 h-8 rounded-sm shadow-sm object-contain border border-slate-100"
-                  src="/gp.png"
-                  alt=""
-                />
-              }
-            >
-              <span className="font-medium text-xs">
-                Facturación Granjas Peruanas
-              </span>
-            </DropdownItem>
-
             {/* Cerrar sesión */}
             <DropdownItem
               key="logout"
