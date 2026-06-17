@@ -60,10 +60,10 @@ const HeaderProfile = ({ userData }) => {
               <Avatar
                 isBordered
                 as="button"
-                className="transition-transform ring-2 ring-amber-500 bg-slate-100"
+                className="transition-transform ring-2 ring-amber-500 bg-slate-900"
                 color="warning"
                 size="sm"
-                src="/logo.jpeg"
+                src="/gp.png"
               />
             </div>
           </DropdownTrigger>
