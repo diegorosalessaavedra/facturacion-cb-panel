@@ -119,7 +119,7 @@ const HeaderProfile = ({ userData }) => {
               href="https://facturacion-granjas-peruanas.netlify.app"
               startContent={
                 <img
-                  className="w-8 h-8 rounded-sm shadow-sm object-contain border border-slate-100"
+                  className="w-8 h-8 rounded-sm shadow-sm object-contain border bg-slate-900 border-slate-100"
                   src="/gp.png"
                   alt=""
                 />
