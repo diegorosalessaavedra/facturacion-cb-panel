@@ -126,7 +126,7 @@ const HeaderProfile = ({ userData }) => {
               }
             >
               <span className="font-medium text-xs">
-                Facturación Granjas Peruanas
+                Granjas Peruanas Chicken Baby
               </span>
             </DropdownItem>
             {userData.role !== "VENDEDOR" &&
