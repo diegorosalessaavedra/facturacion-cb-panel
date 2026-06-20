@@ -14,7 +14,7 @@ const Header = ({ userData }) => {
   };
   return (
     <aside
-      className={`group relative h-screen bg-slate-900 shadow-2xl transition-all duration-300 
+      className={`group relative h-screen bg-slate-950 border-r-1 border-amber-500/40  shadow-2xl transition-all duration-300 
       ${isMenuOpen ? "w-[260px] max-w-[260px]" : "min-w-[60px]  max-w-[60px] hover:min-w-[260px] hover:max-w-[260px]"}
       `}
     >

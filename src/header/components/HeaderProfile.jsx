@@ -18,7 +18,7 @@ const HeaderProfile = ({ userData }) => {
 
   return (
     <div
-      className="fixed top-0 h-[65px]  bg-slate-900 backdrop-blur-md border-b border-l-1 border-slate-400 p-4 flex justify-between items-center z-30 transition-all duration-300
+      className="fixed top-0 h-[65px]  bg-slate-950 backdrop-blur-md border-b  border-slate-300/40 p-4 flex justify-between items-center z-30 transition-all duration-300
   left-[60px] w-[calc(100vw-60px)] 
   group-hover:left-[260px] group-hover:w-[calc(100vw-260px)]"
     >

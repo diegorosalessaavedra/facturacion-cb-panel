@@ -94,7 +94,7 @@ const ModalAgregarDescansoMedico = ({
                 <I18nProvider locale="es-ES">
                   <RangeCalendar
                     aria-label="Date (Visible Month)"
-                    minValue={today(getLocalTimeZone())}
+                    minValue={today(getLocalTimeZone()).subtract({ days: 4 })}
                     classNames={{
                       prevButton: "text-neutral-50",
                       nextButton: "text-neutral-50",

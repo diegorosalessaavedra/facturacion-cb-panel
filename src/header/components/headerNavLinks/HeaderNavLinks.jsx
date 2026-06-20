@@ -292,7 +292,7 @@ const HeaderNavLinks = ({
             ${
               isParentActive
                 ? "bg-amber-500/10 text-amber-500"
-                : "hover:bg-slate-700/60 text-slate-400 hover:text-white"
+                : "hover:bg-slate-800/60 text-slate-400 hover:text-white"
             }
           `}
         >
@@ -327,7 +327,7 @@ const HeaderNavLinks = ({
         {/* CONTENEDOR SUBMENÚ */}
         <div
           className={`
-            overflow-hidden transition-all duration-300 ease-in-out bg-slate-700/20 mt-1 rounded-lg
+            overflow-hidden transition-all duration-300 ease-in-out bg-slate-800/20 mt-1 rounded-lg
             ${isOpen ? "max-h-[500px] opacity-100 py-1" : "max-h-0 opacity-0"}
           `}
         >
