@@ -48,7 +48,7 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
   );
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 px-2 items-end">
+    <form onSubmit={handleSubmit} className="flex gap-2 px-3 items-end">
       <Input
         {...inputProps}
         className="w-[100%] max-w-[200px]"

@@ -79,7 +79,8 @@ const ModalEditarClientes = ({
       direccion: dataRuc.direccion,
       telefono: data.telefono,
       eecc: data.eecc,
-      permiso_credito: permisoCredito, // 3. Lo incluimos en los datos a enviar
+      permiso_credito: permisoCredito,
+      tipo_cliente: data.tipo_cliente,
     };
 
     const url = `${import.meta.env.VITE_URL_API}/clientes/${
@@ -189,18 +190,6 @@ const ModalEditarClientes = ({
                   size="sm"
                 />
 
-                {/* 5. Checkbox Reemplazado */}
-                <div className="w-1/4 flex items-center h-10">
-                  <Checkbox
-                    isSelected={permisoCredito}
-                    onValueChange={setPermisoCredito}
-                    color="primary"
-                    size="md"
-                  >
-                    Crédito
-                  </Checkbox>
-                </div>
-
                 <Select
                   className="w-1/4"
                   label="EECC"
@@ -215,6 +204,31 @@ const ModalEditarClientes = ({
                   <SelectItem key="Activo">Activo</SelectItem>
                   <SelectItem key="Inactivo">Inactivo</SelectItem>
                 </Select>
+                <Select
+                  className="w-1/4"
+                  label="Tipo Cliente"
+                  labelPlacement="outside"
+                  variant="bordered"
+                  {...register("tipo_cliente")}
+                  radius="sm"
+                  size="sm"
+                  classNames={selectClassNames}
+                  defaultSelectedKeys={[selectProveedor?.tipo_cliente]}
+                >
+                  <SelectItem key="REVENDEDOR">REVENDEDOR</SelectItem>
+                  <SelectItem key="CLIENTE">CLIENTE</SelectItem>
+                </Select>
+                {/* 5. Checkbox Reemplazado */}
+                <div className="w-1/4 flex items-center h-10">
+                  <Checkbox
+                    isSelected={permisoCredito}
+                    onValueChange={setPermisoCredito}
+                    color="primary"
+                    size="md"
+                  >
+                    Crédito
+                  </Checkbox>
+                </div>
               </div>
               <div className="w-full flex items-center justify-end gap-3 p-4">
                 <Button

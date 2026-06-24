@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
-  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -8,8 +7,9 @@ import {
   TableHeader,
   TableRow,
   Chip,
+  Pagination, // 🟢 Importamos el componente Pagination de NextUI
 } from "@nextui-org/react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaUsers } from "react-icons/fa";
 
 const TablaTusClientes = ({
   clientes,
@@ -17,12 +17,38 @@ const TablaTusClientes = ({
   onOpen,
   setSelectModal,
   setSelectProveedor,
+  // 🟢 Recibimos las props de paginación
+  page,
+  setPage,
+  totalPages,
 }) => {
+  // 🟢 Creamos el bloque de la paginación de manera optimizada
+  const bottomContent = useMemo(() => {
+    // Solo mostramos la paginación si hay más de 1 página
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex w-full justify-center p-2">
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          // Estilo alineado con tu paleta Slate-900
+          classNames={{
+            cursor: "bg-slate-900 text-white font-bold",
+          }}
+          page={page}
+          total={totalPages}
+          onChange={(page) => setPage(page)}
+        />
+      </div>
+    );
+  }, [page, totalPages, setPage]);
+
   return (
-    <div className="w-full flex items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+    <div className=" w-full flex items-center bg-white  pt-4 rounded-2xl shadow-sm ">
       {loading ? (
         <div className="m-auto flex flex-col items-center gap-4 py-20">
-          {/* Spinner en tono Amber usando Tailwind */}
           <div className="w-10 h-10 border-4 border-gray-200 border-t-amber-500 rounded-full animate-spin"></div>
           <span className="text-slate-900 font-medium animate-pulse">
             Cargando clientes...
@@ -34,14 +60,12 @@ const TablaTusClientes = ({
           color="primary"
           isStriped
           isHeaderSticky
+          bottomContent={bottomContent}
           classNames={{
-            base: "min-w-full h-[70vh] overflow-auto",
-            // Estilos globales para el encabezado (Slate-900 y texto Blanco)
+            base: "min-w-full h-full overflow-auto p-0",
             th: "bg-slate-900 text-white font-bold text-xs uppercase tracking-wider py-4 first:rounded-tl-lg last:rounded-tr-lg",
-            // Estilos para las celdas
-            td: "py-3 text-sm text-slate-800 border-b border-gray-100",
+            td: "py-2 text-xs text-slate-800 border-b border-gray-100",
           }}
-          isHeaderSticky
         >
           <TableHeader>
             <TableColumn width={50}>#</TableColumn>
@@ -61,7 +85,8 @@ const TablaTusClientes = ({
                 className="hover:bg-slate-50 transition-colors"
               >
                 <TableCell className="font-semibold text-slate-500">
-                  {index + 1}
+                  {/* Cálculo matemático para que la numeración sea correcta por cada página (asumiendo limit=10) */}
+                  {(page - 1) * 10 + index + 1}
                 </TableCell>
 
                 <TableCell className="font-medium text-slate-900">
@@ -84,7 +109,6 @@ const TablaTusClientes = ({
 
                 <TableCell>{cliente.telefono || "—"}</TableCell>
 
-                {/* PERMISO CRÉDITO: Verde / Rojo */}
                 <TableCell>
                   <Chip
                     size="sm"
@@ -96,7 +120,6 @@ const TablaTusClientes = ({
                   </Chip>
                 </TableCell>
 
-                {/* EECC: Verde / Rojo */}
                 <TableCell>
                   <span
                     className={`flex items-center justify-center gap-1.5 font-bold text-xs uppercase tracking-wide ${
@@ -106,15 +129,18 @@ const TablaTusClientes = ({
                     }`}
                   >
                     <span
-                      className={`w-2 h-2 rounded-full ${cliente.eecc === "Inactivo" ? "bg-red-500" : "bg-green-500"}`}
+                      className={`w-2 h-2 rounded-full ${
+                        cliente.eecc === "Inactivo"
+                          ? "bg-red-500"
+                          : "bg-green-500"
+                      }`}
                     ></span>
                     {cliente.eecc || "—"}
                   </span>
                 </TableCell>
 
-                {/* ACCIONES: Amber / Rojo */}
                 <TableCell>
-                  <div className="flex gap-3 items-center justify-center">
+                  <div className="flex gap-3 items-center justify-start">
                     <button
                       onClick={() => {
                         setSelectModal("editar");
@@ -137,6 +163,19 @@ const TablaTusClientes = ({
                     >
                       <FaTrashAlt className="text-lg" />
                     </button>
+                    {cliente.tipo_cliente === "REVENDEDOR" && (
+                      <button
+                        onClick={() => {
+                          setSelectModal("revendedor");
+                          setSelectProveedor(cliente);
+                          onOpen();
+                        }}
+                        className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 shadow-sm"
+                        title="Gestionar clientes asociados"
+                      >
+                        <FaUsers className="text-lg" />
+                      </button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
