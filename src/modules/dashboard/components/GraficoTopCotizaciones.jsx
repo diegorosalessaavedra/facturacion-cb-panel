@@ -1,29 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import config from "../../../utils/getToken";
 import { FaTrophy, FaStar } from "react-icons/fa";
+import { API } from "../../../utils/api";
 
 const GraficoTopCotizaciones = () => {
-  // Datos Ficticios (Top 20)
-  const mockData = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    nombre: `Cliente Corporativo ${i + 1}`,
-    cotizaciones: Math.floor(Math.random() * 100) + 10,
-  })).sort((a, b) => b.cotizaciones - a.cotizaciones);
+  const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Calculamos el valor máximo para que la barra de progreso sea relativa al 1er lugar
-  const maxCotizaciones = Math.max(...mockData.map((d) => d.cotizaciones));
-  const totalTop3 = mockData
+  useEffect(() => {
+    const fetchRanking = async () => {
+      try {
+        const url = `${API}/dashboard/ranking-clientes`;
+        const res = await axios.get(url, config);
+
+        setClientes(res.data.ranking || []);
+      } catch (error) {
+        console.error("Error al cargar el ranking de clientes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRanking();
+  }, []);
+
+  // CAMBIO: maxCotizaciones ahora usa d.cantidad_cotizaciones
+  const maxCotizaciones =
+    clientes.length > 0
+      ? Math.max(...clientes.map((d) => d.cantidad_cotizaciones))
+      : 1;
+
+  // CAMBIO: totalTop3 ahora usa curr.cantidad_cotizaciones
+  const totalTop3 = clientes
     .slice(0, 3)
-    .reduce((acc, curr) => acc + curr.cotizaciones, 0);
-
-  // Función para obtener las iniciales del cliente para su "Avatar"
-  const getInitials = (name) => {
-    return name
-      .split(" ")
-      .slice(0, 2)
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  };
+    .reduce((acc, curr) => acc + curr.cantidad_cotizaciones, 0);
 
   return (
     <div className="bg-slate-900/40 p-6 rounded-3xl border border-slate-800 w-full flex flex-col h-[450px] hover:border-slate-700/60 transition-colors duration-300">
@@ -53,74 +64,87 @@ const GraficoTopCotizaciones = () => {
         </div>
       </div>
 
-      {/* Lista Customizada (Reemplaza a Chart.js) */}
+      {/* Lista Customizada */}
       <div className="flex-1 w-full overflow-y-auto pr-2 space-y-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
-        {mockData.map((cliente, index) => {
-          const rank = index + 1;
-          const isTop3 = rank <= 3;
-          const porcentaje = (cliente.cotizaciones / maxCotizaciones) * 100;
+        {loading ? (
+          <div className="flex h-full items-center justify-center text-slate-400 text-sm font-semibold animate-pulse">
+            Cargando ranking...
+          </div>
+        ) : clientes.length === 0 ? (
+          <div className="flex h-full items-center justify-center text-slate-500 text-sm font-semibold">
+            No hay cotizaciones registradas.
+          </div>
+        ) : (
+          clientes.map((cliente, index) => {
+            const rank = index + 1;
+            const isTop3 = rank <= 3;
 
-          // Lógica de estilos para Oro, Plata, Bronce y Resto
-          let rankStyle = "bg-slate-800 text-slate-400 border border-slate-700";
-          let barColor = "bg-emerald-500/80 group-hover:bg-emerald-400"; // Color por defecto
+            // CAMBIO: Calculamos el porcentaje usando la nueva variable
+            const porcentaje =
+              (cliente.cantidad_cotizaciones / maxCotizaciones) * 100;
 
-          if (rank === 1) {
-            rankStyle =
-              "bg-gradient-to-br from-amber-300 to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 border-none font-black";
-            barColor = "bg-gradient-to-r from-amber-500 to-amber-400";
-          } else if (rank === 2) {
-            rankStyle =
-              "bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900 shadow-md border-none font-black";
-            barColor = "bg-slate-400";
-          } else if (rank === 3) {
-            rankStyle =
-              "bg-gradient-to-br from-amber-700 to-amber-600 text-white shadow-md border-none font-black";
-            barColor = "bg-amber-600";
-          }
+            let rankStyle =
+              "bg-slate-800 text-slate-400 border border-slate-700";
+            let barColor = "bg-emerald-500/80 group-hover:bg-emerald-400";
 
-          return (
-            <div
-              key={cliente.id}
-              className="group flex items-center justify-between p-2 px-3 rounded-2xl hover:bg-slate-800/40 border border-transparent hover:border-slate-700/50 transition-all duration-300"
-            >
-              <div className="flex items-center gap-4 flex-1">
-                {/* Badge de Ranking */}
-                <div
-                  className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-xl text-xs ${rankStyle}`}
-                >
-                  {rank}
-                </div>
+            if (rank === 1) {
+              rankStyle =
+                "bg-gradient-to-br from-amber-300 to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 border-none font-black";
+              barColor = "bg-gradient-to-r from-amber-500 to-amber-400";
+            } else if (rank === 2) {
+              rankStyle =
+                "bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900 shadow-md border-none font-black";
+              barColor = "bg-slate-400";
+            } else if (rank === 3) {
+              rankStyle =
+                "bg-gradient-to-br from-amber-700 to-amber-600 text-white shadow-md border-none font-black";
+              barColor = "bg-amber-600";
+            }
 
-                {/* Nombre y Barra de Progreso Inline */}
-                <div className="flex-1 flex flex-col justify-center">
-                  <span
-                    className={`text-sm font-bold ${isTop3 ? "text-white" : "text-slate-300"} group-hover:text-amber-400 transition-colors truncate`}
+            return (
+              <div
+                key={cliente.clienteId || index}
+                className="group flex items-center justify-between p-2 px-3 rounded-2xl hover:bg-slate-800/40 border border-transparent hover:border-slate-700/50 transition-all duration-300"
+              >
+                <div className="flex items-center gap-4 flex-1 overflow-hidden">
+                  <div
+                    className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-xl text-xs ${rankStyle}`}
                   >
-                    {cliente.nombre}
-                  </span>
+                    {rank}
+                  </div>
 
-                  {/* Barra Inline Customizada */}
-                  <div className="w-full h-1.5 bg-slate-800/80 rounded-full mt-2 overflow-hidden flex">
-                    <div
-                      className={`h-full rounded-full transition-all duration-1000 ${barColor}`}
-                      style={{ width: `${porcentaje}%` }}
-                    ></div>
+                  <div className="flex-1 flex flex-col justify-center min-w-0 pr-4">
+                    <span
+                      className={`text-sm font-bold ${
+                        isTop3 ? "text-white" : "text-slate-300"
+                      } group-hover:text-amber-400 transition-colors truncate block`}
+                      title={cliente.nombre}
+                    >
+                      {cliente.nombre}
+                    </span>
+
+                    <div className="w-full h-1.5 bg-slate-800/80 rounded-full mt-2 overflow-hidden flex">
+                      <div
+                        className={`h-full rounded-full transition-all duration-1000 ${barColor}`}
+                        style={{ width: `${porcentaje}%` }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Valores Numéricos */}
-              <div className="flex flex-col items-end justify-center ml-4 shrink-0 min-w-[60px]">
-                <span className="text-lg font-black text-white leading-none">
-                  {cliente.cotizaciones}
-                </span>
-                <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest mt-1">
-                  Cotiz.
-                </span>
+                <div className="flex flex-col items-end justify-center ml-2 shrink-0 min-w-[50px]">
+                  {/* CAMBIO: Mostramos cantidad_cotizaciones */}
+                  <span className="text-lg font-black text-white leading-none">
+                    {cliente.cantidad_cotizaciones}
+                  </span>
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest mt-1">
+                    Cotiz.
+                  </span>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );

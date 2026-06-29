@@ -12,8 +12,6 @@ import React from "react";
 import { formatNumber } from "../../../../../../assets/formats";
 
 const CamposProductosComprobante = ({ selectCotizacion }) => {
-  console.log(selectCotizacion?.productos);
-  // 1. Modificamos la suma: Si es bono (true) suma 0, si es false suma el total
   const total = selectCotizacion.productos.reduce(
     (acc, producto) => acc + (producto.bono ? 0 : Number(producto.total)),
     0,

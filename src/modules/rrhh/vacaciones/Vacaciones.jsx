@@ -35,8 +35,6 @@ const Vacaciones = () => {
     handleFindColaboradores();
   }, []);
 
-  console.log(colaboradores);
-
   return (
     <div className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-auto">
       <div className="w-full h-full bg-white flex flex-col gap-4 py-4 rounded-md overflow-hidden">

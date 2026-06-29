@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,7 +10,9 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import { BiTrophy, BiMoney } from "react-icons/bi";
+import { BiTrophy, BiBarChartAlt2 } from "react-icons/bi";
+import { API } from "../../../utils/api";
+import config from "../../../utils/getToken";
 
 ChartJS.register(
   CategoryScale,
@@ -22,66 +25,88 @@ ChartJS.register(
 
 const GraficoVentasVendedor = () => {
   const chartRef = useRef(null);
-  const [chartData, setChartData] = useState({ datasets: [] });
-
-  // Solo 3 vendedores, ordenados por nivel de ventas
-  const vendedoresData = [
-    { nombre: "Ana Silva", ventas: 85000 },
-    { nombre: "Carlos Gómez", ventas: 62000 },
-    { nombre: "Luis Perez", ventas: 38000 },
-  ].sort((a, b) => b.ventas - a.ventas);
-
-  // Calculamos el total para mostrarlo como un Insight en la cabecera
-  const totalVentas = vendedoresData.reduce(
-    (acc, curr) => acc + curr.ventas,
-    0,
-  );
+  const [chartData, setChartData] = useState(null);
+  const [totalVentas, setTotalVentas] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
+    const fetchVentas = async () => {
+      try {
+        const url = `${API}/dashboard/ventas-vendedor`;
+        const res = await axios.get(url, config);
 
-    const ctx = chart.ctx;
+        // Data del backend: [{vendedor: "Mery", total_ventas: 45}, ...]
+        const vendedoresAPI = res.data.ventas;
 
-    // Gradientes verticales (de abajo hacia arriba)
-    // 1er Lugar (Ámbar)
-    const gGold = ctx.createLinearGradient(0, 400, 0, 0);
-    gGold.addColorStop(0, "rgba(245, 158, 11, 0.1)");
-    gGold.addColorStop(1, "rgba(245, 158, 11, 0.9)");
+        // Calculamos el total de todo el equipo
+        const total = vendedoresAPI.reduce(
+          (acc, curr) => acc + parseInt(curr.total_ventas, 10),
+          0,
+        );
+        setTotalVentas(total);
 
-    // 2do Lugar (Esmeralda)
-    const gEmerald = ctx.createLinearGradient(0, 400, 0, 0);
-    gEmerald.addColorStop(0, "rgba(16, 185, 129, 0.1)");
-    gEmerald.addColorStop(1, "rgba(16, 185, 129, 0.9)");
+        setChartData({
+          labels: vendedoresAPI.map((v) => v.vendedor),
+          datasets: [
+            {
+              label: "Cotizaciones Cerradas",
+              data: vendedoresAPI.map((v) => parseInt(v.total_ventas, 10)),
+              borderRadius: 12,
+              borderSkipped: false,
+              barThickness: 60,
+              // Generamos los gradientes dinámicamente según la posición (1ro, 2do, 3ro, etc.)
+              backgroundColor: (context) => {
+                const chart = context.chart;
+                const { ctx, chartArea } = chart;
+                if (!chartArea) return "rgba(14, 165, 233, 0.5)"; // Color base si no hay área
 
-    // 3er Lugar (Cian/Sky)
-    const gBlue = ctx.createLinearGradient(0, 400, 0, 0);
-    gBlue.addColorStop(0, "rgba(14, 165, 233, 0.1)");
-    gBlue.addColorStop(1, "rgba(14, 165, 233, 0.9)");
+                const gradient = ctx.createLinearGradient(
+                  0,
+                  chartArea.bottom,
+                  0,
+                  chartArea.top,
+                );
+                const index = context.dataIndex;
 
-    setChartData({
-      labels: vendedoresData.map((v) => v.nombre),
-      datasets: [
-        {
-          label: "Ventas Totales",
-          data: vendedoresData.map((v) => v.ventas),
-          backgroundColor: [gGold, gEmerald, gBlue],
-          hoverBackgroundColor: ["#fbbf24", "#34d399", "#38bdf8"], // Colores sólidos brillantes en hover
-          borderRadius: 12, // Esquinas bien redondeadas estilo píldora ancha
-          borderSkipped: false,
-          barThickness: 70, // Barras mucho más anchas para llenar el espacio de los 3 vendedores
-        },
-      ],
-    });
+                if (index === 0) {
+                  // 1er Lugar (Ámbar)
+                  gradient.addColorStop(0, "rgba(245, 158, 11, 0.1)");
+                  gradient.addColorStop(1, "rgba(245, 158, 11, 0.9)");
+                } else if (index === 1) {
+                  // 2do Lugar (Esmeralda)
+                  gradient.addColorStop(0, "rgba(16, 185, 129, 0.1)");
+                  gradient.addColorStop(1, "rgba(16, 185, 129, 0.9)");
+                } else {
+                  // 3er Lugar y demás (Cian/Sky)
+                  gradient.addColorStop(0, "rgba(14, 165, 233, 0.1)");
+                  gradient.addColorStop(1, "rgba(14, 165, 233, 0.9)");
+                }
+                return gradient;
+              },
+              hoverBackgroundColor: (context) => {
+                const index = context.dataIndex;
+                if (index === 0) return "#fbbf24";
+                if (index === 1) return "#34d399";
+                return "#38bdf8";
+              },
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("Error al cargar ventas de vendedores:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVentas();
   }, []);
 
   const options = {
     responsive: true,
     maintainAspectRatio: false,
     animation: { y: { duration: 1200, easing: "easeOutExpo" } },
-    layout: {
-      padding: { top: 20 }, // Da espacio para que las barras no choquen con el borde superior
-    },
+    layout: { padding: { top: 20 } },
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -95,7 +120,7 @@ const GraficoVentasVendedor = () => {
         borderWidth: 1,
         displayColors: false,
         callbacks: {
-          label: (context) => `S/ ${context.raw.toLocaleString()}`,
+          label: (context) => `${context.raw} Cotizaciones`,
           title: (context) => {
             const index = context[0].dataIndex;
             const rank =
@@ -103,7 +128,9 @@ const GraficoVentasVendedor = () => {
                 ? "🏆 1er Lugar"
                 : index === 1
                   ? "🥈 2do Lugar"
-                  : "🥉 3er Lugar";
+                  : index === 2
+                    ? "🥉 3er Lugar"
+                    : `#${index + 1} Lugar`;
             return `${rank} - ${context[0].label}`;
           },
         },
@@ -114,17 +141,13 @@ const GraficoVentasVendedor = () => {
         beginAtZero: true,
         grid: { color: "rgba(255, 255, 255, 0.03)" },
         border: { display: false },
-        ticks: {
-          color: "#475569",
-          font: { weight: "600" },
-          callback: (value) => `S/ ${value / 1000}k`,
-        },
+        ticks: { color: "#475569", font: { weight: "600" } },
       },
       x: {
         grid: { display: false },
         border: { display: false },
         ticks: {
-          color: (context) => (context.index === 0 ? "#f59e0b" : "#cbd5e1"), // Resalta el nombre del 1er lugar
+          color: (context) => (context.index === 0 ? "#f59e0b" : "#cbd5e1"),
           font: { size: 13, weight: "bold" },
         },
       },
@@ -133,7 +156,6 @@ const GraficoVentasVendedor = () => {
 
   return (
     <div className="bg-slate-900/40 p-6 rounded-3xl border border-slate-800 min-w-[550px] max-w-[550px] flex flex-col h-[450px] hover:border-slate-700/60 transition-colors duration-300">
-      {/* Cabecera Premium */}
       <div className="mb-6 flex justify-between items-start">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
@@ -144,25 +166,33 @@ const GraficoVentasVendedor = () => {
               Podio de Asesores
             </h2>
             <p className="text-xs font-semibold text-slate-400">
-              Ventas cerradas en el periodo
+              Cotizaciones cerradas en el periodo
             </p>
           </div>
         </div>
 
-        {/* Insight Total */}
         <div className="flex flex-col items-end bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800/80">
           <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">
             Total Equipo
           </span>
           <span className="text-sm font-black text-emerald-400 flex items-center gap-1">
-            <BiMoney /> S/ {totalVentas.toLocaleString()}
+            <BiBarChartAlt2 /> {totalVentas} Cotiz.
           </span>
         </div>
       </div>
 
-      {/* Gráfico */}
       <div className="flex-1 w-full relative">
-        <Bar ref={chartRef} data={chartData} options={options} />
+        {loading || !chartData ? (
+          <div className="text-slate-400 flex h-full items-center justify-center text-sm font-semibold animate-pulse">
+            Cargando ranking de asesores...
+          </div>
+        ) : chartData.labels.length === 0 ? (
+          <div className="text-slate-500 flex h-full items-center justify-center text-sm font-semibold">
+            No hay cotizaciones registradas.
+          </div>
+        ) : (
+          <Bar ref={chartRef} data={chartData} options={options} />
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import GraficoTopCotizaciones from "./components/GraficoTopCotizaciones";
 import GraficoVentasVendedor from "./components/GraficoVentasVendedor";
 import GraficoPollosTendencia from "./components/GraficoPollosTendencia";
@@ -10,17 +10,27 @@ import {
   FaArrowUp,
 } from "react-icons/fa";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
+import { API } from "../../utils/api";
+import axios from "axios";
+import config from "../../utils/getToken";
 
 const Dashboard = () => {
   const [mes, setMes] = useState("ALL");
   const [anio, setAnio] = useState(new Date().getFullYear().toString());
+  const [kpisVentas, setKpisVentas] = useState({
+    pollosEmbarcados: 0,
+    clientesDeuda: 0,
+    cotizaciones: 0,
+    ventasTotal: 0,
+  });
 
-  const kpis = {
-    pollosEmbarcados: "14,520",
-    destinosActivos: "8",
-    cotizaciones: "342",
-    ventasTotal: "S/ 1,124,500",
-  };
+  useEffect(() => {
+    const url = `${API}/dashboard/kpis-ventas`;
+
+    axios.get(url, config).then((res) => {
+      setKpisVentas(res.data.kpis);
+    });
+  }, []);
 
   const handleSetToday = () => {
     setAnio(new Date().getFullYear().toString());
@@ -98,26 +108,26 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <KpiCard
           title="Pollos Embarcados"
-          value={kpis.pollosEmbarcados}
+          value={kpisVentas.pollosEmbarcados.toLocaleString("Pe")}
           icon={FaTruckLoading}
           trend="+12.4%"
         />
         <KpiCard
-          title="Destinos Activos"
-          value={kpis.destinosActivos}
+          title="Clientes con deudas"
+          value={kpisVentas.clientesDeuda.toLocaleString("Pe")}
           icon={FaMapMarkedAlt}
           trend="Estable"
           isNeutral
         />
         <KpiCard
           title="Cotizaciones Realizadas"
-          value={kpis.cotizaciones}
+          value={kpisVentas.cotizaciones.toLocaleString("Pe")}
           icon={FaFileInvoiceDollar}
           trend="+8.2%"
         />
         <KpiCard
-          title="Ventas Totales"
-          value={kpis.ventasTotal}
+          title="Gestión de cobranza"
+          value={kpisVentas.ventasTotal || 0}
           icon={FaFileInvoiceDollar}
           trend="+23.1%"
           isHighlight

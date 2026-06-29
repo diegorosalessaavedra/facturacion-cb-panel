@@ -21,13 +21,13 @@ const EECCProveedores = () => {
   const [productos, setProductos] = useState([]);
   const [productos2, setProductos2] = useState([]);
 
-  // 1. Estados independientes (Sets)
+  const [selectSaldo, setSelectSaldo] = useState(new Set(["TODOS"]));
   const [selectComercial, setSelectComercial] = useState(new Set(["TODOS"]));
   const [selectGastos, setSelectGastos] = useState(new Set(["TODOS"]));
 
   const findProveedores = useCallback(() => {
     setLoading(true);
-    const url = `${API}/proveedores`;
+    const url = `${API}/proveedores/saldo`;
     axios
       .get(url, config)
       .then((res) => setProveedores(res.data.proveedores))
@@ -92,7 +92,29 @@ const EECCProveedores = () => {
             </h2>
           </div>
 
-          <section className="flex gap-4 max-w-4xl px-4">
+          <section className="flex gap-4 max-w-5xl px-4">
+            <Select
+              className="w-[100%] max-w-[150px]"
+              label="Status Saldo"
+              labelPlacement="outside"
+              variant="bordered"
+              selectionMode="single" // Cambiado a single por lógica de negocio
+              selectedKeys={selectSaldo} // ✅ Corregido
+              onSelectionChange={setSelectSaldo} // ✅ Corregido
+              radius="sm"
+              size="sm"
+              classNames={selectClassNames}
+            >
+              <SelectItem key="TODOS" textValue="TODOS">
+                TODOS
+              </SelectItem>
+              <SelectItem key="DEUDA" textValue="DEUDA">
+                DEUDA
+              </SelectItem>
+              <SelectItem key="A FAVOR" textValue="A FAVOR">
+                A FAVOR
+              </SelectItem>
+            </Select>
             <Autocomplete
               aria-label="Seleccione un Proveedor"
               label="Seleccione un Proveedor"
@@ -110,18 +132,27 @@ const EECCProveedores = () => {
               size="sm"
               maxListboxHeight={200}
             >
-              {proveedores.map((item) => (
-                <AutocompleteItem
-                  key={item.id}
-                  value={item.id}
-                  textValue={`${item.nombreComercial || item.nombreApellidos} - ${item.numeroDoc}`}
-                >
-                  <p className="text-[11px]">
-                    {item.nombreComercial || item.nombreApellidos} -{" "}
-                    {item.numeroDoc}
-                  </p>
-                </AutocompleteItem>
-              ))}
+              {proveedores
+                .filter((p) => {
+                  const statusFiltro = Array.from(selectSaldo)[0];
+
+                  if (statusFiltro === "DEUDA") return p.saldo < 0;
+                  if (statusFiltro === "A FAVOR") return p.saldo > 0;
+
+                  return true;
+                })
+                .map((item) => (
+                  <AutocompleteItem
+                    key={item.id}
+                    value={item.id}
+                    textValue={`${item.nombreComercial || item.nombreApellidos} - ${item.numeroDoc} - S/${Number(item.saldo).toFixed(2)}`}
+                  >
+                    <p className="text-[11px]">
+                      {item.nombreComercial || item.nombreApellidos} -{" "}
+                      {item.numeroDoc} - S/{Number(item.saldo).toFixed(2)}{" "}
+                    </p>
+                  </AutocompleteItem>
+                ))}
             </Autocomplete>
 
             <Select

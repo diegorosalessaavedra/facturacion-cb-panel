@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import axios from "axios"; // Añadido: no olvides importar axios
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +12,8 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { API } from "../../../utils/api";
+import config from "../../../utils/getToken";
 
 ChartJS.register(
   CategoryScale,
@@ -25,53 +28,81 @@ ChartJS.register(
 
 const GraficoPollosTendencia = () => {
   const chartRef = useRef(null);
-  const [chartData, setChartData] = useState({ datasets: [] });
+  const [loading, setLoading] = useState(true);
+
+  // Inicializamos el state con la estructura básica vacía
+  const [chartData, setChartData] = useState({
+    labels: [
+      "Ene",
+      "Feb",
+      "Mar",
+      "Abr",
+      "May",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dic",
+    ],
+    datasets: [],
+  });
 
   useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
+    const fetchDatos = async () => {
+      try {
+        const url = `${API}/dashboard/pollos-mensuales`;
+        const res = await axios.get(url, config);
 
-    const ctx = chart.ctx;
-    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient.addColorStop(0, "rgba(245, 158, 11, 0.25)"); // Ámbar neón arriba
-    gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)"); // Se desvanece por completo abajo
+        // Extraemos el arreglo que enviamos desde el backend
+        const datosDelBackend = res.data.pollosEmbarcadosMensual;
 
-    setChartData({
-      labels: [
-        "Ene",
-        "Feb",
-        "Mar",
-        "Abr",
-        "May",
-        "Jun",
-        "Jul",
-        "Ago",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dic",
-      ],
-      datasets: [
-        {
-          label: "Pollos Embarcados",
-          data: [
-            1400, 1900, 1650, 2600, 2100, 3200, 2800, 3400, 3100, 4200, 3900,
-            4800,
+        setChartData((prevData) => ({
+          ...prevData,
+          datasets: [
+            {
+              label: "Pollos Embarcados",
+              data: datosDelBackend, // Inyectamos la data real aquí
+              borderColor: "#f59e0b",
+              borderWidth: 3.5,
+              pointBackgroundColor: "#0f172a",
+              pointBorderColor: "#f59e0b",
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              pointHoverRadius: 7,
+              pointHoverBackgroundColor: "#34d399", // Ajustado a valor HEX para emerald-400
+              fill: true,
+              tension: 0.38,
+              // Generamos el gradiente dinámicamente usando el contexto de Chart.js
+              backgroundColor: (context) => {
+                const chart = context.chart;
+                const { ctx, chartArea } = chart;
+
+                // Si el gráfico aún no tiene dimensiones, retornamos un color base
+                if (!chartArea) return "rgba(245, 158, 11, 0.1)";
+
+                const gradient = ctx.createLinearGradient(
+                  0,
+                  0,
+                  0,
+                  chartArea.bottom,
+                );
+                gradient.addColorStop(0, "rgba(245, 158, 11, 0.25)");
+                gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
+                return gradient;
+              },
+            },
           ],
-          borderColor: "#f59e0b", // Línea Ámbar pura
-          backgroundColor: gradient,
-          borderWidth: 3.5,
-          pointBackgroundColor: "#0f172a",
-          pointBorderColor: "#f59e0b",
-          pointBorderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 7,
-          pointHoverBackgroundColor: "#emerald-400",
-          fill: true,
-          tension: 0.38,
-        },
-      ],
-    });
+        }));
+      } catch (error) {
+        console.error("Error al cargar los datos del gráfico:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDatos();
   }, []);
 
   const options = {
@@ -80,7 +111,7 @@ const GraficoPollosTendencia = () => {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: "#1e293b", // slate-800
+        backgroundColor: "#1e293b",
         titleColor: "#94a3b8",
         bodyColor: "#fff",
         borderColor: "rgba(245, 158, 11, 0.3)",
@@ -119,7 +150,14 @@ const GraficoPollosTendencia = () => {
         </span>
       </div>
       <div className="flex-1 w-full relative">
-        <Line ref={chartRef} data={chartData} options={options} />
+        {/* Mostramos un texto mientras carga, y el gráfico cuando ya tenemos la data */}
+        {loading ? (
+          <div className="text-slate-400 flex h-full items-center justify-center text-sm font-semibold animate-pulse">
+            Cargando flujo de distribución...
+          </div>
+        ) : (
+          <Line ref={chartRef} data={chartData} options={options} />
+        )}
       </div>
     </div>
   );
