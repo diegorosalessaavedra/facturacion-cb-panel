@@ -67,7 +67,7 @@ const FormEditarCotizacion = ({ userData, cotizacion }) => {
       })
       .catch((err) => {
         toast.error(
-          "hubo un error al registrar la cotizacion por favor verifique bien los campos"
+          "hubo un error al registrar la cotizacion por favor verifique bien los campos",
         );
       })
       .finally(() => {
