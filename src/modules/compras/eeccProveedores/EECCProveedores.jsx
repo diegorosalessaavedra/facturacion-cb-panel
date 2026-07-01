@@ -136,8 +136,8 @@ const EECCProveedores = () => {
                 .filter((p) => {
                   const statusFiltro = Array.from(selectSaldo)[0];
 
-                  if (statusFiltro === "DEUDA") return p.saldo < 0;
-                  if (statusFiltro === "A FAVOR") return p.saldo > 0;
+                  if (statusFiltro === "DEUDA") return p.saldo > 0;
+                  if (statusFiltro === "A FAVOR") return p.saldo < 0;
 
                   return true;
                 })
