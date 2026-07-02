@@ -28,11 +28,7 @@ const TablaHistoricoRendicion = ({
   handleFindRendiciones,
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const {
-    isOpen: isOpenSustento,
-    onOpen: onOpenSustento,
-    onOpenChange: onOpenChangeSustento,
-  } = useDisclosure();
+  const [selectModal, setSelectModal] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const [selectRendicion, setSelectedRendicion] = useState(null);
@@ -46,13 +42,15 @@ const TablaHistoricoRendicion = ({
   }, 0);
 
   const handleRemove = (item) => {
+    setSelectModal("anular");
     setSelectedRendicion(item);
     onOpen();
   };
 
   const handleSustento = (item) => {
+    setSelectModal("sustento");
     setSelectedRendicion(item);
-    onOpenSustento();
+    onOpen();
   };
 
   const handlePdf = (id) => {
@@ -383,21 +381,25 @@ const TablaHistoricoRendicion = ({
         </div>
       </div>
 
-      <SolicitarAnularRendicion
-        key={selectRendicion?.id}
-        id={selectRendicion?.id}
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        onSuccess={handleFindRendiciones}
-      />
+      {selectModal === "anular" && (
+        <SolicitarAnularRendicion
+          key={selectRendicion?.id}
+          id={selectRendicion?.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          onSuccess={handleFindRendiciones}
+        />
+      )}
 
-      <CargarSustentoRendicion
-        key={selectRendicion?.id}
-        selectRendicion={selectRendicion}
-        isOpen={isOpenSustento}
-        onOpenChange={onOpenChangeSustento}
-        onSuccess={handleFindRendiciones}
-      />
+      {selectModal === "sustento" && (
+        <CargarSustentoRendicion
+          key={selectRendicion?.id}
+          selectRendicion={selectRendicion}
+          isOpen={isOpenSustento}
+          onOpenChange={onOpenChangeSustento}
+          onSuccess={handleFindRendiciones}
+        />
+      )}
     </div>
   );
 };
