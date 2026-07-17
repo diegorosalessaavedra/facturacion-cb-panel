@@ -4,6 +4,7 @@ import { Button } from "@nextui-org/react";
 import { numberPeru, onInputPrice } from "../../../../assets/onInputs";
 import { API } from "../../../../utils/api";
 import axios from "axios"; // Asegúrate de tener axios importado
+import { toast } from "sonner";
 
 const TIPOS_COMPROBANTE = [
   { value: "SIN SUSTENTO", label: "SIN SUSTENTO" },
@@ -59,7 +60,7 @@ const TablaRendicion = ({
   // Función adaptada para recibir el index de la fila y el valor del RUC
   const findRuc = async (index, rucValue) => {
     if (!rucValue || rucValue.length !== 11) {
-      alert("El RUC debe tener exactamente 11 dígitos");
+      toast.error("El RUC debe tener exactamente 11 dígitos");
       return;
     }
 
@@ -73,11 +74,11 @@ const TablaRendicion = ({
         // Actualizamos la razón social en la fila correspondiente
         handleChange(index, "razon_social", nombreRazonSocial);
       } else {
-        alert("RUC no encontrado o no válido");
+        toast.error("RUC no encontrado o no válido");
       }
     } catch (error) {
       console.error(error);
-      alert("Error al conectar con la API de RUC");
+      toast.error("Error al conectar con la API de RUC");
     }
   };
 
