@@ -25,3 +25,21 @@ export const formatDateTime = (dateInput) => {
 
   return `${day}/${month}/${year} ${formattedHours}:${minutes} ${ampm}`;
 };
+
+export function formatDateES(dateString) {
+  if (!dateString) return "-";
+
+  // Nota: Si usas 'UTC', asegúrate de que dateString tenga formato YYYY-MM-DD
+  // o agrega la hora para evitar desfases de zona horaria.
+  const date = new Date(dateString + "T00:00:00");
+
+  const formattedDate = new Intl.DateTimeFormat("es-ES", {
+    weekday: "long", // Nombre del día: jueves
+    day: "numeric", // Número del día: 23
+    month: "long", // Nombre del mes: abril
+    year: "numeric", // Año: 2026
+  }).format(date);
+
+  // Capitalizar la primera letra (opcional, para que quede: Jueves, ...)
+  return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+}

@@ -93,7 +93,7 @@ const FormMes = ({ onSubmit, isSubmitting }) => {
 };
 
 const FormSemana = ({ onSubmit, onCancel, isSubmitting }) => (
-  <div className="pb-4 text-center flex flex-col items-center">
+  <div className="p-4 text-center flex flex-col items-center">
     <div className="bg-green-100 p-4 rounded-full mb-4">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -142,7 +142,7 @@ const FormDia = ({ onSubmit, isSubmitting }) => {
   const { register, handleSubmit, control } = useForm(); // <-- Importamos control
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 ">
       <Input
         isRequired
         label="Fecha (Día de la planilla)"
@@ -187,7 +187,7 @@ const FormDia = ({ onSubmit, isSubmitting }) => {
 };
 
 const FormEliminar = ({ onSubmit, onCancel, isSubmitting, tipo }) => (
-  <div className="pb-4 text-center flex flex-col items-center">
+  <div className="p-4 text-center flex flex-col items-center">
     <div className="bg-red-100 p-4 rounded-full mb-4">
       <svg
         xmlns="http://www.w3.org/2000/svg"
