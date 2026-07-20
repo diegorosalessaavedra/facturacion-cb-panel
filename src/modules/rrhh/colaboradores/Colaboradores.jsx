@@ -14,6 +14,7 @@ import ModalVerMemos from "./components/ModalVerMemos";
 import FiltrarColaboradores from "./components/FiltrarColaboradores";
 import ModalDarBajaColaborador from "./components/ModalDarBajaColaborador";
 import ModalEliminarColaborador from "./components/ModalEliminarColaborador";
+import ModalVerSueldos from "./components/ModalVerSueldos";
 
 const Colaboradores = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -53,7 +54,7 @@ const Colaboradores = () => {
         handleFindColaboradores={handleFindColaboradores}
       />
     ),
-    [dataFilter, handleFindColaboradores]
+    [dataFilter, handleFindColaboradores],
   );
   return (
     <div className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-auto">
@@ -142,6 +143,15 @@ const Colaboradores = () => {
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           selectColaborador={selectColaborador}
+        />
+      )}
+      {selectModal === "ver_sueldos" && (
+        <ModalVerSueldos
+          key={selectColaborador.id}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectColaborador={selectColaborador}
+          handleFindColaboradores={handleFindColaboradores}
         />
       )}
       {selectModal === "dar_baja" && (

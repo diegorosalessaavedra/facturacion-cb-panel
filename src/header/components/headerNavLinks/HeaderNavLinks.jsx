@@ -215,6 +215,7 @@ const HeaderNavLinks = ({
         { to: "/rrhh/cargo-laboral", label: "Cargo Laboral" },
         { to: "/rrhh/descanso-medicos", label: "Descanso Médicos" },
         { to: "/rrhh/vacaciones", label: "Vacaciones" },
+        { to: "/rrhh/calendario-planilla", label: "Calendario Planilla" },
       ],
     },
     {

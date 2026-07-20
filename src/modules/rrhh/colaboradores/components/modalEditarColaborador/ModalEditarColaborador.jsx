@@ -17,6 +17,7 @@ import { FaPlus, FaTrash, FaTrashAlt } from "react-icons/fa"; // Importamos FaTr
 import { inputClassNames } from "../../../../../assets/classNames";
 import EditarDatosPesonalesColaborador from "./components/EditarDatosPesonalesColaborador";
 import EditarEducacionCargoLaboral from "./components/EditarEducacionCargoLaboral";
+import EditarDatosPlanillaColaborador from "./components/EditarDatosPlanillaColaborador";
 
 const laravelUrl = import.meta.env.VITE_LARAVEL_URL;
 
@@ -122,6 +123,15 @@ const ModalEditarColaborador = ({
 
     formData.append("cargo_laboral_id", data.cargo_laboral_id);
     formData.append("empresa", data.empresa);
+    formData.append("regimen", data.regimen);
+    formData.append("asignacion_familiar", data.asignacion_familiar);
+    formData.append("afp_integra", data.afp_integra);
+    formData.append("afp_prima", data.afp_prima);
+    formData.append("afp_profuturo", data.afp_profuturo);
+    formData.append("afp_habitat", data.afp_habitat);
+    formData.append("onp", data.onp);
+    formData.append("bco", data.bco);
+    formData.append("nro_cuenta", data.nro_cuenta);
 
     deletesDocsId.forEach((id) => {
       formData.append("deletesDocsId[]", id);
@@ -196,6 +206,10 @@ const ModalEditarColaborador = ({
                 selectColaborador={selectColaborador}
               />
               <EditarEducacionCargoLaboral
+                register={register}
+                selectColaborador={selectColaborador}
+              />
+              <EditarDatosPlanillaColaborador
                 register={register}
                 selectColaborador={selectColaborador}
               />

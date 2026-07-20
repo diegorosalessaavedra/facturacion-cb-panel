@@ -126,6 +126,10 @@ const AdministrarSolicitudVacaciones = lazy(
   () => import("./modules/rrhh/vacaciones/AdministrarSolicitudVacaciones"),
 );
 
+const CalendarioPlanilla = lazy(
+  () => import("./modules/rrhh/calendarioPlanilla/CalendarioPlanilla"),
+);
+
 // Ajustes
 const MetodosPagosGastos = lazy(
   () => import("./modules/ajustes/metodoPagoGasto/MetodosPagosGastos"),
@@ -492,6 +496,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <AdministrarSolicitudVacaciones />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/rrhh/calendario-planilla"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <CalendarioPlanilla />
               </ProtectedRouteWrapper>
             }
           />

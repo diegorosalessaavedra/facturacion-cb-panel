@@ -235,6 +235,7 @@ export const ROUTE_PERMISSIONS = {
 
   "/rrhh/vacaciones": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
   "/rrhh/colaboradores/solicitudes-vacaciones/:id": [ROLES.GERENTE],
+  "/rrhh/calendario-planilla": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
 
   // Rutas de GERENTE únicamente
   "/usuarios": [ROLES.GERENTE, ROLES.CONTADOR],

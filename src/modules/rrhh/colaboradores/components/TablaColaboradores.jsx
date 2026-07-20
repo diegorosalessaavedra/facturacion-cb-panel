@@ -91,6 +91,9 @@ const TablaColaboradores = ({
               MEMOS
             </TableColumn>
             <TableColumn className=" text-xs text-white  bg-blue-700">
+              SUELDOS
+            </TableColumn>
+            <TableColumn className=" text-xs text-white  bg-blue-700">
               VER PERFIL
             </TableColumn>
             <TableColumn className=" text-xs text-white  bg-blue-700">
@@ -166,7 +169,20 @@ const TablaColaboradores = ({
                     color="warning"
                   >
                     Ver memos
-                  </Button>{" "}
+                  </Button>
+                </TableCell>
+                <TableCell className="text-xs py-2">
+                  <Button
+                    onPress={() => {
+                      setSelectModal("ver_sueldos");
+                      setSelectColaborador(colaborador);
+                      onOpen();
+                    }}
+                    size="sm"
+                    color="success"
+                  >
+                    Ver Sueldos
+                  </Button>
                 </TableCell>
                 <TableCell className="text-xs py-2">
                   <Button

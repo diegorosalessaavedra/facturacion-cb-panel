@@ -16,6 +16,7 @@ import EducacionCargoLaboral from "./components/EducacionCargoLaboral";
 import Loading from "../../../../../hooks/Loading";
 import { FaPlus, FaTrash } from "react-icons/fa"; // Importamos FaTrash para el botón de eliminar
 import { inputClassNames } from "../../../../../assets/classNames";
+import DatosPlanillaColaborador from "./components/DatosPlanillaColaborador";
 
 const ModalNuevoColaborador = ({
   isOpen,
@@ -123,6 +124,15 @@ const ModalNuevoColaborador = ({
 
     formData.append("cargo_laboral_id", data.cargo_laboral_id);
     formData.append("empresa", data.empresa);
+    formData.append("regimen", data.regimen);
+    formData.append("asignacion_familiar", data.asignacion_familiar);
+    formData.append("afp_integra", data.afp_integra);
+    formData.append("afp_prima", data.afp_prima);
+    formData.append("afp_profuturo", data.afp_profuturo);
+    formData.append("afp_habitat", data.afp_habitat);
+    formData.append("onp", data.onp);
+    formData.append("bco", data.bco);
+    formData.append("nro_cuenta", data.nro_cuenta);
 
     if (foto) {
       formData.append("foto_colaborador", foto);
@@ -193,6 +203,7 @@ const ModalNuevoColaborador = ({
                 setfoto={setfoto}
               />
               <EducacionCargoLaboral register={register} />
+              <DatosPlanillaColaborador register={register} />
 
               <h3>Agregar documentos complementarios</h3>
               {/* Botón para agregar nuevos campos de archivo */}
