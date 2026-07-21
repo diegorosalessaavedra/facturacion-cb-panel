@@ -5,11 +5,16 @@ import {
   ModalContent,
   ModalHeader,
   Input,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { inputClassNames } from "../../../../assets/classNames";
+import {
+  inputClassNames,
+  selectClassNames,
+} from "../../../../assets/classNames";
 import config from "../../../../utils/getToken";
 
 const ModalEditarCargoLaboral = ({
@@ -33,7 +38,7 @@ const ModalEditarCargoLaboral = ({
     axios
       .patch(url, data, config)
       .then(() => {
-        handleFindCargoLaboral(), reset();
+        (handleFindCargoLaboral(), reset());
         onOpenChange(false);
         toast.success(`El cargo laboral se edito correctamente`);
       })
@@ -41,6 +46,7 @@ const ModalEditarCargoLaboral = ({
         toast.error("Hubo un error en editar el cargo laboral ");
       });
   };
+  console.log(selectCargoLaboral);
 
   return (
     <Modal
@@ -78,8 +84,31 @@ const ModalEditarCargoLaboral = ({
                   defaultValue={selectCargoLaboral.cargo}
                   radius="sm"
                   size="sm"
-                  id="cargo"
                 />
+                <Select
+                  className="w-full"
+                  isRequired
+                  classNames={{
+                    ...selectClassNames,
+                    value: "text-[0.8rem]",
+                  }}
+                  labelPlacement="outside"
+                  label="Agrupación"
+                  placeholder="..."
+                  variant="bordered"
+                  errorMessage="La agrupación es obligatorio."
+                  radius="sm"
+                  size="sm"
+                  {...register("agrupacion_cargo")}
+                  defaultSelectedKeys={[selectCargoLaboral.agrupacion_cargo]}
+                >
+                  <SelectItem key="OPERATIVOS" value="OPERATIVOS">
+                    OPERATIVOS
+                  </SelectItem>
+                  <SelectItem key="ADMINISTRATIVOS" value="ADMINISTRATIVOS">
+                    ADMINISTRATIVOS
+                  </SelectItem>
+                </Select>
               </div>
 
               <div className="w-full flex items-center justify-end gap-3 p-4">

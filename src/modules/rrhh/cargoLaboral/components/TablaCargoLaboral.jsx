@@ -42,7 +42,9 @@ const TablaCargoLaboral = ({
             <TableColumn className=" text-xs text-white  bg-blue-700">
               CARGO
             </TableColumn>
-
+            <TableColumn className=" text-xs text-white  bg-blue-700">
+              AGRUPACIÓN
+            </TableColumn>
             <TableColumn className=" text-xs text-white  bg-blue-700">
               ACCIONES
             </TableColumn>
@@ -54,7 +56,9 @@ const TablaCargoLaboral = ({
                 <TableCell className="text-xs py-2">
                   {cargoLaboral.cargo}
                 </TableCell>
-
+                <TableCell className="text-xs py-2">
+                  {cargoLaboral.agrupacion_cargo}
+                </TableCell>
                 <TableCell className="text-xs py-2">
                   <div className="flex gap-4 items-center">
                     <Tooltip content="Editar">

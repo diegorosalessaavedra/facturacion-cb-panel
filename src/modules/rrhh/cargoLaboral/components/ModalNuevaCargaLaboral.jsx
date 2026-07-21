@@ -30,7 +30,7 @@ const ModalNuevaCargaLaboral = ({
     axios
       .post(url, data, config)
       .then(() => {
-        handleFindCargoLaboral(), reset();
+        (handleFindCargoLaboral(), reset());
         onOpenChange(false);
         toast.success("El cargo laboral  se registro correctamente");
       })
@@ -76,6 +76,29 @@ const ModalNuevaCargaLaboral = ({
                   size="sm"
                   id="cargo"
                 />
+                <Select
+                  className="w-full"
+                  isRequired
+                  classNames={{
+                    ...selectClassNames,
+                    value: "text-[0.8rem]",
+                  }}
+                  labelPlacement="outside"
+                  label="Agrupación"
+                  placeholder="..."
+                  variant="bordered"
+                  errorMessage="La agrupación es obligatorio."
+                  radius="sm"
+                  size="sm"
+                  {...register("agrupacion_cargo")}
+                >
+                  <SelectItem key="OPERATIVOS" value="OPERATIVOS">
+                    OPERATIVOS
+                  </SelectItem>
+                  <SelectItem key="ADMINISTRATIVOS" value="ADMINISTRATIVOS">
+                    ADMINISTRATIVOS
+                  </SelectItem>
+                </Select>
               </div>
 
               <div className="w-full flex items-center justify-end gap-3 p-4">
