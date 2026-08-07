@@ -8,23 +8,8 @@ const CalendarioTabla = ({
   onOpenModal,
   onDeleteAction,
   selectYear,
+  yearPlanillas,
 }) => {
-  const nombresMeses = [
-    "",
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
-  ];
-
   return (
     <div className="flex-1 overflow-auto border border-slate-200 rounded-xl bg-white shadow-sm mt-4">
       <table className="w-full text-sm border-collapse text-center">
@@ -69,7 +54,7 @@ const CalendarioTabla = ({
               year_plantilla_id: mes.year_planilla_id,
               mes_plantilla_id: mes.id,
             };
-            const nombreDelMes = `${nombresMeses[mes.mes] || "Mes " + mes.mes} - ${selectYear}`;
+            const nombreDelMes = `${mes.mes} - ${yearPlanillas.find((y) => y.id === Number(selectYear))?.year}`;
 
             if (isEmptyMes) {
               return (

@@ -37,15 +37,15 @@ const CalendarioHeader = ({
         <Select
           aria-label="Seleccionar Año"
           placeholder="Filtrar Año"
-          selectedKeys={anioSeleccionado ? [anioSeleccionado.toString()] : []}
+          selectedKeys={anioSeleccionado ? [anioSeleccionado] : []}
           onChange={(e) => setAnioSeleccionado(e.target.value)}
           className="w-32"
           size="sm"
           variant="faded"
         >
           {aniosDisponibles.map((a) => (
-            <SelectItem key={a.year} value={a.year.toString()}>
-              {a.year.toString()}
+            <SelectItem key={a.id} textValue={a.year}>
+              {a.year}
             </SelectItem>
           ))}
         </Select>

@@ -49,18 +49,18 @@ const FormYear = ({ onSubmit, isSubmitting }) => {
 const FormMes = ({ onSubmit, isSubmitting }) => {
   const { register, handleSubmit } = useForm();
   const mesesArr = [
-    { id: 1, name: "Enero" },
-    { id: 2, name: "Febrero" },
-    { id: 3, name: "Marzo" },
-    { id: 4, name: "Abril" },
-    { id: 5, name: "Mayo" },
-    { id: 6, name: "Junio" },
-    { id: 7, name: "Julio" },
-    { id: 8, name: "Agosto" },
-    { id: 9, name: "Septiembre" },
-    { id: 10, name: "Octubre" },
-    { id: 11, name: "Noviembre" },
-    { id: 12, name: "Diciembre" },
+    { name: "Enero" },
+    { name: "Febrero" },
+    { name: "Marzo" },
+    { name: "Abril" },
+    { name: "Mayo" },
+    { name: "Junio" },
+    { name: "Julio" },
+    { name: "Agosto" },
+    { name: "Septiembre" },
+    { name: "Octubre" },
+    { name: "Noviembre" },
+    { name: "Diciembre" },
   ];
 
   return (
@@ -75,7 +75,7 @@ const FormMes = ({ onSubmit, isSubmitting }) => {
         {...register("mes")}
       >
         {mesesArr.map((m) => (
-          <SelectItem key={m.id} value={m.id}>
+          <SelectItem key={m.name} textValue={m.name}>
             {m.name}
           </SelectItem>
         ))}

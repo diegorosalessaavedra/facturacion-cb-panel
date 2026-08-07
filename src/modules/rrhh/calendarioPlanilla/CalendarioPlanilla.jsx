@@ -116,6 +116,7 @@ const CalendarioPlanilla = () => {
           onOpenModal={handleOpenModal}
           onDeleteAction={handleDeleteAction}
           selectYear={selectYear}
+          yearPlanillas={yearPlanillas}
         />
       </div>
 

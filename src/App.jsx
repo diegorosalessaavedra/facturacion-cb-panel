@@ -115,20 +115,23 @@ const CargoLaboral = lazy(
 const DescansoMedico = lazy(
   () => import("./modules/rrhh/descansoMedico/DescansoMedico"),
 );
-
 const SolicitudesDescansoMedico = lazy(
   () =>
     import("./modules/rrhh/solicitudesDescansoMedico/SolicitudesDescansoMedico"),
 );
-
 const Vacaciones = lazy(() => import("./modules/rrhh/vacaciones/Vacaciones"));
 const AdministrarSolicitudVacaciones = lazy(
   () => import("./modules/rrhh/vacaciones/AdministrarSolicitudVacaciones"),
 );
-
 const CalendarioPlanilla = lazy(
   () => import("./modules/rrhh/calendarioPlanilla/CalendarioPlanilla"),
 );
+const Planilla = lazy(() => import("./modules/rrhh/planilla/Planilla"));
+const ResumenPlanilla = lazy(
+  () => import("./modules/rrhh/resumenPlanilla/ResumenPlanilla"),
+);
+
+// RRHH
 
 // Ajustes
 const MetodosPagosGastos = lazy(
@@ -507,6 +510,23 @@ function App() {
               </ProtectedRouteWrapper>
             }
           />
+          <Route
+            path="/rrhh/planilla"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <Planilla />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/rrhh/resumen-planilla/:id"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <ResumenPlanilla />
+              </ProtectedRouteWrapper>
+            }
+          />
+          {/* RRHH */}
 
           {/* Rutas de Ajustes */}
           <Route
