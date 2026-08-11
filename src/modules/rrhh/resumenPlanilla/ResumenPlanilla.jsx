@@ -103,7 +103,6 @@ const ResumenPlanilla = () => {
           />
         </section>
 
-        {/* ¡ERROR CORREGIDO AQUÍ! Se cerró correctamente el condicional */}
         {selectModal === "asistencia_administrativos" && (
           <AsistenciaAdministrativos
             colaboradores={colaboradores.filter(

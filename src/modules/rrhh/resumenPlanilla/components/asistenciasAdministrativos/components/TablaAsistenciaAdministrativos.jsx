@@ -1,74 +1,71 @@
 import React from "react";
-import TrAsistenciaAdministrativa from "./TrAsistenciaAdministrativa";
+import GrupoColaboradorAdministrativo from "./GrupoColaboradorAdministrativo";
 
-const TablaAsistenciaAdministrativos = ({ dias, findColaborador }) => {
+const TablaAsistenciaAdministrativos = ({ findColaborador, dias }) => {
+  // Los estilos corporativos de los encabezados
+  const thMainBlue =
+    "bg-blue-900 border-r border-b border-blue-950 p-2.5 font-bold uppercase text-[10px] tracking-widest text-white";
+  const thMainGreen =
+    "bg-teal-800 border-r border-b border-teal-900 p-2.5 font-bold uppercase text-[10px] tracking-widest text-white";
+  const thMainYellow =
+    "bg-amber-700 border-b border-amber-800 p-2.5 font-bold uppercase text-[10px] tracking-widest text-white";
+
+  const thSubBlue =
+    "bg-blue-100 border-r border-b border-blue-300 p-3 font-bold uppercase text-[9px] tracking-wider text-blue-950 whitespace-nowrap";
+  const thSubGreen =
+    "bg-teal-100 border-r border-b border-teal-300 p-3 font-bold uppercase text-[9px] tracking-wider text-teal-950 whitespace-nowrap";
+  const thSubYellow =
+    "bg-amber-100 border-r border-b border-amber-300 p-3 font-bold uppercase text-[9px] tracking-wider text-amber-950 whitespace-nowrap";
+  const thSubYellowLast =
+    "bg-amber-100 border-b border-amber-300 p-3 font-bold uppercase text-[9px] tracking-wider text-amber-950 whitespace-nowrap";
+
   return (
-    <div className="flex-1 overflow-auto border border-slate-200 rounded-xl bg-white shadow-sm mt-4 custom-scrollbar">
+    <div className="flex-1 overflow-auto border border-slate-300 rounded-xl bg-white shadow-md mt-4 custom-scrollbar">
       <table className="w-full border-collapse text-center">
-        <thead className="sticky top-0 bg-slate-900 z-10 shadow-md">
+        <thead className="sticky top-0 z-20 shadow-sm">
+          {/* PRIMER NIVEL */}
           <tr>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200 whitespace-nowrap">
-              COLABORADOR
+            <th colSpan={12} className={thMainBlue}>
+              DATOS DE ENTRADA Y SALIDA
             </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200 whitespace-nowrap">
-              FECHA (DD:MM)
+            <th colSpan={6} className={thMainGreen}>
+              CÁLCULOS
             </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200 min-w-[140px]">
-              ACTIVIDAD DEL DIA
+            <th colSpan={2} className={thMainYellow}>
+              SUBTOTALES
             </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              VACACIONES
-            </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              FERIADO
-            </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              AUTORIZ. ENT
-            </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              AUTORIZ. SAL
-            </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              H. ENTRADA
-            </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              H. SALIDA
-            </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              H. LABORADAS
-            </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              TARDANZA (Min)
-            </th>
-            <th className="border-r border-slate-700 p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              ESTADO
-            </th>
-            <th className="p-3 font-semibold uppercase text-[9px] tracking-wider text-slate-200">
-              ACCIONES
-            </th>
+          </tr>
+          {/* SEGUNDO NIVEL */}
+          <tr>
+            <th className={thSubBlue}>COLABORADOR</th>
+            <th className={thSubBlue}>FERIADO</th>
+            <th className={thSubBlue}>GOCE VACACIONES</th>
+            <th className={thSubBlue}>TURNO</th>
+            <th className={thSubBlue}>ACTIVIDAD</th>
+            <th className={thSubBlue}>ENTRADA</th>
+            <th className={thSubBlue}>SALIDA</th>
+            <th className={thSubBlue}>TARDANZA (Min)</th>
+            <th className={thSubBlue}>TOTAL HR Y MIN</th>
+            <th className={thSubBlue}>HORAS ENTERAS</th>
+            <th className={thSubBlue}>MINUTOS ENTERAS</th>
+            <th className={thSubBlue}>TURNOS</th>
+            <th className={thSubGreen}>TOTAL PLANILLA</th>
+            <th className={thSubGreen}>HR Y MIN EXTRA</th>
+            <th className={thSubGreen}>IMPORTE HORAS</th>
+            <th className={thSubGreen}>IMPORTE MINUTOS</th>
+            <th className={thSubGreen}>BONO</th>
+            <th className={thSubGreen}>FERIADO</th>
+            <th className={thSubYellow}>SALARIO</th>
+            <th className={thSubYellowLast}>ADICIONALES</th>
           </tr>
         </thead>
 
-        <tbody className="align-middle">
-          {!dias || dias.length === 0 ? (
-            <tr>
-              <td
-                colSpan={13} // CORREGIDO: De 3 a 13 columnas
-                className="text-center p-8 text-slate-500 bg-slate-50 text-sm font-medium"
-              >
-                No hay semanas registradas.
-              </td>
-            </tr>
-          ) : (
-            dias.map((dia) => (
-              <TrAsistenciaAdministrativa
-                key={dia.id} // CORREGIDO: Obligatorio en React para optimizar el renderizado
-                dia={dia}
-                findColaborador={findColaborador}
-              />
-            ))
-          )}
-        </tbody>
+        {/* Renderizamos un <tbody> por cada colaborador */}
+
+        <GrupoColaboradorAdministrativo
+          colaborador={findColaborador}
+          dias={dias}
+        />
       </table>
     </div>
   );
