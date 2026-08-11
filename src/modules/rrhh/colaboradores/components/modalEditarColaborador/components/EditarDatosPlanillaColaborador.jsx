@@ -6,7 +6,7 @@ import {
 import { useEffect, useState } from "react";
 import config from "../../../../../../utils/getToken";
 import axios from "axios";
-import { onInputNumber } from "../../../../../../assets/onInputs";
+import { onInputNumber, onInputPrice } from "../../../../../../assets/onInputs";
 
 const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
   return (
@@ -57,7 +57,7 @@ const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
             defaultValue={selectColaborador?.asignacion_familiar}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
           <Input
             className="w-full"
@@ -71,7 +71,7 @@ const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
             defaultValue={selectColaborador?.afp_integra}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
         </div>
 
@@ -89,7 +89,7 @@ const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
             defaultValue={selectColaborador?.afp_prima}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
           <Input
             className="w-full"
@@ -103,7 +103,7 @@ const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
             defaultValue={selectColaborador?.afp_profuturo}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
           <Input
             className="w-full"
@@ -117,7 +117,7 @@ const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
             defaultValue={selectColaborador?.afp_habitat}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
         </div>
 
@@ -135,7 +135,7 @@ const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
             defaultValue={selectColaborador?.onp}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
           <Input
             className="w-full"
