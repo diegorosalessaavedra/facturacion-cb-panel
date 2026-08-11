@@ -83,7 +83,7 @@ const DatosPlanillaColaborador = ({ register }) => {
             {...register("afp_prima")}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
           <Input
             className="w-full"
@@ -96,7 +96,7 @@ const DatosPlanillaColaborador = ({ register }) => {
             {...register("afp_profuturo")}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
           <Input
             className="w-full"
@@ -109,7 +109,7 @@ const DatosPlanillaColaborador = ({ register }) => {
             {...register("afp_habitat")}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
         </div>
 
@@ -126,7 +126,7 @@ const DatosPlanillaColaborador = ({ register }) => {
             {...register("onp")}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
           <Input
             className="w-full"
