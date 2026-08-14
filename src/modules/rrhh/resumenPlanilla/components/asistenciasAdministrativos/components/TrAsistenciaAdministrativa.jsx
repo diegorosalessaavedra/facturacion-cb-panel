@@ -4,7 +4,7 @@ import { formatDateES } from "../../../../../../utils/formatDateTime";
 import axios from "axios";
 import config from "../../../../../../utils/getToken";
 import { toast } from "sonner";
-import { onInputPrice } from "../../../../../../assets/onInputs";
+import { onInputNumber, onInputPrice } from "../../../../../../assets/onInputs";
 
 const TrAsistenciaAdministrativa = ({
   dia,
@@ -391,7 +391,7 @@ const TrAsistenciaAdministrativa = ({
       <td className={`${tdBlue} min-w-[60px]`}>
         <Input
           type="text"
-          onInput={onInputPrice}
+          onInput={onInputNumber}
           name="turnos"
           value={turnos || ""}
           onChange={handleChange}
