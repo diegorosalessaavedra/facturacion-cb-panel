@@ -133,7 +133,9 @@ const TrDominicalAdmin = ({
         />
       </td>
       <td className="border-r border-b border-teal-200 p-1 bg-teal-50/40">
-        <div className={readOnlyTextClass}>{sueldoPorDia ?? "0.00"}</div>
+        <div className={readOnlyTextClass}>
+          {Number(sueldoPorDia).toFixed(2) ?? "0.00"}
+        </div>
       </td>
       <td
         colSpan={5}
