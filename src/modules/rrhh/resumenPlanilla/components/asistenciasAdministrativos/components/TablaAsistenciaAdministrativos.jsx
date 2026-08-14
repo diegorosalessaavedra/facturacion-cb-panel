@@ -1,7 +1,11 @@
 import React from "react";
 import GrupoColaboradorAdministrativo from "./GrupoColaboradorAdministrativo";
 
-const TablaAsistenciaAdministrativos = ({ findColaborador, dias }) => {
+const TablaAsistenciaAdministrativos = ({
+  findColaborador,
+  dias,
+  totalSemanas,
+}) => {
   // Los estilos corporativos de los encabezados
   const thMainBlue =
     "bg-blue-900 border-r border-b border-blue-950 p-2.5 font-bold uppercase text-[10px] tracking-widest text-white";
@@ -18,6 +22,7 @@ const TablaAsistenciaAdministrativos = ({ findColaborador, dias }) => {
     "bg-amber-100 border-r border-b border-amber-300 p-3 font-bold uppercase text-[9px] tracking-wider text-amber-950 whitespace-nowrap";
   const thSubYellowLast =
     "bg-amber-100 border-b border-amber-300 p-3 font-bold uppercase text-[9px] tracking-wider text-amber-950 whitespace-nowrap";
+  console.log(findColaborador);
 
   return (
     <div className="flex-1 overflow-auto border border-slate-300 rounded-xl bg-white shadow-md mt-4 custom-scrollbar">
@@ -25,7 +30,7 @@ const TablaAsistenciaAdministrativos = ({ findColaborador, dias }) => {
         <thead className="sticky top-0 z-20 shadow-sm">
           {/* PRIMER NIVEL */}
           <tr>
-            <th colSpan={12} className={thMainBlue}>
+            <th colSpan={13} className={thMainBlue}>
               DATOS DE ENTRADA Y SALIDA
             </th>
             <th colSpan={6} className={thMainGreen}>
@@ -38,6 +43,7 @@ const TablaAsistenciaAdministrativos = ({ findColaborador, dias }) => {
           {/* SEGUNDO NIVEL */}
           <tr>
             <th className={thSubBlue}>COLABORADOR</th>
+            <th className={thSubBlue}>DÍA</th>
             <th className={thSubBlue}>FERIADO</th>
             <th className={thSubBlue}>GOCE VACACIONES</th>
             <th className={thSubBlue}>TURNO</th>
@@ -65,6 +71,7 @@ const TablaAsistenciaAdministrativos = ({ findColaborador, dias }) => {
         <GrupoColaboradorAdministrativo
           colaborador={findColaborador}
           dias={dias}
+          totalSemanas={totalSemanas}
         />
       </table>
     </div>

@@ -1,9 +1,97 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@nextui-org/react";
+import axios from "axios";
+import config from "../../../../../../utils/getToken";
+import { toast } from "sonner";
+import { onInputPrice } from "../../../../../../assets/onInputs";
 
-const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, setSaldoAnteriorId }) => {
-  // Aquí puedes agregar un useEffect que haga un GET a tu endpoint de Saldo Anterior Administrativo
-  // y actualice el ID usando setSaldoAnteriorId(res.data.id)
+const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, semanaPlanillaId }) => {
+  // 1. Estado inicial estructurado
+  const [saldoData, setSaldoData] = useState({
+    id: null,
+    semana_planilla_id: semanaPlanillaId || null,
+    colaborador_id: colaborador?.id || null,
+    salario: 0.0,
+    adicionales: 0.0,
+  });
+
+  // Sincronización de la referencia para el guardado
+  const datosRef = useRef(saldoData);
+  useEffect(() => {
+    datosRef.current = saldoData;
+  }, [saldoData]);
+
+  // 2. Función GET
+  const handleSaldoAnterior = () => {
+    if (!semanaPlanillaId || !colaborador?.id) return;
+
+    // Asumimos que esta es tu ruta GET configurada en Express
+    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/saldo-anterior/${semanaPlanillaId}/${colaborador.id}`;
+
+    axios
+      .get(url, config)
+      .then((res) => {
+        // Asume que el backend devuelve un objeto "saldoAnterior"
+        if (res.data.saldoAnterior) {
+          const data = res.data.saldoAnterior;
+          const newData = {
+            id: data.id,
+            semana_planilla_id: data.semana_planilla_id,
+            colaborador_id: data.colaborador_id,
+            salario: data.salario,
+            adicionales: data.adicionales,
+          };
+          setSaldoData(newData);
+        }
+      })
+      .catch((err) => console.error("Error al cargar saldo anterior:", err));
+  };
+
+  useEffect(() => {
+    handleSaldoAnterior();
+  }, []);
+
+  // Función para manejar los inputs
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setSaldoData((prev) => {
+      const updated = { ...prev, [name]: value };
+      datosRef.current = updated;
+      return updated;
+    });
+  };
+
+  // 3. Función POST (Upsert)
+  const handleSave = () => {
+    const payload = {
+      ...datosRef.current,
+    };
+
+    for (const key in payload) {
+      if (payload[key] === "") payload[key] = null;
+    }
+
+    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/saldo-anterior/${payload.id || "0"}`;
+
+    axios
+      .post(url, payload, config)
+      .then((res) => {
+        toast.success("Saldo anterior guardado", { id: toastId });
+
+        if (res.data?.data?.id) {
+          const newId = res.data.data.id;
+          setSaldoData((prev) => {
+            const updated = { ...prev, id: newId };
+            datosRef.current = updated;
+            return updated;
+          });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("Error al guardar saldo anterior", { id: toastId });
+      });
+  };
 
   const inputUIClasses = {
     inputWrapper:
@@ -22,9 +110,9 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, setSaldoAnteriorId }) => {
         {colaborador?.nombre_colaborador}
       </td>
 
-      {/* ESPACIOS VACÍOS HASTA SUBTOTALES (Abarca desde Feriado hasta Feriado Cálculo) */}
+      {/* ESPACIOS VACÍOS HASTA SUBTOTALES */}
       <td
-        colSpan={17}
+        colSpan={18}
         className="border-r border-b border-slate-200 text-right pr-4 font-bold text-red-600 text-[10px] uppercase"
       >
         Saldo Anterior
@@ -33,8 +121,12 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, setSaldoAnteriorId }) => {
       {/* INPUTS DE SALDO */}
       <td className="border-r border-b border-slate-200 p-1 min-w-[70px]">
         <Input
-          type="number"
-          step="0.01"
+          type="text"
+          onInput={onInputPrice}
+          name="salario"
+          value={saldoData.salario || ""}
+          onChange={handleChange}
+          onBlur={handleSave}
           size="sm"
           radius="sm"
           classNames={inputUIClasses}
@@ -43,8 +135,12 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, setSaldoAnteriorId }) => {
       </td>
       <td className="border-b border-slate-200 p-1 min-w-[70px]">
         <Input
-          type="number"
-          step="0.01"
+          type="text"
+          onInput={onInputPrice}
+          name="adicionales"
+          value={saldoData.adicionales || ""}
+          onChange={handleChange}
+          onBlur={handleSave}
           size="sm"
           radius="sm"
           classNames={inputUIClasses}

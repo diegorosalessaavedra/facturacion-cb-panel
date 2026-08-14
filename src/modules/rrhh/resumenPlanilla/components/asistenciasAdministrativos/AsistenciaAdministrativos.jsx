@@ -17,10 +17,12 @@ const AsistenciaAdministrativos = ({
   selectColaborador,
   setSelectColaborador,
   dias,
+  totalSemanas,
 }) => {
   const findColaborador = colaboradores.find(
     (c) => c.id === Number(selectColaborador),
   );
+
   return (
     <Modal
       isOpen={isOpen}
@@ -43,6 +45,7 @@ const AsistenciaAdministrativos = ({
               <TablaAsistenciaAdministrativos
                 dias={dias}
                 findColaborador={findColaborador}
+                totalSemanas={totalSemanas}
               />
             </ModalBody>
           </>

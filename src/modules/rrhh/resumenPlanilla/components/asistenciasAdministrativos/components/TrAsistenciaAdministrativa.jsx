@@ -4,17 +4,31 @@ import { formatDateES } from "../../../../../../utils/formatDateTime";
 import axios from "axios";
 import config from "../../../../../../utils/getToken";
 import { toast } from "sonner";
+import { onInputPrice } from "../../../../../../assets/onInputs";
 
-const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
+const TrAsistenciaAdministrativa = ({
+  dia,
+  findColaborador,
+  sueldoPorDia,
+  sueldoFeriadoBruto,
+  onDataUpdate, // <--- 1. Prop para avisar al padre
+}) => {
   const [lastSavedData, setLastSavedData] = useState(null);
+
+  // --- LÓGICA AUTOMÁTICA DE FERIADOS ---
+  const esFeriado = Boolean(dia?.bonificacion_feriado);
+  const valorAsistenciaFeriado = esFeriado ? "SI" : "NO";
+  const valorMontoFeriado = esFeriado ? sueldoFeriadoBruto || 0.0 : 0.0;
 
   const [datosAsistencia, setDatosAsistencia] = useState({
     id: null,
     dia_planilla_id: dia?.id || null,
+    semana_planilla_id:
+      dia?.semana_plantilla_id || dia?.semana_planilla_id || null,
     colaborador_id: findColaborador?.id || null,
 
     // --- DATOS DE ENTRADA Y SALIDA ---
-    asistencia_feriado: "NO",
+    asistencia_feriado: valorAsistenciaFeriado,
     goce_vacaciones: "NO",
     turno: "DIURNO",
     actividad_dia: "",
@@ -27,30 +41,25 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
     turnos: "",
 
     // --- CÁLCULOS ---
-    total_planilla: 0.0,
+    total_planilla: sueldoPorDia,
     hr_min_extra: "",
     importe_horas: 0.0,
     importe_minutos: 0.0,
     bono: 0.0,
-    feriados: 0.0,
+    feriados: valorMontoFeriado,
 
     // --- SUBTOTALES ---
-    salario: 0.0,
-    adicionales: 0.0,
+    salario: sueldoPorDia,
+    adicionales: valorMontoFeriado,
 
     estado: "PENDIENTE DE ENVIAR",
   });
 
-  // --- REF QUE SIEMPRE TIENE EL DATO MÁS FRESCO ---
-  // Se usa como fuente de verdad al guardar, evitando closures viejos
-  // cuando handleSave se llama sin argumento (onBlur).
   const datosRef = useRef(datosAsistencia);
   useEffect(() => {
     datosRef.current = datosAsistencia;
   }, [datosAsistencia]);
 
-  // Contador de requests en vuelo: si una respuesta "vieja" llega
-  // después de que ya se disparó un guardado más nuevo, la ignoramos.
   const saveSeqRef = useRef(0);
 
   const handleAsistencia = () => {
@@ -68,10 +77,18 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
             ...datosAsistencia,
             ...datosPrincipales,
             ...(calculo_asistencia_administrativo || {}),
+            total_planilla: sueldoPorDia,
+            asistencia_feriado: valorAsistenciaFeriado,
+            feriados: valorMontoFeriado,
+            salario: sueldoPorDia,
+            adicionales: valorMontoFeriado,
           };
 
           setDatosAsistencia(newData);
           setLastSavedData(newData);
+          if (onDataUpdate) onDataUpdate(newData); // <--- 2. Avisamos al padre (Datos de BD)
+        } else {
+          if (onDataUpdate) onDataUpdate(datosAsistencia); // <--- Avisamos al padre (Datos iniciales si no hay BD)
         }
       })
       .catch((err) => console.error("Error al cargar asistencia:", err));
@@ -86,7 +103,8 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
     const { name, value } = e.target;
     setDatosAsistencia((prev) => {
       const updated = { ...prev, [name]: value };
-      datosRef.current = updated; // actualización síncrona, sin esperar al efecto
+      datosRef.current = updated;
+      if (onDataUpdate) onDataUpdate(updated); // <--- 3. Avisamos al padre en cada tipeo
       return updated;
     });
   };
@@ -98,6 +116,7 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
     const nuevosDatos = { ...datosAsistencia, [name]: value };
     datosRef.current = nuevosDatos;
     setDatosAsistencia(nuevosDatos);
+    if (onDataUpdate) onDataUpdate(nuevosDatos); // <--- 4. Avisamos al padre al cambiar select
     handleSave(nuevosDatos);
   };
 
@@ -111,14 +130,12 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
     if (entrada) {
       const [entHora, entMin] = entrada.split(":").map(Number);
 
-      // 1. Cálculo de Tardanza (Referencia: 09:00 AM)
       const refTotalMinutos = 9 * 60; // 540 minutos desde las 00:00
       const entTotalMinutos = entHora * 60 + entMin;
 
       tardanza_minutos = entTotalMinutos - refTotalMinutos;
       if (tardanza_minutos < 0) tardanza_minutos = 0;
 
-      // 2. Cálculo de Horas Trabajadas
       if (salida) {
         const [salHora, salMin] = salida.split(":").map(Number);
         const salTotalMinutos = salHora * 60 + salMin;
@@ -126,7 +143,7 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
         let diffMinutos = salTotalMinutos - entTotalMinutos;
 
         if (diffMinutos < 0) {
-          diffMinutos += 24 * 60; // Turno nocturno / amanecida
+          diffMinutos += 24 * 60;
         }
 
         horas_enteras = Math.floor(diffMinutos / 60);
@@ -156,46 +173,36 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
 
     datosRef.current = nuevosDatos;
     setDatosAsistencia(nuevosDatos);
+    if (onDataUpdate) onDataUpdate(nuevosDatos); // <--- 5. Avisamos al padre tras calcular horas
     handleSave(nuevosDatos);
   };
-  // ------------------------------------------
 
-  // IMPORTANTE: el valor por defecto ahora viene del ref, no del estado
-  // capturado en el closure del render, así siempre se guarda el dato
-  // más reciente sin importar cuándo se dispare el onBlur.
   const handleSave = (datosAEnviar = datosRef.current) => {
-    if (
-      lastSavedData &&
-      JSON.stringify(datosAEnviar) === JSON.stringify(lastSavedData)
-    ) {
-      return;
-    }
+    const payload = {
+      ...datosAEnviar,
+      total_planilla: sueldoPorDia,
+      asistencia_feriado: valorAsistenciaFeriado,
+      feriados: valorMontoFeriado,
+    };
 
-    const payload = { ...datosAEnviar };
     for (const key in payload) {
       if (payload[key] === "") payload[key] = null;
     }
 
     const mySeq = ++saveSeqRef.current;
     const toastId = toast.loading("Guardando...");
-    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/${payload.id}`;
+    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/${payload.id || "0"}`;
 
     axios
       .post(url, payload, config)
       .then((res) => {
         toast.success("Guardado", { id: toastId });
 
-        // Guardamos qué se envió, para la comparación de "sin cambios"
         const newId = res.data?.data?.id ?? payload.id;
         setLastSavedData({ ...payload, id: newId });
 
-        // Si mientras esta request viajaba se disparó un guardado más
-        // nuevo, esta respuesta ya está desactualizada: NO tocamos el
-        // estado visible (evita pisar lo que el usuario ya escribió).
         if (mySeq !== saveSeqRef.current) return;
 
-        // Solo sincronizamos el id (por si era un registro nuevo).
-        // Nunca sobreescribimos todo el objeto con el payload viejo.
         if (newId && newId !== datosRef.current.id) {
           setDatosAsistencia((prev) => {
             const updated = { ...prev, id: newId };
@@ -210,7 +217,7 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
       });
   };
 
-  // --- ESTILOS PARA INPUTS Y SELECTS ---
+  // --- ESTILOS ---
   const inputUIClasses = {
     inputWrapper:
       "min-h-[25px] h-[25px] px-1 bg-transparent shadow-none hover:bg-white/70 data-[focus=true]:bg-white data-[focus=true]:shadow-sm transition-all",
@@ -223,11 +230,9 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
     value: "text-[10px] text-center text-slate-700 font-medium",
   };
 
-  // --- ESTILOS PARA CAMPOS AUTOMÁTICOS (Texto Plano) ---
   const readOnlyTextClass =
-    "min-h-[25px] h-[25px] w-full flex items-center justify-center text-[10px] text-slate-600 font-bold bg-black/5 rounded-sm px-1";
+    "min-h-[25px] h-[25px] w-full flex items-center justify-center text-[10px] text-slate-600 font-bold rounded-sm px-1";
 
-  // --- COLORES CORPORATIVOS PARA LAS CELDAS ---
   const tdBlue = "border-r border-b border-blue-200 bg-blue-50/80 p-1";
   const tdGreen = "border-r border-b border-teal-200 bg-teal-50/80 p-1";
   const tdYellow = "border-r border-b border-amber-200 bg-amber-50/80 p-1";
@@ -245,7 +250,6 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
     horas_enteras,
     minutos_enteros,
     turnos,
-    total_planilla,
     hr_min_extra,
     importe_horas,
     importe_minutos,
@@ -269,26 +273,14 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
 
   return (
     <tr className="group hover:bg-slate-50 transition-colors">
-      {/* =========================================
-          GRUPO 1: DATOS DE ENTRADA Y SALIDA (AZUL)
-          ========================================= */}
+      <td
+        className={` ${tdBlue} uppercase text-[9px] whitespace-nowrap align-middle min-w-[180px]`}
+      >
+        {formatDateES(dia?.dia_plantilla) || "-"}
+      </td>
 
       <td className={`${tdBlue} min-w-[70px]`}>
-        <Select
-          name="asistencia_feriado"
-          selectedKeys={new Set([asistencia_feriado])}
-          onChange={handleSelectChange}
-          size="sm"
-          radius="sm"
-          classNames={selectUIClasses}
-          aria-label="Asistencia Feriado"
-        >
-          {opcionesSiNo.map((op) => (
-            <SelectItem key={op.key} textValue={op.label}>
-              <p className="text-[9px]">{op.label}</p>
-            </SelectItem>
-          ))}
-        </Select>
+        <div className={readOnlyTextClass}>{asistencia_feriado}</div>
       </td>
 
       <td className={`${tdBlue} min-w-[70px]`}>
@@ -342,7 +334,6 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
         />
       </td>
 
-      {/* --- ENTRADA (Activa handleTimeBlur al salir) --- */}
       <td className={`${tdBlue} min-w-[80px]`}>
         <Input
           type="time"
@@ -357,7 +348,6 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
         />
       </td>
 
-      {/* --- SALIDA (Activa handleTimeBlur al salir) --- */}
       <td className={`${tdBlue} min-w-[80px]`}>
         <Input
           type="time"
@@ -372,28 +362,23 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
         />
       </td>
 
-      {/* --- CAMPOS AUTOMÁTICOS (Texto plano) --- */}
       <td className={`${tdBlue} min-w-[60px]`}>
         <div className={readOnlyTextClass}>{tardanza_minutos || "0"}</div>
       </td>
-
       <td className={`${tdBlue} min-w-[80px]`}>
         <div className={readOnlyTextClass}>{total_horas_minutos || "-"}</div>
       </td>
-
       <td className={`${tdBlue} min-w-[60px]`}>
         <div className={readOnlyTextClass}>{horas_enteras || "0"}</div>
       </td>
-
       <td className={`${tdBlue} min-w-[60px]`}>
         <div className={readOnlyTextClass}>{minutos_enteros || "0"}</div>
       </td>
-      {/* ----------------------------------------------------- */}
 
       <td className={`${tdBlue} min-w-[60px]`}>
         <Input
-          type="number"
-          step="0.01"
+          type="text"
+          onInput={onInputPrice}
           name="turnos"
           value={turnos || ""}
           onChange={handleChange}
@@ -410,18 +395,7 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
           ========================================= */}
 
       <td className={`${tdGreen} min-w-[70px]`}>
-        <Input
-          type="number"
-          step="0.01"
-          name="total_planilla"
-          value={total_planilla || ""}
-          onChange={handleChange}
-          onBlur={() => handleSave()}
-          size="sm"
-          radius="sm"
-          classNames={inputUIClasses}
-          aria-label="Total Planilla"
-        />
+        <div className={readOnlyTextClass}>{sueldoPorDia ?? "0.00"}</div>
       </td>
 
       <td className={`${tdGreen} min-w-[80px]`}>
@@ -441,8 +415,8 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
 
       <td className={`${tdGreen} min-w-[70px]`}>
         <Input
-          type="number"
-          step="0.01"
+          type="text"
+          onInput={onInputPrice}
           name="importe_horas"
           value={importe_horas || ""}
           onChange={handleChange}
@@ -456,8 +430,8 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
 
       <td className={`${tdGreen} min-w-[70px]`}>
         <Input
-          type="number"
-          step="0.01"
+          type="text"
+          onInput={onInputPrice}
           name="importe_minutos"
           value={importe_minutos || ""}
           onChange={handleChange}
@@ -471,8 +445,8 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
 
       <td className={`${tdGreen} min-w-[70px]`}>
         <Input
-          type="number"
-          step="0.01"
+          type="text"
+          onInput={onInputPrice}
           name="bono"
           value={bono || ""}
           onChange={handleChange}
@@ -485,18 +459,7 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
       </td>
 
       <td className={`${tdGreen} min-w-[70px]`}>
-        <Input
-          type="number"
-          step="0.01"
-          name="feriados"
-          value={feriados || ""}
-          onChange={handleChange}
-          onBlur={() => handleSave()}
-          size="sm"
-          radius="sm"
-          classNames={inputUIClasses}
-          aria-label="Feriados (Cálculo)"
-        />
+        <div className={readOnlyTextClass}>{feriados ?? "0.00"}</div>
       </td>
 
       {/* =========================================
@@ -504,33 +467,11 @@ const TrAsistenciaAdministrativa = ({ dia, findColaborador }) => {
           ========================================= */}
 
       <td className={`${tdYellow} min-w-[70px]`}>
-        <Input
-          type="number"
-          step="0.01"
-          name="salario"
-          value={salario || ""}
-          onChange={handleChange}
-          onBlur={() => handleSave()}
-          size="sm"
-          radius="sm"
-          classNames={inputUIClasses}
-          aria-label="Salario"
-        />
+        <div className={readOnlyTextClass}>{salario ?? "0.00"}</div>
       </td>
 
       <td className={`${tdYellowLast} min-w-[70px]`}>
-        <Input
-          type="number"
-          step="0.01"
-          name="adicionales"
-          value={adicionales || ""}
-          onChange={handleChange}
-          onBlur={() => handleSave()}
-          size="sm"
-          radius="sm"
-          classNames={inputUIClasses}
-          aria-label="Adicionales"
-        />
+        <div className={readOnlyTextClass}>{adicionales ?? "0.00"}</div>
       </td>
     </tr>
   );

@@ -19,6 +19,7 @@ const ResumenPlanilla = () => {
   const [loading, setLoading] = useState(false);
   const [colaboradores, setColaboradores] = useState([]);
   const [dias, setDias] = useState([]);
+  const [totalSemanas, setTotalSemanas] = useState(0);
 
   const [dataFiltros, setDataFiltros] = useState({
     empresa: new Set(["Granjas Peruanas"]),
@@ -31,12 +32,13 @@ const ResumenPlanilla = () => {
     if (!id && !selectColaborador) return;
 
     setLoading(true);
-    const url = `${import.meta.env.VITE_URL_API}/dias-planilla/semana/${id}/${selectColaborador}`;
+    const url = `${import.meta.env.VITE_URL_API}/dias-planilla/semana/${id}`;
 
     axios
       .get(url, config)
       .then((res) => {
         setDias(res.data.dias);
+        setTotalSemanas(res.data.totalSemanas);
       })
       .finally(() => setLoading(false));
   }, [id, selectColaborador]);
@@ -70,7 +72,6 @@ const ResumenPlanilla = () => {
         : selectColaborador;
 
     const findColaborador = colaboradores.find((c) => c.id === Number(colabId));
-    console.log(findColaborador);
 
     if (findColaborador) {
       setSelectModal(
@@ -80,6 +81,7 @@ const ResumenPlanilla = () => {
       );
     }
   }, [selectColaborador, colaboradores]);
+  console.log(totalSemanas);
 
   return (
     <main className="w-full h-screen bg-slate-50 p-4 md:pt-[90px] overflow-hidden flex flex-col">
@@ -113,6 +115,7 @@ const ResumenPlanilla = () => {
             selectColaborador={selectColaborador}
             setSelectColaborador={setSelectColaborador}
             dias={dias}
+            totalSemanas={totalSemanas}
           />
         )}
 
