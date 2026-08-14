@@ -4,6 +4,7 @@ import { formatDateES } from "../../../../../../utils/formatDateTime";
 import axios from "axios";
 import config from "../../../../../../utils/getToken";
 import { toast } from "sonner";
+import { onInputPrice } from "../../../../../../assets/onInputs";
 
 const TrDominicalAdmin = ({
   saldoAnteriorId,
@@ -121,8 +122,8 @@ const TrDominicalAdmin = ({
       </td>
       <td className="border-r border-b border-blue-200 p-1">
         <Input
-          type="number"
-          step="0.01"
+          type="text"
+          onInput={onInputPrice}
           name="turnos"
           value={dominicalData.turnos || ""}
           onChange={handleChange}
