@@ -25,8 +25,8 @@ const GrupoColaboradorAdministrativo = ({
   const divisorSemanas = totalSemanas > 0 ? totalSemanas : 1;
   const divisorDias = dias?.length > 0 ? dias.length : 1;
   const calculoBruto = sueldoMensual / divisorSemanas / divisorDias;
-  const sueldoFeriadoBruto = (Number(sueldoMensual / 30) * 2).toFixed(2);
-  const sueldoPorDia = Number(calculoBruto.toFixed(2));
+  const sueldoFeriadoBruto = Number(sueldoMensual / 30) * 2;
+  const sueldoPorDia = Number(calculoBruto);
 
   const [saldoAnteriorId, setSaldoAnteriorId] = useState(null);
 

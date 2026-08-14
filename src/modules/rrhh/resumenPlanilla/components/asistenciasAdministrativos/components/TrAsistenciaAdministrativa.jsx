@@ -11,7 +11,7 @@ const TrAsistenciaAdministrativa = ({
   findColaborador,
   sueldoPorDia,
   sueldoFeriadoBruto,
-  onDataUpdate, // <--- 1. Prop para avisar al padre
+  onDataUpdate,
 }) => {
   const [lastSavedData, setLastSavedData] = useState(null);
 
@@ -20,40 +20,51 @@ const TrAsistenciaAdministrativa = ({
   const valorAsistenciaFeriado = esFeriado ? "SI" : "NO";
   const valorMontoFeriado = esFeriado ? sueldoFeriadoBruto || 0.0 : 0.0;
 
-  const [datosAsistencia, setDatosAsistencia] = useState({
-    id: null,
-    dia_planilla_id: dia?.id || null,
-    semana_planilla_id:
-      dia?.semana_plantilla_id || dia?.semana_planilla_id || null,
-    colaborador_id: findColaborador?.id || null,
+  // --- REGLA DE NEGOCIO: SI TURNOS ES 0, NO HAY PAGO ---
+  const aplicarReglasTurno = (datos) => {
+    const cantTurnos = Number(datos.turnos || 0);
+    const trabajo = cantTurnos > 0;
 
-    // --- DATOS DE ENTRADA Y SALIDA ---
-    asistencia_feriado: valorAsistenciaFeriado,
-    goce_vacaciones: "NO",
-    turno: "DIURNO",
-    actividad_dia: "",
-    hora_entrada: "",
-    hora_salida: "",
-    tardanza_minutos: 0,
-    total_horas_minutos: "",
-    horas_enteras: "",
-    minutos_enteros: "",
-    turnos: "",
+    return {
+      ...datos,
+      total_planilla: trabajo ? sueldoPorDia : 0,
+      asistencia_feriado: valorAsistenciaFeriado,
+      feriados: trabajo ? valorMontoFeriado : 0,
+      salario: trabajo ? sueldoPorDia : 0,
+      adicionales: trabajo ? valorMontoFeriado : 0,
+    };
+  };
 
-    // --- CÁLCULOS ---
-    total_planilla: sueldoPorDia,
-    hr_min_extra: "",
-    importe_horas: 0.0,
-    importe_minutos: 0.0,
-    bono: 0.0,
-    feriados: valorMontoFeriado,
-
-    // --- SUBTOTALES ---
-    salario: sueldoPorDia,
-    adicionales: valorMontoFeriado,
-
-    estado: "PENDIENTE DE ENVIAR",
-  });
+  // Inicializamos el estado pasándolo por la regla de negocio para que inicie en 0
+  const [datosAsistencia, setDatosAsistencia] = useState(() =>
+    aplicarReglasTurno({
+      id: null,
+      dia_planilla_id: dia?.id || null,
+      semana_planilla_id:
+        dia?.semana_plantilla_id || dia?.semana_planilla_id || null,
+      colaborador_id: findColaborador?.id || null,
+      asistencia_feriado: valorAsistenciaFeriado,
+      goce_vacaciones: "NO",
+      turno: "DIURNO",
+      actividad_dia: "",
+      hora_entrada: "",
+      hora_salida: "",
+      tardanza_minutos: 0,
+      total_horas_minutos: "",
+      horas_enteras: "",
+      minutos_enteros: "",
+      turnos: 0,
+      total_planilla: 0,
+      hr_min_extra: "",
+      importe_horas: 0.0,
+      importe_minutos: 0.0,
+      bono: 0.0,
+      feriados: 0.0,
+      salario: 0.0,
+      adicionales: 0.0,
+      estado: "PENDIENTE DE ENVIAR",
+    }),
+  );
 
   const datosRef = useRef(datosAsistencia);
   useEffect(() => {
@@ -73,22 +84,19 @@ const TrAsistenciaAdministrativa = ({
         if (res.data.asistencia) {
           const { calculo_asistencia_administrativo, ...datosPrincipales } =
             res.data.asistencia;
-          const newData = {
+
+          // Aplicamos las reglas a lo que traiga la base de datos
+          const newData = aplicarReglasTurno({
             ...datosAsistencia,
             ...datosPrincipales,
             ...(calculo_asistencia_administrativo || {}),
-            total_planilla: sueldoPorDia,
-            asistencia_feriado: valorAsistenciaFeriado,
-            feriados: valorMontoFeriado,
-            salario: sueldoPorDia,
-            adicionales: valorMontoFeriado,
-          };
+          });
 
           setDatosAsistencia(newData);
           setLastSavedData(newData);
-          if (onDataUpdate) onDataUpdate(newData); // <--- 2. Avisamos al padre (Datos de BD)
+          if (onDataUpdate) onDataUpdate(newData);
         } else {
-          if (onDataUpdate) onDataUpdate(datosAsistencia); // <--- Avisamos al padre (Datos iniciales si no hay BD)
+          if (onDataUpdate) onDataUpdate(datosAsistencia);
         }
       })
       .catch((err) => console.error("Error al cargar asistencia:", err));
@@ -102,9 +110,10 @@ const TrAsistenciaAdministrativa = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setDatosAsistencia((prev) => {
-      const updated = { ...prev, [name]: value };
+      // Evaluamos la regla con el nuevo tipeo (ej: si borran el turno, se pone en 0)
+      const updated = aplicarReglasTurno({ ...prev, [name]: value });
       datosRef.current = updated;
-      if (onDataUpdate) onDataUpdate(updated); // <--- 3. Avisamos al padre en cada tipeo
+      if (onDataUpdate) onDataUpdate(updated);
       return updated;
     });
   };
@@ -113,10 +122,13 @@ const TrAsistenciaAdministrativa = ({
     const { name, value } = e.target;
     if (!value) return;
 
-    const nuevosDatos = { ...datosAsistencia, [name]: value };
+    const nuevosDatos = aplicarReglasTurno({
+      ...datosAsistencia,
+      [name]: value,
+    });
     datosRef.current = nuevosDatos;
     setDatosAsistencia(nuevosDatos);
-    if (onDataUpdate) onDataUpdate(nuevosDatos); // <--- 4. Avisamos al padre al cambiar select
+    if (onDataUpdate) onDataUpdate(nuevosDatos);
     handleSave(nuevosDatos);
   };
 
@@ -146,6 +158,11 @@ const TrAsistenciaAdministrativa = ({
           diffMinutos += 24 * 60;
         }
 
+        // --- RESTA DE 1 HORA DE REFRIGERIO ---
+        diffMinutos -= 60;
+
+        if (diffMinutos < 0) diffMinutos = 0;
+
         horas_enteras = Math.floor(diffMinutos / 60);
         minutos_enteros = diffMinutos % 60;
         total_horas_minutos = `${String(horas_enteras).padStart(2, "0")}:${String(minutos_enteros).padStart(2, "0")}`;
@@ -166,24 +183,19 @@ const TrAsistenciaAdministrativa = ({
       datosAsistencia.hora_salida,
     );
 
-    const nuevosDatos = {
+    const nuevosDatos = aplicarReglasTurno({
       ...datosAsistencia,
       ...calculos,
-    };
+    });
 
     datosRef.current = nuevosDatos;
     setDatosAsistencia(nuevosDatos);
-    if (onDataUpdate) onDataUpdate(nuevosDatos); // <--- 5. Avisamos al padre tras calcular horas
+    if (onDataUpdate) onDataUpdate(nuevosDatos);
     handleSave(nuevosDatos);
   };
 
   const handleSave = (datosAEnviar = datosRef.current) => {
-    const payload = {
-      ...datosAEnviar,
-      total_planilla: sueldoPorDia,
-      asistencia_feriado: valorAsistenciaFeriado,
-      feriados: valorMontoFeriado,
-    };
+    const payload = { ...datosAEnviar };
 
     for (const key in payload) {
       if (payload[key] === "") payload[key] = null;
@@ -250,6 +262,7 @@ const TrAsistenciaAdministrativa = ({
     horas_enteras,
     minutos_enteros,
     turnos,
+    total_planilla, // Añadido para el render visual
     hr_min_extra,
     importe_horas,
     importe_minutos,
@@ -283,7 +296,7 @@ const TrAsistenciaAdministrativa = ({
         <div className={readOnlyTextClass}>{asistencia_feriado}</div>
       </td>
 
-      <td className={`${tdBlue} min-w-[70px]`}>
+      <td className={`${tdBlue} min-w-[150px]`}>
         <Select
           name="goce_vacaciones"
           selectedKeys={new Set([goce_vacaciones])}
@@ -395,7 +408,10 @@ const TrAsistenciaAdministrativa = ({
           ========================================= */}
 
       <td className={`${tdGreen} min-w-[70px]`}>
-        <div className={readOnlyTextClass}>{sueldoPorDia ?? "0.00"}</div>
+        {/* AHORA USA LA VARIABLE DE ESTADO EN LUGAR DEL PROP DIRECTO */}
+        <div className={readOnlyTextClass}>
+          {Number(total_planilla || 0).toFixed(2)}
+        </div>
       </td>
 
       <td className={`${tdGreen} min-w-[80px]`}>
@@ -459,7 +475,9 @@ const TrAsistenciaAdministrativa = ({
       </td>
 
       <td className={`${tdGreen} min-w-[70px]`}>
-        <div className={readOnlyTextClass}>{feriados ?? "0.00"}</div>
+        <div className={readOnlyTextClass}>
+          {Number(feriados || 0).toFixed(2)}
+        </div>
       </td>
 
       {/* =========================================
@@ -467,11 +485,15 @@ const TrAsistenciaAdministrativa = ({
           ========================================= */}
 
       <td className={`${tdYellow} min-w-[70px]`}>
-        <div className={readOnlyTextClass}>{salario ?? "0.00"}</div>
+        <div className={readOnlyTextClass}>
+          {Number(salario || 0).toFixed(2)}
+        </div>
       </td>
 
       <td className={`${tdYellowLast} min-w-[70px]`}>
-        <div className={readOnlyTextClass}>{adicionales ?? "0.00"}</div>
+        <div className={readOnlyTextClass}>
+          {Number(adicionales || 0).toFixed(2)}
+        </div>
       </td>
     </tr>
   );
