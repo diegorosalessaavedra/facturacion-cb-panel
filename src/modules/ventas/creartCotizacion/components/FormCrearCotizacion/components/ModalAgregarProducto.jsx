@@ -56,7 +56,7 @@ const ModalAgregarProducto = ({
   // Memoizar si el tipo de producto es "Costos y gastos"
   const isCostosYGastos = useMemo(
     () => tipo_productos === "Costos y gastos",
-    [tipo_productos]
+    [tipo_productos],
   );
 
   // Obtener productos
@@ -130,7 +130,7 @@ const ModalAgregarProducto = ({
         return updatedData;
       });
     },
-    [calculateTotal]
+    [calculateTotal],
   );
 
   // Manejar selección de producto
@@ -139,13 +139,13 @@ const ModalAgregarProducto = ({
       setSelectProducto(value);
 
       const selectedProduct = findProductos.find(
-        (product) => product.id.toString() === value
+        (product) => product.id.toString() === value,
       );
 
       if (selectedProduct) {
         const total = calculateTotal(
           dataProducto.cantidad,
-          selectedProduct.precioUnitario
+          selectedProduct.precioUnitario,
         );
 
         setDataProducto((prevData) => ({
@@ -159,7 +159,7 @@ const ModalAgregarProducto = ({
         }));
       }
     },
-    [findProductos, dataProducto.cantidad, calculateTotal]
+    [findProductos, dataProducto.cantidad, calculateTotal],
   );
 
   // Agregar producto
@@ -175,7 +175,6 @@ const ModalAgregarProducto = ({
     return (
       dataProducto.productoId !== "" &&
       dataProducto.cantidad > 0 &&
-      dataProducto.precioUnitario > 0 &&
       (!isCostosYGastos || dataProducto.centroCostoId)
     );
   }, [dataProducto, isCostosYGastos]);
@@ -184,7 +183,7 @@ const ModalAgregarProducto = ({
   const selectedProduct = useMemo(
     () =>
       findProductos.find((product) => product.id.toString() === selectProducto),
-    [findProductos, selectProducto]
+    [findProductos, selectProducto],
   );
 
   // Determinar el tipo de input para cantidad

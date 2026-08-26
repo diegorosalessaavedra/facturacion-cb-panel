@@ -162,7 +162,6 @@ const ModalEditarProductoCotizacion = ({
     return (
       dataProducto.productoId !== "" &&
       dataProducto.cantidad > 0 &&
-      dataProducto.precioUnitario > 0 &&
       (!isCostosYGastos || dataProducto.centroCostoId)
     );
   }, [dataProducto, isCostosYGastos]);
