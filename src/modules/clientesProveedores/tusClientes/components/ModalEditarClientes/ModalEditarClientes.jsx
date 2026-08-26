@@ -81,6 +81,7 @@ const ModalEditarClientes = ({
       eecc: data.eecc,
       permiso_credito: permisoCredito,
       tipo_cliente: data.tipo_cliente,
+      origen: data.origen,
     };
 
     const url = `${import.meta.env.VITE_URL_API}/clientes/${
@@ -138,7 +139,7 @@ const ModalEditarClientes = ({
         <ModalBody>
           <div className="w-full flex flex-col gap-2">
             <form
-              className="flex flex-col gap-2"
+              className="flex flex-col gap-3"
               onSubmit={handleSubmit(submit)}
             >
               <DatosEditarClientes
@@ -167,31 +168,7 @@ const ModalEditarClientes = ({
                 selectProveedor={selectProveedor}
               />
               <div className="w-full flex gap-4 items-end">
-                <Input
-                  className="w-1/2"
-                  classNames={inputClassNames}
-                  labelPlacement="outside"
-                  type="text"
-                  variant="bordered"
-                  label="Dirección"
-                  value={dataRuc.direccion}
-                  placeholder="..."
-                  {...register("direccion", {
-                    onChange: (e) =>
-                      setDataRuc((prev) => ({
-                        ...prev,
-                        direccion: e.target.value,
-                      })),
-                  })}
-                  isInvalid={!!errors.direccion}
-                  color={errors.direccion ? "danger" : "primary"}
-                  errorMessage={errors.direccion?.message}
-                  radius="sm"
-                  size="sm"
-                />
-
                 <Select
-                  className="w-1/4"
                   label="EECC"
                   labelPlacement="outside"
                   variant="bordered"
@@ -205,7 +182,6 @@ const ModalEditarClientes = ({
                   <SelectItem key="Inactivo">Inactivo</SelectItem>
                 </Select>
                 <Select
-                  className="w-1/4"
                   label="Tipo Cliente"
                   labelPlacement="outside"
                   variant="bordered"
@@ -229,6 +205,42 @@ const ModalEditarClientes = ({
                     Crédito
                   </Checkbox>
                 </div>
+              </div>
+              <div className="w-full flex gap-4 items-end">
+                <Input
+                  classNames={inputClassNames}
+                  labelPlacement="outside"
+                  type="text"
+                  variant="bordered"
+                  label="Dirección"
+                  value={dataRuc.direccion}
+                  placeholder="..."
+                  {...register("direccion", {
+                    onChange: (e) =>
+                      setDataRuc((prev) => ({
+                        ...prev,
+                        direccion: e.target.value,
+                      })),
+                  })}
+                  isInvalid={!!errors.direccion}
+                  color={errors.direccion ? "danger" : "primary"}
+                  errorMessage={errors.direccion?.message}
+                  radius="sm"
+                  size="sm"
+                />
+                <Input
+                  classNames={inputClassNames}
+                  labelPlacement="outside"
+                  type="text"
+                  variant="bordered"
+                  label="Origen"
+                  placeholder="..."
+                  {...register("origen")}
+                  color="primary"
+                  radius="sm"
+                  size="sm"
+                  defaultValue={selectProveedor.origen}
+                />
               </div>
               <div className="w-full flex items-center justify-end gap-3 p-4">
                 <Button

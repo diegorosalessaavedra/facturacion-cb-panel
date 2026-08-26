@@ -67,6 +67,7 @@ const ModalNuevoCliente = ({ isOpen, onOpenChange, findClients }) => {
       distritoId: idDistrito,
       direccion: dataRuc?.direccion,
       telefono: data.telefono,
+      origen: data.origen,
     };
 
     const url = `${import.meta.env.VITE_URL_API}/clientes`;
@@ -87,7 +88,7 @@ const ModalNuevoCliente = ({ isOpen, onOpenChange, findClients }) => {
       .catch((err) => {
         toast.error(
           err.response?.data?.error ||
-            "Hubo un error al crear el proveedor por favor verifique bine los datos"
+            "Hubo un error al crear el proveedor por favor verifique bine los datos",
         );
       });
   };
@@ -164,6 +165,18 @@ const ModalNuevoCliente = ({ isOpen, onOpenChange, findClients }) => {
                   isInvalid={!!errors.direccion}
                   color={errors.direccion ? "danger" : "primary"}
                   errorMessage={errors.direccion?.message}
+                  radius="sm"
+                  size="sm"
+                />
+                <Input
+                  className="w-full"
+                  classNames={inputClassNames}
+                  labelPlacement="outside"
+                  type="text"
+                  variant="bordered"
+                  label="Origen"
+                  placeholder="..."
+                  {...register("origen")}
                   radius="sm"
                   size="sm"
                 />
