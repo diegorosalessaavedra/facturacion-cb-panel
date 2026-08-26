@@ -1,14 +1,26 @@
 export const onInputPrice = (e) => {
-  const value = e.target.value.replace(/[^0-9.]/g, "");
-  const parts = value.split(".");
+  let value = e.target.value;
+
+  // Permitir solo números, punto y guion
+  value = value.replace(/[^0-9.-]/g, "");
+
+  // Eliminar todos los guiones excepto el primero al inicio
+  value = value.replace(/(?!^)-/g, "");
+
+  const isNegative = value.startsWith("-");
+  const numericValue = isNegative ? value.slice(1) : value;
+
+  const parts = numericValue.split(".");
 
   if (parts.length > 2) {
-    e.target.value = `${parts[0]}.`;
+    value = `${isNegative ? "-" : ""}${parts[0]}.`;
   } else if (parts.length === 2) {
-    e.target.value = `${parts[0]}.${parts[1].slice(0, 2)}`;
+    value = `${isNegative ? "-" : ""}${parts[0]}.${parts[1].slice(0, 2)}`;
   } else {
-    e.target.value = value;
+    value = `${isNegative ? "-" : ""}${numericValue}`;
   }
+
+  e.target.value = value;
 };
 
 export const onInputNumber = (e) => {
