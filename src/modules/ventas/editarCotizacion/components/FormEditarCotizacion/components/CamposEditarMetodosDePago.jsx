@@ -59,7 +59,7 @@ const CamposEditarMetodosDePago = ({ arrayPagos, setArrayPagos }) => {
 
   const handleInputChange = (index, field, value) => {
     const updatedPagos = arrayPagos.map((pago, i) =>
-      i === index ? { ...pago, [field]: value } : pago
+      i === index ? { ...pago, [field]: value } : pago,
     );
     setArrayPagos(updatedPagos);
 
@@ -180,9 +180,6 @@ const CamposEditarMetodosDePago = ({ arrayPagos, setArrayPagos }) => {
             variant="bordered"
             label="Monto"
             labelPlacement="outside"
-            isInvalid={!!errors[index]?.monto}
-            color={errors[index]?.monto ? "danger" : "primary"}
-            errorMessage={errors[index]?.monto}
             radius="sm"
             size="sm"
             onInput={onInputPrice}
