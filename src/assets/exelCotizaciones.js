@@ -171,6 +171,7 @@ const ExcelReporteCotizacion = {
       { header: "Teléfono 2", key: "telefono2", width: 15 },
       { header: "Cliente", key: "cliente", width: 30 },
       { header: "Número Doc. Cliente", key: "numeroDoc", width: 18 },
+      { header: "Origen", key: "origen", width: 18 },
       { header: "Fecha Compr. Pago", key: "fechaCP", width: 15 },
       { header: "Tipo Compr.", key: "facturaBoleta", width: 12 },
       { header: "Serie", key: "serie", width: 8 },
@@ -312,6 +313,7 @@ const ExcelReporteCotizacion = {
       dni2: consignatarioDni2 || "",
       telefono2: consignatarioTelefono2 || "",
       numeroDoc: cliente?.numeroDoc || "",
+      origen: cliente?.origen || "",
       cliente: cliente?.nombreApellidos || cliente?.nombreComercial || "",
       fechaCP: ComprobanteElectronico?.fechaEmision
         ? formatDate(ComprobanteElectronico.fechaEmision)
@@ -530,11 +532,9 @@ const ExcelReporteCotizacion = {
             ...pagosDataNotaAdjunta, // Usar pagosDataNotaAdjunta
             ...descuento_global_data,
             codigo_venta: `NOTA: ${notaAdjunta.tipo_nota || ""}`,
-            producto_nombre: `Ref: ${
-              notaAdjunta.comprobante_referencia_serie || ""
-            }-${
-              notaAdjunta.comprobante_referencia_numero || ""
-            } (Sin detalle prod. orig.)`,
+            producto_nombre: `Ref: ${notaAdjunta.comprobante_referencia_serie || ""
+              }-${notaAdjunta.comprobante_referencia_numero || ""
+              } (Sin detalle prod. orig.)`,
             producto_linea: "",
             producto_cantidad: null,
             producto_precioUnitario: null,

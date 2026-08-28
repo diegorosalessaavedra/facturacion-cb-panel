@@ -20,6 +20,7 @@ import config from "../../../../../utils/getToken";
 import { toast } from "sonner";
 import DatosEditarClientes from "./DatosEditarClientes";
 import UbigeoEditarClientes from "./UbigeoEditarClientes";
+import { handleAxiosError } from "../../../../../utils/handleAxiosError";
 
 const ModalEditarClientes = ({
   isOpen,
@@ -84,9 +85,8 @@ const ModalEditarClientes = ({
       origen: data.origen,
     };
 
-    const url = `${import.meta.env.VITE_URL_API}/clientes/${
-      selectProveedor.id
-    }`;
+    const url = `${import.meta.env.VITE_URL_API}/clientes/${selectProveedor.id
+      }`;
 
     axios
       .patch(url, newData, config)
@@ -96,10 +96,7 @@ const ModalEditarClientes = ({
         onOpenChange(false);
       })
       .catch((err) => {
-        toast.error(
-          err.response?.data?.error ||
-            "Hubo un error al editar el cliente por favor verifique bien los datos",
-        );
+        handleAxiosError(err)
       });
   };
 
@@ -121,7 +118,7 @@ const ModalEditarClientes = ({
     // Validamos si viene como booleano (true) o como string ("Activo")
     setPermisoCredito(
       selectProveedor.permiso_credito === true ||
-        selectProveedor.permiso_credito === "Activo",
+      selectProveedor.permiso_credito === "Activo",
     );
   }, [isOpen, selectProveedor]);
 

@@ -73,6 +73,7 @@ const TablaTusClientes = ({
             <TableColumn>TIPO DOC.</TableColumn>
             <TableColumn>NÚMERO DOC.</TableColumn>
             <TableColumn>TELÉFONO</TableColumn>
+            <TableColumn>ORIGEN</TableColumn>
             <TableColumn align="center">CRÉDITO</TableColumn>
             <TableColumn align="center">EECC</TableColumn>
             <TableColumn align="center">ACCIONES</TableColumn>
@@ -108,6 +109,7 @@ const TablaTusClientes = ({
                 <TableCell>{cliente.numeroDoc}</TableCell>
 
                 <TableCell>{cliente.telefono || "—"}</TableCell>
+                <TableCell>{cliente.origen || "—"}</TableCell>
 
                 <TableCell>
                   <Chip
@@ -122,18 +124,16 @@ const TablaTusClientes = ({
 
                 <TableCell>
                   <span
-                    className={`flex items-center justify-center gap-1.5 font-bold text-xs uppercase tracking-wide ${
-                      cliente.eecc === "Inactivo"
+                    className={`flex items-center justify-center gap-1.5 font-bold text-xs uppercase tracking-wide ${cliente.eecc === "Inactivo"
                         ? "text-red-500"
                         : "text-green-600"
-                    }`}
+                      }`}
                   >
                     <span
-                      className={`w-2 h-2 rounded-full ${
-                        cliente.eecc === "Inactivo"
+                      className={`w-2 h-2 rounded-full ${cliente.eecc === "Inactivo"
                           ? "bg-red-500"
                           : "bg-green-500"
-                      }`}
+                        }`}
                     ></span>
                     {cliente.eecc || "—"}
                   </span>
