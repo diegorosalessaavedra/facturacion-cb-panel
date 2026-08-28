@@ -138,10 +138,10 @@ const SECTIONS_CONFIG = {
   DATA_HEADER_ROW: 2,
   DATA_START_ROW: 3,
   RANGES: [
-    { title: "DATOS GENERALES Y CLIENTE", startCol: 0, endCol: 12 },
-    { title: "COMPROBANTE DE PAGO", startCol: 13, endCol: 16 },
-    { title: "DESTINO Y ENVÍO", startCol: 17, endCol: 18 },
-    { title: "PRODUCTOS", startCol: 19, endCol: 26 },
+    { title: "DATOS GENERALES Y CLIENTE", startCol: 0, endCol: 13 },
+    { title: "COMPROBANTE DE PAGO", startCol: 14, endCol: 17 },
+    { title: "DESTINO Y ENVÍO", startCol: 18, endCol: 19 },
+    { title: "PRODUCTOS", startCol: 20, endCol: 27 },
   ],
   PRODUCT_COLUMNS: {
     START_KEY: "codigo_venta",
@@ -394,7 +394,7 @@ const ExcelReporteCotizacion = {
       }
 
       const productosOriginal = (cotizacion.productos || []).filter(
-        (p) => p?.producto
+        (p) => p?.producto,
       );
 
       if (productosOriginal.length > 0) {
@@ -532,9 +532,11 @@ const ExcelReporteCotizacion = {
             ...pagosDataNotaAdjunta, // Usar pagosDataNotaAdjunta
             ...descuento_global_data,
             codigo_venta: `NOTA: ${notaAdjunta.tipo_nota || ""}`,
-            producto_nombre: `Ref: ${notaAdjunta.comprobante_referencia_serie || ""
-              }-${notaAdjunta.comprobante_referencia_numero || ""
-              } (Sin detalle prod. orig.)`,
+            producto_nombre: `Ref: ${
+              notaAdjunta.comprobante_referencia_serie || ""
+            }-${
+              notaAdjunta.comprobante_referencia_numero || ""
+            } (Sin detalle prod. orig.)`,
             producto_linea: "",
             producto_cantidad: null,
             producto_precioUnitario: null,
@@ -554,7 +556,7 @@ const ExcelReporteCotizacion = {
     XLSX.utils.sheet_add_aoa(
       worksheet,
       [[`REPORTE DE COTIZACIÓN ${fechaInicio} a ${fechaFinal}`]],
-      { origin: "A1" }
+      { origin: "A1" },
     );
     worksheet["A1"].s = STYLES.TITLE;
     worksheet["!cols"] = columns.map((col) => ({ wch: col.width }));
@@ -569,7 +571,7 @@ const ExcelReporteCotizacion = {
 
     let currentSections = [...SECTIONS_CONFIG.RANGES];
     const productSectionEndCol = SECTIONS_CONFIG.RANGES.find(
-      (s) => s.title === "PRODUCTOS"
+      (s) => s.title === "PRODUCTOS",
     ).endCol;
     let dynamicSectionStartCol = productSectionEndCol + 1;
 
@@ -592,10 +594,10 @@ const ExcelReporteCotizacion = {
     }
 
     const saldoColIndex = columns.findIndex(
-      (col) => col.key === "saldo_number"
+      (col) => col.key === "saldo_number",
     );
     const estadoPagoColIndex = columns.findIndex(
-      (col) => col.key === "estadoPago"
+      (col) => col.key === "estadoPago",
     );
     if (saldoColIndex !== -1 && estadoPagoColIndex !== -1) {
       currentSections.push({
@@ -643,7 +645,7 @@ const ExcelReporteCotizacion = {
         (max, cot) => ({
           pagos: Math.max(max.pagos, cot.pagos?.length || 0),
         }),
-        { pagos: 0 }
+        { pagos: 0 },
       );
       const cotizacionConMasPagos = { pagos: { length: maxLengths.pagos } };
 
@@ -656,13 +658,13 @@ const ExcelReporteCotizacion = {
         columns,
         maxLengths.pagos,
         fechaInicio,
-        fechaFinal
+        fechaFinal,
       );
 
       const headerCells = columns.map((col) => {
         let headerStyle = STYLES.DATA_HEADER;
         const isGlobalDiscountColumn = globalDiscountColumns.some(
-          (discountCol) => discountCol.key === col.key
+          (discountCol) => discountCol.key === col.key,
         );
 
         if (isGlobalDiscountColumn) {
@@ -726,21 +728,21 @@ const ExcelReporteCotizacion = {
               right: { style: "thin", color: { rgb: "B2B2B2" } },
             };
             return cell;
-          })
+          }),
         ),
         {
           origin: `A${SECTIONS_CONFIG.DATA_START_ROW + 1}`,
           cellStyles: true,
-        }
+        },
       );
 
       if (!worksheet["!merges"]) worksheet["!merges"] = [];
 
       const productColStartIndex = columns.findIndex(
-        (col) => col.key === SECTIONS_CONFIG.PRODUCT_COLUMNS.START_KEY
+        (col) => col.key === SECTIONS_CONFIG.PRODUCT_COLUMNS.START_KEY,
       );
       const productColEndIndex = columns.findIndex(
-        (col) => col.key === SECTIONS_CONFIG.PRODUCT_COLUMNS.END_KEY
+        (col) => col.key === SECTIONS_CONFIG.PRODUCT_COLUMNS.END_KEY,
       );
       let mergeBlockStartIndexInSheet = SECTIONS_CONFIG.DATA_START_ROW;
 
