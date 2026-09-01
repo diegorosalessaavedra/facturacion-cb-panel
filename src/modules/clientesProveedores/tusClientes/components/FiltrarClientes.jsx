@@ -36,6 +36,12 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
     [setDataFilter],
   );
 
+  const handleTipoClienteChange = useCallback(
+    (e) => {
+      setDataFilter((prev) => ({ ...prev, tipo_cliente: e.target.value }));
+    },
+    [setDataFilter],
+  );
   const inputProps = useMemo(
     () => ({
       labelPlacement: "outside",
@@ -86,6 +92,27 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
         </SelectItem>
         <SelectItem key="false" value="false">
           Deshabilitado{" "}
+        </SelectItem>
+      </Select>
+      <Select
+        labelPlacement="outside"
+        variant="bordered"
+        radius="sm"
+        size="sm"
+        className="w-[100%] max-w-[150px]"
+        label="Tipo Cliente"
+        selectedKeys={[dataFilter.tipo_cliente]}
+        onChange={handleTipoClienteChange}
+        classNames={selectClassNames}
+      >
+        <SelectItem key="todos" value="todos">
+          Todos
+        </SelectItem>
+        <SelectItem key="REVENDEDOR" value="REVENDEDOR">
+          REVENDEDOR
+        </SelectItem>
+        <SelectItem key="CLIENTE" value="CLIENTE">
+          CLIENTE
         </SelectItem>
       </Select>
 

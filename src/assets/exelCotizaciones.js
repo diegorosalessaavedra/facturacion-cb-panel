@@ -1,6 +1,5 @@
 import * as XLSX from "xlsx-js-style";
 import formatDate from "../hooks/FormatDate";
-import { style } from "framer-motion/client";
 
 // --- Constantes para mejorar la legibilidad y mantenibilidad ---
 const COTIZACION_DISPLAY_STATUS = {

@@ -17,7 +17,7 @@ const TusClientes = () => {
   const [clientes, setClientes] = useState([]);
   const [sinRevendedor, setSinRevendedor] = useState([]);
 
-  // 🟢 1. Nuevos estados para Paginación
+  // 🟢 Estados para Paginación
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -27,20 +27,25 @@ const TusClientes = () => {
     numeroDoc: "",
     nombreComercial: "",
     permiso_credito: "todos",
+    tipo_cliente: "todos",
   });
 
-  // 🟢 2. Modificamos el setFilter para que cada que busques, te regrese a la página 1
+  // Al filtrar, regresamos a la página 1
   const handleDataFilter = (newFilter) => {
     setDataFilter(newFilter);
     setPage(1);
   };
 
   const findClients = useCallback(() => {
-    // 🟢 3. Agregamos "page" a la URL de consulta
-    let url = `${API}/clientes/page?page=${page}&numeroDoc=${dataFilter.numeroDoc}&nombreComercial=${dataFilter.nombreComercial}`;
+    // 🟢 Agregamos explícitamente limit=10 a la URL para que coincida con tu tabla
+    let url = `${API}/clientes/page?page=${page}&limit=30&numeroDoc=${dataFilter.numeroDoc}&nombreComercial=${dataFilter.nombreComercial}`;
 
     if (dataFilter.permiso_credito && dataFilter.permiso_credito !== "todos") {
       url += `&permiso_credito=${dataFilter.permiso_credito}`;
+    }
+
+    if (dataFilter.tipo_cliente && dataFilter.tipo_cliente !== "todos") {
+      url += `&tipo_cliente=${dataFilter.tipo_cliente}`;
     }
 
     setLoading(true);
@@ -49,7 +54,7 @@ const TusClientes = () => {
       .get(url, config)
       .then((res) => {
         setClientes(res.data.clientes);
-        // 🟢 4. Extraemos el total de páginas desde la metadata de tu backend
+        // Extraemos el total de páginas desde la metadata de tu backend
         setTotalPages(res.data.pagination?.total_pages || 1);
       })
       .catch((error) => {
@@ -61,13 +66,14 @@ const TusClientes = () => {
     dataFilter.numeroDoc,
     dataFilter.nombreComercial,
     dataFilter.permiso_credito,
-    page, // 🟢 La función ahora reacciona a cambios de página
+    dataFilter.tipo_cliente,
+    page, // 🟢 La función reacciona a cambios de página
   ]);
 
   const handleNuevoClick = useCallback(() => {
     setSelectModal("nuevo");
     onOpen();
-  }, []);
+  }, [onOpen]);
 
   const tablaClientes = useMemo(
     () => (
@@ -77,7 +83,7 @@ const TusClientes = () => {
         onOpen={onOpen}
         setSelectModal={setSelectModal}
         setSelectProveedor={setSelectProveedor}
-        // 🟢 5. Pasamos los estados de paginación a la tabla
+        // 🟢 Pasamos los estados de paginación a la tabla
         page={page}
         setPage={setPage}
         totalPages={totalPages}
@@ -94,14 +100,19 @@ const TusClientes = () => {
     });
   };
 
+  // 🟢 useEffect 1: Se ejecuta cada vez que findClients cambia (es decir, cuando cambia la página o un filtro)
   useEffect(() => {
     findClients();
+  }, [findClients]);
+
+  // 🟢 useEffect 2: Se ejecuta SOLO una vez al montar el componente para los revendedores
+  useEffect(() => {
     findsinRevendedor();
   }, []);
 
   return (
     <div className="w-full h-[100vh] bg-slate-100 p-4 pt-[90px] overflow-hidden">
-      <div className="w-full h-full bg-white flex flex-col gap-2 py-4  px-4 rounded-md overflow-y-auto">
+      <div className="w-full h-full bg-white flex flex-col gap-2 py-4 px-4 rounded-md overflow-y-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 px-3 text-slate-600">
             <FaWpforms className="text-2xl" />
@@ -117,11 +128,13 @@ const TusClientes = () => {
             Nuevo
           </Button>
         </div>
+
         <FiltrarClientes
-          setDataFilter={handleDataFilter} // Usamos nuestra nueva función wrapper
+          setDataFilter={handleDataFilter}
           dataFilter={dataFilter}
           findClients={findClients}
         />
+
         {tablaClientes}
       </div>
 

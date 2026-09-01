@@ -169,6 +169,7 @@ const ModalNuevoCliente = ({ isOpen, onOpenChange, findClients }) => {
                   size="sm"
                 />
                 <Input
+                  isRequired
                   className="w-full"
                   classNames={inputClassNames}
                   labelPlacement="outside"

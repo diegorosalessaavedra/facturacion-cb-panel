@@ -118,6 +118,7 @@ const PlantillaApertura = () => {
               dataFiltros={dataFiltros}
               setdataFiltros={setdataFiltros}
               handleFindAperturas={handleFindAperturas}
+              aperturas={aperturas}
             />
             <div className="flex-1 min-h-[500px] border border-slate-200 rounded-xl overflow-hidden relative">
               <TablaAperturas aperturas={aperturas} />

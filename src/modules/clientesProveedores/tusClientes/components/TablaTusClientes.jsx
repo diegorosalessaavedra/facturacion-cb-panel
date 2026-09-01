@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
   Chip,
-  Pagination, // 🟢 Importamos el componente Pagination de NextUI
+  Pagination,
 } from "@nextui-org/react";
 import { FaEdit, FaTrashAlt, FaUsers } from "react-icons/fa";
 
@@ -17,14 +17,12 @@ const TablaTusClientes = ({
   onOpen,
   setSelectModal,
   setSelectProveedor,
-  // 🟢 Recibimos las props de paginación
   page,
   setPage,
   totalPages,
 }) => {
-  // 🟢 Creamos el bloque de la paginación de manera optimizada
+  // 🟢 BottomContent para renderizar la paginación de NextUI
   const bottomContent = useMemo(() => {
-    // Solo mostramos la paginación si hay más de 1 página
     if (totalPages <= 1) return null;
 
     return (
@@ -33,20 +31,19 @@ const TablaTusClientes = ({
           isCompact
           showControls
           showShadow
-          // Estilo alineado con tu paleta Slate-900
           classNames={{
             cursor: "bg-slate-900 text-white font-bold",
           }}
           page={page}
           total={totalPages}
-          onChange={(page) => setPage(page)}
+          onChange={(newPage) => setPage(newPage)}
         />
       </div>
     );
   }, [page, totalPages, setPage]);
 
   return (
-    <div className=" w-full flex items-center bg-white  pt-4 rounded-2xl shadow-sm ">
+    <div className="w-full flex items-center bg-white pt-4 rounded-2xl shadow-sm">
       {loading ? (
         <div className="m-auto flex flex-col items-center gap-4 py-20">
           <div className="w-10 h-10 border-4 border-gray-200 border-t-amber-500 rounded-full animate-spin"></div>
@@ -74,6 +71,7 @@ const TablaTusClientes = ({
             <TableColumn>NÚMERO DOC.</TableColumn>
             <TableColumn>TELÉFONO</TableColumn>
             <TableColumn>ORIGEN</TableColumn>
+            <TableColumn>TIPO CLIENTE</TableColumn>
             <TableColumn align="center">CRÉDITO</TableColumn>
             <TableColumn align="center">EECC</TableColumn>
             <TableColumn align="center">ACCIONES</TableColumn>
@@ -86,8 +84,8 @@ const TablaTusClientes = ({
                 className="hover:bg-slate-50 transition-colors"
               >
                 <TableCell className="font-semibold text-slate-500">
-                  {/* Cálculo matemático para que la numeración sea correcta por cada página (asumiendo limit=10) */}
-                  {(page - 1) * 10 + index + 1}
+                  {/* Paginación visual (Nro real según la página) */}
+                  {(page - 1) * 30 + index + 1}
                 </TableCell>
 
                 <TableCell className="font-medium text-slate-900">
@@ -107,9 +105,18 @@ const TablaTusClientes = ({
                 </TableCell>
 
                 <TableCell>{cliente.numeroDoc}</TableCell>
-
                 <TableCell>{cliente.telefono || "—"}</TableCell>
                 <TableCell>{cliente.origen || "—"}</TableCell>
+
+                <TableCell
+                  className={`${
+                    cliente.tipo_cliente === "REVENDEDOR"
+                      ? "text-amber-500"
+                      : "text-green-600"
+                  } font-bold text-[11px]`}
+                >
+                  {cliente.tipo_cliente || "—"}
+                </TableCell>
 
                 <TableCell>
                   <Chip
@@ -124,16 +131,18 @@ const TablaTusClientes = ({
 
                 <TableCell>
                   <span
-                    className={`flex items-center justify-center gap-1.5 font-bold text-xs uppercase tracking-wide ${cliente.eecc === "Inactivo"
+                    className={`flex items-center justify-center gap-1.5 font-bold text-xs uppercase tracking-wide ${
+                      cliente.eecc === "Inactivo"
                         ? "text-red-500"
                         : "text-green-600"
-                      }`}
+                    }`}
                   >
                     <span
-                      className={`w-2 h-2 rounded-full ${cliente.eecc === "Inactivo"
+                      className={`w-2 h-2 rounded-full ${
+                        cliente.eecc === "Inactivo"
                           ? "bg-red-500"
                           : "bg-green-500"
-                        }`}
+                      }`}
                     ></span>
                     {cliente.eecc || "—"}
                   </span>
@@ -152,6 +161,7 @@ const TablaTusClientes = ({
                     >
                       <FaEdit className="text-lg" />
                     </button>
+
                     <button
                       onClick={() => {
                         setSelectModal("eliminar");
@@ -163,6 +173,7 @@ const TablaTusClientes = ({
                     >
                       <FaTrashAlt className="text-lg" />
                     </button>
+
                     {cliente.tipo_cliente === "REVENDEDOR" && (
                       <button
                         onClick={() => {

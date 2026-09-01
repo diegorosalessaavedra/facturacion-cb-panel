@@ -128,6 +128,7 @@ const PlantillaDesembolso = () => {
             setdataFiltros={setdataFiltros}
             handleFindDsembolsos={handleFindDsembolsos}
             conceptos={conceptos}
+            desembolsos={desembolsos}
           />
 
           <div className="flex-1 min-h-[600px] border border-slate-200 rounded-xl overflow-hidden relative pb-4">
