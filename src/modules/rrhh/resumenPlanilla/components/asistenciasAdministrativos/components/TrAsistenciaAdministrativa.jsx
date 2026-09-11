@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Input, Select, SelectItem } from "@nextui-org/react";
-import { formatDateES } from "../../../../../../utils/formatDateTime";
+import { formatDateES, formatToPeruTime } from "../../../../../../utils/formatDateTime";
 import axios from "axios";
 import config from "../../../../../../utils/getToken";
 import { toast } from "sonner";
@@ -81,6 +81,7 @@ const TrAsistenciaAdministrativa = ({
     axios
       .get(url, config)
       .then((res) => {
+
         if (res.data.asistencia) {
           const { calculo_asistencia_administrativo, ...datosPrincipales } =
             res.data.asistencia;
@@ -102,9 +103,53 @@ const TrAsistenciaAdministrativa = ({
       .catch((err) => console.error("Error al cargar asistencia:", err));
   };
 
+  
+  
+  const handleAsistenciaHuellero = () => {
+    // Asegurarse de usar dni_colaborador según la URL requerida
+    if (!dia?.dia_plantilla || !findColaborador?.dni_colaborador) return;
+    
+    const url = `${import.meta.env.VITE_URL_API}/asistencia-huellero?fecha=${dia.dia_plantilla}&dni=${findColaborador.dni_colaborador}`;
+    
+    axios
+    .get(url, config)
+    .then((res) => {
+      if (res.data?.asistencias) {
+        const { entrada, salida } = res.data.asistencias;
+        console.log(res.data.asistencias);
+
+          // 1. Convertimos a formato HH:mm en hora local de Perú
+          const hEntrada = formatToPeruTime(entrada?.punch_time);
+          const hSalida = formatToPeruTime(salida?.punch_time);
+
+          // 2. Calculamos los minutos de tardanza y totales con las nuevas horas
+          const calculos = calcularTiempos(hEntrada, hSalida);
+
+          // 3. Actualizamos el estado visual y las referencias
+          setDatosAsistencia((prev) => {
+            const newData = aplicarReglasTurno({
+              ...prev,
+              hora_entrada: hEntrada,
+              hora_salida: hSalida,
+              ...calculos,
+            });
+            
+            datosRef.current = newData;
+            if (onDataUpdate) onDataUpdate(newData);
+            
+            // Opcional: Si deseas que se guarde automáticamente en la BD al cargar
+            // handleSave(newData); 
+            
+            return newData;
+          });
+        }
+      })
+      .catch((err) => console.error("Error al cargar asistencia huellero:", err));
+  };
+
   useEffect(() => {
     handleAsistencia();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    handleAsistenciaHuellero()
   }, []);
 
   const handleChange = (e) => {

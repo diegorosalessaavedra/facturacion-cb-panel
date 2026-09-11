@@ -91,8 +91,7 @@ const ResumenPlanilla = () => {
         )}
 
         <ResumenPlanillaHeader />
-        <section className="bg-white  mt-2 p-2 rounded-xl">
-          <FiltroResumenPlanilla
+<section className="bg-white mt-2 p-2 rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden">          <FiltroResumenPlanilla
             dataFiltros={dataFiltros}
             setDataFiltros={setDataFiltros}
           />

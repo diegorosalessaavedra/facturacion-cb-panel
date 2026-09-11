@@ -43,3 +43,17 @@ export function formatDateES(dateString) {
   // Capitalizar la primera letra (opcional, para que quede: Jueves, ...)
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 }
+
+
+export const formatToPeruTime = (dateString) => {
+  if (!dateString) return "";
+  const dateObj = new Date(dateString);
+  if (isNaN(dateObj.getTime())) return "";
+
+  return dateObj.toLocaleTimeString("es-PE", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "America/Lima",
+  });
+};

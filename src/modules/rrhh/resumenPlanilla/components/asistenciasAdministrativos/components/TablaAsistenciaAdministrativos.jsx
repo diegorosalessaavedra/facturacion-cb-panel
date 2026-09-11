@@ -22,7 +22,6 @@ const TablaAsistenciaAdministrativos = ({
     "bg-amber-100 border-r border-b border-amber-300 p-3 font-bold uppercase text-[9px] tracking-wider text-amber-950 whitespace-nowrap";
   const thSubYellowLast =
     "bg-amber-100 border-b border-amber-300 p-3 font-bold uppercase text-[9px] tracking-wider text-amber-950 whitespace-nowrap";
-  console.log(findColaborador);
 
   return (
     <div className="flex-1 overflow-auto border border-slate-300 rounded-xl bg-white shadow-md mt-4 custom-scrollbar">
