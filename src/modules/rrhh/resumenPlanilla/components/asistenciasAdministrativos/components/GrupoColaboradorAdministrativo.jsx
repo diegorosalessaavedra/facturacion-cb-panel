@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import TrSaldoAnteriorAdmin from "./TrSaldoAnteriorAdmin";
-import TrAsistenciaAdministrativa from "./TrAsistenciaAdministrativa";
+import TrAsistenciaAdministrativa from "./trAsistenciaAdministrativa/TrAsistenciaAdministrativa";
 import TrDominicalAdmin from "./TrDominicalAdmin";
 
 const GrupoColaboradorAdministrativo = ({
