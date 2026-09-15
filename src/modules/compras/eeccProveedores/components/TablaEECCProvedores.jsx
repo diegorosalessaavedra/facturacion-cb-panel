@@ -94,7 +94,6 @@ const TablaEECCProvedores = ({
           const prodOriginal = productos[i];
           let prod = undefined;
 
-          // MODIFICACIÓN: Identificamos si es anticipo y forzamos sus precios a 0
           if (prodOriginal) {
             const esAnticipo =
               prodOriginal.descripcion_producto === "Anticipos" ||
