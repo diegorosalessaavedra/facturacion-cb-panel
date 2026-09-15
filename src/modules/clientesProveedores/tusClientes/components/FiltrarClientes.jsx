@@ -20,6 +20,12 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
     },
     [setDataFilter],
   );
+  const handleOrigenChange = useCallback(
+    (e) => {
+      setDataFilter((prev) => ({ ...prev, origen: e.target.value }));
+    },
+    [setDataFilter],
+  );
 
   const handleNombreComercialChange = useCallback(
     (e) => {
@@ -116,6 +122,14 @@ const FiltrarClientes = ({ dataFilter, setDataFilter, findClients }) => {
         </SelectItem>
       </Select>
 
+      <Input
+        {...inputProps}
+        className="min-w-[150px] max-w-[150px]"
+        value={dataFilter.origen}
+        onChange={handleOrigenChange}
+        type="text"
+        label="Origen"
+      />
       <Button className="bg-slate-900" color="primary" type="submit">
         Buscar
       </Button>

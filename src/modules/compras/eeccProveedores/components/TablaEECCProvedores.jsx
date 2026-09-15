@@ -98,7 +98,9 @@ const TablaEECCProvedores = ({
           if (prodOriginal) {
             const esAnticipo =
               prodOriginal.descripcion_producto === "Anticipos" ||
-              prodOriginal.producto?.nombre === "Anticipos";
+              prodOriginal.producto?.nombre === "Anticipos" ||
+              prodOriginal.descripcion_producto === "Regularizacion de pago" ||
+              prodOriginal.producto?.nombre === "Regularizacion de pago";
 
             prod = {
               ...prodOriginal,
@@ -158,7 +160,9 @@ const TablaEECCProvedores = ({
           ordenOriginal?.productos?.reduce((sum, p) => {
             const esAnticipo =
               p?.descripcion_producto === "Anticipos" ||
-              p?.producto?.nombre === "Anticipos";
+              p?.producto?.nombre === "Anticipos" ||
+              p?.descripcion_producto === "Regularizacion de pago" ||
+              p?.producto?.nombre === "Regularizacion de pago";
             const valorCalculado = esAnticipo ? 0 : parseFloat(p.total || 0);
             return sum + valorCalculado;
           }, 0) || 0;

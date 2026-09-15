@@ -219,7 +219,9 @@ export const descargarExcelProveedor = (
     // 🟢 NUEVA VALIDACIÓN: Identificar si es anticipo para poner P.U. y Total en 0
     const esAnticipo =
       prod?.descripcion_producto === "Anticipos" ||
-      prod?.producto?.nombre === "Anticipos";
+      prod?.producto?.nombre === "Anticipos" ||
+      prod?.descripcion_producto === "Regularizacion de pago" ||
+      prod?.producto?.nombre === "Regularizacion de pago";
 
     const precioUnitarioXls = esAnticipo
       ? 0

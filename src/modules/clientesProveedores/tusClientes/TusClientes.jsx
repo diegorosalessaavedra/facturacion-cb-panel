@@ -26,6 +26,8 @@ const TusClientes = () => {
   const [dataFilter, setDataFilter] = useState({
     numeroDoc: "",
     nombreComercial: "",
+    origen: "",
+
     permiso_credito: "todos",
     tipo_cliente: "todos",
   });
@@ -48,6 +50,10 @@ const TusClientes = () => {
       url += `&tipo_cliente=${dataFilter.tipo_cliente}`;
     }
 
+    if (dataFilter.origen && dataFilter.origen.length > 0) {
+      url += `&origen=${dataFilter.origen}`;
+    }
+
     setLoading(true);
 
     axios
@@ -67,6 +73,8 @@ const TusClientes = () => {
     dataFilter.nombreComercial,
     dataFilter.permiso_credito,
     dataFilter.tipo_cliente,
+    dataFilter.origen,
+
     page, // 🟢 La función reacciona a cambios de página
   ]);
 
