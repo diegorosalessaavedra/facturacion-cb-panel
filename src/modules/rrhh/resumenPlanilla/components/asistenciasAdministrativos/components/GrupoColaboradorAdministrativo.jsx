@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TrSaldoAnteriorAdmin from "./TrSaldoAnteriorAdmin";
 import TrAsistenciaAdministrativa from "./trAsistenciaAdministrativa/TrAsistenciaAdministrativa";
 import TrDominicalAdmin from "./TrDominicalAdmin";
@@ -7,6 +7,7 @@ const GrupoColaboradorAdministrativo = ({
   colaborador,
   dias,
   totalSemanas,
+  onTotalesCalculados, // <-- NUEVO: Recibimos esta función del padre
 }) => {
   const diasLaborables = [];
   let diaDomingo = null;
@@ -28,21 +29,17 @@ const GrupoColaboradorAdministrativo = ({
   const sueldoFeriadoBruto = Number(sueldoMensual / 30) * 2;
   const sueldoPorDia = Number(calculoBruto);
 
-  const [saldoAnteriorId, setSaldoAnteriorId] = useState(null);
+  // NUEVO: Calculamos el límite del sueldo semanal (ej. 7 días * 100 = 700)
+  const topeSemanal = sueldoPorDia * 7;
 
-  // --- ESTADOS PARA RECOLECTAR DATOS DE LOS HIJOS ---
   const [datosDias, setDatosDias] = useState({});
   const [datosDominical, setDatosDominical] = useState({});
+  const [datosSaldo, setDatosSaldo] = useState({});
 
-  // Función que reciben los días laborables para reportar sus cambios
   const handleUpdateDia = (diaId, data) => {
-    setDatosDias((prev) => ({
-      ...prev,
-      [diaId]: data,
-    }));
+    setDatosDias((prev) => ({ ...prev, [diaId]: data }));
   };
 
-  // --- CÁLCULO DE TOTALES GENERALES ---
   let sumTardanza = 0,
     sumHoras = 0,
     sumMinutos = 0,
@@ -52,7 +49,6 @@ const GrupoColaboradorAdministrativo = ({
     sumSalario = 0,
     sumAdicionales = 0;
 
-  // Sumamos todos los días laborables
   Object.values(datosDias).forEach((r) => {
     sumTardanza += Number(r.tardanza_minutos || 0);
     sumHoras += Number(r.horas_enteras || 0);
@@ -64,13 +60,21 @@ const GrupoColaboradorAdministrativo = ({
     sumAdicionales += Number(r.adicionales || 0);
   });
 
-  // Sumamos el dominical
   sumTurnos += Number(datosDominical.turnos || 0);
   sumPlanilla += Number(datosDominical.total_planilla || 0);
   sumSalario += Number(datosDominical.salario || 0);
   sumAdicionales += Number(datosDominical.adicionales || 0);
 
-  // Formateo correcto de Horas y Minutos Totales (Ej: 90 min = 1h 30m)
+  sumSalario += Number(datosSaldo.salario || 0);
+  sumAdicionales += Number(datosSaldo.adicionales || 0);
+
+  // NUEVO: Enviamos los totales al padre para que la tabla pequeña los procese
+  useEffect(() => {
+    if (onTotalesCalculados) {
+      onTotalesCalculados(sumSalario, sumAdicionales, topeSemanal);
+    }
+  }, [sumSalario, sumAdicionales, topeSemanal, onTotalesCalculados]);
+
   sumHoras += Math.floor(sumMinutos / 60);
   sumMinutos = sumMinutos % 60;
   const totalHorasString = `${String(sumHoras).padStart(2, "0")}:${String(sumMinutos).padStart(2, "0")}`;
@@ -81,6 +85,7 @@ const GrupoColaboradorAdministrativo = ({
         colaborador={colaborador}
         rowSpan={totalFilas}
         semanaPlanillaId={dias?.[0]?.semana_plantilla_id || null}
+        onDataUpdate={setDatosSaldo}
       />
 
       {diasLaborables.map((dia) => (
@@ -90,7 +95,7 @@ const GrupoColaboradorAdministrativo = ({
           findColaborador={colaborador}
           sueldoPorDia={sueldoPorDia}
           sueldoFeriadoBruto={sueldoFeriadoBruto}
-          onDataUpdate={(data) => handleUpdateDia(dia.id, data)} // <-- PASAMOS EL CALLBACK
+          onDataUpdate={(data) => handleUpdateDia(dia.id, data)}
         />
       ))}
 
@@ -98,37 +103,31 @@ const GrupoColaboradorAdministrativo = ({
         colaborador_id={colaborador?.id}
         diaDomingo={diaDomingo}
         sueldoPorDia={sueldoPorDia}
-        onDataUpdate={setDatosDominical} // <-- PASAMOS EL CALLBACK
+        onDataUpdate={setDatosDominical}
       />
 
-      {/* FILA DE TOTALES CON LOS CÁLCULOS ALINEADOS A SUS COLUMNAS */}
-      <tr className="bg-slate-200 font-bold text-[10px] text-slate-800 text-center">
-        {/* Abarca: Feriado, Vacaciones, Turno, Actividad, Entrada, Salida */}
+      <tr className="bg-slate-800 font-bold text-[10px] text-slate-50 text-center">
         <td colSpan={7} className="border-r border-slate-300 p-2 text-right">
           TOTALES
         </td>
-
         <td className="border-r border-slate-300 p-1">{sumTardanza}</td>
         <td className="border-r border-slate-300 p-1">{totalHorasString}</td>
         <td className="border-r border-slate-300 p-1">{sumHoras}</td>
         <td className="border-r border-slate-300 p-1">{sumMinutos}</td>
-        <td className="border-r border-slate-300 p-1 text-blue-700">
+        <td className="border-r border-slate-300 p-1 text-blue-400">
           {sumTurnos.toFixed(2)}
         </td>
-        <td className="border-r border-slate-300 p-1 text-teal-700">
+        <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumPlanilla.toFixed(2)}
         </td>
-
-        {/* Abarca: Hr Extra, Importe Horas, Importe Minutos, Bono */}
         <td colSpan={4} className="border-r border-slate-300 p-1"></td>
-
-        <td className="border-r border-slate-300 p-1 text-teal-700">
+        <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumFeriados.toFixed(2)}
         </td>
-        <td className="border-r border-slate-300 p-1 text-amber-700">
+        <td className="border-r border-slate-300 p-1 text-amber-400">
           S/ {sumSalario.toFixed(2)}
         </td>
-        <td className="p-1 text-amber-700">S/ {sumAdicionales.toFixed(2)}</td>
+        <td className="p-1 text-amber-400">S/ {sumAdicionales.toFixed(2)}</td>
       </tr>
     </tbody>
   );

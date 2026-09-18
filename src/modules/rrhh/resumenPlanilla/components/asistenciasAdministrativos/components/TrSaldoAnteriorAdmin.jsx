@@ -5,8 +5,13 @@ import config from "../../../../../../utils/getToken";
 import { toast } from "sonner";
 import { onInputPrice } from "../../../../../../assets/onInputs";
 
-const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, semanaPlanillaId }) => {
-  // 1. Estado inicial estructurado
+// 1. Agregamos onDataUpdate a las props
+const TrSaldoAnteriorAdmin = ({
+  colaborador,
+  rowSpan,
+  semanaPlanillaId,
+  onDataUpdate,
+}) => {
   const [saldoData, setSaldoData] = useState({
     id: null,
     semana_planilla_id: semanaPlanillaId || null,
@@ -15,23 +20,19 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, semanaPlanillaId }) => {
     adicionales: 0.0,
   });
 
-  // Sincronización de la referencia para el guardado
   const datosRef = useRef(saldoData);
   useEffect(() => {
     datosRef.current = saldoData;
   }, [saldoData]);
 
-  // 2. Función GET
   const handleSaldoAnterior = () => {
     if (!semanaPlanillaId || !colaborador?.id) return;
 
-    // Asumimos que esta es tu ruta GET configurada en Express
     const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/saldo-anterior/${semanaPlanillaId}/${colaborador.id}`;
 
     axios
       .get(url, config)
       .then((res) => {
-        // Asume que el backend devuelve un objeto "saldoAnterior"
         if (res.data.saldoAnterior) {
           const data = res.data.saldoAnterior;
           const newData = {
@@ -42,6 +43,11 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, semanaPlanillaId }) => {
             adicionales: data.adicionales,
           };
           setSaldoData(newData);
+          // 2. Avisamos al padre con los datos recibidos de la BD
+          if (onDataUpdate) onDataUpdate(newData);
+        } else {
+          // Si no hay datos previos, mandamos el estado inicial en 0
+          if (onDataUpdate) onDataUpdate(saldoData);
         }
       })
       .catch((err) => console.error("Error al cargar saldo anterior:", err));
@@ -49,19 +55,20 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, semanaPlanillaId }) => {
 
   useEffect(() => {
     handleSaldoAnterior();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Función para manejar los inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSaldoData((prev) => {
       const updated = { ...prev, [name]: value };
       datosRef.current = updated;
+      // 3. Avisamos al padre mientras el usuario tipea
+      if (onDataUpdate) onDataUpdate(updated);
       return updated;
     });
   };
 
-  // 3. Función POST (Upsert)
   const handleSave = () => {
     const payload = {
       ...datosRef.current,
@@ -70,6 +77,9 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, semanaPlanillaId }) => {
     for (const key in payload) {
       if (payload[key] === "") payload[key] = null;
     }
+
+    // 4. CORRECCIÓN DEL ERROR PREVIO: Declaramos toastId aquí dentro
+    const toastId = toast.loading("Guardando saldo...");
 
     const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/saldo-anterior/${payload.id || "0"}`;
 
@@ -101,7 +111,6 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, semanaPlanillaId }) => {
 
   return (
     <tr className="bg-slate-100 transition-colors">
-      {/* CELDA AGRUPADORA (Nombre del trabajador) */}
       <td
         rowSpan={rowSpan}
         className="border-r border-slate-300 bg-blue-50/50 p-2 font-bold text-slate-800 uppercase text-[10px] whitespace-nowrap align-middle"
@@ -110,7 +119,6 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, semanaPlanillaId }) => {
         {colaborador?.nombre_colaborador}
       </td>
 
-      {/* ESPACIOS VACÍOS HASTA SUBTOTALES */}
       <td
         colSpan={18}
         className="border-r border-b border-slate-200 text-right pr-4 font-bold text-red-600 text-[10px] uppercase"
@@ -118,7 +126,6 @@ const TrSaldoAnteriorAdmin = ({ colaborador, rowSpan, semanaPlanillaId }) => {
         Saldo Anterior
       </td>
 
-      {/* INPUTS DE SALDO */}
       <td className="border-r border-b border-slate-200 p-1 min-w-[70px]">
         <Input
           type="text"
