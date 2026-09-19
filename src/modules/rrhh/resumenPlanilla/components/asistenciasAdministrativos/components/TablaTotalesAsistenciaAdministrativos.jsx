@@ -12,10 +12,10 @@ const TablaTotalesAsistenciaAdministrativos = ({
 }) => {
   // 1. Guardamos todo el objeto que viene de la BD, no solo el ID
   const [totalesBd, setTotalesBd] = useState(null);
-  
+
   // 2. Bandera para saber si mostramos la BD o mostramos los nuevos cálculos
   const [huboCambioManual, setHuboCambioManual] = useState(false);
-  
+
   // 3. Ref para darle tiempo al padre de cargar sus cálculos iniciales sin disparar guardados falsos
   const isReadyToTrack = useRef(false);
 
@@ -27,12 +27,24 @@ const TablaTotalesAsistenciaAdministrativos = ({
   const totalAdicionalesCalculado = adicionalesBase + adicionales_adicion_calc;
 
   // --- VALORES A MOSTRAR (DECISIÓN: BD vs CALCULADOS) ---
-  // Si tenemos datos en la BD y NO ha habido cambios manuales, mostramos lo de la BD. 
+  // Si tenemos datos en la BD y NO ha habido cambios manuales, mostramos lo de la BD.
   // Si no, mostramos los calculados en tiempo real.
-  const mostrar_salario_excedente = totalesBd && !huboCambioManual ? Number(totalesBd.salario_exedente || 0) : salario_exedente_calc;
-  const mostrar_adicionales_adicion = totalesBd && !huboCambioManual ? Number(totalesBd.adicionales_adicion || 0) : adicionales_adicion_calc;
-  const mostrar_salario_total = totalesBd && !huboCambioManual ? Number(totalesBd.salario_total || 0) : totalSalarioCalculado;
-  const mostrar_adicionales_total = totalesBd && !huboCambioManual ? Number(totalesBd.adicionales_total || 0) : totalAdicionalesCalculado;
+  const mostrar_salario_excedente =
+    totalesBd && !huboCambioManual
+      ? Number(totalesBd.salario_exedente || 0)
+      : salario_exedente_calc;
+  const mostrar_adicionales_adicion =
+    totalesBd && !huboCambioManual
+      ? Number(totalesBd.adicionales_adicion || 0)
+      : adicionales_adicion_calc;
+  const mostrar_salario_total =
+    totalesBd && !huboCambioManual
+      ? Number(totalesBd.salario_total || 0)
+      : totalSalarioCalculado;
+  const mostrar_adicionales_total =
+    totalesBd && !huboCambioManual
+      ? Number(totalesBd.adicionales_total || 0)
+      : totalAdicionalesCalculado;
 
   // Referencia unificada para el payload del autoguardado (Siempre tiene los valores más recientes)
   const payloadRef = useRef({});
@@ -107,7 +119,7 @@ const TablaTotalesAsistenciaAdministrativos = ({
     if (!currentData.semana_planilla_id || !currentData.colaborador_id) return;
 
     const payload = {
-      id: currentData.id, 
+      id: currentData.id,
       semana_planilla_id: currentData.semana_planilla_id,
       colaborador_id: currentData.colaborador_id,
       salario_exedente: currentData.salario_exedente,
@@ -125,7 +137,7 @@ const TablaTotalesAsistenciaAdministrativos = ({
       .post(url, payload, config)
       .then((res) => {
         toast.success("Totales guardados", { id: toastId });
-        
+
         // Si el servidor nos devuelve el registro guardado, actualizamos la BD local
         if (res.data?.data) {
           setTotalesBd(res.data.data);
@@ -139,24 +151,33 @@ const TablaTotalesAsistenciaAdministrativos = ({
   };
 
   // --- ESTILOS VISUALES IDÉNTICOS A TU TABLA PRINCIPAL ---
-  const thMainYellow = "bg-slate-800 border-b border-slate-900 p-2.5 font-bold uppercase text-[8px] tracking-widest text-white";
-  const thSubYellow = "bg-green-100 border-r border-b border-green-300 p-3 font-bold uppercase text-[7px] tracking-wider text-slate-950 whitespace-nowrap";
-  const thSubYellowLast = "bg-blue-100 border-b border-blue-300 p-3 px-1 font-bold uppercase text-[7px] tracking-wider text-slate-950 whitespace-nowrap";
+  const thMainYellow =
+    "bg-slate-800 border-b border-slate-900 p-2.5 font-bold uppercase text-[10px] tracking-widest text-white";
+  const thSubYellow =
+    "bg-green-100 border-r border-b border-green-300 p-3 font-bold uppercase text-[9px] tracking-wider text-slate-950 whitespace-nowrap";
+  const thSubYellowLast =
+    "bg-blue-100 border-b border-blue-300 p-3 px-1 font-bold uppercase text-[9px] tracking-wider text-slate-950 whitespace-nowrap";
 
-  const tdTitle = "bg-sky-50 border-r border-b border-sky-200 p-2 font-bold text-[8px] text-left text-slate-600 uppercase";
-  const tdValue = "bg-white border-r border-b border-slate-200 p-2 font-medium text-[9px] text-right text-slate-900 h-[33px]";
-  const tdValueLast = "bg-white border-b border-slate-200 p-2 px-1 font-medium text-[9px] text-right text-slate-900 h-[33px]";
+  const tdTitle =
+    "bg-sky-50 border-r border-b border-sky-200 p-2 font-bold text-[10px] text-left text-slate-600 uppercase";
+  const tdValue =
+    "bg-white border-r border-b border-slate-200 p-2 font-medium text-[9px] text-right text-slate-900 h-[33px]";
+  const tdValueLast =
+    "bg-white border-b border-slate-200 p-2 px-1 font-medium text-[9px] text-right text-slate-900 h-[33px]";
 
-  const tdTotalTitle = "bg-slate-800 border-r border-slate-900 p-2 font-bold text-[8px] text-left text-slate-50 uppercase";
-  const tdTotal = "bg-slate-50 border-r border-slate-300 p-2 font-extrabold text-[9px] text-right text-slate-900";
-  const tdTotalLast = "bg-slate-50 border-slate-300 p-2 font-extrabold text-[9px] text-right text-slate-900";
+  const tdTotalTitle =
+    "bg-slate-800 border-r border-slate-900 p-2 font-bold text-[10px] text-left text-slate-50 uppercase";
+  const tdTotal =
+    "bg-slate-50 border-r border-slate-300 p-2 font-extrabold text-[9px] text-right text-slate-900";
+  const tdTotalLast =
+    "bg-slate-50 border-slate-300 p-2 font-extrabold text-[9px] text-right text-slate-900";
 
   return (
-    <div className="w-[250px] flex-1 overflow-hidden border border-slate-300 rounded-xl bg-white shadow-md custom-scrollbar">
+    <div className="w-[300px] flex-1 overflow-hidden border border-slate-300 rounded-xl bg-white shadow-md custom-scrollbar">
       <table className="w-full border-collapse text-center">
         <thead>
           <tr>
-            <th className="bg-white border-r border-b border-slate-200 p-2 w-[80px]"></th>
+            <th className="bg-white border-r border-b border-slate-200 p-2 w-[100px]"></th>
             <th colSpan={2} className={thMainYellow}>
               TOTALES
             </th>

@@ -92,17 +92,19 @@ const ResumenPlanilla = () => {
           <span className="text-xs text-gray-500">Cargando datos...</span>
         )}
 
-        <ResumenPlanillaHeader  dataSemana={dataSemana}/>
-        <section className="bg-white mt-2 p-2 rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden">          <FiltroResumenPlanilla
-          dataFiltros={dataFiltros}
-          setDataFiltros={setDataFiltros}
-        />
-
+        <ResumenPlanillaHeader dataSemana={dataSemana} />
+        <section className="bg-white mt-2 p-2 rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden">
+          {" "}
+          <FiltroResumenPlanilla
+            dataFiltros={dataFiltros}
+            setDataFiltros={setDataFiltros}
+          />
           <TablaResumenPlantilla
             colaboradores={colaboradores}
             setSelectModal={setSelectModal}
             setSelectColaborador={setSelectColaborador}
             onOpen={onOpen}
+            isOpen={isOpen}
             semana_id={id}
           />
         </section>

@@ -5,13 +5,18 @@ import { tdClass, tdLastClass, tdNameClass, renderMoney } from "./tableHelpers";
 import config from "../../../../../../utils/getToken";
 import { API } from "../../../../../../utils/api";
 
-const FilaPrincipal = ({ colaborador, semana_id, handleColaboradorClick }) => {
+const FilaPrincipal = ({
+  colaborador,
+  semana_id,
+  handleColaboradorClick,
+  isOpen,
+}) => {
   // Declarar el estado que te faltaba
   const [totales, setTotales] = useState(null);
 
   const fetchTotales = () => {
     if (!semana_id || !colaborador?.id) return;
-    
+
     const url = `${API}/totales-asistencia-administrativo/${semana_id}/${colaborador.id}`;
 
     axios
@@ -26,16 +31,14 @@ const FilaPrincipal = ({ colaborador, semana_id, handleColaboradorClick }) => {
 
   useEffect(() => {
     fetchTotales();
-  
-  }, [semana_id, colaborador.id]);
-
-  console.log(totales);
-  
+  }, [semana_id, colaborador.id, isOpen]);
 
   return (
     <tr className="hover:bg-blue-50/50 transition-colors group h-[38px]">
       <td className={tdClass}>
-        {colaborador.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS" ? "PLANILLA" : "LOCADOR"}
+        {colaborador.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS"
+          ? "PLANILLA"
+          : "LOCADOR"}
       </td>
 
       <td className={tdClass}>
@@ -44,10 +47,11 @@ const FilaPrincipal = ({ colaborador, semana_id, handleColaboradorClick }) => {
           variant="flat"
           className="h-5 min-h-min"
           classNames={{
-            base: colaborador.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS"
-              ? "bg-purple-100 border-purple-200"
-              : "bg-orange-100 border-orange-200",
-            content: `font-bold text-[9px] px-2 ${colaborador.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS" ? "text-purple-700" : "text-orange-700"}`
+            base:
+              colaborador.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS"
+                ? "bg-purple-100 border-purple-200"
+                : "bg-orange-100 border-orange-200",
+            content: `font-bold text-[9px] px-2 ${colaborador.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS" ? "text-purple-700" : "text-orange-700"}`,
           }}
         >
           {colaborador.cargo_laboral?.agrupacion_cargo || "-"}
@@ -55,7 +59,11 @@ const FilaPrincipal = ({ colaborador, semana_id, handleColaboradorClick }) => {
       </td>
 
       <td className={tdNameClass}>
-        <Tooltip content="Ver tareo de asistencias" placement="right" delay={300}>
+        <Tooltip
+          content="Ver tareo de asistencias"
+          placement="right"
+          delay={300}
+        >
           <span
             className="cursor-pointer text-slate-700 hover:text-amber-600 hover:underline transition-colors block w-full"
             onClick={() => handleColaboradorClick(colaborador.id)}
@@ -70,11 +78,13 @@ const FilaPrincipal = ({ colaborador, semana_id, handleColaboradorClick }) => {
       <td className={tdClass}>{colaborador.nro_cuenta || "-"}</td>
 
       {/* Aquí ya puedes usar la data que obtienes de la BD. Ejemplo: renderMoney(totales ? algo : 0) */}
-      <td className={tdClass}>{renderMoney(totales?.salario_total || 0 )}</td>
+      <td className={tdClass}>{renderMoney(totales?.salario_total || 0)}</td>
       <td className={tdClass}>{renderMoney(0)}</td>
       <td className={tdClass}>{renderMoney(0)}</td>
       <td className={tdClass}>{renderMoney(0)}</td>
-      <td className={tdLastClass}>{renderMoney(totales?.salario_total || 0 )}</td>
+      <td className={tdLastClass}>
+        {renderMoney(totales?.salario_total || 0)}
+      </td>
     </tr>
   );
 };

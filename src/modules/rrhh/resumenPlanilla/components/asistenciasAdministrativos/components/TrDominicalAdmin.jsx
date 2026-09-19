@@ -7,11 +7,10 @@ import { toast } from "sonner";
 import { onInputPrice } from "../../../../../../assets/onInputs";
 
 const TrDominicalAdmin = ({
-  saldoAnteriorId,
   colaborador_id,
   diaDomingo,
   sueldoPorDia,
-  onDataUpdate, // <--- 1. Recibir nueva prop
+  onDataUpdate,
 }) => {
   const [dominicalData, setDominicalData] = useState({
     id: null,
@@ -42,14 +41,14 @@ const TrDominicalAdmin = ({
             colaborador_id: data.colaborador_id,
             dia_planilla_id: data.dia_planilla_id,
             turnos: data.turnos,
-            total_planilla: sueldoPorDia,
-            salario: data.salario,
+            total_planilla:
+              data.total_planilla || sueldoPorDia * Number(data.turnos || 0),
+            salario: data.salario || sueldoPorDia * Number(data.turnos || 0),
             adicionales: data.adicionales,
           };
           setDominicalData(newData);
-          if (onDataUpdate) onDataUpdate(newData); // <--- 2. Avisar al padre en el GET
+          if (onDataUpdate) onDataUpdate(newData);
         } else {
-          // Si no hay datos, de todos modos enviamos el default (turno 0) al padre
           if (onDataUpdate) onDataUpdate(dominicalData);
         }
       })
@@ -65,17 +64,22 @@ const TrDominicalAdmin = ({
     const { name, value } = e.target;
     setDominicalData((prev) => {
       const updated = { ...prev, [name]: value };
+
+      // SOLUCIÓN: Si cambian los turnos, recalculamos su salario en tiempo real
+      if (name === "turnos") {
+        const cantTurnos = Number(value || 0);
+        updated.total_planilla = sueldoPorDia * cantTurnos;
+        updated.salario = sueldoPorDia * cantTurnos;
+      }
+
       datosRef.current = updated;
-      if (onDataUpdate) onDataUpdate(updated); // <--- 3. Avisar al padre al escribir
+      if (onDataUpdate) onDataUpdate(updated);
       return updated;
     });
   };
 
   const handleSave = () => {
-    const payload = {
-      ...datosRef.current,
-      total_planilla: sueldoPorDia,
-    };
+    const payload = { ...datosRef.current };
 
     for (const key in payload) {
       if (payload[key] === "") payload[key] = null;
@@ -103,7 +107,6 @@ const TrDominicalAdmin = ({
       });
   };
 
-  // ... (Tus estilos siguen igual) ...
   const inputUIClasses = {
     inputWrapper:
       "min-h-[25px] h-[25px] px-1 bg-white shadow-none hover:bg-white/70 data-[focus=true]:bg-white data-[focus=true]:shadow-sm transition-all",
@@ -135,21 +138,18 @@ const TrDominicalAdmin = ({
       </td>
       <td className="border-r border-b border-teal-200 p-1 bg-teal-50/40">
         <div className={readOnlyTextClass}>
-          {Number(sueldoPorDia).toFixed(2) ?? "0.00"}
+          {Number(dominicalData.total_planilla || 0).toFixed(2)}
         </div>
       </td>
       <td
         colSpan={5}
         className="border-r border-b border-teal-200 bg-teal-50/40"
       ></td>
-      <td className="border-r border-b border-amber-200 p-1 bg-amber-50/40  text-[10px]">
+      <td className="border-r border-b border-amber-200 p-1 bg-amber-50/40 text-[10px] text-center font-bold text-slate-600">
         {Number(dominicalData.salario || 0).toFixed(2)}
-
       </td>
-      <td className="border-b border-amber-200 p-1 bg-amber-50/40 text-[10px]">
-
+      <td className="border-b border-amber-200 p-1 bg-amber-50/40 text-[10px] text-center font-bold text-slate-600">
         {Number(dominicalData.adicionales || 0).toFixed(2)}
-
       </td>
     </tr>
   );

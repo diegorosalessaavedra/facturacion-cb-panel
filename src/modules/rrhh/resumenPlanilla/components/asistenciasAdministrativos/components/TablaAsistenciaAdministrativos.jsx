@@ -14,20 +14,23 @@ const TablaAsistenciaAdministrativos = ({
   });
 
   // Solución: useCallback estabiliza la referencia de la función.
-  // La validación interna corta cualquier bucle infinito deteniendo el re-render 
+  // La validación interna corta cualquier bucle infinito deteniendo el re-render
   // si el resultado es idéntico al anterior.
-  const handleTotalesCalculados = useCallback((salario, adicionales, topeSemanal) => {
-    setSumasCalculadas((prev) => {
-      if (
-        prev.salario === salario &&
-        prev.adicionales === adicionales &&
-        prev.topeSemanal === topeSemanal
-      ) {
-        return prev; // Si los datos son iguales, aborta la actualización (rompe el bucle)
-      }
-      return { salario, adicionales, topeSemanal };
-    });
-  }, []);
+  const handleTotalesCalculados = useCallback(
+    (salario, adicionales, topeSemanal) => {
+      setSumasCalculadas((prev) => {
+        if (
+          prev.salario === salario &&
+          prev.adicionales === adicionales &&
+          prev.topeSemanal === topeSemanal
+        ) {
+          return prev; // Si los datos son iguales, aborta la actualización (rompe el bucle)
+        }
+        return { salario, adicionales, topeSemanal };
+      });
+    },
+    [],
+  );
 
   const thMainBlue =
     "bg-sky-900 border-r border-b border-sky-950 p-2.5 font-bold uppercase text-[10px] tracking-widest text-white";
@@ -46,9 +49,9 @@ const TablaAsistenciaAdministrativos = ({
     "bg-amber-100 border-b border-amber-300 p-3 font-bold uppercase text-[9px] tracking-wider text-amber-950 whitespace-nowrap";
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 items-start mt-4">
+    <div className="flex flex-col  gap-6 items-start mt-4">
       {/* TABLA GRANDE (Izquierda) */}
-      <div className="flex-1 overflow-auto border border-slate-300 rounded-xl bg-white shadow-md custom-scrollbar w-full">
+      <div className="flex overflow-auto border border-slate-300 rounded-xl bg-white shadow-md custom-scrollbar w-full">
         <table className="w-full border-collapse text-center">
           <thead className="sticky top-0 z-20 shadow-sm">
             <tr>
@@ -91,7 +94,6 @@ const TablaAsistenciaAdministrativos = ({
             colaborador={findColaborador}
             dias={dias}
             totalSemanas={totalSemanas}
-            // Pasamos la función estabilizada en lugar de la arrow function directa
             onTotalesCalculados={handleTotalesCalculados}
           />
         </table>

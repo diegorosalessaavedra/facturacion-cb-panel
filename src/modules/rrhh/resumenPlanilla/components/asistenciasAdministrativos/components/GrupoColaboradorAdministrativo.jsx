@@ -12,8 +12,12 @@ const GrupoColaboradorAdministrativo = ({
   const diasLaborables = [];
   let diaDomingo = null;
 
+  console.log(dias);
+
   dias?.forEach((dia) => {
     const fechaObj = new Date(`${dia.fecha || dia.dia_plantilla}T00:00:00`);
+    console.log(fechaObj.getDay());
+
     if (fechaObj.getDay() === 0) {
       diaDomingo = dia;
     } else {
@@ -99,12 +103,14 @@ const GrupoColaboradorAdministrativo = ({
         />
       ))}
 
-      <TrDominicalAdmin
-        colaborador_id={colaborador?.id}
-        diaDomingo={diaDomingo}
-        sueldoPorDia={sueldoPorDia}
-        onDataUpdate={setDatosDominical}
-      />
+      {diaDomingo && (
+        <TrDominicalAdmin
+          colaborador_id={colaborador?.id}
+          diaDomingo={diaDomingo}
+          sueldoPorDia={sueldoPorDia}
+          onDataUpdate={setDatosDominical}
+        />
+      )}
 
       <tr className="bg-slate-800 font-bold text-[10px] text-slate-50 text-center">
         <td colSpan={7} className="border-r border-slate-300 p-2 text-right">

@@ -33,21 +33,25 @@ const TrAsistenciaAdministrativa = ({
   const valorAsistenciaFeriado = esFeriado ? "SI" : "NO";
   const valorMontoFeriado = esFeriado ? sueldoFeriadoBruto || 0.0 : 0.0;
 
-  // --- REGLA DE NEGOCIO: SI TURNOS ES 0, NO HAY PAGO ---
+  // --- REGLA DE NEGOCIO CORREGIDA ---
   const aplicarReglasTurno = (datos) => {
     const cantTurnos = Number(datos.turnos || 0);
     const trabajo = cantTurnos > 0;
 
-    // Convertimos el bono a número (si está vacío, vale 0)
     const valorBono = Number(datos.bono || 0);
+    const valorImpHoras = Number(datos.importe_horas || 0);
+    const valorImpMinutos = Number(datos.importe_minutos || 0);
+
+    // SOLUCIÓN: Multiplicamos el sueldo base por los turnos (ej. si hace 2 turnos, cobra el doble base)
+    const basePlanilla = sueldoPorDia * cantTurnos;
 
     return {
       ...datos,
-      total_planilla: trabajo ? sueldoPorDia : 0,
+      total_planilla: trabajo ? basePlanilla : 0,
       asistencia_feriado: valorAsistenciaFeriado,
       feriados: trabajo ? valorMontoFeriado : 0,
-      salario: trabajo ? sueldoPorDia : 0,
-      // Sumamos el feriado con el bono ingresado
+      // SOLUCIÓN: El salario del día ES la suma de su base por turnos + su dinero extra por horas
+      salario: trabajo ? basePlanilla + valorImpHoras + valorImpMinutos : 0,
       adicionales: trabajo ? Number(valorMontoFeriado) + valorBono : 0,
     };
   };
@@ -223,7 +227,7 @@ const TrAsistenciaAdministrativa = ({
 
     if (entrada) {
       const [entHora, entMin] = entrada.split(":").map(Number);
-      const refTotalMinutos = 9 * 60; // 540 minutos desde las 00:00
+      const refTotalMinutos = 9 * 60;
       const entTotalMinutos = entHora * 60 + entMin;
 
       tardanza_minutos = entTotalMinutos - refTotalMinutos;
@@ -235,7 +239,7 @@ const TrAsistenciaAdministrativa = ({
 
         let diffMinutos = salTotalMinutos - entTotalMinutos;
         if (diffMinutos < 0) diffMinutos += 24 * 60;
-        diffMinutos -= 60; // RESTA DE 1 HORA DE REFRIGERIO
+        diffMinutos -= 60;
         if (diffMinutos < 0) diffMinutos = 0;
 
         horas_enteras = Math.floor(diffMinutos / 60);

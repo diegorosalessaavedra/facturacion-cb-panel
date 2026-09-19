@@ -4,7 +4,7 @@ import config from "../../../../../../utils/getToken";
 import { API } from "../../../../../../utils/api";
 import axios from "axios";
 
-const TbodyAdicionales = ({ colaborador,semana_id }) => {
+const TbodyAdicionales = ({ colaborador, semana_id, isOpen }) => {
   const [totales, setTotales] = useState(null);
 
   const fetchTotales = () => {
@@ -24,16 +24,16 @@ const TbodyAdicionales = ({ colaborador,semana_id }) => {
 
   useEffect(() => {
     fetchTotales();
+  }, [semana_id, colaborador.id, isOpen]);
 
-  }, [semana_id, colaborador.id]);
-
-  console.log(totales);
   return (
     <tr
       key={`side-${colaborador.id}`}
       className="hover:bg-blue-50/50 transition-colors group h-[38px]"
     >
-      <td className={tdClass}>{renderMoney(totales?.adicionales_total || 0)}</td>
+      <td className={tdClass}>
+        {renderMoney(totales?.adicionales_total || 0)}
+      </td>
       <td className={tdLastClass}>{colaborador.telefono_colaborador || "-"}</td>
     </tr>
   );
