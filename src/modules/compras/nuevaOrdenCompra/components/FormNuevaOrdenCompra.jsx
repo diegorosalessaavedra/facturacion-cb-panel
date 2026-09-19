@@ -143,6 +143,7 @@ const FormNuevaOrdenCompra = ({ userData }) => {
           setProductos={setProductos}
           setSelectModal={setSelectModal}
           tipo_productos={watch("tipo_productos")}
+          activeDiesPriceInput={true} // Pasamos la prop para habilitar onInputPriceDies
         />
 
         <div className="w-full flex items-center justify-end mt-4">

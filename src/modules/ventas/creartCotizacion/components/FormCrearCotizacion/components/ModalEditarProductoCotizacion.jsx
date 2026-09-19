@@ -20,6 +20,7 @@ import {
   onInputNumber,
   onInputPrice,
   onInputPriceCinco,
+  onInputPriceDies,
 } from "../../../../../../assets/onInputs";
 import axios from "axios";
 import config from "../../../../../../utils/getToken";
@@ -32,6 +33,7 @@ const ModalEditarProductoCotizacion = ({
   onSave,
   tipo_productos,
   centroCostos,
+  activeDiesPriceInput = false,
 }) => {
   const [selectProducto, setSelectProducto] = useState("");
   const [findProductos, setFindProductos] = useState([]);
@@ -335,7 +337,11 @@ const ModalEditarProductoCotizacion = ({
                     variant="bordered"
                     radius="sm"
                     size="sm"
-                    onInput={onInputPriceCinco}
+                    onInput={
+                      activeDiesPriceInput
+                        ? onInputPriceDies
+                        : onInputPriceCinco
+                    }
                     value={dataProducto.precioUnitario}
                     onChange={handleDataProductoChange("precioUnitario")}
                   />

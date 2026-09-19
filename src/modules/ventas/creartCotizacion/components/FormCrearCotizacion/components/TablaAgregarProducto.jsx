@@ -23,6 +23,7 @@ const TablaAgregarProducto = ({
   monto,
   tipo_productos,
   isMerma,
+  activeDiesPriceInput = false,
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectModal, setSelectModal] = useState();
@@ -90,6 +91,7 @@ const TablaAgregarProducto = ({
           setProductos={setProductos}
           tipo_productos={tipo_productos || "Comercialización y servicios"}
           centroCostos={centroCostos}
+          activeDiesPriceInput={activeDiesPriceInput}
         />
       )}
       {selectModal === "editar" && (
@@ -101,6 +103,7 @@ const TablaAgregarProducto = ({
           centroCostos={centroCostos}
           tipo_productos={tipo_productos}
           onSave={saveEditedProduct}
+          activeDiesPriceInput={activeDiesPriceInput}
         />
       )}
       <Button

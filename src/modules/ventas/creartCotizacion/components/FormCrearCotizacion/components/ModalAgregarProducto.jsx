@@ -22,6 +22,7 @@ import {
   onInputNumber,
   onInputPrice,
   onInputPriceCinco,
+  onInputPriceDies,
 } from "../../../../../../assets/onInputs";
 import { toast } from "sonner";
 
@@ -44,6 +45,7 @@ const ModalAgregarProducto = ({
   setProductos,
   tipo_productos,
   centroCostos,
+  activeDiesPriceInput = false,
 }) => {
   const [selectProducto, setSelectProducto] = useState("");
   const [findProductos, setFindProductos] = useState([]);
@@ -344,7 +346,11 @@ const ModalAgregarProducto = ({
                     variant="bordered"
                     radius="sm"
                     size="sm"
-                    onInput={onInputPriceCinco}
+                    onInput={
+                      activeDiesPriceInput
+                        ? onInputPriceDies
+                        : onInputPriceCinco
+                    }
                     value={dataProducto.precioUnitario}
                     onChange={handleDataProductoChange("precioUnitario")}
                   />
