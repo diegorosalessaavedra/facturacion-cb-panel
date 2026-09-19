@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import GrupoColaboradorAdministrativo from "./GrupoColaboradorAdministrativo";
 import TablaTotalesAsistenciaAdministrativos from "./TablaTotalesAsistenciaAdministrativos";
 
@@ -7,12 +7,27 @@ const TablaAsistenciaAdministrativos = ({
   dias,
   totalSemanas,
 }) => {
-  // Recibe Salario, Adicionales y el Tope Semanal (Ej. 700)
   const [sumasCalculadas, setSumasCalculadas] = useState({
     salario: 0,
     adicionales: 0,
     topeSemanal: 0,
   });
+
+  // Solución: useCallback estabiliza la referencia de la función.
+  // La validación interna corta cualquier bucle infinito deteniendo el re-render 
+  // si el resultado es idéntico al anterior.
+  const handleTotalesCalculados = useCallback((salario, adicionales, topeSemanal) => {
+    setSumasCalculadas((prev) => {
+      if (
+        prev.salario === salario &&
+        prev.adicionales === adicionales &&
+        prev.topeSemanal === topeSemanal
+      ) {
+        return prev; // Si los datos son iguales, aborta la actualización (rompe el bucle)
+      }
+      return { salario, adicionales, topeSemanal };
+    });
+  }, []);
 
   const thMainBlue =
     "bg-sky-900 border-r border-b border-sky-950 p-2.5 font-bold uppercase text-[10px] tracking-widest text-white";
@@ -76,9 +91,8 @@ const TablaAsistenciaAdministrativos = ({
             colaborador={findColaborador}
             dias={dias}
             totalSemanas={totalSemanas}
-            onTotalesCalculados={(salario, adicionales, topeSemanal) =>
-              setSumasCalculadas({ salario, adicionales, topeSemanal })
-            }
+            // Pasamos la función estabilizada en lugar de la arrow function directa
+            onTotalesCalculados={handleTotalesCalculados}
           />
         </table>
       </div>

@@ -5,20 +5,20 @@ import axios from "axios";
 import config from "../../../utils/getToken";
 import FiltroResumenPlanilla from "./components/FiltroResumenPlanilla";
 import ResumenPlanillaHeader from "./components/ResumenPlanillaHeader";
-import TablaResumenPlantilla from "./components/TablaResumenPlantilla";
-import { useQuery } from "../../../hooks/useQuery";
+import TablaResumenPlantilla from "./components/TablaResumenPlantilla/TablaResumenPlantilla";
 import { useDisclosure } from "@nextui-org/react";
 import AsistenciaAdministrativos from "./components/asistenciasAdministrativos/AsistenciaAdministrativos";
 import AsistenciasOperativos from "./components/asistenciasOperativos/AsistenciasOperativos";
 
 const ResumenPlanilla = () => {
   const { id } = useParams();
-  const { year, mes } = useQuery();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [loading, setLoading] = useState(false);
   const [colaboradores, setColaboradores] = useState([]);
   const [dias, setDias] = useState([]);
+  const [dataSemana, setDataSemana] = useState(null);
+
   const [totalSemanas, setTotalSemanas] = useState(0);
 
   const [dataFiltros, setDataFiltros] = useState({
@@ -37,8 +37,11 @@ const ResumenPlanilla = () => {
     axios
       .get(url, config)
       .then((res) => {
+        console.log(res);
+
         setDias(res.data.dias);
         setTotalSemanas(res.data.totalSemanas);
+        setDataSemana(res.data.dataSemana);
       })
       .finally(() => setLoading(false));
   }, [id, selectColaborador]);
@@ -81,7 +84,6 @@ const ResumenPlanilla = () => {
       );
     }
   }, [selectColaborador, colaboradores]);
-  console.log(totalSemanas);
 
   return (
     <main className="w-full h-screen bg-slate-50 p-4 md:pt-[90px] overflow-hidden flex flex-col">
@@ -90,17 +92,18 @@ const ResumenPlanilla = () => {
           <span className="text-xs text-gray-500">Cargando datos...</span>
         )}
 
-        <ResumenPlanillaHeader />
-<section className="bg-white mt-2 p-2 rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden">          <FiltroResumenPlanilla
-            dataFiltros={dataFiltros}
-            setDataFiltros={setDataFiltros}
-          />
+        <ResumenPlanillaHeader  dataSemana={dataSemana}/>
+        <section className="bg-white mt-2 p-2 rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden">          <FiltroResumenPlanilla
+          dataFiltros={dataFiltros}
+          setDataFiltros={setDataFiltros}
+        />
 
           <TablaResumenPlantilla
             colaboradores={colaboradores}
             setSelectModal={setSelectModal}
             setSelectColaborador={setSelectColaborador}
             onOpen={onOpen}
+            semana_id={id}
           />
         </section>
 

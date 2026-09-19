@@ -10,20 +10,63 @@ const TablaTotalesAsistenciaAdministrativos = ({
   adicionalesBase = 0,
   salarioTope = 0,
 }) => {
-  // Solo necesitamos guardar el ID de la base de datos, el resto se calcula al vuelo
-  const [totalesId, setTotalesId] = useState(null);
-  const isFirstRender = useRef(true);
+  // 1. Guardamos todo el objeto que viene de la BD, no solo el ID
+  const [totalesBd, setTotalesBd] = useState(null);
+  
+  // 2. Bandera para saber si mostramos la BD o mostramos los nuevos cálculos
+  const [huboCambioManual, setHuboCambioManual] = useState(false);
+  
+  // 3. Ref para darle tiempo al padre de cargar sus cálculos iniciales sin disparar guardados falsos
+  const isReadyToTrack = useRef(false);
 
-  // --- GET: Carga datos de la BD si existen para saber el ID ---
+  // --- LÓGICA MATEMÁTICA AUTOMÁTICA ---
+  const excesoCalculado = Math.max(0, salarioBase - salarioTope);
+  const salario_exedente_calc = excesoCalculado;
+  const adicionales_adicion_calc = excesoCalculado;
+  const totalSalarioCalculado = salarioBase - salario_exedente_calc;
+  const totalAdicionalesCalculado = adicionalesBase + adicionales_adicion_calc;
+
+  // --- VALORES A MOSTRAR (DECISIÓN: BD vs CALCULADOS) ---
+  // Si tenemos datos en la BD y NO ha habido cambios manuales, mostramos lo de la BD. 
+  // Si no, mostramos los calculados en tiempo real.
+  const mostrar_salario_excedente = totalesBd && !huboCambioManual ? Number(totalesBd.salario_exedente || 0) : salario_exedente_calc;
+  const mostrar_adicionales_adicion = totalesBd && !huboCambioManual ? Number(totalesBd.adicionales_adicion || 0) : adicionales_adicion_calc;
+  const mostrar_salario_total = totalesBd && !huboCambioManual ? Number(totalesBd.salario_total || 0) : totalSalarioCalculado;
+  const mostrar_adicionales_total = totalesBd && !huboCambioManual ? Number(totalesBd.adicionales_total || 0) : totalAdicionalesCalculado;
+
+  // Referencia unificada para el payload del autoguardado (Siempre tiene los valores más recientes)
+  const payloadRef = useRef({});
+
+  useEffect(() => {
+    payloadRef.current = {
+      id: totalesBd?.id || null,
+      semana_planilla_id: semanaPlanillaId,
+      colaborador_id: colaboradorId,
+      salario_exedente: mostrar_salario_excedente,
+      totalSalario: mostrar_salario_total,
+      adicionales_adicion: mostrar_adicionales_adicion,
+      totalAdicionales: mostrar_adicionales_total,
+    };
+  }, [
+    totalesBd,
+    semanaPlanillaId,
+    colaboradorId,
+    mostrar_salario_excedente,
+    mostrar_salario_total,
+    mostrar_adicionales_adicion,
+    mostrar_adicionales_total,
+  ]);
+
+  // --- GET: Carga datos de la BD ---
   const fetchTotales = () => {
     if (!semanaPlanillaId || !colaboradorId) return;
-    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/totales/${semanaPlanillaId}/${colaboradorId}`;
+    const url = `${import.meta.env.VITE_URL_API}/totales-asistencia-administrativo/${semanaPlanillaId}/${colaboradorId}`;
 
     axios
       .get(url, config)
       .then((res) => {
         if (res.data.totales?.id) {
-          setTotalesId(res.data.totales.id);
+          setTotalesBd(res.data.totales); // Guardamos TODO el registro completo
         }
       })
       .catch((err) => console.error("Error cargando totales:", err));
@@ -31,40 +74,25 @@ const TablaTotalesAsistenciaAdministrativos = ({
 
   useEffect(() => {
     fetchTotales();
+
+    // Damos un periodo de gracia de 2 segundos para que la tabla padre termine de
+    // inicializar sus sumas (0 -> 1500) y esto no se considere una "edición"
+    const timerInit = setTimeout(() => {
+      isReadyToTrack.current = true;
+    }, 2000);
+
+    return () => clearTimeout(timerInit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [semanaPlanillaId, colaboradorId]);
 
-  // --- LÓGICA MATEMÁTICA AUTOMÁTICA ---
-  const excesoCalculado = Math.max(0, salarioBase - salarioTope);
-  const salario_exedente_calc = excesoCalculado;
-  const adicionales_adicion_calc = excesoCalculado;
-
-  const totalSalarioCalculado = salarioBase - salario_exedente_calc;
-  const totalAdicionalesCalculado = adicionalesBase + adicionales_adicion_calc;
-
-  // Usamos una referencia para tener siempre los cálculos más recientes al momento de autoguardar
-  const calculosRef = useRef({
-    salario_exedente: 0,
-    adicionales_adicion: 0,
-    totalSalario: 0,
-    totalAdicionales: 0,
-  });
-
-  useEffect(() => {
-    calculosRef.current = {
-      salario_exedente: salario_exedente_calc,
-      adicionales_adicion: adicionales_adicion_calc,
-      totalSalario: totalSalarioCalculado,
-      totalAdicionales: totalAdicionalesCalculado,
-    };
-  });
-
   // --- AUTOGUARDADO REACTIVO ---
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    // Si la página recién está cargando (primeros 2s), ignorar los cambios.
+    if (!isReadyToTrack.current) return;
+
+    // Si pasamos aquí, significa que el usuario editó una asistencia (pasados los 2s)
+    // Encendemos la bandera para que la UI deje de usar la BD antigua y use los nuevos cálculos
+    setHuboCambioManual(true);
 
     const timer = setTimeout(() => {
       handleSave();
@@ -72,34 +100,36 @@ const TablaTotalesAsistenciaAdministrativos = ({
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [salarioBase, adicionalesBase, salarioTope]);
+  }, [salarioBase, adicionalesBase, salarioTope]); // Dependemos de las props calculadas
 
   const handleSave = () => {
-    if (!semanaPlanillaId || !colaboradorId) return;
-
-    const currentCalc = calculosRef.current;
+    const currentData = payloadRef.current;
+    if (!currentData.semana_planilla_id || !currentData.colaborador_id) return;
 
     const payload = {
-      id: totalesId, // null o el número de ID
-      semana_planilla_id: semanaPlanillaId,
-      colaborador_id: colaboradorId,
-      salario_exedente: currentCalc.salario_exedente,
+      id: currentData.id, 
+      semana_planilla_id: currentData.semana_planilla_id,
+      colaborador_id: currentData.colaborador_id,
+      salario_exedente: currentData.salario_exedente,
       salario_adicion: 0.0,
-      salario_total: currentCalc.totalSalario,
+      salario_total: currentData.totalSalario,
       adicionales_exedente: 0.0,
-      adicionales_adicion: currentCalc.adicionales_adicion,
-      adicionales_total: currentCalc.totalAdicionales,
+      adicionales_adicion: currentData.adicionales_adicion,
+      adicionales_total: currentData.totalAdicionales,
     };
 
     const toastId = toast.loading("Actualizando totales...");
-    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/totales/${payload.id || "0"}`;
+    const url = `${import.meta.env.VITE_URL_API}/totales-asistencia-administrativo/${payload.id || "0"}`;
 
     axios
       .post(url, payload, config)
       .then((res) => {
         toast.success("Totales guardados", { id: toastId });
-        if (res.data?.data?.id && !totalesId) {
-          setTotalesId(res.data.data.id);
+        
+        // Si el servidor nos devuelve el registro guardado, actualizamos la BD local
+        if (res.data?.data) {
+          setTotalesBd(res.data.data);
+          setHuboCambioManual(false); // Volvemos a mostrar la BD, ya que ahora está sincronizada
         }
       })
       .catch((err) => {
@@ -109,26 +139,17 @@ const TablaTotalesAsistenciaAdministrativos = ({
   };
 
   // --- ESTILOS VISUALES IDÉNTICOS A TU TABLA PRINCIPAL ---
-  const thMainYellow =
-    "bg-slate-800 border-b border-slate-900 p-2.5 font-bold uppercase text-[8px] tracking-widest text-white";
-  const thSubYellow =
-    "bg-green-100 border-r border-b border-green-300 p-3 font-bold uppercase text-[7px] tracking-wider text-slate-950 whitespace-nowrap";
-  const thSubYellowLast =
-    "bg-blue-100 border-b border-blue-300 p-3 px-1 font-bold uppercase text-[7px] tracking-wider text-slate-950 whitespace-nowrap";
+  const thMainYellow = "bg-slate-800 border-b border-slate-900 p-2.5 font-bold uppercase text-[8px] tracking-widest text-white";
+  const thSubYellow = "bg-green-100 border-r border-b border-green-300 p-3 font-bold uppercase text-[7px] tracking-wider text-slate-950 whitespace-nowrap";
+  const thSubYellowLast = "bg-blue-100 border-b border-blue-300 p-3 px-1 font-bold uppercase text-[7px] tracking-wider text-slate-950 whitespace-nowrap";
 
-  const tdTitle =
-    "bg-sky-50 border-r border-b border-sky-200 p-2 font-bold text-[8px] text-left text-slate-600 uppercase";
-  const tdValue =
-    "bg-white border-r border-b border-slate-200 p-2 font-medium text-[9px] text-right text-slate-900 h-[33px]";
-  const tdValueLast =
-    "bg-white border-b border-slate-200 p-2 px-1 font-medium text-[9px] text-right text-slate-900 h-[33px]";
+  const tdTitle = "bg-sky-50 border-r border-b border-sky-200 p-2 font-bold text-[8px] text-left text-slate-600 uppercase";
+  const tdValue = "bg-white border-r border-b border-slate-200 p-2 font-medium text-[9px] text-right text-slate-900 h-[33px]";
+  const tdValueLast = "bg-white border-b border-slate-200 p-2 px-1 font-medium text-[9px] text-right text-slate-900 h-[33px]";
 
-  const tdTotalTitle =
-    "bg-slate-800 border-r border-slate-900 p-2 font-bold text-[8px] text-left text-slate-50 uppercase";
-  const tdTotal =
-    "bg-slate-50 border-r border-slate-300 p-2 font-extrabold text-[9px] text-right text-slate-900";
-  const tdTotalLast =
-    "bg-slate-50 border-slate-300 p-2 font-extrabold text-[9px] text-right text-slate-900";
+  const tdTotalTitle = "bg-slate-800 border-r border-slate-900 p-2 font-bold text-[8px] text-left text-slate-50 uppercase";
+  const tdTotal = "bg-slate-50 border-r border-slate-300 p-2 font-extrabold text-[9px] text-right text-slate-900";
+  const tdTotalLast = "bg-slate-50 border-slate-300 p-2 font-extrabold text-[9px] text-right text-slate-900";
 
   return (
     <div className="w-[250px] flex-1 overflow-hidden border border-slate-300 rounded-xl bg-white shadow-md custom-scrollbar">
@@ -150,8 +171,8 @@ const TablaTotalesAsistenciaAdministrativos = ({
           <tr className="hover:bg-slate-50 transition-colors">
             <td className={tdTitle}>EXCEDENTE</td>
             <td className={tdValue}>
-              {salario_exedente_calc > 0
-                ? `S/ ${salario_exedente_calc.toFixed(2)}`
+              {mostrar_salario_excedente > 0
+                ? `S/ ${mostrar_salario_excedente.toFixed(2)}`
                 : "-"}
             </td>
             <td className={tdValueLast}>-</td>
@@ -160,16 +181,16 @@ const TablaTotalesAsistenciaAdministrativos = ({
             <td className={tdTitle}>ADICIÓN</td>
             <td className={tdValue}>-</td>
             <td className={tdValueLast}>
-              {adicionales_adicion_calc > 0
-                ? `S/ ${adicionales_adicion_calc.toFixed(2)}`
+              {mostrar_adicionales_adicion > 0
+                ? `S/ ${mostrar_adicionales_adicion.toFixed(2)}`
                 : "-"}
             </td>
           </tr>
           <tr className="bg-slate-50/50">
             <td className={tdTotalTitle}>TOTALES</td>
-            <td className={tdTotal}>S/ {totalSalarioCalculado.toFixed(2)}</td>
+            <td className={tdTotal}>S/ {mostrar_salario_total.toFixed(2)}</td>
             <td className={tdTotalLast}>
-              S/ {totalAdicionalesCalculado.toFixed(2)}
+              S/ {mostrar_adicionales_total.toFixed(2)}
             </td>
           </tr>
         </tbody>

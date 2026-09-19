@@ -142,31 +142,14 @@ const TrDominicalAdmin = ({
         colSpan={5}
         className="border-r border-b border-teal-200 bg-teal-50/40"
       ></td>
-      <td className="border-r border-b border-amber-200 p-1 bg-amber-50/40">
-        <Input
-          type="number"
-          step="0.01"
-          name="salario"
-          value={dominicalData.salario || ""}
-          onChange={handleChange}
-          onBlur={handleSave}
-          size="sm"
-          radius="sm"
-          classNames={inputUIClasses}
-        />
+      <td className="border-r border-b border-amber-200 p-1 bg-amber-50/40  text-[10px]">
+        {Number(dominicalData.salario || 0).toFixed(2)}
+
       </td>
-      <td className="border-b border-amber-200 p-1 bg-amber-50/40">
-        <Input
-          type="number"
-          step="0.01"
-          name="adicionales"
-          value={dominicalData.adicionales || ""}
-          onChange={handleChange}
-          onBlur={handleSave}
-          size="sm"
-          radius="sm"
-          classNames={inputUIClasses}
-        />
+      <td className="border-b border-amber-200 p-1 bg-amber-50/40 text-[10px]">
+
+        {Number(dominicalData.adicionales || 0).toFixed(2)}
+
       </td>
     </tr>
   );
