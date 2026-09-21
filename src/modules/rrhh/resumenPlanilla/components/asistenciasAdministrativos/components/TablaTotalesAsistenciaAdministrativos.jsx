@@ -10,13 +10,13 @@ const TablaTotalesAsistenciaAdministrativos = ({
   adicionalesBase = 0,
   salarioTope = 0,
 }) => {
-  // 1. Guardamos todo el objeto que viene de la BD, no solo el ID
   const [totalesBd, setTotalesBd] = useState(null);
-
-  // 2. Bandera para saber si mostramos la BD o mostramos los nuevos cálculos
   const [huboCambioManual, setHuboCambioManual] = useState(false);
 
-  // 3. Ref para darle tiempo al padre de cargar sus cálculos iniciales sin disparar guardados falsos
+  // NUEVO: Bandera para saber si la petición GET ya terminó.
+  // Evita que intentemos hacer autoguardado de algo si todavía no sabemos su ID
+  const [isDbLoaded, setIsDbLoaded] = useState(false);
+
   const isReadyToTrack = useRef(false);
 
   // --- LÓGICA MATEMÁTICA AUTOMÁTICA ---
@@ -26,9 +26,6 @@ const TablaTotalesAsistenciaAdministrativos = ({
   const totalSalarioCalculado = salarioBase - salario_exedente_calc;
   const totalAdicionalesCalculado = adicionalesBase + adicionales_adicion_calc;
 
-  // --- VALORES A MOSTRAR (DECISIÓN: BD vs CALCULADOS) ---
-  // Si tenemos datos en la BD y NO ha habido cambios manuales, mostramos lo de la BD.
-  // Si no, mostramos los calculados en tiempo real.
   const mostrar_salario_excedente =
     totalesBd && !huboCambioManual
       ? Number(totalesBd.salario_exedente || 0)
@@ -46,12 +43,11 @@ const TablaTotalesAsistenciaAdministrativos = ({
       ? Number(totalesBd.adicionales_total || 0)
       : totalAdicionalesCalculado;
 
-  // Referencia unificada para el payload del autoguardado (Siempre tiene los valores más recientes)
   const payloadRef = useRef({});
 
   useEffect(() => {
     payloadRef.current = {
-      id: totalesBd?.id || null,
+      id: totalesBd?.id || null, // Siempre fresco
       semana_planilla_id: semanaPlanillaId,
       colaborador_id: colaboradorId,
       salario_exedente: mostrar_salario_excedente,
@@ -72,26 +68,30 @@ const TablaTotalesAsistenciaAdministrativos = ({
   // --- GET: Carga datos de la BD ---
   const fetchTotales = () => {
     if (!semanaPlanillaId || !colaboradorId) return;
+
+    setIsDbLoaded(false); // Bloqueamos guardado mientras carga
+
     const url = `${import.meta.env.VITE_URL_API}/totales-asistencia-administrativo/${semanaPlanillaId}/${colaboradorId}`;
 
     axios
       .get(url, config)
       .then((res) => {
         if (res.data.totales?.id) {
-          setTotalesBd(res.data.totales); // Guardamos TODO el registro completo
+          setTotalesBd(res.data.totales);
         }
       })
-      .catch((err) => console.error("Error cargando totales:", err));
+      .catch((err) => console.error("Error cargando totales:", err))
+      .finally(() => {
+        setIsDbLoaded(true); // Desbloqueamos
+      });
   };
 
   useEffect(() => {
     fetchTotales();
 
-    // Damos un periodo de gracia de 2 segundos para que la tabla padre termine de
-    // inicializar sus sumas (0 -> 1500) y esto no se considere una "edición"
     const timerInit = setTimeout(() => {
       isReadyToTrack.current = true;
-    }, 2000);
+    }, 2000); // Dar 2 segundos de gracia al componente padre para estabilizarse
 
     return () => clearTimeout(timerInit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,26 +99,28 @@ const TablaTotalesAsistenciaAdministrativos = ({
 
   // --- AUTOGUARDADO REACTIVO ---
   useEffect(() => {
-    // Si la página recién está cargando (primeros 2s), ignorar los cambios.
-    if (!isReadyToTrack.current) return;
+    // CONDICIÓN CRÍTICA: No guardar si la página está cargando, o si el GET aún no termina
+    if (!isReadyToTrack.current || !isDbLoaded) return;
 
-    // Si pasamos aquí, significa que el usuario editó una asistencia (pasados los 2s)
-    // Encendemos la bandera para que la UI deje de usar la BD antigua y use los nuevos cálculos
+    // Evitar que guarde todo en 0 si el padre aún no mandó los cálculos
+    if (salarioBase === 0 && adicionalesBase === 0) return;
+
     setHuboCambioManual(true);
 
     const timer = setTimeout(() => {
       handleSave();
-    }, 900);
+    }, 1500); // 1.5s de debounce para evitar envíos masivos
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [salarioBase, adicionalesBase, salarioTope]); // Dependemos de las props calculadas
+  }, [salarioBase, adicionalesBase, salarioTope, isDbLoaded]);
 
   const handleSave = () => {
     const currentData = payloadRef.current;
     if (!currentData.semana_planilla_id || !currentData.colaborador_id) return;
 
     const payload = {
+      // Tu backend usa esto para saber si hacer UPDATE o CREATE
       id: currentData.id,
       semana_planilla_id: currentData.semana_planilla_id,
       colaborador_id: currentData.colaborador_id,
@@ -131,6 +133,9 @@ const TablaTotalesAsistenciaAdministrativos = ({
     };
 
     const toastId = toast.loading("Actualizando totales...");
+
+    // Siempre usamos POST, y que tu backend decida si crea (CREATE) o actualiza (UPDATE)
+    // tal cual lo configuraste en tu backend.
     const url = `${import.meta.env.VITE_URL_API}/totales-asistencia-administrativo/${payload.id || "0"}`;
 
     axios
@@ -138,10 +143,11 @@ const TablaTotalesAsistenciaAdministrativos = ({
       .then((res) => {
         toast.success("Totales guardados", { id: toastId });
 
-        // Si el servidor nos devuelve el registro guardado, actualizamos la BD local
         if (res.data?.data) {
+          // Actualizamos la BD local con el nuevo ID si se acaba de crear,
+          // o con los datos frescos.
           setTotalesBd(res.data.data);
-          setHuboCambioManual(false); // Volvemos a mostrar la BD, ya que ahora está sincronizada
+          setHuboCambioManual(false);
         }
       })
       .catch((err) => {
@@ -150,7 +156,6 @@ const TablaTotalesAsistenciaAdministrativos = ({
       });
   };
 
-  // --- ESTILOS VISUALES IDÉNTICOS A TU TABLA PRINCIPAL ---
   const thMainYellow =
     "bg-slate-800 border-b border-slate-900 p-2.5 font-bold uppercase text-[10px] tracking-widest text-white";
   const thSubYellow =
@@ -192,9 +197,11 @@ const TablaTotalesAsistenciaAdministrativos = ({
           <tr className="hover:bg-slate-50 transition-colors">
             <td className={tdTitle}>EXCEDENTE</td>
             <td className={tdValue}>
-              {mostrar_salario_excedente > 0
-                ? `S/ ${mostrar_salario_excedente.toFixed(2)}`
-                : "-"}
+              {!isDbLoaded
+                ? "..."
+                : mostrar_salario_excedente > 0
+                  ? `S/ ${mostrar_salario_excedente.toFixed(2)}`
+                  : "-"}
             </td>
             <td className={tdValueLast}>-</td>
           </tr>
@@ -202,16 +209,22 @@ const TablaTotalesAsistenciaAdministrativos = ({
             <td className={tdTitle}>ADICIÓN</td>
             <td className={tdValue}>-</td>
             <td className={tdValueLast}>
-              {mostrar_adicionales_adicion > 0
-                ? `S/ ${mostrar_adicionales_adicion.toFixed(2)}`
-                : "-"}
+              {!isDbLoaded
+                ? "..."
+                : mostrar_adicionales_adicion > 0
+                  ? `S/ ${mostrar_adicionales_adicion.toFixed(2)}`
+                  : "-"}
             </td>
           </tr>
           <tr className="bg-slate-50/50">
             <td className={tdTotalTitle}>TOTALES</td>
-            <td className={tdTotal}>S/ {mostrar_salario_total.toFixed(2)}</td>
+            <td className={tdTotal}>
+              {!isDbLoaded ? "..." : `S/ ${mostrar_salario_total.toFixed(2)}`}
+            </td>
             <td className={tdTotalLast}>
-              S/ {mostrar_adicionales_total.toFixed(2)}
+              {!isDbLoaded
+                ? "..."
+                : `S/ ${mostrar_adicionales_total.toFixed(2)}`}
             </td>
           </tr>
         </tbody>

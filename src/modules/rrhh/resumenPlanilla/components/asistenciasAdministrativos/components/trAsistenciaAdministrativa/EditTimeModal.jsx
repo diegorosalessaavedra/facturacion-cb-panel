@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -11,13 +11,27 @@ import {
 import { toast } from "sonner";
 import axios from "axios";
 import config from "../../../../../../../utils/getToken";
-import { handleAxiosError } from "../../../../../../../utils/handleAxiosError"; 
+import { handleAxiosError } from "../../../../../../../utils/handleAxiosError";
 
-const EditTimeModal = ({ isOpen, onOpenChange, datosAsistencia, onConfirm }) => {
-  const [nuevaEntrada, setNuevaEntrada] = useState(datosAsistencia.hora_entrada || "");
-  const [nuevaSalida, setNuevaSalida] = useState(datosAsistencia.hora_salida || "");
+const EditTimeModal = ({
+  isOpen,
+  onOpenChange,
+  datosAsistencia,
+  onConfirm,
+}) => {
+  const [nuevaEntrada, setNuevaEntrada] = useState("");
+  const [nuevaSalida, setNuevaSalida] = useState("");
   const [motivo, setMotivo] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // --- SOLUCIÓN: Sincronizar datos al abrir el modal ---
+  useEffect(() => {
+    if (isOpen) {
+      setNuevaEntrada(datosAsistencia?.hora_entrada || "");
+      setNuevaSalida(datosAsistencia?.hora_salida || "");
+      setMotivo(""); // Limpiamos el motivo de usos anteriores
+    }
+  }, [isOpen, datosAsistencia]); // Se ejecuta cada vez que se abre el modal o cambia la data
 
   const handleSolicitarCambio = () => {
     if (!motivo.trim()) {
@@ -33,8 +47,8 @@ const EditTimeModal = ({ isOpen, onOpenChange, datosAsistencia, onConfirm }) => 
       .post(url, { nuevaEntrada, nuevaSalida, motivo }, config)
       .then((res) => {
         toast.success("Actualizado correctamente", { id: toastId });
-        if (onConfirm) onConfirm(nuevaEntrada, nuevaSalida); 
-        onOpenChange(false); 
+        if (onConfirm) onConfirm(nuevaEntrada, nuevaSalida);
+        onOpenChange(false);
       })
       .catch((err) => {
         toast.error("Error al enviar la solicitud", { id: toastId });
@@ -56,10 +70,10 @@ const EditTimeModal = ({ isOpen, onOpenChange, datosAsistencia, onConfirm }) => 
             </ModalHeader>
             <ModalBody>
               <p className="text-xs text-slate-500 mb-2">
-                Actualiza las horas de entrada y salida e indica el motivo del cambio.
-                Se enviará una notificación por correo.
+                Actualiza las horas de entrada y salida e indica el motivo del
+                cambio. Se enviará una notificación por correo.
               </p>
-              
+
               <div className="flex gap-4">
                 <Input
                   type="time"
@@ -91,9 +105,9 @@ const EditTimeModal = ({ isOpen, onOpenChange, datosAsistencia, onConfirm }) => 
               <Button color="danger" variant="light" onPress={onClose}>
                 Cancelar
               </Button>
-              <Button 
-                color="primary" 
-                isLoading={loading} 
+              <Button
+                color="primary"
+                isLoading={loading}
                 onPress={handleSolicitarCambio}
               >
                 Actualizar y Notificar

@@ -41,7 +41,7 @@ const AsistenciaAdministrativos = ({
             <ModalHeader className="flex flex-col gap-1 text-xs">
               TAREO DE ASISTENCIAS ADMINISTRATIVOS{" "}
             </ModalHeader>
-            <ModalBody className="min-h-[70vh] ">
+            <ModalBody className="min-h-[70vh] overflow-y-auto ">
               <TablaAsistenciaAdministrativos
                 dias={dias}
                 findColaborador={findColaborador}
