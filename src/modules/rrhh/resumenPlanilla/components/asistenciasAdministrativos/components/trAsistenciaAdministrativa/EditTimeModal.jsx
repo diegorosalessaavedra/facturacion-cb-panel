@@ -9,6 +9,9 @@ import {
   Input,
 } from "@nextui-org/react";
 import { toast } from "sonner";
+import axios from "axios";
+import config from "../../../../../../../utils/getToken";
+import { handleAxiosError } from "../../../../../../../utils/handleAxiosError"; 
 
 const EditTimeModal = ({ isOpen, onOpenChange, datosAsistencia, onConfirm }) => {
   const [nuevaEntrada, setNuevaEntrada] = useState(datosAsistencia.hora_entrada || "");
@@ -22,14 +25,25 @@ const EditTimeModal = ({ isOpen, onOpenChange, datosAsistencia, onConfirm }) => 
     }
 
     setLoading(true);
-    
-    setTimeout(() => {
-      setLoading(false);
-      toast.success("Solicitud enviada para validación.");
-      // Ahora enviamos también el motivo al componente padre
-      onConfirm(nuevaEntrada, nuevaSalida, motivo);
-      onOpenChange(false);
-    }, 1500);
+    const toastId = toast.loading("Enviando solicitud...");
+
+    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/cambio-hora/${datosAsistencia.id}`;
+
+    axios
+      .post(url, { nuevaEntrada, nuevaSalida, motivo }, config)
+      .then((res) => {
+        toast.success("Actualizado correctamente", { id: toastId });
+        if (onConfirm) onConfirm(nuevaEntrada, nuevaSalida); 
+        onOpenChange(false); 
+      })
+      .catch((err) => {
+        toast.error("Error al enviar la solicitud", { id: toastId });
+        console.error(err);
+        handleAxiosError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -38,12 +52,12 @@ const EditTimeModal = ({ isOpen, onOpenChange, datosAsistencia, onConfirm }) => 
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Solicitar Edición de Marcación
+              Actualizar Marcación Manualmente
             </ModalHeader>
             <ModalBody>
               <p className="text-xs text-slate-500 mb-2">
-                Las horas de entrada y salida están bloqueadas. 
-                Para modificarlas manualmente, se enviará una solicitud.
+                Actualiza las horas de entrada y salida e indica el motivo del cambio.
+                Se enviará una notificación por correo.
               </p>
               
               <div className="flex gap-4">
@@ -65,7 +79,7 @@ const EditTimeModal = ({ isOpen, onOpenChange, datosAsistencia, onConfirm }) => 
 
               <Input
                 type="text"
-                label="Motivo del cambio"
+                label="Motivo de la actualización"
                 placeholder="Ej: Olvidó marcar, permiso médico..."
                 value={motivo}
                 onChange={(e) => setMotivo(e.target.value)}
@@ -82,7 +96,7 @@ const EditTimeModal = ({ isOpen, onOpenChange, datosAsistencia, onConfirm }) => 
                 isLoading={loading} 
                 onPress={handleSolicitarCambio}
               >
-                Enviar Solicitud
+                Actualizar y Notificar
               </Button>
             </ModalFooter>
           </>
