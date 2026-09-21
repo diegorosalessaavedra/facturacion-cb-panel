@@ -5,24 +5,26 @@ import TbodyAdicionales from "./components/TbodyAdicionales";
 const TablaResumenPlantilla = ({
   colaboradores,
   semana_id,
+  dataSemana, // <-- Recibimos la data de la semana
   setSelectColaborador,
   onOpen,
   isOpen,
 }) => {
+  const isFinalizado = dataSemana?.estado_planilla === "FINALIZADO";
+
   const handleColaboradorClick = (id) => {
     setSelectColaborador(id);
     onOpen();
   };
 
-  // --- NUEVA LÓGICA DE CONTENEDORES ---
+  // --- LÓGICA DE CONTENEDORES CON BLOQUEO (DISABLED) ---
+  // Si está finalizado, bloqueamos eventos de mouse y reducimos opacidad
+  const mainWrapperClass = `flex flex-col xl:flex-row items-start gap-5 w-full mt-4 pb-4 max-h-[600px] overflow-y-auto custom-scrollbar transition-all duration-300 ${
+    isFinalizado
+      ? "opacity-60 pointer-events-none select-none grayscale-[20%]"
+      : ""
+  }`;
 
-  // 1. Contenedor Principal (El que tendrá el scroll vertical global)
-  // Agregamos max-h-[600px] y overflow-y-auto aquí.
-  const mainWrapperClass =
-    "flex flex-col xl:flex-row items-start gap-5 w-full mt-4 pb-4 max-h-[600px] overflow-y-auto custom-scrollbar";
-
-  // 2. Contenedores de cada tabla (Solo scroll horizontal)
-  // Quitamos max-h y overflow-auto (que habilitaba el Y). Dejamos solo overflow-x-auto.
   const tableContainerClass =
     "shadow-md border border-slate-200 rounded-xl bg-white overflow-x-auto";
 
@@ -48,7 +50,6 @@ const TablaResumenPlantilla = ({
         <table className="w-full border-collapse relative">
           <thead className="sticky top-0 z-20 shadow-sm">
             <tr className="h-[35px]">
-              {/* Grupo Azul: Información */}
               <th className={thInfo}>REGIMEN</th>
               <th className={thInfo}>GRUPO</th>
               <th className={thInfo}>APELLIDOS Y NOMBRES</th>
@@ -56,13 +57,11 @@ const TablaResumenPlantilla = ({
               <th className={thInfo}>BCO</th>
               <th className={thInfo}>Nº CUENTA BCO</th>
 
-              {/* Grupo Verde: Cálculos */}
               <th className={thFinance}>BRUTO</th>
               <th className={thFinance}>ASIG. FAM</th>
               <th className={thFinance}>ONP - AFP</th>
               <th className={thFinance}>DESCUENTOS</th>
 
-              {/* Grupo Ámbar: Totales */}
               <th className={thTotal}>TOTAL POR PAGAR</th>
             </tr>
           </thead>
@@ -96,7 +95,6 @@ const TablaResumenPlantilla = ({
         <table className="w-full border-collapse relative">
           <thead className="sticky top-0 z-20 shadow-sm">
             <tr className="h-[35px]">
-              {/* Grupo Índigo: Extras */}
               <th className={thExtra}>ADICIONALES</th>
               <th className={thExtraLast}>Nº DESTINO</th>
             </tr>

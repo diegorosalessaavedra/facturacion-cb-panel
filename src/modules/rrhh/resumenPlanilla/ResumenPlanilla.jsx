@@ -28,22 +28,26 @@ const ResumenPlanilla = () => {
   const [selectModal, setSelectModal] = useState("");
   const [selectColaborador, setSelectColaborador] = useState(new Set([]));
 
-  useEffect(() => {
-    if (!id && !selectColaborador) return;
+  // --- SE MEJORÓ LA FUNCIÓN FETCH PARA QUE SE PUEDA REUTILIZAR FÁCILMENTE ---
+  const fetchDataSemana = async () => {
+    if (!id) return; // Ya no validamos selectColaborador aquí porque necesitamos la semana siempre
 
     setLoading(true);
     const url = `${import.meta.env.VITE_URL_API}/dias-planilla/semana/${id}`;
 
-    axios
+    return axios // Agregamos 'return' para poder usar .then() en el header si es necesario
       .get(url, config)
       .then((res) => {
-        console.log(res);
-
         setDias(res.data.dias);
         setTotalSemanas(res.data.totalSemanas);
         setDataSemana(res.data.dataSemana);
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchDataSemana();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, selectColaborador]);
 
   useEffect(() => {
@@ -92,9 +96,13 @@ const ResumenPlanilla = () => {
           <span className="text-xs text-gray-500">Cargando datos...</span>
         )}
 
-        <ResumenPlanillaHeader dataSemana={dataSemana} />
+        {/* Pasamos la función fetchDataSemana para que el header actualice la vista al cerrar */}
+        <ResumenPlanillaHeader
+          dataSemana={dataSemana}
+          fetchDataSemana={fetchDataSemana}
+        />
+
         <section className="bg-white mt-2 p-2 rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden">
-          {" "}
           <FiltroResumenPlanilla
             dataFiltros={dataFiltros}
             setDataFiltros={setDataFiltros}
@@ -106,22 +114,25 @@ const ResumenPlanilla = () => {
             onOpen={onOpen}
             isOpen={isOpen}
             semana_id={id}
+            dataSemana={dataSemana} // Asegúrate de pasar dataSemana para bloquear la tabla
           />
         </section>
 
-        {selectModal === "asistencia_administrativos" && (
-          <AsistenciaAdministrativos
-            colaboradores={colaboradores.filter(
-              (c) => c.cargo_laboral.agrupacion_cargo === "ADMINISTRATIVOS",
-            )}
-            isOpen={isOpen}
-            onOpenChange={onOpenChange}
-            selectColaborador={selectColaborador}
-            setSelectColaborador={setSelectColaborador}
-            dias={dias}
-            totalSemanas={totalSemanas}
-          />
-        )}
+        {dataSemana &&
+          dataSemana.estado_planilla !== "FINALIZADO" &&
+          selectModal === "asistencia_administrativos" && (
+            <AsistenciaAdministrativos
+              colaboradores={colaboradores.filter(
+                (c) => c.cargo_laboral.agrupacion_cargo === "ADMINISTRATIVOS",
+              )}
+              isOpen={isOpen}
+              onOpenChange={onOpenChange}
+              selectColaborador={selectColaborador}
+              setSelectColaborador={setSelectColaborador}
+              dias={dias}
+              totalSemanas={totalSemanas}
+            />
+          )}
 
         {selectModal === "asistencia_operativos" && (
           <AsistenciasOperativos
