@@ -283,10 +283,7 @@ const ExcelReporteDesembolsos = {
           {
             v: Number(yapeMonto),
             t: "n",
-            s:
-              yapeMonto > 0
-                ? { ...STYLES.CELL_YAPE, numFmt: formatMoneda }
-                : STYLES.CELL_YAPE,
+            s: { ...STYLES.CELL_YAPE, numFmt: formatMoneda },
           },
 
           // BILLETES (Egresos)
