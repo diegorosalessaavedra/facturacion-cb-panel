@@ -3,10 +3,8 @@ import {
   inputClassNames,
   selectClassNames,
 } from "../../../../../../assets/classNames";
-import { useEffect, useState } from "react";
-import config from "../../../../../../utils/getToken";
-import axios from "axios";
-import { onInputNumber } from "../../../../../../assets/onInputs";
+
+import { onInputNumber, onInputPrice } from "../../../../../../assets/onInputs";
 
 const DatosPlanillaColaborador = ({ register }) => {
   return (
@@ -126,7 +124,7 @@ const DatosPlanillaColaborador = ({ register }) => {
             {...register("onp")}
             radius="sm"
             size="sm"
-            onInput={onInputPrice}
+            onInput={onInputNumber}
           />
           <Input
             className="w-full"

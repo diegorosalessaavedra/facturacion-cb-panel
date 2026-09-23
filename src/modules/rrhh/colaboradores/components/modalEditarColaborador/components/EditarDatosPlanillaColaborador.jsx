@@ -3,9 +3,6 @@ import {
   inputClassNames,
   selectClassNames,
 } from "../../../../../../assets/classNames";
-import { useEffect, useState } from "react";
-import config from "../../../../../../utils/getToken";
-import axios from "axios";
 import { onInputNumber, onInputPrice } from "../../../../../../assets/onInputs";
 
 const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
@@ -135,7 +132,7 @@ const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
             defaultValue={selectColaborador?.onp}
             radius="sm"
             size="sm"
-            onInput={onInputPrice}
+            onInput={onInputNumber}
           />
           <Input
             className="w-full"
