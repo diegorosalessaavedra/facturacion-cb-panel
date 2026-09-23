@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@nextui-org/react";
-import { selectClassNames } from "../../../../../assets/classNames";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/react";
 import TablaAsistenciaAdministrativos from "./components/TablaAsistenciaAdministrativos";
 
 const AsistenciaAdministrativos = ({
@@ -15,9 +7,9 @@ const AsistenciaAdministrativos = ({
   isOpen,
   onOpenChange,
   selectColaborador,
-  setSelectColaborador,
   dias,
   totalSemanas,
+  isFinalizado,
 }) => {
   const findColaborador = colaboradores.find(
     (c) => c.id === Number(selectColaborador),
@@ -46,6 +38,7 @@ const AsistenciaAdministrativos = ({
                 dias={dias}
                 findColaborador={findColaborador}
                 totalSemanas={totalSemanas}
+                isFinalizado={isFinalizado}
               />
             </ModalBody>
           </>

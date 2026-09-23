@@ -11,6 +11,7 @@ const TrDominicalAdmin = ({
   diaDomingo,
   sueldoPorDia,
   onDataUpdate,
+  isFinalizado,
 }) => {
   const [dominicalData, setDominicalData] = useState({
     id: null,
@@ -125,6 +126,7 @@ const TrDominicalAdmin = ({
       </td>
       <td className="border-r border-b border-blue-200 p-1">
         <Input
+          isDisabled={isFinalizado}
           type="text"
           onInput={onInputPrice}
           name="turnos"

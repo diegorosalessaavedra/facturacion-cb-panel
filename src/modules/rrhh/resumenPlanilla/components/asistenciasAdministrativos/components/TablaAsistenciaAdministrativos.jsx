@@ -6,6 +6,7 @@ const TablaAsistenciaAdministrativos = ({
   findColaborador,
   dias,
   totalSemanas,
+  isFinalizado,
 }) => {
   const [sumasCalculadas, setSumasCalculadas] = useState({
     salario: 0,
@@ -13,9 +14,6 @@ const TablaAsistenciaAdministrativos = ({
     topeSemanal: 0,
   });
 
-  // Solución: useCallback estabiliza la referencia de la función.
-  // La validación interna corta cualquier bucle infinito deteniendo el re-render
-  // si el resultado es idéntico al anterior.
   const handleTotalesCalculados = useCallback(
     (salario, adicionales, topeSemanal) => {
       setSumasCalculadas((prev) => {
@@ -95,6 +93,7 @@ const TablaAsistenciaAdministrativos = ({
             dias={dias}
             totalSemanas={totalSemanas}
             onTotalesCalculados={handleTotalesCalculados}
+            isFinalizado={isFinalizado}
           />
         </table>
       </div>

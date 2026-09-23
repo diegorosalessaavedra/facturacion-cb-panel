@@ -33,6 +33,7 @@ const TrAsistenciaAdministrativa = ({
   sueldoPorDia,
   sueldoFeriadoBruto,
   onDataUpdate,
+  isFinalizado,
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -381,6 +382,7 @@ const TrAsistenciaAdministrativa = ({
         </td>
         <td className={`${tdBlue} min-w-[150px]`}>
           <Select
+            isDisabled={isFinalizado}
             aria-label="Goce de vacaciones"
             name="goce_vacaciones"
             selectedKeys={new Set([goce_vacaciones])}
@@ -397,6 +399,7 @@ const TrAsistenciaAdministrativa = ({
         </td>
         <td className={`${tdBlue} min-w-[100px]`}>
           <Select
+            isDisabled={isFinalizado}
             aria-label="Turno"
             name="turno"
             selectedKeys={new Set([turno])}
@@ -413,6 +416,7 @@ const TrAsistenciaAdministrativa = ({
         </td>
         <td className={`${tdBlue} min-w-[120px]`}>
           <Input
+            isDisabled={isFinalizado}
             aria-label="Actividad del día"
             type="text"
             name="actividad_dia"
@@ -475,6 +479,7 @@ const TrAsistenciaAdministrativa = ({
         </td>
         <td className={`${tdBlue} min-w-[60px]`}>
           <Input
+            isDisabled={isFinalizado}
             aria-label="Turnos"
             type="text"
             onInput={onInputNumber}
@@ -514,6 +519,7 @@ const TrAsistenciaAdministrativa = ({
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <Input
+            isDisabled={isFinalizado}
             aria-label="Bono"
             type="text"
             onInput={onInputPrice}
@@ -541,13 +547,14 @@ const TrAsistenciaAdministrativa = ({
           </div>
         </td>
       </tr>
-
-      <EditTimeModal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        datosAsistencia={datosAsistencia}
-        onConfirm={handleConfirmarEdicionTiempo}
-      />
+      {!isFinalizado && (
+        <EditTimeModal
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          datosAsistencia={datosAsistencia}
+          onConfirm={handleConfirmarEdicionTiempo}
+        />
+      )}
     </>
   );
 };

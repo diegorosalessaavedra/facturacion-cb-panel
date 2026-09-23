@@ -16,9 +16,9 @@ const FilaPrincipal = ({
   useEffect(() => {
     const fetchTotales = () => {
       if (!semana_id || !colaborador?.id) return;
-  
+
       const url = `${API}/totales-asistencia-administrativo/${semana_id}/${colaborador.id}`;
-  
+
       axios
         .get(url, config)
         .then((res) => {
@@ -33,16 +33,19 @@ const FilaPrincipal = ({
   }, [semana_id, colaborador?.id, isOpen]);
 
   // --- VARIABLES DE INTERFAZ ---
-  const esAdministrativo = colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
+  const esAdministrativo =
+    colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
   const nombreGrupo = colaborador?.cargo_laboral?.agrupacion_cargo || "-";
   const regimen = esAdministrativo ? "PLANILLA" : "LOCADOR";
-  const chipBg = esAdministrativo ? "bg-purple-100 border-purple-200" : "bg-orange-100 border-orange-200";
+  const chipBg = esAdministrativo
+    ? "bg-purple-100 border-purple-200"
+    : "bg-orange-100 border-orange-200";
   const chipText = esAdministrativo ? "text-purple-700" : "text-orange-700";
 
   // --- VARIABLES MATEMÁTICAS SEGURAS ---
   const salarioBruto = Number(totales?.salario_total || 0);
   const asigFamiliar = Number(colaborador?.asignacion_familiar || 0);
-  
+
   // 1. Buscar el porcentaje de pensión que sea mayor a 0
   const pensionEncontrada = [
     colaborador?.afp_integra,
@@ -50,16 +53,16 @@ const FilaPrincipal = ({
     colaborador?.afp_horizonte,
     colaborador?.afp_profuturo,
     colaborador?.afp_habitat,
-    colaborador?.onp
-  ].find(monto => Number(monto) > 0);
-  
+    colaborador?.onp,
+  ].find((monto) => Number(monto) > 0);
+
   const porcentajePension = Number(pensionEncontrada || 0);
 
   // 2. Calcular el monto en dinero (Salario Bruto * Porcentaje / 100)
   const montoPension = (salarioBruto * porcentajePension) / 100;
 
   const descuentos = 0; // Reserva por si necesitas agregar otros descuentos más adelante
-  
+
   // 3. Fórmula final
   const totalPorPagar = salarioBruto + asigFamiliar - montoPension - descuentos;
 
@@ -91,7 +94,8 @@ const FilaPrincipal = ({
             className="cursor-pointer text-slate-700 hover:text-amber-600 hover:underline transition-colors block w-full"
             onClick={() => handleColaboradorClick(colaborador.id)}
           >
-            {colaborador?.apellidos_colaborador} {colaborador?.nombre_colaborador}
+            {colaborador?.apellidos_colaborador}{" "}
+            {colaborador?.nombre_colaborador}
           </span>
         </Tooltip>
       </td>
@@ -102,20 +106,20 @@ const FilaPrincipal = ({
 
       <td className={tdClass}>{renderMoney(salarioBruto)}</td>
       <td className={tdClass}>{renderMoney(asigFamiliar)}</td>
-      
+
       {/* Muestra el cálculo ya en dinero (ej. S/ 100.00) */}
       <td className={tdClass}>
-        <Tooltip content={`${porcentajePension}% de pensión`} placement="top" delay={300}>
-          <div className="w-full cursor-help">
-            {renderMoney(montoPension)}
-          </div>
+        <Tooltip
+          content={`${porcentajePension}% de pensión`}
+          placement="top"
+          delay={300}
+        >
+          <div className="w-full cursor-help">{renderMoney(montoPension)}</div>
         </Tooltip>
       </td>
-      
+
       <td className={tdClass}>{renderMoney(descuentos)}</td>
-      <td className={tdLastClass}>
-        {renderMoney(totalPorPagar)}
-      </td>
+      <td className={tdLastClass}>{renderMoney(totalPorPagar)}</td>
     </tr>
   );
 };

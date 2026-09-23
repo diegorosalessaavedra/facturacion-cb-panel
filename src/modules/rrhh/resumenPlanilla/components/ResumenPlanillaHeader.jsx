@@ -35,18 +35,17 @@ const ResumenPlanillaHeader = ({
 
     setLoading(true);
     const toastId = toast.loading("Cerrando semana...");
-    const url = `${import.meta.env.VITE_URL_API}/semanas-planilla/${dataSemana.id}`;
+    const url = `${import.meta.env.VITE_URL_API}/semanas-planilla/cerrar/${dataSemana.id}`;
 
     axios
-      .patch(url, { estado_planilla: "FINALIZADO" }, config)
+      .patch(url, {}, config)
       .then((res) => {
         toast.success("Semana Cerrada correctamente", { id: toastId });
         if (onSemanaCerrada) onSemanaCerrada();
-        if (fetchDataSemana) fetchDataSemana(); // Refresca los datos en la vista principal
+        if (fetchDataSemana) fetchDataSemana();
         onClose();
       })
       .catch((err) => {
-        toast.error("Error al cerrar la semana", { id: toastId });
         handleAxiosError(err);
       })
       .finally(() => {

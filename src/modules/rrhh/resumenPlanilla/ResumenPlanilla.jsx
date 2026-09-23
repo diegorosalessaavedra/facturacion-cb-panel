@@ -118,21 +118,20 @@ const ResumenPlanilla = () => {
           />
         </section>
 
-        {dataSemana &&
-          dataSemana.estado_planilla !== "FINALIZADO" &&
-          selectModal === "asistencia_administrativos" && (
-            <AsistenciaAdministrativos
-              colaboradores={colaboradores.filter(
-                (c) => c.cargo_laboral.agrupacion_cargo === "ADMINISTRATIVOS",
-              )}
-              isOpen={isOpen}
-              onOpenChange={onOpenChange}
-              selectColaborador={selectColaborador}
-              setSelectColaborador={setSelectColaborador}
-              dias={dias}
-              totalSemanas={totalSemanas}
-            />
-          )}
+        {selectModal === "asistencia_administrativos" && (
+          <AsistenciaAdministrativos
+            colaboradores={colaboradores.filter(
+              (c) => c.cargo_laboral.agrupacion_cargo === "ADMINISTRATIVOS",
+            )}
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            selectColaborador={selectColaborador}
+            setSelectColaborador={setSelectColaborador}
+            dias={dias}
+            totalSemanas={totalSemanas}
+            isFinalizado={dataSemana?.estado_planilla === "FINALIZADO"}
+          />
+        )}
 
         {selectModal === "asistencia_operativos" && (
           <AsistenciasOperativos

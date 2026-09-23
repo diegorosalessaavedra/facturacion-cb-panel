@@ -11,6 +11,7 @@ const TrSaldoAnteriorAdmin = ({
   rowSpan,
   semanaPlanillaId,
   onDataUpdate,
+  isFinalizado,
 }) => {
   const [saldoData, setSaldoData] = useState({
     id: null,
@@ -128,6 +129,7 @@ const TrSaldoAnteriorAdmin = ({
 
       <td className="border-r border-b border-slate-200 p-1 min-w-[70px]">
         <Input
+          isDisabled={isFinalizado}
           type="text"
           onInput={onInputPrice}
           name="salario"
@@ -142,6 +144,7 @@ const TrSaldoAnteriorAdmin = ({
       </td>
       <td className="border-b border-slate-200 p-1 min-w-[70px]">
         <Input
+          isDisabled={isFinalizado}
           type="text"
           onInput={onInputPrice}
           name="adicionales"

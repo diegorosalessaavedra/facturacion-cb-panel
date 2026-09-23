@@ -7,12 +7,11 @@ const GrupoColaboradorAdministrativo = ({
   colaborador,
   dias,
   totalSemanas,
-  onTotalesCalculados, // <-- NUEVO: Recibimos esta función del padre
+  onTotalesCalculados,
+  isFinalizado,
 }) => {
   const diasLaborables = [];
   let diaDomingo = null;
-
-  console.log(dias);
 
   dias?.forEach((dia) => {
     const fechaObj = new Date(`${dia.fecha || dia.dia_plantilla}T00:00:00`);
@@ -90,6 +89,7 @@ const GrupoColaboradorAdministrativo = ({
         rowSpan={totalFilas}
         semanaPlanillaId={dias?.[0]?.semana_plantilla_id || null}
         onDataUpdate={setDatosSaldo}
+        isFinalizado={isFinalizado}
       />
 
       {diasLaborables.map((dia) => (
@@ -100,6 +100,7 @@ const GrupoColaboradorAdministrativo = ({
           sueldoPorDia={sueldoPorDia}
           sueldoFeriadoBruto={sueldoFeriadoBruto}
           onDataUpdate={(data) => handleUpdateDia(dia.id, data)}
+          isFinalizado={isFinalizado}
         />
       ))}
 
@@ -109,6 +110,7 @@ const GrupoColaboradorAdministrativo = ({
           diaDomingo={diaDomingo}
           sueldoPorDia={sueldoPorDia}
           onDataUpdate={setDatosDominical}
+          isFinalizado={isFinalizado}
         />
       )}
 

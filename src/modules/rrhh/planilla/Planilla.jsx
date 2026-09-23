@@ -16,11 +16,8 @@ const Planilla = () => {
   const [semanasPlanilla, setsemanasPlanilla] = useState([]);
   const [selectYear, setSelectYear] = useState(year || null);
   const [selectMes, setSelectMes] = useState(mes || null);
-  const [selectSemana, setSelectSemana] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectModal, setSelectModal] = useState(null);
-  const [modalContext, setModalContext] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleOpenModal = () => {
     console.log("Abrir modal");
@@ -67,22 +64,23 @@ const Planilla = () => {
     fetchMeses();
   }, [selectYear]);
 
+  const fetchSemanas = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${API}/semanas-planilla/${selectMes}`,
+        config,
+      );
+      setsemanasPlanilla(res.data.semanas || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!selectMes) return;
-    const fetchSemanas = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(
-          `${API}/semanas-planilla/${selectMes}`,
-          config,
-        );
-        setsemanasPlanilla(res.data.semanas || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchSemanas();
   }, [selectMes]);
@@ -115,6 +113,7 @@ const Planilla = () => {
           selectMes={selectMes}
           mesesPlanillas={mesesPlanillas}
           semanasPlanilla={semanasPlanilla}
+          fetchSemanas={fetchSemanas}
         />
       </div>
     </main>

@@ -7,7 +7,7 @@ import { API } from "../../../../../../utils/api";
 import axios from "axios";
 import { handleAxiosError } from "../../../../../../utils/handleAxiosError";
 
-const TbodyAdicionales = ({ colaborador, semana_id, isOpen }) => {
+const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
   const [totales, setTotales] = useState(null);
   const [numeroDestino, setNumeroDestino] = useState("");
 
@@ -46,11 +46,11 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen }) => {
 
     const url = `${API}/totales-asistencia-administrativo/${totales.id}`;
 
-    // Enviamos 'numero_destino' (snake_case es el estándar de BD), 
+    // Enviamos 'numero_destino' (snake_case es el estándar de BD),
     // pero también incluyo 'numeroDestino' por si tu backend lo lee en camelCase
     const payload = {
       numero_destino: numeroDestino,
-      numeroDestino: numeroDestino
+      numeroDestino: numeroDestino,
     };
 
     const toastId = toast.loading("Guardando número...");
@@ -62,7 +62,7 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen }) => {
         lastSavedValue.current = numeroDestino; // Actualizamos el último valor guardado
       })
       .catch((err) => {
-       handleAxiosError(err); 
+        handleAxiosError(err);
       });
   };
 
@@ -81,6 +81,7 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen }) => {
       </td>
       <td className={`${tdLastClass} p-1`}>
         <Input
+          isDisabled={isFinalizado}
           type="text"
           placeholder="Sin número"
           value={numeroDestino}

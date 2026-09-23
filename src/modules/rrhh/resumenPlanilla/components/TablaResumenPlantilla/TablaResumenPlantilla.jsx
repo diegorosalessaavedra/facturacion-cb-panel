@@ -5,7 +5,7 @@ import TbodyAdicionales from "./components/TbodyAdicionales";
 const TablaResumenPlantilla = ({
   colaboradores,
   semana_id,
-  dataSemana, // <-- Recibimos la data de la semana
+  dataSemana,
   setSelectColaborador,
   onOpen,
   isOpen,
@@ -19,11 +19,7 @@ const TablaResumenPlantilla = ({
 
   // --- LÓGICA DE CONTENEDORES CON BLOQUEO (DISABLED) ---
   // Si está finalizado, bloqueamos eventos de mouse y reducimos opacidad
-  const mainWrapperClass = `flex flex-col xl:flex-row items-start gap-5 w-full mt-4 pb-4 max-h-[600px] overflow-y-auto custom-scrollbar transition-all duration-300 ${
-    isFinalizado
-      ? "opacity-60 pointer-events-none select-none grayscale-[20%]"
-      : ""
-  }`;
+  const mainWrapperClass = `flex flex-col xl:flex-row items-start gap-5 w-full mt-4 pb-4 max-h-[600px] overflow-y-auto custom-scrollbar transition-all duration-300 ${isFinalizado && "opacity-80"}`;
 
   const tableContainerClass =
     "shadow-md border border-slate-200 rounded-xl bg-white overflow-x-auto";
@@ -116,6 +112,7 @@ const TablaResumenPlantilla = ({
                   colaborador={colaborador}
                   semana_id={semana_id}
                   isOpen={isOpen}
+                  isFinalizado={isFinalizado}
                 />
               ))
             )}
