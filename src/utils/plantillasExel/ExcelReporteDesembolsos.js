@@ -231,7 +231,7 @@ const ExcelReporteDesembolsos = {
       // 3. AGREGAR LOS DATOS (Fila 4 en adelante)
       const dataRows = desembolsos.map((item, index) => {
         // En desembolsos la data está en "egresos" en lugar de "ingresos"
-        const yapeMonto = item.egresos?.yape > 0 ? item.egresos.yape : 0;
+        const yapeMonto = item.egresos?.yape || 0;
 
         // Calcular correlativo
         const correlativo =
