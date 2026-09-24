@@ -17,11 +17,6 @@ const Planilla = () => {
   const [selectYear, setSelectYear] = useState(year || null);
   const [selectMes, setSelectMes] = useState(mes || null);
   const [loading, setLoading] = useState(false);
-  const [selectModal, setSelectModal] = useState(null);
-
-  const handleOpenModal = () => {
-    console.log("Abrir modal");
-  };
 
   useEffect(() => {
     const fetchYears = async () => {
@@ -96,7 +91,6 @@ const Planilla = () => {
           aniosDisponibles={yearPlanillas}
           anioSeleccionado={selectYear}
           setAnioSeleccionado={setSelectYear}
-          onOpenModal={handleOpenModal}
         />
         <FiltroPlanilla
           yearPlanillas={yearPlanillas}

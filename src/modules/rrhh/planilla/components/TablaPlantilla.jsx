@@ -1,4 +1,4 @@
-import { Button } from "@nextui-org/react";
+import { Button, useDisclosure } from "@nextui-org/react";
 import axios from "axios";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -8,6 +8,7 @@ import config from "../../../../utils/getToken";
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
 import { generarPDFResumenPlanilla } from "../../../../utils/plantillasPdf/resumenSemanaPdf";
 import { generarExcelResumenPlanilla } from "../../../../utils/plantillasExel/resumenSemanaExcel";
+import ModalCpSemana from "./ModalCpSemana";
 
 const TablaPlantilla = ({
   selectYear,
@@ -17,9 +18,10 @@ const TablaPlantilla = ({
   semanasPlanilla,
   fetchSemanas,
 }) => {
-  const [loadingId, setLoadingId] = useState(null);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectSemana, setSelectSemana] = useState(null);
 
-  // Nuevo estado para controlar qué botón de PDF está cargando
+  const [loadingId, setLoadingId] = useState(null);
   const [loadingPdfId, setLoadingPdfId] = useState(null);
 
   const yearName = yearPlanillas?.find(
@@ -57,7 +59,6 @@ const TablaPlantilla = ({
     axios
       .get(url, config)
       .then((res) => {
-        // Construimos el objeto exacto que espera tu función de PDF
         const dataSemanaParaPDF = {
           numero_semana: semana.numero_semana,
           mes_planilla: { mes: mesName },
@@ -101,6 +102,12 @@ const TablaPlantilla = ({
         toast.error("Error al obtener datos para el Excel", { id: toastId });
         handleAxiosError(err);
       });
+  };
+
+  // NUEVA FUNCIÓN PARA ABRIR EL MODAL DE CP
+  const handleOpenModalCp = (semana) => {
+    setSelectSemana(semana);
+    onOpen();
   };
 
   return (
@@ -177,6 +184,15 @@ const TablaPlantilla = ({
                         EXCEL
                       </Button>
 
+                      {/* BOTÓN PARA ABRIR MODAL CON LA SEMANA ACTUAL */}
+                      <Button
+                        className="bg-sky-400 text-slate-900 text-[10px] font-bold"
+                        size="sm"
+                        onPress={() => handleOpenModalCp(semana)}
+                      >
+                        ADJUNTAR CP
+                      </Button>
+
                       {isFinalizado && (
                         <Button
                           color="danger"
@@ -197,6 +213,13 @@ const TablaPlantilla = ({
           )}
         </tbody>
       </table>
+
+      <ModalCpSemana
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        selectSemana={selectSemana} // Se pasa el estado al modal
+        fetchSemanas={fetchSemanas}
+      />
     </div>
   );
 };
