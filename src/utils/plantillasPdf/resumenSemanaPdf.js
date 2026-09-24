@@ -56,13 +56,13 @@ export const generarPDFResumenPlanilla = (colaboradores, dataSemana) => {
       }
       isFirstPage = false;
 
-      let currentY = 10;
+      let currentY = 6;
 
       // --- LOGO CENTRADO ---
       try {
         const logoUrl = import.meta.env.VITE_LOGO;
-        const logoWidth = 30;
-        const logoHeight = 27;
+        const logoWidth = 20;
+        const logoHeight = 17;
         const xCentered = pageWidth / 2 - logoWidth / 2;
         if (logoUrl) {
           doc.addImage(
@@ -78,7 +78,7 @@ export const generarPDFResumenPlanilla = (colaboradores, dataSemana) => {
         console.warn("No se pudo cargar el logo", error);
       }
 
-      currentY += 28;
+      currentY += 24;
 
       // --- CABECERA ---
       doc.setFillColor(15, 23, 42); // slate-900
@@ -107,9 +107,9 @@ export const generarPDFResumenPlanilla = (colaboradores, dataSemana) => {
       doc.setTextColor(100, 116, 139);
       doc.text(
         `Generado el: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
-        pageWidth - margin,
+        pageWidth / 2, // <-- CORRECCIÓN AQUÍ: Poner en el centro del ancho
         currentY,
-        { align: "right" },
+        { align: "center" }, // <-- Esto asegura que el texto fluya desde el centro
       );
 
       currentY += 4;
