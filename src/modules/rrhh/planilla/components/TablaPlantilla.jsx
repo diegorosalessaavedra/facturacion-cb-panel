@@ -169,7 +169,7 @@ const TablaPlantilla = ({
                       </Link>
 
                       <Button
-                        className="bg-amber-500 text-slate-900 text-[10px] font-bold"
+                        className="bg-red-500 text-slate-900 text-[10px] font-bold"
                         size="sm"
                         isLoading={loadingPdfId === semana.id}
                         onPress={() => handlePdfButton(semana.id, semana)}
@@ -186,7 +186,7 @@ const TablaPlantilla = ({
 
                       {/* BOTÓN PARA ABRIR MODAL CON LA SEMANA ACTUAL */}
                       <Button
-                        className="bg-sky-400 text-slate-900 text-[10px] font-bold"
+                        className="bg-sky-500 text-slate-900 text-[10px] font-bold"
                         size="sm"
                         onPress={() => handleOpenModalCp(semana)}
                       >
