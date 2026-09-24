@@ -9,6 +9,7 @@ const TablaResumenPlantilla = ({
   setSelectColaborador,
   onOpen,
   isOpen,
+  totalSemanas,
 }) => {
   const isFinalizado = dataSemana?.estado_planilla === "FINALIZADO";
 
@@ -79,6 +80,7 @@ const TablaResumenPlantilla = ({
                   semana_id={semana_id}
                   handleColaboradorClick={handleColaboradorClick}
                   isOpen={isOpen}
+                  totalSemanas={totalSemanas}
                 />
               ))
             )}

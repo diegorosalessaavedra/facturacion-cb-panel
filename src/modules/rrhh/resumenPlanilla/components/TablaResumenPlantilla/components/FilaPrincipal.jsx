@@ -10,6 +10,7 @@ const FilaPrincipal = ({
   semana_id,
   handleColaboradorClick,
   isOpen,
+  totalSemanas,
 }) => {
   const [totales, setTotales] = useState(null);
 
@@ -36,7 +37,6 @@ const FilaPrincipal = ({
   const esAdministrativo =
     colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
   const nombreGrupo = colaborador?.cargo_laboral?.agrupacion_cargo || "-";
-  const regimen = esAdministrativo ? "PLANILLA" : "LOCADOR";
   const chipBg = esAdministrativo
     ? "bg-purple-100 border-purple-200"
     : "bg-orange-100 border-orange-200";
@@ -44,7 +44,9 @@ const FilaPrincipal = ({
 
   // --- VARIABLES MATEMÁTICAS SEGURAS ---
   const salarioBruto = Number(totales?.salario_total || 0);
-  const asigFamiliar = Number(colaborador?.asignacion_familiar || 0);
+  const asigFamiliar = Number(
+    colaborador?.asignacion_familiar / totalSemanas || 0,
+  );
 
   // 1. Buscar el porcentaje de pensión que sea mayor a 0
   const pensionEncontrada = [
@@ -68,7 +70,7 @@ const FilaPrincipal = ({
 
   return (
     <tr className="hover:bg-blue-50/50 transition-colors group h-[38px]">
-      <td className={tdClass}>{regimen}</td>
+      <td className={tdClass}>{colaborador.regimen}</td>
 
       <td className={tdClass}>
         <Chip

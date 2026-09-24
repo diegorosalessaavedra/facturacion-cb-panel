@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { API } from "../../../../utils/api";
 import config from "../../../../utils/getToken";
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
+import { generarPDFResumenPlanilla } from "../../../../utils/plantillasPdf/resumenSemanaPdf";
+import { generarExcelResumenPlanilla } from "../../../../utils/plantillasExel/resumenSemanaExcel";
 
 const TablaPlantilla = ({
   selectYear,
@@ -13,10 +15,12 @@ const TablaPlantilla = ({
   selectMes,
   mesesPlanillas,
   semanasPlanilla,
-  fetchSemanas, // NUEVA PROP: Necesitamos la función del padre para recargar la tabla
+  fetchSemanas,
 }) => {
-  // SOLUCIÓN 1: En lugar de true/false, guardamos el ID de la semana que está cargando
   const [loadingId, setLoadingId] = useState(null);
+
+  // Nuevo estado para controlar qué botón de PDF está cargando
+  const [loadingPdfId, setLoadingPdfId] = useState(null);
 
   const yearName = yearPlanillas?.find(
     (y) => y.id === Number(selectYear),
@@ -26,7 +30,7 @@ const TablaPlantilla = ({
   const handleReaperturarSemana = (idSemana) => {
     if (!idSemana) return;
 
-    setLoadingId(idSemana); // Bloqueamos solo este botón
+    setLoadingId(idSemana);
     const toastId = toast.loading("Reaperturando semana...");
     const url = `${API}/semanas-planilla/reaperturar/${idSemana}`;
 
@@ -41,16 +45,62 @@ const TablaPlantilla = ({
         handleAxiosError(err);
       })
       .finally(() => {
-        setLoadingId(null); // Liberamos el botón
+        setLoadingId(null);
       });
   };
 
-  const handlePdfButton = (idSemana) => {
+  const handlePdfButton = (idSemana, semana) => {
+    setLoadingPdfId(idSemana);
+    const toastId = toast.loading("Generando PDF...");
     const url = `${API}/semanas-planilla/resumen/${idSemana}`;
 
-    axios.get(url, config).then((res) => {
-      console.log(res);
-    });
+    axios
+      .get(url, config)
+      .then((res) => {
+        // Construimos el objeto exacto que espera tu función de PDF
+        const dataSemanaParaPDF = {
+          numero_semana: semana.numero_semana,
+          mes_planilla: { mes: mesName },
+          year_planilla: { year: yearName },
+          totalSemanas: semanasPlanilla.length,
+        };
+
+        generarPDFResumenPlanilla(res.data.colaboradores, dataSemanaParaPDF);
+        toast.success("PDF generado exitosamente", { id: toastId });
+      })
+      .catch((err) => {
+        toast.error("Error al obtener datos para el PDF", { id: toastId });
+        handleAxiosError(err);
+      })
+      .finally(() => {
+        setLoadingPdfId(null);
+      });
+  };
+
+  const handleExcelButton = (idSemana, semana) => {
+    const toastId = toast.loading("Generando Excel...");
+    const url = `${API}/semanas-planilla/resumen/${idSemana}`;
+
+    axios
+      .get(url, config)
+      .then((res) => {
+        const dataSemanaParaExportar = {
+          numero_semana: semana.numero_semana,
+          mes_planilla: { mes: mesName },
+          year_planilla: { year: yearName },
+          totalSemanas: semanasPlanilla.length,
+        };
+
+        generarExcelResumenPlanilla(
+          res.data.colaboradores,
+          dataSemanaParaExportar,
+        );
+        toast.success("Excel generado exitosamente", { id: toastId });
+      })
+      .catch((err) => {
+        toast.error("Error al obtener datos para el Excel", { id: toastId });
+        handleAxiosError(err);
+      });
   };
 
   return (
@@ -111,22 +161,22 @@ const TablaPlantilla = ({
                         </Button>
                       </Link>
 
-                      {/* Opcional: Podrías deshabilitar PDF/EXCEL si no está finalizado */}
                       <Button
                         className="bg-amber-500 text-slate-900 text-[10px] font-bold"
                         size="sm"
-                        onPress={() => handlePdfButton(semana.id)}
+                        isLoading={loadingPdfId === semana.id}
+                        onPress={() => handlePdfButton(semana.id, semana)}
                       >
                         PDF
                       </Button>
                       <Button
                         className="bg-green-500 text-slate-900 text-[10px] font-bold"
                         size="sm"
+                        onPress={() => handleExcelButton(semana.id, semana)}
                       >
                         EXCEL
                       </Button>
 
-                      {/* Mostrar botón de reapertura SOLO si la semana está finalizada */}
                       {isFinalizado && (
                         <Button
                           color="danger"
@@ -134,7 +184,7 @@ const TablaPlantilla = ({
                           className="text-[10px] font-bold border border-danger-200"
                           size="sm"
                           onPress={() => handleReaperturarSemana(semana.id)}
-                          isLoading={loadingId === semana.id} // Carga solo este botón
+                          isLoading={loadingId === semana.id}
                         >
                           REAPERTURAR
                         </Button>

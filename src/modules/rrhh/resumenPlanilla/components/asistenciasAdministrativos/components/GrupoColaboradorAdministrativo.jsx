@@ -15,7 +15,6 @@ const GrupoColaboradorAdministrativo = ({
 
   dias?.forEach((dia) => {
     const fechaObj = new Date(`${dia.fecha || dia.dia_plantilla}T00:00:00`);
-    console.log(fechaObj.getDay());
 
     if (fechaObj.getDay() === 0) {
       diaDomingo = dia;

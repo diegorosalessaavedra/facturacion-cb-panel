@@ -270,7 +270,6 @@ export const generarDocumentoWordVacaciones = async (
       periodosConSaldo.length > 1
         ? periodosConSaldo[1]
         : { label: "", disponible: "" };
-    console.log(tipo_solicitud === "PROGRAMADAS");
 
     doc.render({
       logo: "", // La etiqueta ya fue eliminada del XML arriba; este valor no se usa

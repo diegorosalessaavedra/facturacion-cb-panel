@@ -114,7 +114,8 @@ const ResumenPlanilla = () => {
             onOpen={onOpen}
             isOpen={isOpen}
             semana_id={id}
-            dataSemana={dataSemana} // Asegúrate de pasar dataSemana para bloquear la tabla
+            dataSemana={dataSemana}
+            totalSemanas={totalSemanas}
           />
         </section>
 
