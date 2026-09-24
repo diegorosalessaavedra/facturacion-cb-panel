@@ -216,7 +216,7 @@ export const generarPDFResumenPlanilla = (colaboradores, dataSemana) => {
         },
         columnStyles: {
           0: { cellWidth: 20 }, // REGIMEN (Un poco más chico)
-          1: { cellWidth: 18 }, // GRUPO (Un poco más chico)
+          1: { cellWidth: 18, cellWidth: "wrap" }, // GRUPO (Un poco más chico)
           2: { halign: "left", cellWidth: "auto" }, // NOMBRES ocupará todo el espacio restante automáticamente
           3: { cellWidth: 15 }, // DNI
           4: { cellWidth: 15 }, // BCO
@@ -225,7 +225,7 @@ export const generarPDFResumenPlanilla = (colaboradores, dataSemana) => {
           7: { halign: "right", cellWidth: "wrap" }, // ASIG. FAM
           8: { halign: "right", cellWidth: "wrap" }, // ONP - AFP
           9: { halign: "right", cellWidth: "wrap" }, // DESCUENTOS
-          10: { halign: "right", fontStyle: "bold", cellWidth: "wrap" }, // TOTAL
+          10: { halign: "right", fontStyle: "bold", cellWidth: "auto" }, // TOTAL
           11: { cellWidth: 3 }, // Spacer
           12: { halign: "right", cellWidth: "wrap" }, // ADICIONALES
           13: { cellWidth: 15 }, // N DESTINO
