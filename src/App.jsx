@@ -131,6 +131,10 @@ const ResumenPlanilla = lazy(
   () => import("./modules/rrhh/resumenPlanilla/ResumenPlanilla"),
 );
 
+const ReaperturarSemanaPlanilla = lazy(
+  () => import("./modules/rrhh/resumenPlanilla/ReaperturarSemanaPlanilla"),
+);
+
 // RRHH
 
 // Ajustes
@@ -523,6 +527,14 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <ResumenPlanilla />
+              </ProtectedRouteWrapper>
+            }
+          />
+           <Route
+            path="/rrhh/resumen-planilla/reaperturar/:id"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <ReaperturarSemanaPlanilla />
               </ProtectedRouteWrapper>
             }
           />

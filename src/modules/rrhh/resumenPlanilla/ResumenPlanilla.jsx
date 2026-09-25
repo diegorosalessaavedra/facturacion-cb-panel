@@ -130,7 +130,7 @@ const ResumenPlanilla = () => {
             setSelectColaborador={setSelectColaborador}
             dias={dias}
             totalSemanas={totalSemanas}
-            isFinalizado={dataSemana?.estado_planilla === "FINALIZADO"}
+            isFinalizado={dataSemana?.estado_planilla !== "EN PROCESO"}
           />
         )}
 

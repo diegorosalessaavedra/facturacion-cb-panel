@@ -237,6 +237,8 @@ export const ROUTE_PERMISSIONS = {
   "/rrhh/calendario-planilla": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
   "/rrhh/planilla": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
   "/rrhh/resumen-planilla/:id": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/rrhh/resumen-planilla/reaperturar/:id": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+
   // Rutas de RRHH
 
   // Rutas de GERENTE únicamente

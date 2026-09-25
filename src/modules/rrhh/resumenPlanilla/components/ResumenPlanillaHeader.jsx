@@ -28,7 +28,7 @@ const ResumenPlanillaHeader = ({
   const [loading, setLoading] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const isFinalizado = dataSemana?.estado_planilla === "FINALIZADO";
+  const isFinalizado = dataSemana?.estado_planilla !== "EN PROCESO";
 
   const handleCerrarSemana = (onClose) => {
     if (!dataSemana?.id) return;

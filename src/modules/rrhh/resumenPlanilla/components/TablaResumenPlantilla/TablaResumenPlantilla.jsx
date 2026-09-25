@@ -11,7 +11,7 @@ const TablaResumenPlantilla = ({
   isOpen,
   totalSemanas,
 }) => {
-  const isFinalizado = dataSemana?.estado_planilla === "FINALIZADO";
+  const isFinalizado = dataSemana?.estado_planilla !== "EN PROCESO";
 
   const handleColaboradorClick = (id) => {
     setSelectColaborador(id);
