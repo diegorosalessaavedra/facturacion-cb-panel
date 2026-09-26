@@ -97,6 +97,7 @@ const ResumenPlanilla = () => {
         <ResumenPlanillaHeader
           dataSemana={dataSemana}
           fetchDataSemana={fetchDataSemana}
+          dias={dias}
         />
 
         <section className="bg-white mt-2 p-2 rounded-xl flex-1 flex flex-col min-h-0 overflow-hidden">

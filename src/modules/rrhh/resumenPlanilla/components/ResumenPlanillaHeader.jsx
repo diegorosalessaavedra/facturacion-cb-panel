@@ -19,11 +19,13 @@ import axios from "axios";
 import { toast } from "sonner";
 import config from "../../../../utils/getToken";
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
+import { formatDateES } from "../../../../utils/formatDateTime";
 
 const ResumenPlanillaHeader = ({
   fetchDataSemana,
   dataSemana,
   onSemanaCerrada,
+  dias,
 }) => {
   const [loading, setLoading] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -111,9 +113,15 @@ const ResumenPlanillaHeader = ({
               )}
             </div>
 
-            <p className="text-slate-400 text-sm font-medium">
+            <p className="text-slate-300 text-sm font-medium">
               Filtra y selecciona una semana para ingresar a la plantilla de la
-              planilla.
+              planilla.{" "}
+              {dias && dias.length > 0 && (
+                <span className="text-amber-400 text-[10px] font-bold ml-1">
+                  {formatDateES(dias[0]?.dia_plantilla)} -{" "}
+                  {formatDateES(dias[dias.length - 1]?.dia_plantilla)}
+                </span>
+              )}
             </p>
           </div>
         </div>
