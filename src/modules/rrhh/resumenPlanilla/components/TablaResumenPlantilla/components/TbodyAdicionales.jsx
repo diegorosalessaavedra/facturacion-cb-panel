@@ -11,7 +11,6 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
   const [totales, setTotales] = useState(null);
   const [numeroDestino, setNumeroDestino] = useState("");
 
-  // Referencia para saber cuál fue el último valor guardado y no hacer PATCH innecesarios
   const lastSavedValue = useRef("");
 
   const fetchTotales = () => {
@@ -25,7 +24,6 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
         if (res.data.totales?.id) {
           setTotales(res.data.totales);
 
-          // Si hay un número guardado lo usamos, si no, tomamos el del colaborador por defecto
           const initialPhone = res.data.totales.numero_destino;
           setNumeroDestino(initialPhone);
           lastSavedValue.current = initialPhone; // Guardamos registro del valor inicial
@@ -35,19 +33,15 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
   };
 
   const patchTotales = () => {
-    // 1. Evitar guardar si no hay ID de totales
     if (!totales?.id) {
       toast.error("No hay datos en el tareo");
       return;
     }
 
-    // 2. Evitar peticiones HTTP si el número no ha cambiado
     if (numeroDestino === lastSavedValue.current) return;
 
     const url = `${API}/totales-asistencia-administrativo/${totales.id}`;
 
-    // Enviamos 'numero_destino' (snake_case es el estándar de BD),
-    // pero también incluyo 'numeroDestino' por si tu backend lo lee en camelCase
     const payload = {
       numero_destino: numeroDestino,
       numeroDestino: numeroDestino,

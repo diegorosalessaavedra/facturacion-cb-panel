@@ -1,10 +1,21 @@
 import React from "react";
-import { Select, SelectItem } from "@nextui-org/react";
+import { Select, SelectItem, Button, useDisclosure } from "@nextui-org/react";
+import { FileText } from "lucide-react";
 import { selectClassNames } from "../../../../assets/classNames";
+import ModalTxtPlanilla from "./ModalTxtPlanilla";
 
-const FiltroResumenPlanilla = ({ dataFiltros, setDataFiltros }) => {
+const FiltroResumenPlanilla = ({
+  dataFiltros,
+  setDataFiltros,
+  colaboradores,
+  dataSemana,
+  selectDatosText,
+}) => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   return (
-    <section className=" flex flex-col px-2 ">
+    <section className="flex items-end justify-between px-2 w-full">
+      {/* Lado Izquierdo: Filtros */}
       <div className="flex gap-4">
         <Select
           className="w-60"
@@ -63,6 +74,28 @@ const FiltroResumenPlanilla = ({ dataFiltros, setDataFiltros }) => {
           </SelectItem>
         </Select>
       </div>
+
+      {/* Lado Derecho: Botón TXT */}
+      <div>
+        <Button
+          color="primary"
+          variant="shadow"
+          size="sm"
+          className="font-bold tracking-wide flex items-center gap-2"
+          onPress={onOpen}
+        >
+          <FileText size={16} />
+          TXT BCP
+        </Button>
+      </div>
+
+      <ModalTxtPlanilla
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        colaboradores={colaboradores}
+        dataSemana={dataSemana}
+        selectDatosText={selectDatosText}
+      />
     </section>
   );
 };

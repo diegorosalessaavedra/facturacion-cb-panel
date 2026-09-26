@@ -13,7 +13,7 @@ import AsistenciasOperativos from "./components/asistenciasOperativos/Asistencia
 const ResumenPlanilla = () => {
   const { id } = useParams();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
+  const [selectDatosText, setSelectDatosText] = useState([]);
   const [loading, setLoading] = useState(false);
   const [colaboradores, setColaboradores] = useState([]);
   const [dias, setDias] = useState([]);
@@ -28,14 +28,13 @@ const ResumenPlanilla = () => {
   const [selectModal, setSelectModal] = useState("");
   const [selectColaborador, setSelectColaborador] = useState(new Set([]));
 
-  // --- SE MEJORÓ LA FUNCIÓN FETCH PARA QUE SE PUEDA REUTILIZAR FÁCILMENTE ---
   const fetchDataSemana = async () => {
-    if (!id) return; // Ya no validamos selectColaborador aquí porque necesitamos la semana siempre
+    if (!id) return;
 
     setLoading(true);
     const url = `${import.meta.env.VITE_URL_API}/dias-planilla/semana/${id}`;
 
-    return axios // Agregamos 'return' para poder usar .then() en el header si es necesario
+    return axios
       .get(url, config)
       .then((res) => {
         setDias(res.data.dias);
@@ -47,7 +46,6 @@ const ResumenPlanilla = () => {
 
   useEffect(() => {
     fetchDataSemana();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, selectColaborador]);
 
   useEffect(() => {
@@ -96,7 +94,6 @@ const ResumenPlanilla = () => {
           <span className="text-xs text-gray-500">Cargando datos...</span>
         )}
 
-        {/* Pasamos la función fetchDataSemana para que el header actualice la vista al cerrar */}
         <ResumenPlanillaHeader
           dataSemana={dataSemana}
           fetchDataSemana={fetchDataSemana}
@@ -106,6 +103,7 @@ const ResumenPlanilla = () => {
           <FiltroResumenPlanilla
             dataFiltros={dataFiltros}
             setDataFiltros={setDataFiltros}
+            selectDatosText={selectDatosText}
           />
           <TablaResumenPlantilla
             colaboradores={colaboradores}
@@ -116,6 +114,7 @@ const ResumenPlanilla = () => {
             semana_id={id}
             dataSemana={dataSemana}
             totalSemanas={totalSemanas}
+            setSelectDatosText={setSelectDatosText}
           />
         </section>
 
