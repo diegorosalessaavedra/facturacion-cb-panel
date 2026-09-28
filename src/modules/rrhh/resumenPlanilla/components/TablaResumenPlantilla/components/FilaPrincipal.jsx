@@ -44,6 +44,7 @@ const FilaPrincipal = ({
 
   // --- VARIABLES MATEMÁTICAS SEGURAS ---
   const salarioBruto = Number(totales?.salario_total || 0);
+
   const asigFamiliar = Number(
     colaborador?.asignacion_familiar / totalSemanas || 0,
   );
@@ -71,7 +72,6 @@ const FilaPrincipal = ({
   return (
     <tr className="hover:bg-blue-50/50 transition-colors group h-[38px]">
       <td className={tdClass}>{colaborador.regimen}</td>
-
       <td className={tdClass}>
         <Chip
           size="sm"
@@ -85,7 +85,6 @@ const FilaPrincipal = ({
           {nombreGrupo}
         </Chip>
       </td>
-
       <td className={tdNameClass}>
         <Tooltip
           content="Ver tareo de asistencias"
@@ -101,14 +100,13 @@ const FilaPrincipal = ({
           </span>
         </Tooltip>
       </td>
-
       <td className={tdClass}>{colaborador?.dni_colaborador || "-"}</td>
       <td className={tdClass}>{colaborador?.bco || "-"}</td>
       <td className={tdClass}>{colaborador?.nro_cuenta || "-"}</td>
-
-      <td className={tdClass}>{renderMoney(salarioBruto)}</td>
+      <td className={tdClass}>
+        {totales?.salario_total ? renderMoney(salarioBruto) : "-"}
+      </td>{" "}
       <td className={tdClass}>{renderMoney(asigFamiliar)}</td>
-
       {/* Muestra el cálculo ya en dinero (ej. S/ 100.00) */}
       <td className={tdClass}>
         <Tooltip
@@ -119,7 +117,6 @@ const FilaPrincipal = ({
           <div className="w-full cursor-help">{renderMoney(montoPension)}</div>
         </Tooltip>
       </td>
-
       <td className={tdClass}>{renderMoney(descuentos)}</td>
       <td className={tdLastClass}>{renderMoney(totalPorPagar)}</td>
     </tr>

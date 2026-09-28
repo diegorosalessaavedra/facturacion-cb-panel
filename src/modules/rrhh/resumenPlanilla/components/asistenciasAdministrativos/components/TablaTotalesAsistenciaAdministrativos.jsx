@@ -103,7 +103,7 @@ const TablaTotalesAsistenciaAdministrativos = ({
     if (!isReadyToTrack.current || !isDbLoaded) return;
 
     // Evitar que guarde todo en 0 si el padre aún no mandó los cálculos
-    if (salarioBase === 0 && adicionalesBase === 0) return;
+    // if (salarioBase && adicionalesBase) return;
 
     setHuboCambioManual(true);
 

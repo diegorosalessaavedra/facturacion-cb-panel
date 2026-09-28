@@ -9,7 +9,6 @@ const padLeftZeros = (num, length) => {
   return String(num).padStart(length, "0");
 };
 
-// Da formato al monto eliminando el punto y rellenando con ceros (Ej. 100.00 -> 00000000000100.00)
 const formatMontoStr = (monto) => {
   const numFixed = Number(monto).toFixed(2);
   return padLeftZeros(numFixed, 17);
@@ -20,25 +19,19 @@ const getFechaActual = () => {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}${mm}${dd}`; // Retorna siempre AAAAMMDD
+  return `${yyyy}${mm}${dd}`;
 };
 
-export const generarTxtBcp = (selectDatosText, dataSemana, glosa) => {
+export const generarTxtBcp = (selectDatosText, glosa, subtipo) => {
   const lineasDetalle = [];
   let sumaImportes = 0;
   let cantidadAbonos = 0;
-
-  // Usamos BigInt porque la suma de cuentas superará el límite seguro de los números normales en JS
   let sumaChecksum = BigInt(0);
 
-  // Cuenta cargo (empleador) base
   const cuentaCargoOriginal = "1937211891082";
 
-  // 1. Filtrar y procesar colaboradores
   selectDatosText.forEach((item) => {
     const { colaborador, dataValidacionTxt } = item;
-
-    // Tomamos el monto validado directamente de la BD
     const totalPagar = Number(dataValidacionTxt?.monto || 0);
 
     if (
@@ -55,20 +48,15 @@ export const generarTxtBcp = (selectDatosText, dataSemana, glosa) => {
       );
       const tipoCuenta = nroCuentaLimpio.length > 15 ? "B" : "A";
 
-      // --- CÁLCULO DE CHECKSUM DEL COLABORADOR ---
       let cuentaRecortada = "0";
       if (tipoCuenta === "B") {
-        // Interbancaria: Eliminar los 10 primeros dígitos
         cuentaRecortada = nroCuentaLimpio.substring(10);
       } else {
-        // BCP: Eliminar los 3 primeros dígitos
         cuentaRecortada = nroCuentaLimpio.substring(3);
       }
 
-      // Sumamos al total acumulado del checksum
       sumaChecksum += BigInt(cuentaRecortada || 0);
 
-      // --- CONSTRUCCIÓN DEL DETALLE ---
       const tipoDni = "1";
       const dni = padRight(
         String(colaborador.dni_colaborador || "").trim(),
@@ -90,17 +78,17 @@ export const generarTxtBcp = (selectDatosText, dataSemana, glosa) => {
       const refEmpresa = padRight(glosaCorta, 20);
 
       const fila =
-        "2" + // Tipo de registro
-        tipoCuenta + // Subtipo planilla (A/B)
-        padRight(nroCuentaLimpio, 20) + // Numero de cuenta trabajador
-        tipoDni + // Tipo Doc
-        dni + // DNI
-        nombreCompleto + // Nombres (75 espacios)
-        refBeneficiario + // Ref Beneficiario (40 espacios)
-        refEmpresa + // Ref Empresa (20 espacios)
-        "0001" + // Constante
-        formatMontoStr(totalPagar) + // Monto (17 espacios)
-        "S"; // Finalizador
+        "2" +
+        tipoCuenta +
+        padRight(nroCuentaLimpio, 20) +
+        tipoDni +
+        dni +
+        nombreCompleto +
+        refBeneficiario +
+        refEmpresa +
+        "0001" +
+        formatMontoStr(totalPagar) +
+        "S";
 
       lineasDetalle.push(fila);
     }
@@ -112,33 +100,27 @@ export const generarTxtBcp = (selectDatosText, dataSemana, glosa) => {
     );
   }
 
-  // --- CÁLCULO DE CHECKSUM FINAL (INCLUYENDO LA CUENTA DEL EMPLEADOR) ---
-  // Para la cuenta de cargo: Eliminar los 3 primeros dígitos
   const cargoRecortado = cuentaCargoOriginal.substring(3);
   sumaChecksum += BigInt(cargoRecortado || 0);
 
-  // Convertimos a string y rellenamos con 0s a la izquierda hasta tener 15 caracteres
   const checksumFinal = padLeftZeros(sumaChecksum.toString(), 15);
-
-  // 2. Construir la Cabecera (Header)
   const cuentaCargoStr = padRight(cuentaCargoOriginal, 20);
 
+  // CABECERA CORREGIDA
   const cabecera =
-    "1" + // Tipo Registro
-    padLeftZeros(cantidadAbonos, 6) + // Cantidad Abonos
-    getFechaActual() + // Fecha
-    "X" + // Tipo
-    "C" + // Fijo C
-    "0001" + // Fijo 0001
-    cuentaCargoStr + // Cuenta Cargo Origen
-    formatMontoStr(sumaImportes) + // Suma Importes
-    padRight(glosa.toUpperCase(), 40) + // Glosa Cabecera
-    checksumFinal; // Checksum dinámico
+    "1" +
+    padLeftZeros(cantidadAbonos, 6) +
+    getFechaActual() +
+    subtipo + // <--- Subtipo dinámico (reemplazó a la X)
+    "C" + // <--- C fija
+    "0001" +
+    cuentaCargoStr +
+    formatMontoStr(sumaImportes) +
+    padRight(glosa.toUpperCase(), 40) +
+    checksumFinal;
 
-  // 3. Unir todo
   const contenidoTxt = [cabecera, ...lineasDetalle].join("\r\n");
 
-  // 4. Descargar el archivo
   const blob = new Blob([contenidoTxt], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
 

@@ -9,6 +9,7 @@ const FiltroResumenPlanilla = ({
   setDataFiltros,
   colaboradores,
   selectDatosText,
+  dataSemana,
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -93,6 +94,7 @@ const FiltroResumenPlanilla = ({
         onOpenChange={onOpenChange}
         colaboradores={colaboradores}
         selectDatosText={selectDatosText}
+        dataSemana={dataSemana}
       />
     </section>
   );

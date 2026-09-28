@@ -105,6 +105,7 @@ const ResumenPlanilla = () => {
             dataFiltros={dataFiltros}
             setDataFiltros={setDataFiltros}
             selectDatosText={selectDatosText}
+            dataSemana={dataSemana}
           />
           <TablaResumenPlantilla
             colaboradores={colaboradores}
