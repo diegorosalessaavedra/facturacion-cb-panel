@@ -31,7 +31,7 @@ const ModalTxtPlanilla = ({
   }, [isOpen, dataSemana]);
 
   // Agregamos 'C' que es Haberes Regulares, y la seteamos por defecto, ya que G es Gratificación
-  const [subtipo, setSubtipo] = useState(new Set(["C"]));
+  const [subtipo, setSubtipo] = useState(new Set(["G"]));
 
   const handleDescargarTxt = () => {
     if (!selectDatosText || selectDatosText.length === 0) {
@@ -85,9 +85,7 @@ const ModalTxtPlanilla = ({
                 onSelectionChange={setSubtipo}
                 isRequired
               >
-                <SelectItem key="C" value="C">
-                  C - HABERES REGULARES
-                </SelectItem>
+
                 <SelectItem key="G" value="G">
                   G - GRATIFICACIÓN
                 </SelectItem>
