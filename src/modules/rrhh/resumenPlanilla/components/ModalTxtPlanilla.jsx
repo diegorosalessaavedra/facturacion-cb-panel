@@ -12,7 +12,6 @@ import {
 } from "@nextui-org/react";
 import { toast } from "sonner";
 import { generarTxtBcp } from "../../../../utils/txt/exportTxtBcp";
-import { set } from "react-hook-form";
 
 const ModalTxtPlanilla = ({
   isOpen,
@@ -20,16 +19,19 @@ const ModalTxtPlanilla = ({
   dataSemana,
   selectDatosText,
 }) => {
+  // Inicializamos con string vacío para evitar errores antes del useEffect
   const [glosa, setGlosa] = useState("");
 
   useEffect(() => {
-    setGlosa(
-      `PAGO DE HABERES 0${dataSemana?.numero_semana} SEM ${dataSemana?.mes_planilla?.mes} ${dataSemana?.year_planilla?.year}`.toUpperCase(),
-    );
-  }, [isOpen]);
+    // Verificamos que dataSemana exista antes de intentar usar sus propiedades
+    if (dataSemana && dataSemana.mes_planilla && dataSemana.year_planilla) {
+      const nuevaGlosa = `PAGO DE HABERES 0${dataSemana.numero_semana || ""} SEM ${dataSemana.mes_planilla.mes || ""} ${dataSemana.year_planilla.year || ""}`;
+      setGlosa(nuevaGlosa.toUpperCase());
+    }
+  }, [isOpen, dataSemana]);
 
-  // Estado para el Subtipo de Planilla (Por defecto "C" que es Haberes regular según tu ejemplo anterior)
-  const [subtipo, setSubtipo] = useState(new Set(["G"]));
+  // Agregamos 'C' que es Haberes Regulares, y la seteamos por defecto, ya que G es Gratificación
+  const [subtipo, setSubtipo] = useState(new Set(["C"]));
 
   const handleDescargarTxt = () => {
     if (!selectDatosText || selectDatosText.length === 0) {
@@ -39,7 +41,6 @@ const ModalTxtPlanilla = ({
       return;
     }
 
-    // Extraer el valor del Set del Select de NextUI
     const subtipoSeleccionado = Array.from(subtipo)[0];
 
     if (!subtipoSeleccionado) {
@@ -48,10 +49,12 @@ const ModalTxtPlanilla = ({
     }
 
     try {
+      // Aseguramos que glosa sea un string antes de usar toUpperCase
+      const glosaSegura = String(glosa || "").toUpperCase();
+
       generarTxtBcp(
         selectDatosText,
-        dataSemana,
-        glosa.toUpperCase(),
+        glosaSegura, 
         subtipoSeleccionado,
       );
       toast.success("Archivo TXT generado exitosamente.");
@@ -82,6 +85,9 @@ const ModalTxtPlanilla = ({
                 onSelectionChange={setSubtipo}
                 isRequired
               >
+                <SelectItem key="C" value="C">
+                  C - HABERES REGULARES
+                </SelectItem>
                 <SelectItem key="G" value="G">
                   G - GRATIFICACIÓN
                 </SelectItem>
@@ -104,11 +110,11 @@ const ModalTxtPlanilla = ({
                 placeholder="Ej. PAGO DE HABERES 02 SEM SETIEMBRE 2026"
                 variant="bordered"
                 value={glosa}
-                onChange={(e) => setGlosa(e.target.value.toUpperCase())}
+                onChange={(e) => setGlosa(String(e.target.value).toUpperCase())}
                 maxLength={40}
               />
               <p className="text-xs text-slate-400 text-right mt-1">
-                {glosa.length}/40 caracteres
+                {glosa?.length || 0}/40 caracteres
               </p>
             </ModalBody>
             <ModalFooter>
