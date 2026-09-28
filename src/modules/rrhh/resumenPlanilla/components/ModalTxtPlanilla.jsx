@@ -20,7 +20,7 @@ const ModalTxtPlanilla = ({
   dataSemana,
   selectDatosText,
 }) => {
-  const [glosa, setGlosa] = useState();
+  const [glosa, setGlosa] = useState("");
 
   useEffect(() => {
     setGlosa(
@@ -29,7 +29,7 @@ const ModalTxtPlanilla = ({
   }, [isOpen]);
 
   // Estado para el Subtipo de Planilla (Por defecto "C" que es Haberes regular según tu ejemplo anterior)
-  const [subtipo, setSubtipo] = useState(new Set(["C"]));
+  const [subtipo, setSubtipo] = useState(new Set(["G"]));
 
   const handleDescargarTxt = () => {
     if (!selectDatosText || selectDatosText.length === 0) {
@@ -82,9 +82,6 @@ const ModalTxtPlanilla = ({
                 onSelectionChange={setSubtipo}
                 isRequired
               >
-                <SelectItem key="C" value="C">
-                  C - HABERES REGULARES
-                </SelectItem>
                 <SelectItem key="G" value="G">
                   G - GRATIFICACIÓN
                 </SelectItem>
