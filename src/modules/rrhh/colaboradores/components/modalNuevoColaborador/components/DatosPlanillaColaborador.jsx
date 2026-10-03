@@ -151,6 +151,48 @@ const DatosPlanillaColaborador = ({ register }) => {
             size="sm"
           />
         </div>
+
+        <div className="w-full flex gap-2">
+          <Input
+            className="w-full"
+            classNames={inputClassNames}
+            labelPlacement="outside"
+            type="text"
+            variant="bordered"
+            label="Valor Diario"
+            placeholder="..."
+            {...register("valor_diario")}
+            radius="sm"
+            size="sm"
+            onInput={onInputPrice}
+          />
+          <Input
+            className="w-full"
+            classNames={inputClassNames}
+            labelPlacement="outside"
+            type="text"
+            variant="bordered"
+            label="Bono Extraordinario (Aeropuerto y Viajes) - L y J"
+            placeholder="..."
+            {...register("bono_extraordinario")}
+            radius="sm"
+            size="sm"
+            onInput={onInputPrice}
+          />
+          <Input
+            className="w-full"
+            classNames={inputClassNames}
+            labelPlacement="outside"
+            type="text"
+            variant="bordered"
+            label="Valor por Hora Ordinaria"
+            placeholder="..."
+            {...register("valor_por_hora")}
+            radius="sm"
+            size="sm"
+            onInput={onInputPrice}
+          />
+        </div>
       </div>
     </div>
   );

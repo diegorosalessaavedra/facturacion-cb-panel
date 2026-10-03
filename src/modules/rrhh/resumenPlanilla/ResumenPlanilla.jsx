@@ -8,7 +8,7 @@ import ResumenPlanillaHeader from "./components/ResumenPlanillaHeader";
 import TablaResumenPlantilla from "./components/TablaResumenPlantilla/TablaResumenPlantilla";
 import { useDisclosure } from "@nextui-org/react";
 import AsistenciaAdministrativos from "./components/asistenciasAdministrativos/AsistenciaAdministrativos";
-import AsistenciasOperativos from "./components/asistenciasOperativos/AsistenciasOperativos";
+import AsistenciaOperativos from "./components/asistenciasOperativos/AsistenciaOperativos";
 
 const ResumenPlanilla = () => {
   const { id } = useParams();
@@ -136,7 +136,7 @@ const ResumenPlanilla = () => {
         )}
 
         {selectModal === "asistencia_operativos" && (
-          <AsistenciasOperativos
+          <AsistenciaOperativos
             colaboradores={colaboradores.filter(
               (c) => c.cargo_laboral.agrupacion_cargo === "OPERATIVOS",
             )}
@@ -145,6 +145,7 @@ const ResumenPlanilla = () => {
             selectColaborador={selectColaborador}
             setSelectColaborador={setSelectColaborador}
             dias={dias}
+            isFinalizado={dataSemana?.estado_planilla !== "EN PROCESO"}
           />
         )}
       </div>

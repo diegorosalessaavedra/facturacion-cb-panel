@@ -46,7 +46,6 @@ const ModalEditarCargoLaboral = ({
         toast.error("Hubo un error en editar el cargo laboral ");
       });
   };
-  console.log(selectCargoLaboral);
 
   return (
     <Modal

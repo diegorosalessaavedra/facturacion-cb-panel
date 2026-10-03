@@ -132,6 +132,9 @@ const ModalEditarColaborador = ({
     formData.append("onp", data.onp);
     formData.append("bco", data.bco);
     formData.append("nro_cuenta", data.nro_cuenta);
+    formData.append("valor_diario", data.valor_diario);
+    formData.append("bono_extraordinario", data.bono_extraordinario);
+    formData.append("valor_por_hora", data.valor_por_hora);
 
     deletesDocsId.forEach((id) => {
       formData.append("deletesDocsId[]", id);

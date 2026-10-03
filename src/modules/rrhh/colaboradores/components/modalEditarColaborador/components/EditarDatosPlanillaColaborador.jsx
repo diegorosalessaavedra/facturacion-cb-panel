@@ -161,6 +161,50 @@ const EditarDatosPlanillaColaborador = ({ register, selectColaborador }) => {
             size="sm"
           />
         </div>
+        <div className="w-full flex gap-2">
+          <Input
+            className="w-full"
+            classNames={inputClassNames}
+            labelPlacement="outside"
+            type="text"
+            variant="bordered"
+            label="Valor Diario"
+            placeholder="..."
+            {...register("valor_diario")}
+            defaultValue={selectColaborador?.valor_diario}
+            radius="sm"
+            size="sm"
+            onInput={onInputPrice}
+          />
+          <Input
+            className="w-full"
+            classNames={inputClassNames}
+            labelPlacement="outside"
+            type="text"
+            variant="bordered"
+            label="Bono Extraordinario (Aeropuerto y Viajes) - L y J"
+            placeholder="..."
+            {...register("bono_extraordinario")}
+            defaultValue={selectColaborador?.bono_extraordinario}
+            radius="sm"
+            size="sm"
+            onInput={onInputPrice}
+          />
+          <Input
+            className="w-full"
+            classNames={inputClassNames}
+            labelPlacement="outside"
+            type="text"
+            variant="bordered"
+            label="Valor por Hora Ordinaria"
+            placeholder="..."
+            {...register("valor_por_hora")}
+            defaultValue={selectColaborador?.valor_por_hora}
+            radius="sm"
+            size="sm"
+            onInput={onInputPrice}
+          />
+        </div>
       </div>
     </div>
   );
