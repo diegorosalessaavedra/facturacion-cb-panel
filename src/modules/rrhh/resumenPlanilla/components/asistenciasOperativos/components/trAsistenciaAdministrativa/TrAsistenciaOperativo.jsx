@@ -11,11 +11,10 @@ import {
 import { handleAxiosError } from "../../../../../../../utils/handleAxiosError";
 
 // --- FUNCIÓN HELPER PARA FORMATEAR DATETIME-LOCAL ---
-// Convierte un string o Date de la base de datos al formato "YYYY-MM-DDTHH:mm"
 const formatForDateTimeLocal = (dateStr) => {
   if (!dateStr) return "";
   const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr; // Si no es una fecha válida, retorna como está
+  if (isNaN(date.getTime())) return dateStr;
 
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -30,6 +29,7 @@ const TrAsistenciaOperativo = ({
   dia,
   findColaborador,
   sueldoPorDia,
+  valorHora,
   sueldoFeriadoBruto,
   onDataUpdate,
   isFinalizado,
@@ -39,20 +39,154 @@ const TrAsistenciaOperativo = ({
   const valorMontoFeriado = esFeriado ? sueldoFeriadoBruto || 0.0 : 0.0;
 
   const aplicarReglasTurno = (datos) => {
-    const cantTurnos = Number(datos.turnos || 0);
-    const trabajo = cantTurnos > 0;
     const valorBono = Number(datos.bono || 0);
-    const valorImpHoras = Number(datos.importe_horas || 0);
-    const valorImpMinutos = Number(datos.importe_minutos || 0);
-    const basePlanilla = sueldoPorDia * cantTurnos;
+    const vHora = Number(valorHora || 0);
+    const vMinuto = vHora / 60;
+
+    // --- 1. LÓGICA DE CÁLCULO DE HORAS ---
+    let valTotalHoras = datos.total_horas_minutos || "";
+    let valHoras = datos.horas_enteras || "0";
+    let valMinutos = datos.minutos_enteros || "0";
+
+    const safeParseDate = (val) => {
+      if (!val) return null;
+      let d = new Date(val);
+      if (!isNaN(d.getTime())) return d;
+
+      if (typeof val === "string" && val.includes(":")) {
+        const hoy = new Date().toISOString().split("T")[0];
+        d = new Date(`${hoy}T${val.substring(0, 5)}`);
+        if (!isNaN(d.getTime())) return d;
+      }
+      return null;
+    };
+
+    const dEntrada = safeParseDate(datos.entrada);
+    const dSalida = safeParseDate(datos.salida);
+
+    let h = Number(valHoras);
+    let m = Number(valMinutos);
+
+    if (dEntrada && dSalida) {
+      let diffMs = dSalida - dEntrada;
+
+      if (
+        diffMs < 0 &&
+        typeof datos.entrada === "string" &&
+        datos.entrada.length <= 8
+      ) {
+        diffMs += 24 * 60 * 60 * 1000;
+      }
+
+      if (diffMs >= 0) {
+        const totalMinutosTotales = Math.floor(diffMs / 60000);
+        h = Math.floor(totalMinutosTotales / 60);
+        m = totalMinutosTotales % 60;
+
+        valHoras = h.toString();
+        valMinutos = m.toString();
+        valTotalHoras = `${h}:${m.toString().padStart(2, "0")}`;
+      } else {
+        h = 0;
+        m = 0;
+        valHoras = "0";
+        valMinutos = "0";
+        valTotalHoras = "0:00";
+      }
+    }
+
+    // --- 2. LÓGICA DE TURNOS Y HORAS EXTRAS SEGÚN REGLAS ---
+    let turnosCalculados = 0;
+    let horasExtrasEnteras = 0;
+    let minutosExtras = 0;
+
+    if (h >= 6 && h <= 12) {
+      turnosCalculados = 1;
+    } else if (h > 12 && h < 18) {
+      turnosCalculados = 1;
+      horasExtrasEnteras = h - 12;
+      minutosExtras = m;
+    } else if (h >= 18 && h < 24) {
+      turnosCalculados = 2;
+    } else if (h >= 24 && h < 30) {
+      turnosCalculados = 2;
+      horasExtrasEnteras = h - 24;
+      minutosExtras = m;
+    } else if (h >= 30 && h < 36) {
+      turnosCalculados = 3;
+    } else if (h >= 36 && h < 42) {
+      turnosCalculados = 3;
+      horasExtrasEnteras = h - 36;
+      minutosExtras = m;
+    } else if (h >= 42 && h < 48) {
+      turnosCalculados = 4;
+    } else if (h >= 48 && h < 54) {
+      turnosCalculados = 4;
+      horasExtrasEnteras = h - 48;
+      minutosExtras = m;
+    } else if (h >= 54 && h < 60) {
+      turnosCalculados = 5;
+    } else if (h >= 60) {
+      turnosCalculados = 5;
+      horasExtrasEnteras = h - 60;
+      minutosExtras = m;
+      if (horasExtrasEnteras > 5) {
+        horasExtrasEnteras = 5;
+        minutosExtras = 0;
+      }
+    }
+
+    const turnosFinal =
+      dEntrada && dSalida ? turnosCalculados : Number(datos.turnos || 0);
+
+    const textoHrsExtraCalculado =
+      horasExtrasEnteras > 0 || minutosExtras > 0
+        ? `${horasExtrasEnteras.toString().padStart(2, "0")}:${minutosExtras.toString().padStart(2, "0")}`
+        : "";
+
+    const hrMinExtraStr =
+      dEntrada && dSalida ? textoHrsExtraCalculado : datos.hr_min_extra || "";
+
+    // --- 3. LÓGICA FINANCIERA ACTUALIZADA ---
+    const trabajo = turnosFinal > 0;
+    const basePlanilla = sueldoPorDia * turnosFinal;
+
+    const calculoImporteHoras = horasExtrasEnteras * vHora;
+    const calculoImporteMinutos = minutosExtras * vMinuto;
+
+    const valorImpHoras =
+      dEntrada && dSalida
+        ? calculoImporteHoras
+        : Number(datos.importe_horas || 0);
+
+    const valorImpMinutos =
+      dEntrada && dSalida
+        ? calculoImporteMinutos
+        : Number(datos.importe_minutos || 0);
+
+    // Sumamos Importe Horas y Minutos únicamente a los Adicionales
+    const calculoAdicionales = trabajo
+      ? Number(valorMontoFeriado) + valorBono + valorImpHoras + valorImpMinutos
+      : 0;
 
     return {
       ...datos,
+      total_horas_minutos: valTotalHoras,
+      horas_enteras: valHoras,
+      minutos_enteros: valMinutos,
+      turnos: turnosFinal.toString(),
+      hr_min_extra: hrMinExtraStr,
+      importe_horas: valorImpHoras ? valorImpHoras.toFixed(2) : "0.00",
+      importe_minutos: valorImpMinutos ? valorImpMinutos.toFixed(2) : "0.00",
       total_planilla: trabajo ? basePlanilla : 0,
       asistencia_feriado: valorAsistenciaFeriado,
       feriados: trabajo ? valorMontoFeriado : 0,
-      salario: trabajo ? basePlanilla + valorImpHoras + valorImpMinutos : 0,
-      adicionales: trabajo ? Number(valorMontoFeriado) + valorBono : 0,
+
+      // Salario se queda sin las sumas de horas extras (solo basePlanilla)
+      salario: trabajo ? basePlanilla : 0,
+
+      // Adicionales incluye todo el dinero extra
+      adicionales: calculoAdicionales,
     };
   };
 
@@ -74,8 +208,8 @@ const TrAsistenciaOperativo = ({
       turnos: 0,
       total_planilla: 0,
       hr_min_extra: "",
-      importe_horas: 0.0,
-      importe_minutos: 0.0,
+      importe_horas: "0.00",
+      importe_minutos: "0.00",
       bono: 0.0,
       feriados: 0.0,
       salario: 0.0,
@@ -218,10 +352,6 @@ const TrAsistenciaOperativo = ({
     adicionales,
   } = datosAsistencia;
 
-  const opcionesSiNo = [
-    { key: "NO", label: "NO" },
-    { key: "SI", label: "SI" },
-  ];
   const opcionesTurno = [
     { key: "DIURNO", label: "DIURNO" },
     { key: "NOCTURNO", label: "NOCTURNO" },
@@ -342,14 +472,14 @@ const TrAsistenciaOperativo = ({
           <div
             className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
           >
-            {Number(importe_horas || 0).toFixed(2)}
+            {importe_horas === "0.00" ? "-" : importe_horas}
           </div>
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <div
             className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
           >
-            {Number(importe_minutos || 0).toFixed(2)}
+            {importe_minutos === "0.00" ? "-" : importe_minutos}
           </div>
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>

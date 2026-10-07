@@ -17,8 +17,7 @@ const TrSaldoAnteriorOperativo = ({
     id: null,
     semana_planilla_id: semanaPlanillaId || null,
     colaborador_id: colaborador?.id || null,
-    salario: 0.0,
-    adicionales: 0.0,
+    saldo: 0.0,
   });
 
   const datosRef = useRef(saldoData);
@@ -29,7 +28,7 @@ const TrSaldoAnteriorOperativo = ({
   const handleSaldoAnterior = () => {
     if (!semanaPlanillaId || !colaborador?.id) return;
 
-    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/saldo-anterior/${semanaPlanillaId}/${colaborador.id}`;
+    const url = `${import.meta.env.VITE_URL_API}/asistencia-operativo/saldo-anterior/${semanaPlanillaId}/${colaborador.id}`;
 
     axios
       .get(url, config)
@@ -40,8 +39,7 @@ const TrSaldoAnteriorOperativo = ({
             id: data.id,
             semana_planilla_id: data.semana_planilla_id,
             colaborador_id: data.colaborador_id,
-            salario: data.salario,
-            adicionales: data.adicionales,
+            saldo: data.saldo,
           };
           setSaldoData(newData);
           // 2. Avisamos al padre con los datos recibidos de la BD
@@ -132,8 +130,8 @@ const TrSaldoAnteriorOperativo = ({
           isDisabled={isFinalizado}
           type="text"
           onInput={onInputPrice}
-          name="salario"
-          value={saldoData.salario || ""}
+          name="saldo"
+          value={saldoData.saldo || ""}
           onChange={handleChange}
           onBlur={handleSave}
           size="sm"

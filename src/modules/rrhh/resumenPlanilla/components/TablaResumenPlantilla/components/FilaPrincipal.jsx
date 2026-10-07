@@ -14,23 +14,38 @@ const FilaPrincipal = ({
 }) => {
   const [totales, setTotales] = useState(null);
 
+  console.log(colaborador);
+
   useEffect(() => {
     const fetchTotales = () => {
       if (!semana_id || !colaborador?.id) return;
 
       const url = `${API}/totales-asistencia-administrativo/${semana_id}/${colaborador.id}`;
 
-      axios
-        .get(url, config)
-        .then((res) => {
-          if (res.data.totales?.id) {
-            setTotales(res.data.totales);
-          }
-        })
-        .catch((err) => console.error("Error cargando totales:", err));
+      axios.get(url, config).then((res) => {
+        if (res.data.totales?.id) {
+          setTotales(res.data.totales);
+        }
+      });
     };
 
-    fetchTotales();
+    const fetchTotalesOperativo = () => {
+      if (!semana_id || !colaborador?.id) return;
+
+      const url = `${API}/totales-asistencia-operativo/${semana_id}/${colaborador.id}`;
+
+      axios.get(url, config).then((res) => {
+        if (res.data.totales?.id) {
+          setTotales(res.data.totales);
+        }
+      });
+    };
+
+    if (colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS") {
+      fetchTotales();
+    } else {
+      fetchTotalesOperativo();
+    }
   }, [semana_id, colaborador?.id, isOpen]);
 
   // --- VARIABLES DE INTERFAZ ---

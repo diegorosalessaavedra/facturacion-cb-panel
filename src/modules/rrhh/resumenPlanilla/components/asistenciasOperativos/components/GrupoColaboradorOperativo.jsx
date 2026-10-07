@@ -10,27 +10,22 @@ const GrupoColaboradorOperativo = ({
   isFinalizado,
 }) => {
   const diasLaborables = [];
-  let diaDomingo = null;
 
   dias?.forEach((dia) => {
     const fechaObj = new Date(`${dia.fecha || dia.dia_plantilla}T00:00:00`);
 
     if (fechaObj.getDay() === 0) {
-      diaDomingo = dia;
     } else {
       diasLaborables.push(dia);
     }
   });
 
   const totalFilas = 1 + diasLaborables.length + 1 + 1;
-  const sueldoMensual = colaborador?.sueldos?.[0]?.sueldo || 0;
-  const divisorSemanas = totalSemanas > 0 ? totalSemanas : 1;
-  const divisorDias = dias?.length > 0 ? dias.length : 1;
-  const calculoBruto = sueldoMensual / divisorSemanas / divisorDias;
-  const sueldoFeriadoBruto = Number(sueldoMensual / 30) * 2;
-  const sueldoPorDia = Number(calculoBruto);
 
-  // NUEVO: Calculamos el límite del sueldo semanal (ej. 7 días * 100 = 700)
+  const sueldoFeriadoBruto = Number(colaborador.valor_diario || 0) * 2;
+  const sueldoPorDia = Number(colaborador.valor_diario || 0);
+  const valorHora = Number(colaborador.valor_por_hora || 0);
+
   const topeSemanal = sueldoPorDia * 7;
 
   const [datosDias, setDatosDias] = useState({});
@@ -66,8 +61,7 @@ const GrupoColaboradorOperativo = ({
   sumSalario += Number(datosDominical.salario || 0);
   sumAdicionales += Number(datosDominical.adicionales || 0);
 
-  sumSalario += Number(datosSaldo.salario || 0);
-  sumAdicionales += Number(datosSaldo.adicionales || 0);
+  sumSalario += Number(datosSaldo.saldo || 0);
 
   // NUEVO: Enviamos los totales al padre para que la tabla pequeña los procese
   useEffect(() => {
@@ -96,6 +90,7 @@ const GrupoColaboradorOperativo = ({
           dia={dia}
           findColaborador={colaborador}
           sueldoPorDia={sueldoPorDia}
+          valorHora={valorHora}
           sueldoFeriadoBruto={sueldoFeriadoBruto}
           onDataUpdate={(data) => handleUpdateDia(dia.id, data)}
           isFinalizado={isFinalizado}
