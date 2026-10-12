@@ -10,22 +10,20 @@ import {
 } from "../../../../../../../assets/onInputs";
 import { handleAxiosError } from "../../../../../../../utils/handleAxiosError";
 
-// --- FUNCIÓN HELPER PARA FORMATEAR DATETIME-LOCAL ---
 const formatForDateTimeLocal = (dateStr) => {
   if (!dateStr) return "";
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return dateStr;
-
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
-
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-const TrAsistenciaOperativo = ({
+const TrAsistenciaCompensacion = ({
+  compensacion,
   dia,
   findColaborador,
   sueldoPorDia,
@@ -34,20 +32,19 @@ const TrAsistenciaOperativo = ({
   onDataUpdate,
   isFinalizado,
   bono_extraordinario,
+  asistenciasOperativas,
+  isFirstRow, // <-- Nueva prop
+  rowSpan, // <-- Nueva prop
 }) => {
   const esFeriado = Boolean(dia?.bonificacion_feriado);
 
   const aplicarReglasTurno = (datos) => {
-    // --- NUEVA REGLA: SELECCIÓN DE FERIADO ---
-    let finalAsistenciaFeriado = "NO";
+    let finalFeriado = "NO";
     if (esFeriado) {
-      // Si es feriado, tomamos lo que el usuario haya seleccionado, por defecto "SI"
-      finalAsistenciaFeriado = datos.asistencia_feriado || "SI";
+      finalFeriado = datos.feriado || "SI";
     }
 
-    // --- REGLA: AUTOMATIZACIÓN DEL BONO ---
     let valorBono = Number(datos.bono || 0);
-
     if (datos.turno === "NOCTURNO ATO" || datos.turno === "VIAJES") {
       valorBono = Number(bono_extraordinario || 0);
     } else {
@@ -62,7 +59,6 @@ const TrAsistenciaOperativo = ({
     const vHora = Number(valorHora || 0);
     const vMinuto = vHora / 60;
 
-    // --- 1. LÓGICA DE CÁLCULO DE HORAS ---
     let valTotalHoras = datos.total_horas_minutos || "";
     let valHoras = datos.horas_enteras || "0";
     let valMinutos = datos.minutos_enteros || "0";
@@ -71,7 +67,6 @@ const TrAsistenciaOperativo = ({
       if (!val) return null;
       let d = new Date(val);
       if (!isNaN(d.getTime())) return d;
-
       if (typeof val === "string" && val.includes(":")) {
         const hoy = new Date().toISOString().split("T")[0];
         d = new Date(`${hoy}T${val.substring(0, 5)}`);
@@ -88,7 +83,6 @@ const TrAsistenciaOperativo = ({
 
     if (dEntrada && dSalida) {
       let diffMs = dSalida - dEntrada;
-
       if (
         diffMs < 0 &&
         typeof datos.entrada === "string" &&
@@ -101,7 +95,6 @@ const TrAsistenciaOperativo = ({
         const totalMinutosTotales = Math.floor(diffMs / 60000);
         h = Math.floor(totalMinutosTotales / 60);
         m = totalMinutosTotales % 60;
-
         valHoras = h.toString();
         valMinutos = m.toString();
         valTotalHoras = `${h}:${m.toString().padStart(2, "0")}`;
@@ -114,7 +107,6 @@ const TrAsistenciaOperativo = ({
       }
     }
 
-    // --- 2. LÓGICA DE TURNOS Y HORAS EXTRAS SEGÚN REGLAS ---
     let turnosCalculados = 0;
     let horasExtrasEnteras = 0;
     let minutosExtras = 0;
@@ -166,7 +158,6 @@ const TrAsistenciaOperativo = ({
     const hrMinExtraStr =
       dEntrada && dSalida ? textoHrsExtraCalculado : datos.hr_min_extra || "";
 
-    // --- 3. LÓGICA FINANCIERA ACTUALIZADA ---
     const trabajo = turnosFinal > 0;
     const basePlanilla = sueldoPorDia * turnosFinal;
 
@@ -177,29 +168,33 @@ const TrAsistenciaOperativo = ({
       dEntrada && dSalida
         ? calculoImporteHoras
         : Number(datos.importe_horas || 0);
-
     const valorImpMinutos =
       dEntrada && dSalida
         ? calculoImporteMinutos
         : Number(datos.importe_minutos || 0);
 
-    // NUEVO: Validación de importe de feriados según el Select (SI / NO)
-    let valorFeriados = datos.feriados;
-    if (finalAsistenciaFeriado === "NO") {
-      valorFeriados = 0; // Si se elige NO o no es feriado, el valor es 0
-    } else if (valorFeriados === undefined || valorFeriados === null || valorFeriados === "") {
-      valorFeriados = trabajo ? Number(sueldoFeriadoBruto || 0) : 0;
+    let valorFeriadosMonetario = datos.feriados_monto;
+    if (finalFeriado === "NO") {
+      valorFeriadosMonetario = 0;
+    } else if (
+      valorFeriadosMonetario === undefined ||
+      valorFeriadosMonetario === null ||
+      valorFeriadosMonetario === ""
+    ) {
+      valorFeriadosMonetario = trabajo ? Number(sueldoFeriadoBruto || 0) : 0;
     }
 
-    // Sumamos Importe Horas, Minutos, Feriados y Bono únicamente a los Adicionales
     const calculoAdicionales = trabajo
-      ? Number(valorFeriados) + valorBono + valorImpHoras + valorImpMinutos
+      ? Number(valorFeriadosMonetario) +
+        valorBono +
+        valorImpHoras +
+        valorImpMinutos
       : 0;
 
     return {
       ...datos,
-      asistencia_feriado: finalAsistenciaFeriado, // Guardamos la selección
-      bono: valorBono > 0 ? valorBono.toFixed(2) : "", 
+      feriado: finalFeriado,
+      bono: valorBono > 0 ? valorBono.toFixed(2) : "",
       total_horas_minutos: valTotalHoras,
       horas_enteras: valHoras,
       minutos_enteros: valMinutos,
@@ -208,20 +203,24 @@ const TrAsistenciaOperativo = ({
       importe_horas: valorImpHoras ? valorImpHoras.toFixed(2) : "0.00",
       importe_minutos: valorImpMinutos ? valorImpMinutos.toFixed(2) : "0.00",
       total_planilla: trabajo ? basePlanilla : 0,
-      feriados: valorFeriados, 
+      feriados_monto: valorFeriadosMonetario,
       salario: trabajo ? basePlanilla : 0,
       adicionales: calculoAdicionales,
+      total_efectivo: calculoAdicionales,
     };
   };
 
-  const [datosAsistencia, setDatosAsistencia] = useState(() =>
+  const [datosCompensacion, setDatosCompensacion] = useState(() =>
     aplicarReglasTurno({
-      id: null,
-      dia_planilla_id: dia?.id || null,
+      id: compensacion?.id || null,
       semana_planilla_id:
-        dia?.semana_plantilla_id || dia?.semana_planilla_id || null,
+        compensacion?.semana_planilla_id ||
+        dia?.semana_plantilla_id ||
+        dia?.semana_planilla_id ||
+        null,
       colaborador_id: findColaborador?.id || null,
-      asistencia_feriado: esFeriado ? "SI" : "NO", // Valor por defecto
+      asistencia_operativa_id: compensacion?.asistencia_operativa_id || null,
+      feriado: esFeriado ? "SI" : "NO",
       turno: "DIURNO",
       actividad_dia: "",
       entrada: "",
@@ -235,44 +234,37 @@ const TrAsistenciaOperativo = ({
       importe_horas: "0.00",
       importe_minutos: "0.00",
       bono: 0.0,
+      feriados_monto: 0.0,
       salario: 0.0,
       adicionales: 0.0,
-      estado: "PENDIENTE DE ENVIAR",
+      total_efectivo: 0.0,
     }),
   );
 
-  const datosRef = useRef(datosAsistencia);
+  const datosRef = useRef(datosCompensacion);
   useEffect(() => {
-    datosRef.current = datosAsistencia;
-  }, [datosAsistencia]);
+    datosRef.current = datosCompensacion;
+  }, [datosCompensacion]);
 
   const saveSeqRef = useRef(0);
 
   const handleAsistencia = () => {
-    if (!dia?.id || !findColaborador?.id) return;
-    const url = `${import.meta.env.VITE_URL_API}/asistencia-operativo/${dia.id}/${findColaborador.id}`;
+    if (!compensacion?.id) return;
+    const url = `${import.meta.env.VITE_URL_API}/compensacion-operativa/${compensacion.id}`;
+
     axios
       .get(url, config)
       .then((res) => {
         if (res.data.asistencia) {
-          const { calculo_asistencia_operativo, ...datosPrincipales } =
-            res.data.asistencia;
-          const {
-            id: idCalculo,
-            asistencia_operativo_id,
-            ...datosCalculoLimpio
-          } = calculo_asistencia_operativo || {};
-
+          const { ...datosPrincipales } = res.data.asistencia;
           const newData = aplicarReglasTurno({
-            ...datosAsistencia,
+            ...datosCompensacion,
             ...datosPrincipales,
-            ...datosCalculoLimpio,
           });
-
-          setDatosAsistencia(newData);
+          setDatosCompensacion(newData);
           if (onDataUpdate) onDataUpdate(newData);
         } else {
-          if (onDataUpdate) onDataUpdate(datosAsistencia);
+          if (onDataUpdate) onDataUpdate(datosCompensacion);
         }
       })
       .catch(console.error);
@@ -285,7 +277,7 @@ const TrAsistenciaOperativo = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setDatosAsistencia((prev) => {
+    setDatosCompensacion((prev) => {
       const updated = aplicarReglasTurno({ ...prev, [name]: value });
       datosRef.current = updated;
       if (onDataUpdate) onDataUpdate(updated);
@@ -297,11 +289,11 @@ const TrAsistenciaOperativo = ({
     const { name, value } = e.target;
     if (!value) return;
     const nuevosDatos = aplicarReglasTurno({
-      ...datosAsistencia,
+      ...datosCompensacion,
       [name]: value,
     });
     datosRef.current = nuevosDatos;
-    setDatosAsistencia(nuevosDatos);
+    setDatosCompensacion(nuevosDatos);
     if (onDataUpdate) onDataUpdate(nuevosDatos);
     handleSave(nuevosDatos);
   };
@@ -310,15 +302,18 @@ const TrAsistenciaOperativo = ({
     const payload = { ...datosAEnviar };
     delete payload.huellero_entrada;
     delete payload.huellero_salida;
+    delete payload.feriados_monto;
+    delete payload.salario;
+    delete payload.adicionales;
+    delete payload.total_planilla;
 
     for (const key in payload) {
       if (payload[key] === "") payload[key] = null;
     }
+
     const mySeq = ++saveSeqRef.current;
     const toastId = toast.loading("Guardando...");
-    const url = `${import.meta.env.VITE_URL_API}/asistencia-operativo/${
-      payload.id || "0"
-    }`;
+    const url = `${import.meta.env.VITE_URL_API}/compensacion-operativa/${payload.id || "0"}`;
 
     axios
       .post(url, payload, config)
@@ -327,7 +322,7 @@ const TrAsistenciaOperativo = ({
         const newId = res.data?.data?.id ?? payload.id;
         if (mySeq !== saveSeqRef.current) return;
         if (newId && newId !== datosRef.current.id) {
-          setDatosAsistencia((prev) => {
+          setDatosCompensacion((prev) => {
             const updated = { ...prev, id: newId };
             datosRef.current = updated;
             return updated;
@@ -356,7 +351,8 @@ const TrAsistenciaOperativo = ({
   const tdYellowLast = "border-b border-amber-200 bg-amber-50/80 p-1";
 
   const {
-    asistencia_feriado,
+    asistencia_operativa_id, // Usado en el Select
+    feriado,
     turno,
     actividad_dia,
     entrada,
@@ -370,13 +366,10 @@ const TrAsistenciaOperativo = ({
     importe_horas,
     importe_minutos,
     bono,
-    feriados,
+    feriados_monto,
     salario,
     adicionales,
-  } = datosAsistencia;
-
-  console.log(hr_min_extra);
-  
+  } = datosCompensacion;
 
   const opcionesTurno = [
     { key: "DIURNO", label: "DIURNO" },
@@ -393,30 +386,60 @@ const TrAsistenciaOperativo = ({
   return (
     <>
       <tr className="group hover:bg-slate-50 transition-colors">
+        {/* Celda del nombre que SOLO se imprime en el primer registro */}
+        {isFirstRow && (
+          <td
+            rowSpan={rowSpan}
+            className="border-r border-slate-300 bg-blue-50/50 p-2 font-bold text-slate-800 uppercase text-[10px] whitespace-nowrap align-middle"
+          >
+            {findColaborador?.apellidos_colaborador} <br />
+            {findColaborador?.nombre_colaborador}
+          </td>
+        )}
+
+        {/* CORRECCIÓN: Select para elegir la asistencia de donde provienen los datos */}
+        <td className={`${tdBlue} min-w-[120px]`}>
+          <Select
+            isDisabled={isFinalizado}
+            aria-label="Asistencia Operativa"
+            name="asistencia_operativa_id"
+            selectedKeys={new Set([String(asistencia_operativa_id || "")])}
+            onChange={handleSelectChange}
+            size="sm"
+            classNames={selectUIClasses}
+          >
+            {asistenciasOperativas?.map((op) => (
+              <SelectItem key={String(op.id)} textValue={`Ref: ${op.id}`}>
+                <p className="text-[9px] font-bold">
+                  {formatDateES(op.entrada)} - {formatDateES(op.salida)}
+                </p>
+              </SelectItem>
+            ))}
+          </Select>
+        </td>
+
         <td
           className={`${tdBlue} uppercase text-[9px] whitespace-nowrap align-middle min-w-[180px]`}
         >
           {formatDateES(dia?.dia_plantilla) || "-"}
         </td>
-        
-        {/* NUEVO: Celda de Feriado transformada en Select */}
+
         <td className={`${tdBlue} min-w-[70px]`}>
           <Select
-            isDisabled={isFinalizado || !esFeriado} // Se bloquea si no es un día feriado real
-            aria-label="Asistencia Feriado"
-            name="asistencia_feriado"
-            selectedKeys={new Set([asistencia_feriado])}
+            isDisabled={isFinalizado || !esFeriado}
+            aria-label="Feriado"
+            name="feriado"
+            selectedKeys={new Set([feriado])}
             onChange={handleSelectChange}
             size="sm"
             classNames={selectUIClasses}
           >
-            {/* Si no es feriado, solo muestra "NO". Si lo es, muestra "SI" y "NO" */}
             {(!esFeriado ? [{ key: "NO", label: "NO" }] : opcionesFeriado).map(
               (op) => (
                 <SelectItem key={op.key} textValue={op.label}>
                   <p className="text-[9px] font-bold">{op.label}</p>
                 </SelectItem>
-              )
+              ),
             )}
           </Select>
         </td>
@@ -438,6 +461,7 @@ const TrAsistenciaOperativo = ({
             ))}
           </Select>
         </td>
+
         <td className={`${tdBlue} min-w-[120px]`}>
           <Input
             isDisabled={isFinalizado}
@@ -453,7 +477,6 @@ const TrAsistenciaOperativo = ({
           />
         </td>
 
-        {/* Celda Hora y Fecha Entrada */}
         <td className={`${tdBlue} min-w-[140px]`}>
           <Input
             isDisabled={isFinalizado}
@@ -468,7 +491,6 @@ const TrAsistenciaOperativo = ({
           />
         </td>
 
-        {/* Celda Hora y Fecha Salida */}
         <td className={`${tdBlue} min-w-[140px]`}>
           <Input
             isDisabled={isFinalizado}
@@ -508,7 +530,7 @@ const TrAsistenciaOperativo = ({
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
-          S/  {Number(total_planilla || 0).toFixed(2)}
+            S/ {Number(total_planilla || 0).toFixed(2)}
           </div>
         </td>
         <td className={`${tdGreen} min-w-[80px]`}>
@@ -522,21 +544,20 @@ const TrAsistenciaOperativo = ({
           <div
             className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
           >
-           S/ {importe_horas === "0.00" ? "-" : importe_horas}
+            S/ {importe_horas === "0.00" ? "-" : importe_horas}
           </div>
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <div
             className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
           >
-          S/  {importe_minutos === "0.00" ? "-" : importe_minutos}
+            S/ {importe_minutos === "0.00" ? "-" : importe_minutos}
           </div>
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
-           S/ {Number(bono || 0).toFixed(2)}
+            S/ {Number(bono || 0).toFixed(2)}
           </div>
-
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <Input
@@ -544,8 +565,8 @@ const TrAsistenciaOperativo = ({
             aria-label="Feriados"
             type="text"
             onInput={onInputPrice}
-            name="feriados"
-            value={feriados || ""}
+            name="feriados_monto"
+            value={feriados_monto || ""}
             onChange={handleChange}
             onBlur={() => handleSave()}
             size="sm"
@@ -555,7 +576,7 @@ const TrAsistenciaOperativo = ({
         </td>
         <td className={`${tdYellow} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
-           S/ {Number(salario || 0).toFixed(2)}
+            S/ {Number(salario || 0).toFixed(2)}
           </div>
         </td>
         <td className={`${tdYellowLast} min-w-[70px]`}>
@@ -568,4 +589,4 @@ const TrAsistenciaOperativo = ({
   );
 };
 
-export default TrAsistenciaOperativo;
+export default TrAsistenciaCompensacion;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import TrAsistenciaOperativo from "./trAsistenciaAdministrativa/TrAsistenciaOperativo";
+import TrAsistenciaOperativo from "./trAsistenciaOperativo/TrAsistenciaOperativo";
 import TrSaldoAnteriorOperativo from "./TrSaldoAnteriorOperativo";
 
 const GrupoColaboradorOperativo = ({
@@ -45,18 +45,19 @@ const GrupoColaboradorOperativo = ({
     sumMinutos += Number(r.minutos_enteros || 0);
     sumTurnos += Number(r.turnos || 0);
     sumPlanilla += Number(r.total_planilla || 0);
-    
+
     // NUEVO: Lógica para sumar Hr y Min Extra
     if (r.hr_min_extra && r.hr_min_extra.includes(":")) {
       const [hStr, mStr] = r.hr_min_extra.split(":");
-      sumHrMinExtraMinutos += (parseInt(hStr, 10) || 0) * 60 + (parseInt(mStr, 10) || 0);
+      sumHrMinExtraMinutos +=
+        (parseInt(hStr, 10) || 0) * 60 + (parseInt(mStr, 10) || 0);
     }
-    
+
     // Sumamos las columnas financieras
     sumImporteHoras += Number(r.importe_horas || 0);
     sumImporteMinutos += Number(r.importe_minutos || 0);
     sumBono += Number(r.bono || 0);
-    
+
     sumFeriados += Number(r.feriados || 0);
     sumSalario += Number(r.salario || 0);
     sumAdicionales += Number(r.adicionales || 0);
@@ -65,10 +66,14 @@ const GrupoColaboradorOperativo = ({
   // Si tienes un día dominical con estos datos, también los sumamos (si aplica)
   sumTurnos += Number(datosDominical.turnos || 0);
   sumPlanilla += Number(datosDominical.total_planilla || 0);
-  
-  if (datosDominical.hr_min_extra && datosDominical.hr_min_extra.includes(":")) {
+
+  if (
+    datosDominical.hr_min_extra &&
+    datosDominical.hr_min_extra.includes(":")
+  ) {
     const [hStr, mStr] = datosDominical.hr_min_extra.split(":");
-    sumHrMinExtraMinutos += (parseInt(hStr, 10) || 0) * 60 + (parseInt(mStr, 10) || 0);
+    sumHrMinExtraMinutos +=
+      (parseInt(hStr, 10) || 0) * 60 + (parseInt(mStr, 10) || 0);
   }
 
   sumImporteHoras += Number(datosDominical.importe_horas || 0);
@@ -78,7 +83,7 @@ const GrupoColaboradorOperativo = ({
   sumAdicionales += Number(datosDominical.adicionales || 0);
 
   // Sumar Saldo Anterior
-  sumSalario += Number(datosSaldo.salario || 0); 
+  sumSalario += Number(datosSaldo.salario || 0);
 
   // Enviamos los totales al padre para que la tabla pequeña los procese
   useEffect(() => {
@@ -97,9 +102,10 @@ const GrupoColaboradorOperativo = ({
   const totalExtraHoras = Math.floor(sumHrMinExtraMinutos / 60);
   const totalExtraMinutos = sumHrMinExtraMinutos % 60;
   // Solo mostrar formato si hay horas extra, sino mostrar guion o 00:00
-  const totalHrMinExtraString = sumHrMinExtraMinutos > 0 
-    ? `${String(totalExtraHoras).padStart(2, "0")}:${String(totalExtraMinutos).padStart(2, "0")}`
-    : "-";
+  const totalHrMinExtraString =
+    sumHrMinExtraMinutos > 0
+      ? `${String(totalExtraHoras).padStart(2, "0")}:${String(totalExtraMinutos).padStart(2, "0")}`
+      : "-";
 
   return (
     <tbody className="border-b-4 border-slate-300">
@@ -130,24 +136,24 @@ const GrupoColaboradorOperativo = ({
         <td colSpan={6} className="border-r border-slate-300 p-2 text-right">
           TOTALES
         </td>
-        
+
         {/* Sumatorias individuales */}
         <td className="border-r border-slate-300 p-1">{totalHorasString}</td>
         <td className="border-r border-slate-300 p-1">{sumHoras}</td>
         <td className="border-r border-slate-300 p-1">{sumMinutos}</td>
-        
+
         <td className="border-r border-slate-300 p-1 text-blue-400">
           {sumTurnos.toFixed(2)}
         </td>
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumPlanilla.toFixed(2)}
         </td>
-        
+
         {/* NUEVO: Celda para Hr y Min Extra con la sumatoria ya calculada */}
         <td className="border-r border-slate-300 p-1 text-blue-300">
           {totalHrMinExtraString}
         </td>
-        
+
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumImporteHoras.toFixed(2)}
         </td>
@@ -157,16 +163,14 @@ const GrupoColaboradorOperativo = ({
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumBono.toFixed(2)}
         </td>
-        
+
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumFeriados.toFixed(2)}
         </td>
         <td className="border-r border-slate-300 p-1 text-amber-400">
           S/ {sumSalario.toFixed(2)}
         </td>
-        <td className="p-1 text-amber-400">
-          S/ {sumAdicionales.toFixed(2)}
-        </td>
+        <td className="p-1 text-amber-400">S/ {sumAdicionales.toFixed(2)}</td>
       </tr>
     </tbody>
   );

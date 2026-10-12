@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import GrupoColaboradorOperativo from "./GrupoColaboradorOperativo";
 import TablaTotalesAsistenciaOperativos from "./TablaTotalesAsistenciaOperativos";
+import TablaCompensacionAsistenciaOperativos from "./TablaCompensacionAsistenciaOperativos";
 
 const TablaAsistenciaOperativos = ({
   findColaborador,
@@ -104,6 +105,13 @@ const TablaAsistenciaOperativos = ({
           salarioBase={sumasCalculadas.salario}
           adicionalesBase={sumasCalculadas.adicionales}
           salarioTope={sumasCalculadas.topeSemanal}
+        />
+      </div>
+      <div className="w-full">
+        <TablaCompensacionAsistenciaOperativos
+          semanaPlanillaId={dias?.[0]?.semana_plantilla_id}
+          colaborador={findColaborador}
+          isFinalizado={isFinalizado}
         />
       </div>
     </div>
