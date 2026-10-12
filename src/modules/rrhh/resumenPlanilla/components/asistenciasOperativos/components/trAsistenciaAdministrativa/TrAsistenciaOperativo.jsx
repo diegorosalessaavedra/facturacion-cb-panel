@@ -33,13 +33,32 @@ const TrAsistenciaOperativo = ({
   sueldoFeriadoBruto,
   onDataUpdate,
   isFinalizado,
+  bono_extraordinario,
 }) => {
   const esFeriado = Boolean(dia?.bonificacion_feriado);
-  const valorAsistenciaFeriado = esFeriado ? "SI" : "NO";
-  const valorMontoFeriado = esFeriado ? sueldoFeriadoBruto || 0.0 : 0.0;
 
   const aplicarReglasTurno = (datos) => {
-    const valorBono = Number(datos.bono || 0);
+    // --- NUEVA REGLA: SELECCIÓN DE FERIADO ---
+    let finalAsistenciaFeriado = "NO";
+    if (esFeriado) {
+      // Si es feriado, tomamos lo que el usuario haya seleccionado, por defecto "SI"
+      finalAsistenciaFeriado = datos.asistencia_feriado || "SI";
+    }
+
+    // --- REGLA: AUTOMATIZACIÓN DEL BONO ---
+    let valorBono = Number(datos.bono || 0);
+
+    if (datos.turno === "NOCTURNO ATO" || datos.turno === "VIAJES") {
+      valorBono = Number(bono_extraordinario || 0);
+    } else {
+      if (
+        valorBono === Number(bono_extraordinario || 0) &&
+        Number(bono_extraordinario || 0) !== 0
+      ) {
+        valorBono = 0;
+      }
+    }
+
     const vHora = Number(valorHora || 0);
     const vMinuto = vHora / 60;
 
@@ -152,7 +171,7 @@ const TrAsistenciaOperativo = ({
     const basePlanilla = sueldoPorDia * turnosFinal;
 
     const calculoImporteHoras = horasExtrasEnteras * vHora;
-    const calculoImporteMinutos = minutosExtras * vMinuto;
+    const calculoImporteMinutos = minutosExtras > 40 ? vHora : 0;
 
     const valorImpHoras =
       dEntrada && dSalida
@@ -164,13 +183,23 @@ const TrAsistenciaOperativo = ({
         ? calculoImporteMinutos
         : Number(datos.importe_minutos || 0);
 
-    // Sumamos Importe Horas y Minutos únicamente a los Adicionales
+    // NUEVO: Validación de importe de feriados según el Select (SI / NO)
+    let valorFeriados = datos.feriados;
+    if (finalAsistenciaFeriado === "NO") {
+      valorFeriados = 0; // Si se elige NO o no es feriado, el valor es 0
+    } else if (valorFeriados === undefined || valorFeriados === null || valorFeriados === "") {
+      valorFeriados = trabajo ? Number(sueldoFeriadoBruto || 0) : 0;
+    }
+
+    // Sumamos Importe Horas, Minutos, Feriados y Bono únicamente a los Adicionales
     const calculoAdicionales = trabajo
-      ? Number(valorMontoFeriado) + valorBono + valorImpHoras + valorImpMinutos
+      ? Number(valorFeriados) + valorBono + valorImpHoras + valorImpMinutos
       : 0;
 
     return {
       ...datos,
+      asistencia_feriado: finalAsistenciaFeriado, // Guardamos la selección
+      bono: valorBono > 0 ? valorBono.toFixed(2) : "", 
       total_horas_minutos: valTotalHoras,
       horas_enteras: valHoras,
       minutos_enteros: valMinutos,
@@ -179,13 +208,8 @@ const TrAsistenciaOperativo = ({
       importe_horas: valorImpHoras ? valorImpHoras.toFixed(2) : "0.00",
       importe_minutos: valorImpMinutos ? valorImpMinutos.toFixed(2) : "0.00",
       total_planilla: trabajo ? basePlanilla : 0,
-      asistencia_feriado: valorAsistenciaFeriado,
-      feriados: trabajo ? valorMontoFeriado : 0,
-
-      // Salario se queda sin las sumas de horas extras (solo basePlanilla)
+      feriados: valorFeriados, 
       salario: trabajo ? basePlanilla : 0,
-
-      // Adicionales incluye todo el dinero extra
       adicionales: calculoAdicionales,
     };
   };
@@ -197,7 +221,7 @@ const TrAsistenciaOperativo = ({
       semana_planilla_id:
         dia?.semana_plantilla_id || dia?.semana_planilla_id || null,
       colaborador_id: findColaborador?.id || null,
-      asistencia_feriado: valorAsistenciaFeriado,
+      asistencia_feriado: esFeriado ? "SI" : "NO", // Valor por defecto
       turno: "DIURNO",
       actividad_dia: "",
       entrada: "",
@@ -211,7 +235,6 @@ const TrAsistenciaOperativo = ({
       importe_horas: "0.00",
       importe_minutos: "0.00",
       bono: 0.0,
-      feriados: 0.0,
       salario: 0.0,
       adicionales: 0.0,
       estado: "PENDIENTE DE ENVIAR",
@@ -352,11 +375,19 @@ const TrAsistenciaOperativo = ({
     adicionales,
   } = datosAsistencia;
 
+  console.log(hr_min_extra);
+  
+
   const opcionesTurno = [
     { key: "DIURNO", label: "DIURNO" },
     { key: "NOCTURNO", label: "NOCTURNO" },
-    { key: "NOCTURNO ALTO", label: "NOCTURNO ALTO" },
+    { key: "NOCTURNO ATO", label: "NOCTURNO ATO" },
     { key: "VIAJES", label: "VIAJES" },
+  ];
+
+  const opcionesFeriado = [
+    { key: "NO", label: "NO" },
+    { key: "SI", label: "SI" },
   ];
 
   return (
@@ -367,8 +398,27 @@ const TrAsistenciaOperativo = ({
         >
           {formatDateES(dia?.dia_plantilla) || "-"}
         </td>
+        
+        {/* NUEVO: Celda de Feriado transformada en Select */}
         <td className={`${tdBlue} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>{asistencia_feriado}</div>
+          <Select
+            isDisabled={isFinalizado || !esFeriado} // Se bloquea si no es un día feriado real
+            aria-label="Asistencia Feriado"
+            name="asistencia_feriado"
+            selectedKeys={new Set([asistencia_feriado])}
+            onChange={handleSelectChange}
+            size="sm"
+            classNames={selectUIClasses}
+          >
+            {/* Si no es feriado, solo muestra "NO". Si lo es, muestra "SI" y "NO" */}
+            {(!esFeriado ? [{ key: "NO", label: "NO" }] : opcionesFeriado).map(
+              (op) => (
+                <SelectItem key={op.key} textValue={op.label}>
+                  <p className="text-[9px] font-bold">{op.label}</p>
+                </SelectItem>
+              )
+            )}
+          </Select>
         </td>
 
         <td className={`${tdBlue} min-w-[100px]`}>
@@ -458,7 +508,7 @@ const TrAsistenciaOperativo = ({
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
-            {Number(total_planilla || 0).toFixed(2)}
+          S/  {Number(total_planilla || 0).toFixed(2)}
           </div>
         </td>
         <td className={`${tdGreen} min-w-[80px]`}>
@@ -472,43 +522,45 @@ const TrAsistenciaOperativo = ({
           <div
             className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
           >
-            {importe_horas === "0.00" ? "-" : importe_horas}
+           S/ {importe_horas === "0.00" ? "-" : importe_horas}
           </div>
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <div
             className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
           >
-            {importe_minutos === "0.00" ? "-" : importe_minutos}
+          S/  {importe_minutos === "0.00" ? "-" : importe_minutos}
           </div>
+        </td>
+        <td className={`${tdGreen} min-w-[70px]`}>
+          <div className={readOnlyTextClass}>
+           S/ {Number(bono || 0).toFixed(2)}
+          </div>
+
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <Input
             isDisabled={isFinalizado}
-            aria-label="Bono"
+            aria-label="Feriados"
             type="text"
             onInput={onInputPrice}
-            name="bono"
-            value={bono || ""}
+            name="feriados"
+            value={feriados || ""}
             onChange={handleChange}
             onBlur={() => handleSave()}
             size="sm"
+            startContent={<span className="text-[10px] font-bold">S/</span>}
             classNames={inputUIClasses}
           />
         </td>
-        <td className={`${tdGreen} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>
-            {Number(feriados || 0).toFixed(2)}
-          </div>
-        </td>
         <td className={`${tdYellow} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
-            {Number(salario || 0).toFixed(2)}
+           S/ {Number(salario || 0).toFixed(2)}
           </div>
         </td>
         <td className={`${tdYellowLast} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
-            {Number(adicionales || 0).toFixed(2)}
+            S/ {Number(adicionales || 0).toFixed(2)}
           </div>
         </td>
       </tr>
