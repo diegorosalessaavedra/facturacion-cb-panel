@@ -29,9 +29,18 @@ export const formatDateTime = (dateInput) => {
 export function formatDateES(dateString) {
   if (!dateString) return "-";
 
-  // Nota: Si usas 'UTC', asegúrate de que dateString tenga formato YYYY-MM-DD
-  // o agrega la hora para evitar desfases de zona horaria.
-  const date = new Date(dateString + "T00:00:00");
+  let finalDateString = dateString;
+
+  // Solo agregamos "T00:00:00" si el string es puramente una fecha corta (YYYY-MM-DD)
+  // Si ya trae formato ISO con hora (ej. 2026-10-12T15:00:00Z), lo respeta.
+  if (typeof dateString === "string" && dateString.length === 10) {
+    finalDateString += "T00:00:00";
+  }
+
+  const date = new Date(finalDateString);
+
+  // Validación de seguridad para evitar que la app crashee
+  if (isNaN(date.getTime())) return "-";
 
   const formattedDate = new Intl.DateTimeFormat("es-ES", {
     weekday: "long", // Nombre del día: jueves
@@ -43,7 +52,6 @@ export function formatDateES(dateString) {
   // Capitalizar la primera letra (opcional, para que quede: Jueves, ...)
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 }
-
 
 export const formatToPeruTime = (dateString) => {
   if (!dateString) return "";

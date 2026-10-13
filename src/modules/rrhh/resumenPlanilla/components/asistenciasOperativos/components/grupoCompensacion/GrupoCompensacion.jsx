@@ -40,12 +40,12 @@ const GrupoCompensacion = ({
     if (!semanaPlanillaId || !colaborador.id) return;
     setIsDbLoaded(false);
 
-    const url = `${import.meta.env.VITE_URL_API}/compensacion-operativa/${semanaPlanillaId}`;
+    const url = `${import.meta.env.VITE_URL_API}/compensacion-operativa/${semanaPlanillaId}/${colaborador.id} `;
 
     axios
       .get(url, config)
       .then((res) => {
-        setCompensacionOperativas(res.data.compensacion || []);
+        setCompensacionOperativas(res.data.compensaciones || []);
       })
       .catch((err) => console.error("Error cargando compensaciones:", err))
       .finally(() => setIsDbLoaded(true));
@@ -127,6 +127,8 @@ const GrupoCompensacion = ({
 
   // Calculamos cuantas filas ocupará el nombre del colaborador
   const totalFilas = compensacionesMostrar.length + 1;
+
+  console.log(compensacionOperativas)
 
   return (
     <tbody className="border-b-4 border-slate-300">

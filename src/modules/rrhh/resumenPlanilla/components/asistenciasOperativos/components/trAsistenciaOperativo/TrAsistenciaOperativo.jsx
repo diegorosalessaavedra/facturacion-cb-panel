@@ -45,17 +45,17 @@ const TrAsistenciaOperativo = ({
       finalAsistenciaFeriado = datos.asistencia_feriado || "SI";
     }
 
-    // --- REGLA: AUTOMATIZACIÓN DEL BONO ---
-    let valorBono = Number(datos.bono || 0);
+    // --- REGLA: AUTOMATIZACIÓN DEL BONO BASE ---
+    let valorBonoBase = Number(datos.bono || 0);
 
     if (datos.turno === "NOCTURNO ATO" || datos.turno === "VIAJES") {
-      valorBono = Number(bono_extraordinario || 0);
+      valorBonoBase = Number(bono_extraordinario || 0);
     } else {
       if (
-        valorBono === Number(bono_extraordinario || 0) &&
+        valorBonoBase === Number(bono_extraordinario || 0) &&
         Number(bono_extraordinario || 0) !== 0
       ) {
-        valorBono = 0;
+        valorBonoBase = 0;
       }
     }
 
@@ -166,12 +166,15 @@ const TrAsistenciaOperativo = ({
     const hrMinExtraStr =
       dEntrada && dSalida ? textoHrsExtraCalculado : datos.hr_min_extra || "";
 
+    // --- NUEVO: CÁLCULO DEL BONO TOTAL MULTIPLICADO POR TURNOS ---
+    const valorBonoTotal = valorBonoBase * turnosFinal;
+
     // --- 3. LÓGICA FINANCIERA ACTUALIZADA ---
     const trabajo = turnosFinal > 0;
     const basePlanilla = sueldoPorDia * turnosFinal;
 
     const calculoImporteHoras = horasExtrasEnteras * vHora;
-    const calculoImporteMinutos = minutosExtras > 40 ? vHora : 0;
+    const calculoImporteMinutos = minutosExtras >= 40 ? vHora : 0;
 
     const valorImpHoras =
       dEntrada && dSalida
@@ -195,15 +198,15 @@ const TrAsistenciaOperativo = ({
       valorFeriados = trabajo ? Number(sueldoFeriadoBruto || 0) : 0;
     }
 
-    // Sumamos Importe Horas, Minutos, Feriados y Bono únicamente a los Adicionales
+    // Sumamos Importe Horas, Minutos, Feriados y Bono Total únicamente a los Adicionales
     const calculoAdicionales = trabajo
-      ? Number(valorFeriados) + valorBono + valorImpHoras + valorImpMinutos
+      ? Number(valorFeriados) + valorBonoTotal + valorImpHoras + valorImpMinutos
       : 0;
 
     return {
       ...datos,
       asistencia_feriado: finalAsistenciaFeriado, // Guardamos la selección
-      bono: valorBono > 0 ? valorBono.toFixed(2) : "",
+      bono: valorBonoTotal > 0 ? valorBonoTotal.toFixed(2) : "", // Asignamos el bono total calculado
       total_horas_minutos: valTotalHoras,
       horas_enteras: valHoras,
       minutos_enteros: valMinutos,

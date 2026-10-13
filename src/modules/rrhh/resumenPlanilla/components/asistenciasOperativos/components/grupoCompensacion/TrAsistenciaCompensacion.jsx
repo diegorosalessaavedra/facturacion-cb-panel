@@ -397,8 +397,7 @@ const TrAsistenciaCompensacion = ({
           </td>
         )}
 
-        {/* CORRECCIÓN: Select para elegir la asistencia de donde provienen los datos */}
-        <td className={`${tdBlue} min-w-[120px]`}>
+        <td className={`${tdBlue} min-w-[200px]`}>
           <Select
             isDisabled={isFinalizado}
             aria-label="Asistencia Operativa"
@@ -409,7 +408,7 @@ const TrAsistenciaCompensacion = ({
             classNames={selectUIClasses}
           >
             {asistenciasOperativas?.map((op) => (
-              <SelectItem key={String(op.id)} textValue={`Ref: ${op.id}`}>
+              <SelectItem key={String(op.id)} textValue={`${formatDateES(op.entrada)} - ${formatDateES(op.salida)}`}>
                 <p className="text-[9px] font-bold">
                   {formatDateES(op.entrada)} - {formatDateES(op.salida)}
                 </p>
@@ -418,13 +417,9 @@ const TrAsistenciaCompensacion = ({
           </Select>
         </td>
 
-        <td
-          className={`${tdBlue} uppercase text-[9px] whitespace-nowrap align-middle min-w-[180px]`}
-        >
-          {formatDateES(dia?.dia_plantilla) || "-"}
-        </td>
 
-        <td className={`${tdBlue} min-w-[70px]`}>
+
+        <td className={`${tdBlue} min-w-[70px] max-w-[70px]ß`}>
           <Select
             isDisabled={isFinalizado || !esFeriado}
             aria-label="Feriado"
