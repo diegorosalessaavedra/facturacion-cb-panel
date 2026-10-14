@@ -14,7 +14,6 @@ const FilaPrincipal = ({
 }) => {
   const [totales, setTotales] = useState(null);
 
-  console.log(colaborador);
 
   useEffect(() => {
     const fetchTotales = () => {
@@ -82,7 +81,9 @@ const FilaPrincipal = ({
   const descuentos = 0; // Reserva por si necesitas agregar otros descuentos más adelante
 
   // 3. Fórmula final
-  const totalPorPagar = salarioBruto + asigFamiliar - montoPension - descuentos;
+
+  const montoAsignacionFamiliar = esAdministrativo ? asigFamiliar : asigFamiliar/4; // Solo se aplica para administrativos
+  const totalPorPagar = salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;
 
   return (
     <tr className="hover:bg-blue-50/50 transition-colors group h-[38px]">
@@ -121,7 +122,7 @@ const FilaPrincipal = ({
       <td className={tdClass}>
         {totales?.salario_total ? renderMoney(salarioBruto) : "-"}
       </td>{" "}
-      <td className={tdClass}>{renderMoney(asigFamiliar)}</td>
+      <td className={tdClass}>{renderMoney(montoAsignacionFamiliar)}</td>
       {/* Muestra el cálculo ya en dinero (ej. S/ 100.00) */}
       <td className={tdClass}>
         <Tooltip

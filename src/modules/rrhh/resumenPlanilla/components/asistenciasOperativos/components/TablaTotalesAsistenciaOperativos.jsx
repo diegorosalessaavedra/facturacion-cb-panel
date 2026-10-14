@@ -203,7 +203,7 @@ const TablaTotalesAsistenciaOperativos = ({
                   ? `S/ ${mostrar_salario_excedente.toFixed(2)}`
                   : "-"}
             </td>
-            <td className={tdValueLast}>-</td>
+            <td className={tdValueLast}>{adicionalesBase > 0 ? `S/ ${adicionalesBase.toFixed(2)}` : "-"}</td>
           </tr>
           <tr className="hover:bg-slate-50 transition-colors">
             <td className={tdTitle}>ADICIÓN</td>

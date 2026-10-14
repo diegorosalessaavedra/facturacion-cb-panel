@@ -12,9 +12,9 @@ const GrupoColaboradorOperativo = ({
   const sueldoMensual = colaborador?.sueldos?.[0]?.sueldo || 0;
   const sueldoSemanal = sueldoMensual / 4;
 
-  const sueldoFeriadoBruto = Number(colaborador.valor_diario || 0) * 2;
-  const sueldoPorDia = Number(colaborador.valor_diario || 0);
-  const valorHora = Number(colaborador.valor_por_hora || 0);
+  const sueldoFeriadoBruto = Number(colaborador?.valor_diario || 0) * 2;
+  const sueldoPorDia = Number(colaborador?.valor_diario || 0);
+  const valorHora = Number(colaborador?.valor_por_hora || 0);
 
   // VALIDACIÓN APLICADA: El tope ahora es el sueldo base semanal en lugar de sueldoPorDia * 7
   const topeSemanal = sueldoSemanal;

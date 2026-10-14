@@ -509,20 +509,6 @@ const TrAsistenciaCompensacion = ({
         <td className={`${tdBlue} min-w-[60px]`}>
           <div className={readOnlyTextClass}>{minutos_enteros || "0"}</div>
         </td>
-        <td className={`${tdGreen} min-w-[60px]`}>
-          <Input
-            isDisabled={isFinalizado}
-            aria-label="Turnos"
-            type="text"
-            onInput={onInputNumber}
-            name="turnos"
-            value={turnos || ""}
-            onChange={handleChange}
-            onBlur={() => handleSave()}
-            size="sm"
-            classNames={inputUIClasses}
-          />
-        </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
             S/ {Number(total_planilla || 0).toFixed(2)}
@@ -554,29 +540,10 @@ const TrAsistenciaCompensacion = ({
             S/ {Number(bono || 0).toFixed(2)}
           </div>
         </td>
-        <td className={`${tdGreen} min-w-[70px]`}>
-          <Input
-            isDisabled={isFinalizado}
-            aria-label="Feriados"
-            type="text"
-            onInput={onInputPrice}
-            name="feriados_monto"
-            value={feriados_monto || ""}
-            onChange={handleChange}
-            onBlur={() => handleSave()}
-            size="sm"
-            startContent={<span className="text-[10px] font-bold">S/</span>}
-            classNames={inputUIClasses}
-          />
-        </td>
+
         <td className={`${tdYellow} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
             S/ {Number(salario || 0).toFixed(2)}
-          </div>
-        </td>
-        <td className={`${tdYellowLast} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>
-            S/ {Number(adicionales || 0).toFixed(2)}
           </div>
         </td>
       </tr>

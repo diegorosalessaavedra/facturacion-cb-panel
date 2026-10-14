@@ -32,6 +32,19 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
       .catch((err) => console.error("Error cargando totales:", err));
   };
 
+
+  const fetchTotalesOperativo = () => {
+    if (!semana_id || !colaborador?.id) return;
+
+    const url = `${API}/totales-asistencia-operativo/${semana_id}/${colaborador.id}`;
+
+    axios.get(url, config).then((res) => {
+      if (res.data.totales?.id) {
+        setTotales(res.data.totales);
+      }
+    });
+  };
+
   const patchTotales = () => {
     if (!totales?.id) {
       toast.error("No hay datos en el tareo");
@@ -61,8 +74,11 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
   };
 
   useEffect(() => {
-    fetchTotales();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS") {
+      fetchTotales();
+    } else {
+      fetchTotalesOperativo();
+    }
   }, [semana_id, colaborador.id, isOpen]);
 
   return (

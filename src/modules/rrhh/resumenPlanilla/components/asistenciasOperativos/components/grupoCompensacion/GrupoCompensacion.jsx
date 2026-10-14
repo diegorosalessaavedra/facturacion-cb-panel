@@ -128,8 +128,6 @@ const GrupoCompensacion = ({
   // Calculamos cuantas filas ocupará el nombre del colaborador
   const totalFilas = compensacionesMostrar.length + 1;
 
-  console.log(compensacionOperativas)
-
   return (
     <tbody className="border-b-4 border-slate-300">
       {compensacionesMostrar.map((comp, index) => (
@@ -152,16 +150,13 @@ const GrupoCompensacion = ({
 
       <tr className="bg-slate-800 font-bold text-[10px] text-slate-50 text-center">
         {/* Sumamos un colSpan de 7 porque agregamos el nuevo Select */}
-        <td colSpan={7} className="border-r border-slate-300 p-2 text-right">
+        <td colSpan={6} className="border-r border-slate-300 p-2 text-right">
           TOTALES
         </td>
         <td className="border-r border-slate-300 p-1">{totalHorasString}</td>
         <td className="border-r border-slate-300 p-1">{sumHoras}</td>
         <td className="border-r border-slate-300 p-1">{sumMinutos}</td>
 
-        <td className="border-r border-slate-300 p-1 text-blue-400">
-          {sumTurnos.toFixed(2)}
-        </td>
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumPlanilla.toFixed(2)}
         </td>
@@ -177,13 +172,10 @@ const GrupoCompensacion = ({
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumBono.toFixed(2)}
         </td>
-        <td className="border-r border-slate-300 p-1 text-teal-400">
-          S/ {sumFeriados.toFixed(2)}
-        </td>
+ 
         <td className="border-r border-slate-300 p-1 text-amber-400">
           S/ {sumSalario.toFixed(2)}
         </td>
-        <td className="p-1 text-amber-400">S/ {sumAdicionales.toFixed(2)}</td>
       </tr>
     </tbody>
   );
