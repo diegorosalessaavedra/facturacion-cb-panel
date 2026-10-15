@@ -60,8 +60,7 @@ const FilaPrincipal = ({
   const salarioBruto = Number(totales?.salario_total || 0);
 
   const asigFamiliar = Number(
-    colaborador?.asignacion_familiar / totalSemanas || 0,
-  );
+    colaborador?.asignacion_familiar)
 
   // 1. Buscar el porcentaje de pensión que sea mayor a 0
   const pensionEncontrada = [
@@ -82,7 +81,7 @@ const FilaPrincipal = ({
 
   // 3. Fórmula final
 
-  const montoAsignacionFamiliar = esAdministrativo ? asigFamiliar : asigFamiliar/4; // Solo se aplica para administrativos
+  const montoAsignacionFamiliar = esAdministrativo ? asigFamiliar / totalSemanas : asigFamiliar / 4; // Solo se aplica para administrativos
   const totalPorPagar = salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;
 
   return (
