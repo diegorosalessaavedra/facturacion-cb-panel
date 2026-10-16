@@ -257,7 +257,7 @@ function App() {
     <>
       {userData && <Header userData={userData} />}
 
-      <Toaster position="bottom-right" richColors />
+      <Toaster position="top-center" richColors />
       <Routes>
         <Route path="/log-in" element={<Login userData={userData} />} />
 
@@ -530,7 +530,7 @@ function App() {
               </ProtectedRouteWrapper>
             }
           />
-           <Route
+          <Route
             path="/rrhh/resumen-planilla/reaperturar/:id"
             element={
               <ProtectedRouteWrapper userRole={userRole}>

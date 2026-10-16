@@ -317,7 +317,7 @@ const TrAsistenciaCompensacion = ({
             return updated;
           });
         }
-        toast.success("Compensación guardada", top);
+        toast.success("Compensación guardada");
       })
       .catch(handleAxiosError);
   };
