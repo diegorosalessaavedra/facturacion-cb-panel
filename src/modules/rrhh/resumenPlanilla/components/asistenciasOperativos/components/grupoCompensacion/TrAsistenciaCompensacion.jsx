@@ -105,8 +105,6 @@ const TrAsistenciaCompensacion = ({
             (parseInt(astH, 10) || 0) * 60 + (parseInt(astM, 10) || 0);
 
           totalMinutosTotales = totalMinutosTotales - astTotalMins;
-
-          if (totalMinutosTotales < 0) totalMinutosTotales = 0;
         }
 
         h = Math.floor(totalMinutosTotales / 60);
@@ -300,13 +298,11 @@ const TrAsistenciaCompensacion = ({
     }
 
     const mySeq = ++saveSeqRef.current;
-    const toastId = toast.loading("Guardando...");
     const url = `${import.meta.env.VITE_URL_API}/compensacion-operativa/${payload.id || "0"}`;
 
     axios
       .post(url, payload, config)
       .then((res) => {
-        toast.success("Guardado", { id: toastId });
         const newId = res.data?.data?.id ?? payload.id;
         if (mySeq !== saveSeqRef.current) return;
         if (newId && newId !== datosRef.current.id) {
@@ -316,6 +312,7 @@ const TrAsistenciaCompensacion = ({
             return updated;
           });
         }
+        toast.success("Compensación guardada");
       })
       .catch(handleAxiosError);
   };
