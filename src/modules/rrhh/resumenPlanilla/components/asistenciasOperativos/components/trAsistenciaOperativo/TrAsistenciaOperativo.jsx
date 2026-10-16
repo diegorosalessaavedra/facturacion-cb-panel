@@ -11,16 +11,31 @@ import {
 import { handleAxiosError } from "../../../../../../../utils/handleAxiosError";
 
 // --- FUNCIÓN HELPER PARA FORMATEAR DATETIME-LOCAL ---
+// --- FUNCIÓN HELPER PARA FORMATEAR DATETIME-LOCAL EN HORA DE PERÚ ---
 const formatForDateTimeLocal = (dateStr) => {
   if (!dateStr) return "";
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return dateStr;
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
+  // Forzamos la zona horaria a Lima, Perú
+  const formatter = new Intl.DateTimeFormat("es-PE", {
+    timeZone: "America/Lima",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23", // Formato estricto de 24 horas (00-23)
+  });
+
+  const parts = formatter.formatToParts(date);
+  const getPart = (type) => parts.find((p) => p.type === type)?.value;
+
+  const year = getPart("year");
+  const month = getPart("month");
+  const day = getPart("day");
+  const hours = getPart("hour");
+  const minutes = getPart("minute");
 
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
