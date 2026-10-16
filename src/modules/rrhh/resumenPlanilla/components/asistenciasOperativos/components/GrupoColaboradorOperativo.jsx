@@ -62,7 +62,9 @@ const GrupoColaboradorOperativo = ({
     sumAdicionales += Number(r.adicionales || 0);
   });
 
+  // Sumamos los montos del Saldo Anterior numéricamente
   sumSalario += Number(datosSaldo.salario || 0);
+  sumAdicionales += Number(datosSaldo.saldo || 0); // CORRECCIÓN AQUÍ
 
   // Enviamos los totales al padre (incluyendo el tope validado)
   useEffect(() => {
@@ -138,10 +140,11 @@ const GrupoColaboradorOperativo = ({
         <td className="border-r border-slate-300 p-1 text-amber-400">
           S/ {sumSalario.toFixed(2)}
         </td>
+        {/* CORRECCIÓN AQUÍ: Se eliminó la concatenación de datosSaldo.saldo */}
         <td className="p-1 text-amber-400">S/ {sumAdicionales.toFixed(2)}</td>
       </tr>
     </tbody>
   );
 };
 
-export default GrupoColaboradorOperativo; 
+export default GrupoColaboradorOperativo;
