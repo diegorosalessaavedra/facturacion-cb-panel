@@ -4,60 +4,65 @@ import { formatDateES } from "../../../../../../../utils/formatDateTime";
 import axios from "axios";
 import config from "../../../../../../../utils/getToken";
 import { toast } from "sonner";
-import {
-  onInputNumber,
-  onInputPrice,
-} from "../../../../../../../assets/onInputs";
+import { onInputPrice } from "../../../../../../../assets/onInputs";
 import { handleAxiosError } from "../../../../../../../utils/handleAxiosError";
 
 const formatForDateTimeLocal = (dateStr) => {
   if (!dateStr) return "";
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return dateStr;
+
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
+
   return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+const safeFormatDateES = (dateStr, fallback = "--:--") => {
+  if (!dateStr) return fallback;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return fallback;
+  try {
+    return formatDateES(dateStr);
+  } catch (error) {
+    return fallback;
+  }
 };
 
 const TrAsistenciaCompensacion = ({
   compensacion,
   dia,
   findColaborador,
-  sueldoPorDia,
-  valorHora,
   sueldoFeriadoBruto,
   onDataUpdate,
   isFinalizado,
-  bono_extraordinario,
   asistenciasOperativas,
-  isFirstRow, // <-- Nueva prop
-  rowSpan, // <-- Nueva prop
+  isFirstRow,
+  rowSpan,
 }) => {
   const esFeriado = Boolean(dia?.bonificacion_feriado);
 
-  const aplicarReglasTurno = (datos) => {
+  const [asistenciaSeleccionada, setAsistenciaSeleccionada] = useState(null);
+
+  const aplicarReglasTurno = (
+    datos,
+    asistenciaActiva = asistenciaSeleccionada,
+  ) => {
     let finalFeriado = "NO";
     if (esFeriado) {
       finalFeriado = datos.feriado || "SI";
     }
 
-    let valorBono = Number(datos.bono || 0);
-    if (datos.turno === "NOCTURNO ATO" || datos.turno === "VIAJES") {
-      valorBono = Number(bono_extraordinario || 0);
-    } else {
-      if (
-        valorBono === Number(bono_extraordinario || 0) &&
-        Number(bono_extraordinario || 0) !== 0
-      ) {
-        valorBono = 0;
-      }
-    }
+    const valorBono = Number(datos.bono || 0);
+    const hrMinExtraStr = datos.hr_min_extra || "";
+    const valorImpHoras = Number(datos.importe_horas || 0);
+    const valorImpMinutos = Number(datos.importe_minutos || 0);
 
-    const vHora = Number(valorHora || 0);
-    const vMinuto = vHora / 60;
+    // NUEVO: Capturamos directamente lo que el usuario tipea en total_planilla
+    const valorTotalPlanilla = datos.total_planilla || "";
 
     let valTotalHoras = datos.total_horas_minutos || "";
     let valHoras = datos.horas_enteras || "0";
@@ -92,7 +97,18 @@ const TrAsistenciaCompensacion = ({
       }
 
       if (diffMs >= 0) {
-        const totalMinutosTotales = Math.floor(diffMs / 60000);
+        let totalMinutosTotales = Math.floor(diffMs / 60000);
+
+        if (asistenciaActiva && asistenciaActiva.total_horas_minutos) {
+          const [astH, astM] = asistenciaActiva.total_horas_minutos.split(":");
+          const astTotalMins =
+            (parseInt(astH, 10) || 0) * 60 + (parseInt(astM, 10) || 0);
+
+          totalMinutosTotales = totalMinutosTotales - astTotalMins;
+
+          if (totalMinutosTotales < 0) totalMinutosTotales = 0;
+        }
+
         h = Math.floor(totalMinutosTotales / 60);
         m = totalMinutosTotales % 60;
         valHoras = h.toString();
@@ -107,71 +123,9 @@ const TrAsistenciaCompensacion = ({
       }
     }
 
-    let turnosCalculados = 0;
-    let horasExtrasEnteras = 0;
-    let minutosExtras = 0;
-
-    if (h >= 6 && h <= 12) {
-      turnosCalculados = 1;
-    } else if (h > 12 && h < 18) {
-      turnosCalculados = 1;
-      horasExtrasEnteras = h - 12;
-      minutosExtras = m;
-    } else if (h >= 18 && h < 24) {
-      turnosCalculados = 2;
-    } else if (h >= 24 && h < 30) {
-      turnosCalculados = 2;
-      horasExtrasEnteras = h - 24;
-      minutosExtras = m;
-    } else if (h >= 30 && h < 36) {
-      turnosCalculados = 3;
-    } else if (h >= 36 && h < 42) {
-      turnosCalculados = 3;
-      horasExtrasEnteras = h - 36;
-      minutosExtras = m;
-    } else if (h >= 42 && h < 48) {
-      turnosCalculados = 4;
-    } else if (h >= 48 && h < 54) {
-      turnosCalculados = 4;
-      horasExtrasEnteras = h - 48;
-      minutosExtras = m;
-    } else if (h >= 54 && h < 60) {
-      turnosCalculados = 5;
-    } else if (h >= 60) {
-      turnosCalculados = 5;
-      horasExtrasEnteras = h - 60;
-      minutosExtras = m;
-      if (horasExtrasEnteras > 5) {
-        horasExtrasEnteras = 5;
-        minutosExtras = 0;
-      }
-    }
-
     const turnosFinal =
-      dEntrada && dSalida ? turnosCalculados : Number(datos.turnos || 0);
-
-    const textoHrsExtraCalculado =
-      horasExtrasEnteras > 0 || minutosExtras > 0
-        ? `${horasExtrasEnteras.toString().padStart(2, "0")}:${minutosExtras.toString().padStart(2, "0")}`
-        : "";
-
-    const hrMinExtraStr =
-      dEntrada && dSalida ? textoHrsExtraCalculado : datos.hr_min_extra || "";
-
-    const trabajo = turnosFinal > 0;
-    const basePlanilla = sueldoPorDia * turnosFinal;
-
-    const calculoImporteHoras = horasExtrasEnteras * vHora;
-    const calculoImporteMinutos = minutosExtras > 40 ? vHora : 0;
-
-    const valorImpHoras =
-      dEntrada && dSalida
-        ? calculoImporteHoras
-        : Number(datos.importe_horas || 0);
-    const valorImpMinutos =
-      dEntrada && dSalida
-        ? calculoImporteMinutos
-        : Number(datos.importe_minutos || 0);
+      dEntrada && dSalida ? datos.turnos : Number(datos.turnos || 0);
+    const trabajo = Number(turnosFinal) > 0;
 
     let valorFeriadosMonetario = datos.feriados_monto;
     if (finalFeriado === "NO") {
@@ -194,19 +148,21 @@ const TrAsistenciaCompensacion = ({
     return {
       ...datos,
       feriado: finalFeriado,
-      bono: valorBono > 0 ? valorBono.toFixed(2) : "",
       total_horas_minutos: valTotalHoras,
       horas_enteras: valHoras,
       minutos_enteros: valMinutos,
-      turnos: turnosFinal.toString(),
-      hr_min_extra: hrMinExtraStr,
-      importe_horas: valorImpHoras ? valorImpHoras.toFixed(2) : "0.00",
-      importe_minutos: valorImpMinutos ? valorImpMinutos.toFixed(2) : "0.00",
-      total_planilla: trabajo ? basePlanilla : 0,
       feriados_monto: valorFeriadosMonetario,
-      salario: trabajo ? basePlanilla : 0,
       adicionales: calculoAdicionales,
       total_efectivo: calculoAdicionales,
+
+      // CAMPOS MANUALES
+      turnos: datos.turnos || "",
+      total_planilla: valorTotalPlanilla, // <-- Ya no se sobreescribe
+      hr_min_extra: hrMinExtraStr,
+      importe_horas: datos.importe_horas || "",
+      importe_minutos: datos.importe_minutos || "",
+      bono: datos.bono || "",
+      salario: valorTotalPlanilla, // Asumimos que salario visualmente depende de planilla
     };
   };
 
@@ -228,12 +184,12 @@ const TrAsistenciaCompensacion = ({
       total_horas_minutos: "",
       horas_enteras: "",
       minutos_enteros: "",
-      turnos: 0,
-      total_planilla: 0,
+      turnos: "",
+      total_planilla: "", // Inicializamos en string vacío
       hr_min_extra: "",
-      importe_horas: "0.00",
-      importe_minutos: "0.00",
-      bono: 0.0,
+      importe_horas: "",
+      importe_minutos: "",
+      bono: "",
       feriados_monto: 0.0,
       salario: 0.0,
       adicionales: 0.0,
@@ -255,13 +211,31 @@ const TrAsistenciaCompensacion = ({
     axios
       .get(url, config)
       .then((res) => {
-        if (res.data.asistencia) {
-          const { ...datosPrincipales } = res.data.asistencia;
-          const newData = aplicarReglasTurno({
-            ...datosCompensacion,
-            ...datosPrincipales,
-          });
+        if (res.data.compensacion) {
+          const { ...datosPrincipales } = res.data.compensacion;
+
+          let foundAsistencia = null;
+          if (datosPrincipales.asistencia_operativa_id) {
+            foundAsistencia = asistenciasOperativas?.find(
+              (op) =>
+                String(op.id) ===
+                String(datosPrincipales.asistencia_operativa_id),
+            );
+            if (foundAsistencia) {
+              setAsistenciaSeleccionada(foundAsistencia);
+            }
+          }
+
+          const newData = aplicarReglasTurno(
+            {
+              ...datosCompensacion,
+              ...datosPrincipales,
+            },
+            foundAsistencia,
+          );
+
           setDatosCompensacion(newData);
+
           if (onDataUpdate) onDataUpdate(newData);
         } else {
           if (onDataUpdate) onDataUpdate(datosCompensacion);
@@ -288,10 +262,24 @@ const TrAsistenciaCompensacion = ({
   const handleSelectChange = (e) => {
     const { name, value } = e.target;
     if (!value) return;
-    const nuevosDatos = aplicarReglasTurno({
-      ...datosCompensacion,
-      [name]: value,
-    });
+
+    let foundAsistencia = asistenciaSeleccionada;
+
+    if (name === "asistencia_operativa_id") {
+      foundAsistencia = asistenciasOperativas?.find(
+        (op) => String(op.id) === String(value),
+      );
+      setAsistenciaSeleccionada(foundAsistencia || null);
+    }
+
+    const nuevosDatos = aplicarReglasTurno(
+      {
+        ...datosCompensacion,
+        [name]: value,
+      },
+      foundAsistencia,
+    );
+
     datosRef.current = nuevosDatos;
     setDatosCompensacion(nuevosDatos);
     if (onDataUpdate) onDataUpdate(nuevosDatos);
@@ -305,7 +293,7 @@ const TrAsistenciaCompensacion = ({
     delete payload.feriados_monto;
     delete payload.salario;
     delete payload.adicionales;
-    delete payload.total_planilla;
+    // IMPORTANTE: Ya NO eliminamos total_planilla aquí
 
     for (const key in payload) {
       if (payload[key] === "") payload[key] = null;
@@ -348,10 +336,9 @@ const TrAsistenciaCompensacion = ({
   const tdBlue = "border-r border-b border-blue-200 bg-blue-50/80 p-1";
   const tdGreen = "border-r border-b border-teal-200 bg-teal-50/80 p-1";
   const tdYellow = "border-r border-b border-amber-200 bg-amber-50/80 p-1";
-  const tdYellowLast = "border-b border-amber-200 bg-amber-50/80 p-1";
 
   const {
-    asistencia_operativa_id, // Usado en el Select
+    asistencia_operativa_id,
     feriado,
     turno,
     actividad_dia,
@@ -360,15 +347,12 @@ const TrAsistenciaCompensacion = ({
     total_horas_minutos,
     horas_enteras,
     minutos_enteros,
-    turnos,
     total_planilla,
     hr_min_extra,
     importe_horas,
     importe_minutos,
     bono,
-    feriados_monto,
     salario,
-    adicionales,
   } = datosCompensacion;
 
   const opcionesTurno = [
@@ -386,7 +370,6 @@ const TrAsistenciaCompensacion = ({
   return (
     <>
       <tr className="group hover:bg-slate-50 transition-colors">
-        {/* Celda del nombre que SOLO se imprime en el primer registro */}
         {isFirstRow && (
           <td
             rowSpan={rowSpan}
@@ -408,16 +391,17 @@ const TrAsistenciaCompensacion = ({
             classNames={selectUIClasses}
           >
             {asistenciasOperativas?.map((op) => (
-              <SelectItem key={String(op.id)} textValue={`${formatDateES(op.entrada)} - ${formatDateES(op.salida)}`}>
+              <SelectItem
+                key={String(op.id)}
+                textValue={`${safeFormatDateES(op.entrada)} - ${safeFormatDateES(op.salida)}`}
+              >
                 <p className="text-[9px] font-bold">
-                  {formatDateES(op.entrada)} - {formatDateES(op.salida)}
+                  {safeFormatDateES(op.entrada)} - {safeFormatDateES(op.salida)}
                 </p>
               </SelectItem>
             ))}
           </Select>
         </td>
-
-
 
         <td className={`${tdBlue} min-w-[70px] max-w-[70px]ß`}>
           <Select
@@ -509,36 +493,81 @@ const TrAsistenciaCompensacion = ({
         <td className={`${tdBlue} min-w-[60px]`}>
           <div className={readOnlyTextClass}>{minutos_enteros || "0"}</div>
         </td>
+
         <td className={`${tdGreen} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>
-            S/ {Number(total_planilla || 0).toFixed(2)}
-          </div>
+          <Input
+            isDisabled={isFinalizado}
+            aria-label="Total Planilla"
+            type="text"
+            onInput={onInputPrice}
+            name="total_planilla"
+            value={total_planilla || ""}
+            onChange={handleChange}
+            onBlur={() => handleSave()}
+            size="sm"
+            startContent={<span className="text-[10px] font-bold">S/</span>}
+            classNames={inputUIClasses}
+          />
         </td>
+
         <td className={`${tdGreen} min-w-[80px]`}>
-          <div
-            className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
-          >
-            {hr_min_extra || "-"}
-          </div>
+          <Input
+            isDisabled={isFinalizado}
+            aria-label="Horas y Minutos Extra"
+            type="text"
+            name="hr_min_extra"
+            value={hr_min_extra || ""}
+            onChange={handleChange}
+            onBlur={() => handleSave()}
+            size="sm"
+            placeholder="HH:MM"
+            classNames={inputUIClasses}
+          />
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
-          <div
-            className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
-          >
-            S/ {importe_horas === "0.00" ? "-" : importe_horas}
-          </div>
+          <Input
+            isDisabled={isFinalizado}
+            aria-label="Importe Horas"
+            type="text"
+            onInput={onInputPrice}
+            name="importe_horas"
+            value={importe_horas || ""}
+            onChange={handleChange}
+            onBlur={() => handleSave()}
+            size="sm"
+            startContent={<span className="text-[10px] font-bold">S/</span>}
+            classNames={inputUIClasses}
+          />
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
-          <div
-            className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
-          >
-            S/ {importe_minutos === "0.00" ? "-" : importe_minutos}
-          </div>
+          <Input
+            isDisabled={isFinalizado}
+            aria-label="Importe Minutos"
+            type="text"
+            onInput={onInputPrice}
+            name="importe_minutos"
+            value={importe_minutos || ""}
+            onChange={handleChange}
+            onBlur={() => handleSave()}
+            size="sm"
+            startContent={<span className="text-[10px] font-bold">S/</span>}
+            classNames={inputUIClasses}
+          />
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>
-            S/ {Number(bono || 0).toFixed(2)}
-          </div>
+          <Input
+            isDisabled={isFinalizado}
+            aria-label="Bono"
+            type="text"
+            onInput={onInputPrice}
+            name="bono"
+            value={bono || ""}
+            onChange={handleChange}
+            onBlur={() => handleSave()}
+            size="sm"
+            startContent={<span className="text-[10px] font-bold">S/</span>}
+            classNames={inputUIClasses}
+          />
         </td>
 
         <td className={`${tdYellow} min-w-[70px]`}>
