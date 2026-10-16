@@ -10,32 +10,23 @@ import {
 } from "../../../../../../../assets/onInputs";
 import { handleAxiosError } from "../../../../../../../utils/handleAxiosError";
 
-// --- FUNCIÓN HELPER PARA FORMATEAR DATETIME-LOCAL ---
-// --- FUNCIÓN HELPER PARA FORMATEAR DATETIME-LOCAL EN HORA DE PERÚ ---
 const formatForDateTimeLocal = (dateStr) => {
   if (!dateStr) return "";
+  if (typeof dateStr === "string") {
+    const normalized = dateStr.replace(" ", "T");
+    if (normalized.includes("T")) {
+      return normalized.substring(0, 16);
+    }
+  }
+
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return dateStr;
 
-  // Forzamos la zona horaria a Lima, Perú
-  const formatter = new Intl.DateTimeFormat("es-PE", {
-    timeZone: "America/Lima",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23", // Formato estricto de 24 horas (00-23)
-  });
-
-  const parts = formatter.formatToParts(date);
-  const getPart = (type) => parts.find((p) => p.type === type)?.value;
-
-  const year = getPart("year");
-  const month = getPart("month");
-  const day = getPart("day");
-  const hours = getPart("hour");
-  const minutes = getPart("minute");
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
 
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
