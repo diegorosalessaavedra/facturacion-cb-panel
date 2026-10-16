@@ -23,7 +23,7 @@ const TablaCompensacionAsistenciaOperativos = ({
             <th colSpan={10} className={thMainBlue}>
               COMPENSACION PARA LA SIGUIENTE SEMANA
             </th>
-            <th colSpan={6} className={thMainGreen}>
+            <th colSpan={5} className={thMainGreen}>
               CALCULO PARA COMPENSACION DE LA SIGUIENTE SEMANA
             </th>
           </tr>
@@ -39,7 +39,6 @@ const TablaCompensacionAsistenciaOperativos = ({
             <th className={thSubBlue}>HORAS ENTERAS</th>
             <th className={thSubBlue}>MINUTOS ENTERAS</th>
             <th className={thSubGreen}>TOTAL PLANILLA</th>
-            <th className={thSubGreen}>HR Y MIN EXTRA</th>
             <th className={thSubGreen}>IMPORTE HORAS</th>
             <th className={thSubGreen}>IMPORTE MINUTOS</th>
             <th className={thSubGreen}>BONO</th>

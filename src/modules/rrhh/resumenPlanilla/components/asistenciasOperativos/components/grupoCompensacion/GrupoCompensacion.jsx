@@ -160,9 +160,7 @@ const GrupoCompensacion = ({
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumPlanilla.toFixed(2)}
         </td>
-        <td className="border-r border-slate-300 p-1 text-blue-300">
-          {totalHrMinExtraString}
-        </td>
+
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumImporteHoras.toFixed(2)}
         </td>
@@ -172,7 +170,7 @@ const GrupoCompensacion = ({
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumBono.toFixed(2)}
         </td>
- 
+
         <td className="border-r border-slate-300 p-1 text-amber-400">
           S/ {sumSalario.toFixed(2)}
         </td>

@@ -9,14 +9,21 @@ import { handleAxiosError } from "../../../../../../../utils/handleAxiosError";
 
 const formatForDateTimeLocal = (dateStr) => {
   if (!dateStr) return "";
+  if (typeof dateStr === "string") {
+    const normalized = dateStr.replace(" ", "T");
+    if (normalized.includes("T")) {
+      return normalized.substring(0, 16);
+    }
+  }
+
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return dateStr;
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
 
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
@@ -156,7 +163,6 @@ const TrAsistenciaCompensacion = ({
       // CAMPOS MANUALES
       turnos: datos.turnos || "",
       total_planilla: valorTotalPlanilla, // <-- Ya no se sobreescribe
-      hr_min_extra: hrMinExtraStr,
       importe_horas: datos.importe_horas || "",
       importe_minutos: datos.importe_minutos || "",
       bono: datos.bono || "",
@@ -184,7 +190,6 @@ const TrAsistenciaCompensacion = ({
       minutos_enteros: "",
       turnos: "",
       total_planilla: "", // Inicializamos en string vacío
-      hr_min_extra: "",
       importe_horas: "",
       importe_minutos: "",
       bono: "",
@@ -312,7 +317,7 @@ const TrAsistenciaCompensacion = ({
             return updated;
           });
         }
-        toast.success("Compensación guardada");
+        toast.success("Compensación guardada", top);
       })
       .catch(handleAxiosError);
   };
@@ -507,20 +512,6 @@ const TrAsistenciaCompensacion = ({
           />
         </td>
 
-        <td className={`${tdGreen} min-w-[80px]`}>
-          <Input
-            isDisabled={isFinalizado}
-            aria-label="Horas y Minutos Extra"
-            type="text"
-            name="hr_min_extra"
-            value={hr_min_extra || ""}
-            onChange={handleChange}
-            onBlur={() => handleSave()}
-            size="sm"
-            placeholder="HH:MM"
-            classNames={inputUIClasses}
-          />
-        </td>
         <td className={`${tdGreen} min-w-[70px]`}>
           <Input
             isDisabled={isFinalizado}
