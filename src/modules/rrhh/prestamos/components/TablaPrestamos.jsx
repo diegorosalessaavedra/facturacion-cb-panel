@@ -1,14 +1,23 @@
-import { Button, useDisclosure } from "@nextui-org/react";
+import { Button, Link, useDisclosure } from "@nextui-org/react";
 import React, { useState } from "react";
 import ModalVerCronograma from "./ModalVerCronograma";
+import ModalSubirSustento from "./ModalSubirSustento";
+import { API_DOC } from "../../../../utils/api";
 
-const TablaPrestamos = ({ prestamos }) => {
+const TablaPrestamos = ({ prestamos, fetchPrestamos }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectModal, setSelectModal] = useState("");
   const [selectPrestamo, setSelectPrestamo] = useState(null);
-  const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
 
   const handleVerCronograma = (prestamo) => {
-    setPrestamoSeleccionado(prestamo);
+    setSelectPrestamo(prestamo);
+    setSelectModal("verCronograma");
+    onOpen();
+  };
+
+  const handleSubirSustento = (prestamo) => {
+    setSelectPrestamo(prestamo);
+    setSelectModal("subirSustento");
     onOpen();
   };
 
@@ -77,11 +86,17 @@ const TablaPrestamos = ({ prestamos }) => {
             </tr>
           ) : (
             prestamos.map((prestamo) => {
-              // Cálculos derivados del cronograma
-              const totalDesembolso = prestamo.cronograma?.reduce((acc, cuota) => acc + Number(cuota.importe_cuota), 0).toFixed(2) || "0.00";
+              const totalDesembolso =
+                prestamo.cronograma
+                  ?.reduce((acc, cuota) => acc + Number(cuota.importe_cuota), 0)
+                  .toFixed(2) || "0.00";
               const numCuotas = prestamo.cronograma?.length || 0;
-              const cuotaInicialObj = prestamo.cronograma?.find((c) => c.numero_cuota === 1);
-              const fechaCuotaInicial = cuotaInicialObj ? cuotaInicialObj.fecha_descuento : "-";
+              const cuotaInicialObj = prestamo.cronograma?.find(
+                (c) => c.numero_cuota === 1,
+              );
+              const fechaCuotaInicial = cuotaInicialObj
+                ? cuotaInicialObj.fecha_descuento
+                : "-";
 
               const estadoClases = getEstadoStyles(prestamo.estado_prestamo);
 
@@ -91,7 +106,8 @@ const TablaPrestamos = ({ prestamos }) => {
                   className="border-b-1 hover:bg-slate-50 transition-colors"
                 >
                   <td className="border-r text-[10px] border-slate-200 p-2 font-semibold text-slate-800 uppercase">
-                    {prestamo.colaborador?.apellidos_colaborador} {prestamo.colaborador?.nombre_colaborador}
+                    {prestamo.colaborador?.apellidos_colaborador}{" "}
+                    {prestamo.colaborador?.nombre_colaborador}
                   </td>
 
                   <td className="border-r text-[11px] border-slate-200 p-2 font-medium">
@@ -121,31 +137,41 @@ const TablaPrestamos = ({ prestamos }) => {
                   <td className="border-r border-slate-200 p-2">
                     <Button
                       className="bg-green-500 hover:bg-green-600 text-slate-900 text-[10px] font-bold h-7"
-                      size="sm" onPress={() => handleVerCronograma(prestamo)}
+                      size="sm"
+                      onPress={() => handleVerCronograma(prestamo)}
                     >
                       VER
                     </Button>
                   </td>
 
                   <td className="border-r border-slate-200 p-2">
-                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${estadoClases}`}>
+                    <span
+                      className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${estadoClases}`}
+                    >
                       {prestamo.estado_prestamo}
                     </span>
                   </td>
 
                   <td className="border-r border-slate-200 p-2">
-                    <Button
-                      className="bg-amber-400 hover:bg-amber-500 text-slate-900 text-[10px] font-bold h-7"
-                      size="sm"
+                    <Link
+                      href={`${API_DOC}/solped/${prestamo.archivo_adjunto}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      VER
-                    </Button>
+                      <Button
+                        className="bg-amber-400 hover:bg-amber-500 text-slate-900 text-[10px] font-bold h-7"
+                        size="sm"
+                      >
+                        VER
+                      </Button>
+                    </Link>
                   </td>
 
                   <td className="p-2">
                     <Button
                       className="bg-amber-400 hover:bg-amber-500 text-slate-900 text-[10px] font-bold h-7"
                       size="sm"
+                      onPress={() => handleSubirSustento(prestamo)}
                     >
                       CARGAR
                     </Button>
@@ -157,11 +183,22 @@ const TablaPrestamos = ({ prestamos }) => {
         </tbody>
       </table>
 
-      <ModalVerCronograma
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        prestamo={prestamoSeleccionado}
-      />
+      {selectModal === "verCronograma" && (
+        <ModalVerCronograma
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          prestamo={selectPrestamo}
+        />
+      )}
+
+      {selectModal === "subirSustento" && (
+        <ModalSubirSustento
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          prestamo={selectPrestamo}
+          fetchPrestamos={fetchPrestamos}
+        />
+      )}
     </div>
   );
 };
