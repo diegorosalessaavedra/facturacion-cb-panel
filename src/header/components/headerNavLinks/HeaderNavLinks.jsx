@@ -217,7 +217,7 @@ const HeaderNavLinks = ({
         { to: "/rrhh/vacaciones", label: "Vacaciones" },
         { to: "/rrhh/calendario-planilla", label: "Calendario Planilla" },
         { to: "/rrhh/planilla", label: "Planilla" },
-        { to: "/rrhh/prestamos", label: "Prestamos" },
+        { to: "/rrhh/prestamos", label: "Descuentos" },
 
       ],
     },

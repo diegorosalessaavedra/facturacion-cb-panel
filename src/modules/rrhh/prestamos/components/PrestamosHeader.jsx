@@ -17,10 +17,10 @@ const PrestamosHeader = ({
         </div>
         <div>
           <h1 className="text-xl font-bold text-slate-50 tracking-tight flex items-center gap-2">
-            Préstamos de Colaboradores {/* Añadida la tilde */}
+            Descuientos de Colaboradores {/* Añadida la tilde */}
           </h1>
           <p className="text-slate-200 text-sm">
-            Gestiona los adelantos y solicitudes de préstamos del personal. {/* Texto profesional */}
+            Gestiona los adelantos y solicitudes de descuentos del personal. {/* Texto profesional */}
           </p>
         </div>
       </div>

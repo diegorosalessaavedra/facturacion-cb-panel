@@ -546,7 +546,7 @@ function App() {
             path="/rrhh/prestamos"
             element={
               <ProtectedRouteWrapper userRole={userRole}>
-                <Prestamos />
+                <Prestamos  userRole={userRole}/>
               </ProtectedRouteWrapper>
             }
           />

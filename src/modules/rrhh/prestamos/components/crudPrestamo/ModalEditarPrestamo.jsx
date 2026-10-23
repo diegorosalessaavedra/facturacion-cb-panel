@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Button,
     Input,
@@ -13,23 +13,23 @@ import {
     TableRow,
     TableCell,
     Divider,
-    Autocomplete,
-    AutocompleteItem,
+    Select,
+    SelectItem,
 } from "@nextui-org/react";
 import { toast } from "sonner";
 import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 
-import { handleAxiosError } from "../../../../utils/handleAxiosError";
-import { API } from "../../../../utils/api";
-import config from "../../../../utils/getToken";
-import { inputClassNames } from "../../../../assets/classNames";
-import { onInputNumber, onInputPrice } from "../../../../assets/onInputs";
+import { handleAxiosError } from "../../../../../utils/handleAxiosError";
+import { API } from "../../../../../utils/api";
+import config from "../../../../../utils/getToken";
+import { inputClassNames } from "../../../../../assets/classNames";
+import { onInputNumber, onInputPrice } from "../../../../../assets/onInputs";
 
-const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) => {
-    const { control, handleSubmit, watch, getValues } = useForm({
+const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos }) => {
+    const { control, handleSubmit, getValues, reset } = useForm({
         defaultValues: {
-            colaborador_id: "",
+            tipo_prestamo: "PRESTAMOS",
             desembolso: "",
             fecha_solicitud: "",
             fecha_desembolso: "",
@@ -41,6 +41,30 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
 
     const [cronograma, setCronograma] = useState([]);
     const [loadingSave, setLoadingSave] = useState(false);
+
+    // Obtenemos el nombre completo del trabajador para mostrarlo en el título y el input
+    const nombreTrabajador = prestamo?.colaborador
+        ? `${prestamo.colaborador.apellidos_colaborador} ${prestamo.colaborador.nombre_colaborador}`
+        : "Trabajador no encontrado";
+
+    useEffect(() => {
+        if (prestamo && isOpen) {
+            const totalDesembolso = prestamo.cronograma?.reduce((acc, cuota) => acc + Number(cuota.importe_cuota || 0), 0) || 0;
+            const cuotaInicialObj = prestamo.cronograma?.find((c) => c.numero_cuota === 1);
+
+            reset({
+                tipo_prestamo: prestamo.tipo_prestamo || "PRESTAMOS",
+                desembolso: totalDesembolso.toFixed(2),
+                fecha_solicitud: prestamo.fecha_solicitud || "",
+                fecha_desembolso: prestamo.fecha_desembolso || "",
+                fecha_cuota_inicial: cuotaInicialObj ? cuotaInicialObj.fecha_descuento : "",
+                numero_cuotas: prestamo.cronograma ? String(prestamo.cronograma.length) : "",
+                importe_cuota: prestamo.importe_cuota || "",
+            });
+
+            setCronograma(prestamo.cronograma || []);
+        }
+    }, [prestamo, isOpen, reset]);
 
     const generarBorrador = () => {
         const values = getValues();
@@ -54,6 +78,9 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
 
         const fechaBase = new Date(values.fecha_cuota_inicial + "T00:00:00");
 
+        // Guardamos las cuotas existentes para no perder sus IDs
+        const cuotasExistentes = prestamo.cronograma || [];
+
         const nuevoCronograma = Array.from({ length: numCuotas }).map((_, i) => {
             const fechaCuota = new Date(fechaBase);
             fechaCuota.setDate(fechaCuota.getDate() + i * 7);
@@ -63,17 +90,20 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
             const day = String(fechaCuota.getDate()).padStart(2, "0");
             const fechaFormateada = `${year}-${month}-${day}`;
 
+            // Si ya existe una cuota en este índice, conservamos su ID y su Estado
+            const cuotaOriginal = cuotasExistentes[i];
+
             return {
+                id: cuotaOriginal ? cuotaOriginal.id : null, // <-- FUNDAMENTAL: Enviar el ID
                 numero_cuota: i + 1,
                 importe_cuota: importe.toFixed(2),
                 fecha_descuento: fechaFormateada,
+                estado_pago: cuotaOriginal ? cuotaOriginal.estado_pago : "PENDIENTE",
             };
         });
 
         setCronograma(nuevoCronograma);
-        toast.success(
-            "Borrador de cronograma generado. Puedes editarlo antes de guardar."
-        );
+        toast.success("Borrador de cronograma regenerado. Puedes editarlo antes de guardar.");
     };
 
     const handleEditCuota = (index, campo, valor) => {
@@ -92,7 +122,8 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
 
         const payload = {
             prestamo: {
-                colaborador_id: data.colaborador_id,
+                colaborador_id: prestamo.colaborador_id, // Usamos el ID original del préstamo seleccionado
+                tipo_prestamo: data.tipo_prestamo,
                 fecha_solicitud: data.fecha_solicitud,
                 fecha_desembolso: data.fecha_desembolso,
                 importe_cuota: data.importe_cuota,
@@ -100,12 +131,13 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
             cronograma: cronograma,
         };
 
-        const url = `${API}/prestamos`;
+        const url = `${API}/prestamos/${prestamo.id}`;
 
         axios
-            .post(url, payload, config)
+            .patch(url, payload, config)
             .then((res) => {
-                toast.success("Préstamo guardado correctamente");
+                toast.success("Préstamo actualizado correctamente");
+                if (fetchPrestamos) fetchPrestamos();
                 onOpenChange();
             })
             .catch((err) => {
@@ -120,6 +152,8 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
         (acc, cuota) => acc + Number(cuota.importe_cuota || 0),
         0
     );
+
+    if (!prestamo) return null;
 
     return (
         <Modal
@@ -137,50 +171,55 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                 {(onClose) => (
                     <>
                         <ModalHeader className="flex flex-col gap-1 text-xl font-bold text-slate-900">
-                            Nueva Solicitud de Préstamo
+                            Editar Descuento: {nombreTrabajador}
                         </ModalHeader>
                         <ModalBody>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
                                 {/* LADO IZQUIERDO: FORMULARIO */}
                                 <div className="flex flex-col gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                                     <h3 className="text-md font-semibold text-slate-900 mb-2">
-                                        Datos del Préstamo
+                                        Datos del Descuento
                                     </h3>
                                     <form
-                                        id="form-prestamo"
+                                        id="form-editar-prestamo"
                                         className="flex flex-col gap-4"
                                         onSubmit={handleSubmit(submit)}
                                     >
 
+                                        {/* Input de solo lectura en lugar del Autocomplete */}
+                                        <Input
+                                            isReadOnly
+                                            label="Trabajador"
+                                            value={nombreTrabajador}
+                                            classNames={inputClassNames}
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            radius="sm"
+                                            size="sm"
+                                        />
+
                                         <Controller
-                                            name="colaborador_id"
+                                            name="tipo_prestamo"
                                             control={control}
                                             render={({ field }) => (
-                                                <Autocomplete
-                                                    label="Trabajador"
-                                                    inputProps={{
-                                                        classNames: {
-                                                            input: "text-xs",
-                                                            inputWrapper: "min-h-10 border-1.5 border-slate-300 hover:border-slate-400 focus-within:!border-green-600",
-                                                            label: "pb-1 text-[0.8rem] text-slate-900 font-semibold",
-                                                        },
-                                                    }}
-                                                    placeholder="Seleccione o escriba..."
+                                                <Select
+                                                    label="Tipo de Descuento"
+                                                    placeholder="Seleccione un tipo"
                                                     labelPlacement="outside"
                                                     variant="bordered"
                                                     radius="sm"
                                                     size="sm"
-                                                    selectedKey={field.value ? String(field.value) : null}
-                                                    onSelectionChange={(key) => field.onChange(key)}
+                                                    classNames={{
+                                                        trigger: "min-h-10 border-1.5 border-slate-300 hover:border-slate-400 focus-within:!border-green-600",
+                                                        label: "pb-1 text-[0.8rem] text-slate-900 font-semibold",
+                                                    }}
+                                                    selectedKeys={field.value ? [field.value] : []}
+                                                    onSelectionChange={(keys) => field.onChange(Array.from(keys)[0])}
                                                 >
-                                                    {colaboradores.map((col) => (
-                                                        <AutocompleteItem key={col.id} value={String(col.id)} textValue={`${col.nombre_colaborador} ${col.apellidos_colaborador}`}>
-                                                            <p className="text-[11px] text-slate-700">
-                                                                {col.nombre_colaborador} {col.apellidos_colaborador}
-                                                            </p>
-                                                        </AutocompleteItem>
-                                                    ))}
-                                                </Autocomplete>
+                                                    <SelectItem key="PRESTAMOS" value="PRESTAMOS">Préstamos</SelectItem>
+                                                    <SelectItem key="SINIESTROS" value="SINIESTROS">Siniestros</SelectItem>
+                                                    <SelectItem key="OTROS" value="OTROS">Otros</SelectItem>
+                                                </Select>
                                             )}
                                         />
 
@@ -310,7 +349,7 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                                                 onPress={generarBorrador}
                                                 className="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold shadow-sm"
                                             >
-                                                Generar Cronograma
+                                                Regenerar Cronograma
                                             </Button>
                                         </div>
                                     </form>
@@ -352,7 +391,6 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                                                             {cuota.numero_cuota}
                                                         </TableCell>
                                                         <TableCell>
-                                                            {/* INPUT NATIVO HTML (TEXTO) */}
                                                             <input
                                                                 type="text"
                                                                 className="w-[85px] bg-white border border-slate-200 hover:border-slate-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none rounded text-xs px-2 py-1 text-slate-800 transition-all"
@@ -369,7 +407,6 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                                                             />
                                                         </TableCell>
                                                         <TableCell>
-                                                            {/* INPUT NATIVO HTML (FECHA) */}
                                                             <input
                                                                 type="date"
                                                                 className="w-[110px] bg-white border border-slate-200 hover:border-slate-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none rounded text-xs px-2 py-1 text-slate-800 transition-all cursor-pointer"
@@ -384,7 +421,6 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                                                                 aria-label={`Fecha cuota ${cuota.numero_cuota}`}
                                                             />
                                                         </TableCell>
-                                          
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -395,10 +431,10 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                                         <Button
                                             className="bg-green-600 hover:bg-green-700 text-white font-bold w-full md:w-auto px-10 shadow-md"
                                             isLoading={loadingSave}
-                                            form="form-prestamo"
+                                            form="form-editar-prestamo"
                                             type="submit"
                                         >
-                                            GUARDAR TODO
+                                            ACTUALIZAR
                                         </Button>
                                     </div>
                                 </div>
@@ -411,4 +447,4 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
     );
 };
 
-export default NuevaSolicitudPrestamo;
+export default ModalEditarPrestamo;
