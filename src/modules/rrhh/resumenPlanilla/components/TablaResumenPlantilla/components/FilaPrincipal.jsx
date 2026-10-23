@@ -13,7 +13,7 @@ const FilaPrincipal = ({
   totalSemanas,
 }) => {
   const [totales, setTotales] = useState(null);
-
+  const [prestamo, setPrestamo] = useState(null);
 
   useEffect(() => {
     const fetchTotales = () => {
@@ -40,6 +40,18 @@ const FilaPrincipal = ({
       });
     };
 
+    const fetchPrestamo = () => {
+      if (!semana_id || !colaborador?.id) return;
+
+      const url = `${API}/prestamos/${semana_id}/${colaborador.id}`;
+
+      axios.get(url, config).then((res) => {
+        if (res.data.prestamo) {
+          setPrestamo(res.data.prestamo);
+        }
+      });
+    };
+
     if (colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS") {
       fetchTotales();
     } else {
@@ -59,8 +71,7 @@ const FilaPrincipal = ({
   // --- VARIABLES MATEMÁTICAS SEGURAS ---
   const salarioBruto = Number(totales?.salario_total || 0);
 
-  const asigFamiliar = Number(
-    colaborador?.asignacion_familiar)
+  const asigFamiliar = Number(colaborador?.asignacion_familiar);
 
   // 1. Buscar el porcentaje de pensión que sea mayor a 0
   const pensionEncontrada = [
@@ -81,8 +92,11 @@ const FilaPrincipal = ({
 
   // 3. Fórmula final
 
-  const montoAsignacionFamiliar = esAdministrativo ? asigFamiliar / totalSemanas : asigFamiliar / 4; // Solo se aplica para administrativos
-  const totalPorPagar = salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;
+  const montoAsignacionFamiliar = esAdministrativo
+    ? asigFamiliar / totalSemanas
+    : asigFamiliar / 4; // Solo se aplica para administrativos
+  const totalPorPagar =
+    salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;
 
   return (
     <tr className="hover:bg-blue-50/50 transition-colors group h-[38px]">

@@ -143,7 +143,6 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos }) => {
                       VER
                     </Button>
                   </td>
-
                   <td className="border-r border-slate-200 p-2">
                     <span
                       className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${estadoClases}`}
