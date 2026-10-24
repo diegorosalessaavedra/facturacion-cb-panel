@@ -161,7 +161,7 @@ const TbodyValidacion = ({
             size="sm"
             isSelected={isValidado}
             onValueChange={onChangeValidado}
-            isDisabled={isFinalizado || !dataValidacionTxt}
+            isDisabled={!dataValidacionTxt}
             classNames={{
               wrapper: "m-0 rounded-full border-2 border-green-500",
             }}
@@ -175,7 +175,7 @@ const TbodyValidacion = ({
             size="sm"
             isSelected={isPagoMasivo}
             onValueChange={onChangePagoMasivo}
-            isDisabled={isFinalizado || !dataValidacionTxt}
+            isDisabled={!dataValidacionTxt}
             classNames={{
               wrapper: "m-0 rounded-full border-2 border-green-500",
             }}

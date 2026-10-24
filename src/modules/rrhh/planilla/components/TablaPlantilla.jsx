@@ -9,6 +9,7 @@ import { handleAxiosError } from "../../../../utils/handleAxiosError";
 import { generarPDFResumenPlanilla } from "../../../../utils/plantillasPdf/resumenSemanaPdf";
 import { generarExcelResumenPlanilla } from "../../../../utils/plantillasExel/resumenSemanaExcel";
 import ModalCpSemana from "./ModalCpSemana";
+import ModalPagadoSemana from "./ModalPagadoSemana";
 
 const TablaPlantilla = ({
   selectYear,
@@ -19,6 +20,7 @@ const TablaPlantilla = ({
   fetchSemanas,
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectModal, setSelectModal] = useState(null);
   const [selectSemana, setSelectSemana] = useState(null);
 
   const [loadingId, setLoadingId] = useState(null);
@@ -106,6 +108,13 @@ const TablaPlantilla = ({
   };
 
   const handleOpenModalCp = (semana) => {
+    setSelectModal("CP");
+    setSelectSemana(semana);
+    onOpen();
+  };
+
+  const handleOpenModalPagado = (semana) => {
+    setSelectModal("PAGADO");
     setSelectSemana(semana);
     onOpen();
   };
@@ -224,7 +233,15 @@ const TablaPlantilla = ({
                         </Button>
                       }
 
-
+                      {semana.estado_planilla !== "EN PROCESO" && semana.estado_planilla !== "PAGADO" && (
+                        <Button
+                          className="bg-emerald-600 text-slate-100 text-[10px] font-bold"
+                          size="sm"
+                          onPress={() => handleOpenModalPagado(semana)}
+                        >
+                          PAGADO
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -233,13 +250,25 @@ const TablaPlantilla = ({
           )}
         </tbody>
       </table>
+      {
+        selectModal === "CP" &&
+        <ModalCpSemana
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectSemana={selectSemana}
+          fetchSemanas={fetchSemanas}
+        />
+      }
+      {
+        selectModal === "PAGADO" &&
+        <ModalPagadoSemana
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          selectSemana={selectSemana}
+          fetchSemanas={fetchSemanas}
+        />
+      }
 
-      <ModalCpSemana
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        selectSemana={selectSemana}
-        fetchSemanas={fetchSemanas}
-      />
     </div>
   );
 };

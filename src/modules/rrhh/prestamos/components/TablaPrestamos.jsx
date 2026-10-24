@@ -1,12 +1,14 @@
 import { Button, Link, useDisclosure } from "@nextui-org/react";
 import React, { useState } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi"; 
+import { toast } from "sonner"; // <-- Importar toast para notificaciones
 import ModalSubirSustento from "./crudPrestamo/ModalSubirSustento";
 import ModalEditarPrestamo from "./crudPrestamo/ModalEditarPrestamo";
 import ModalEliminarPrestamo from "./crudPrestamo/ModalEliminarPrestamo"; 
-import ModalAutorizarPrestamo from "./crudPrestamo/ModalAutorizarPrestamo"; // <-- Modal importado
-import { API_DOC } from "../../../../utils/api";
+import ModalAutorizarPrestamo from "./crudPrestamo/ModalAutorizarPrestamo";
 import ModalVerCronograma from "./ModalVerCronograma";
+import { generarDocumentoWordPrestamo } from "../../../../utils/pantillasWord/generarWordPrestamo";
+
 
 const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) => { 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -37,11 +39,22 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
     onOpen();
   };
 
-  // <-- Nueva función para autorizar
   const handleAutorizarPrestamo = (prestamo) => {
     setSelectPrestamo(prestamo);
     setSelectModal("autorizarPrestamo");
     onOpen();
+  };
+
+  // <-- NUEVA FUNCIÓN: Maneja la descarga del Word
+  const handleDescargarFormato = async (prestamo) => {
+    try {
+      const loadingToast = toast.loading("Generando documento...");
+      await generarDocumentoWordPrestamo(prestamo);
+      toast.success("Documento descargado correctamente", { id: loadingToast });
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al generar el documento");
+    }
   };
 
   const getEstadoStyles = (estado) => {
@@ -58,7 +71,7 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
   };
 
   return (
-    <div className="flex-1 overflow-auto border border-slate-200 rounded-xl bg-white shadow-sm ">
+    <div className="flex-1 overflow-auto border border-slate-200 mt-2 rounded-xl bg-white shadow-sm ">
       <table className="w-full border-collapse text-center">
         <thead className="sticky top-0 bg-slate-900 border-b border-slate-200 z-10 shadow-sm">
           <tr>
@@ -170,9 +183,8 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
                     </Button>
                   </td>
                   
-                  {/* <-- Lógica modificada para autorizar */}
                   <td className="border-r border-slate-200 p-2">
-                    {prestamo.estado_prestamo === "PENDIENTE" && userRole === "GERENTE" ? (
+                    {prestamo.estado_prestamo === "PENDIENTE" && userRole === "GERENTE" && prestamo.archivo_adjunto !== null ? (
                       <button
                         onClick={() => handleAutorizarPrestamo(prestamo)}
                         className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all hover:opacity-80 cursor-pointer ${estadoClases}`}
@@ -189,22 +201,14 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
                   </td>
 
                   <td className="border-r border-slate-200 p-2">
-                    {prestamo.archivo_adjunto ? (
-                      <Link
-                        href={`${API_DOC}/solped/${prestamo.archivo_adjunto}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button
-                          className="bg-amber-400 hover:bg-amber-500 text-slate-900 text-[10px] font-bold h-7"
-                          size="sm"
-                        >
-                          VER
-                        </Button>
-                      </Link>
-                    ) : (
-                      <span className="text-[10px] text-slate-400 font-medium">-</span>
-                    )}
+                    {/* <-- BOTÓN ACTUALIZADO PARA EJECUTAR LA DESCARGA */}
+                    <Button
+                      className="bg-amber-400 hover:bg-amber-500 text-slate-900 text-[10px] font-bold h-7"
+                      size="sm"
+                      onPress={() => handleDescargarFormato(prestamo)}
+                    >
+                      VER
+                    </Button>
                   </td>
 
                   <td className="border-r border-slate-200 p-2">
@@ -282,7 +286,6 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
         />
       )}
 
-      {/* NUEVO MODAL RENDERIZADO */}
       {selectModal === "autorizarPrestamo" && (
         <ModalAutorizarPrestamo
           isOpen={isOpen}
