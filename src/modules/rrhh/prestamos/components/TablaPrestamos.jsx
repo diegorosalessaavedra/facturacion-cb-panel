@@ -8,6 +8,7 @@ import ModalEliminarPrestamo from "./crudPrestamo/ModalEliminarPrestamo";
 import ModalAutorizarPrestamo from "./crudPrestamo/ModalAutorizarPrestamo";
 import ModalVerCronograma from "./ModalVerCronograma";
 import { generarDocumentoWordPrestamo } from "../../../../utils/pantillasWord/generarWordPrestamo";
+import formatDate from "../../../../hooks/FormatDate";
 
 
 const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) => { 
@@ -154,15 +155,15 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
                   </td>
 
                   <td className="border-r text-[11px] border-slate-200 p-2">
-                    {prestamo.fecha_solicitud}
+                    {formatDate(prestamo.fecha_solicitud)}
                   </td>
 
                   <td className="border-r text-[11px] border-slate-200 p-2">
-                    {prestamo.fecha_desembolso}
+                    {formatDate(prestamo.fecha_desembolso)}
                   </td>
 
                   <td className="border-r text-[11px] border-slate-200 p-2">
-                    {fechaCuotaInicial}
+                    {formatDate(fechaCuotaInicial)}
                   </td>
 
                   <td className="border-r text-[11px] border-slate-200 p-2 font-medium">

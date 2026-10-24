@@ -15,6 +15,7 @@ import {
     Divider,
 } from "@nextui-org/react";
 import { inputClassNames } from "../../../../assets/classNames";
+import formatDate from "../../../../hooks/FormatDate";
 
 const ModalVerCronograma = ({ isOpen, onOpenChange, prestamo }) => {
     if (!prestamo) return null;
@@ -213,7 +214,7 @@ const ModalVerCronograma = ({ isOpen, onOpenChange, prestamo }) => {
                                                             S/ {Number(cuota.importe_cuota).toFixed(2)}
                                                         </TableCell>
                                                         <TableCell className="text-xs text-slate-600">
-                                                            {cuota.fecha_descuento}
+                                                            {formatDate(cuota.fecha_descuento)}
                                                         </TableCell>
                                                         <TableCell>
                                                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wide ${getEstadoCuotaStyles(cuota.estado_pago)}`}>
