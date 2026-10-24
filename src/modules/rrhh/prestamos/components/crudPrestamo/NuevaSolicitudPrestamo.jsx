@@ -16,11 +16,12 @@ import {
     Autocomplete,
     AutocompleteItem,
     Select,
-    SelectItem, // <-- Nuevos componentes importados
+    SelectItem,
 } from "@nextui-org/react";
 import { toast } from "sonner";
 import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
+import { FiTrash2 } from "react-icons/fi"; // <-- Importamos el icono de eliminar
 
 import { handleAxiosError } from "../../../../../utils/handleAxiosError";
 import { API } from "../../../../../utils/api";
@@ -28,11 +29,12 @@ import config from "../../../../../utils/getToken";
 import { inputClassNames } from "../../../../../assets/classNames";
 import { onInputNumber, onInputPrice } from "../../../../../assets/onInputs";
 
-const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) => {
-    const { control, handleSubmit, watch, getValues } = useForm({
+const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [], fetchPrestamos }) => {
+    // <-- Agregamos setValue para actualizar el input al eliminar filas
+    const { control, handleSubmit, watch, getValues, setValue } = useForm({
         defaultValues: {
             colaborador_id: "",
-            tipo_prestamo: "PRESTAMOS", // <-- Valor por defecto agregado
+            tipo_prestamo: "PRESTAMOS", 
             desembolso: "",
             fecha_solicitud: "",
             fecha_desembolso: "",
@@ -85,6 +87,22 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
         setCronograma(nuevosDatos);
     };
 
+    // <-- NUEVA FUNCIÓN: Eliminar cuota y reordenar
+    const handleEliminarCuota = (indexToRemove) => {
+        const nuevosDatos = cronograma.filter((_, index) => index !== indexToRemove);
+        
+        // Reindexar los números de cuota
+        const datosReindexados = nuevosDatos.map((cuota, i) => ({
+            ...cuota,
+            numero_cuota: i + 1
+        }));
+        
+        setCronograma(datosReindexados);
+        
+        // Actualizar el valor en el formulario
+        setValue("numero_cuotas", String(datosReindexados.length));
+    };
+
     const submit = async (data) => {
         if (cronograma.length === 0) {
             toast.error("Debe generar el cronograma antes de guardar");
@@ -96,7 +114,7 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
         const payload = {
             prestamo: {
                 colaborador_id: data.colaborador_id,
-                tipo_prestamo: data.tipo_prestamo, // <-- Agregado al payload
+                tipo_prestamo: data.tipo_prestamo, 
                 fecha_solicitud: data.fecha_solicitud,
                 fecha_desembolso: data.fecha_desembolso,
                 importe_cuota: data.importe_cuota,
@@ -110,6 +128,7 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
             .post(url, payload, config)
             .then((res) => {
                 toast.success("Descuento guardado correctamente");
+                if (fetchPrestamos) fetchPrestamos(); // <-- Actualiza la tabla principal si se pasa la prop
                 onOpenChange();
             })
             .catch((err) => {
@@ -371,6 +390,7 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                                                 <TableColumn>Nº</TableColumn>
                                                 <TableColumn>IMPORTE (S/)</TableColumn>
                                                 <TableColumn>FECHA</TableColumn>
+                                                <TableColumn align="center">ACCIONES</TableColumn> {/* <-- Nueva columna */}
                                             </TableHeader>
                                             <TableBody
                                                 emptyContent={<span className="text-slate-500 text-sm">Aún no se ha generado un cronograma.</span>}
@@ -381,7 +401,6 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                                                             {cuota.numero_cuota}
                                                         </TableCell>
                                                         <TableCell>
-                                                            {/* INPUT NATIVO HTML (TEXTO) */}
                                                             <input
                                                                 type="text"
                                                                 className="w-[85px] bg-white border border-slate-200 hover:border-slate-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none rounded text-xs px-2 py-1 text-slate-800 transition-all"
@@ -398,7 +417,6 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                                                             />
                                                         </TableCell>
                                                         <TableCell>
-                                                            {/* INPUT NATIVO HTML (FECHA) */}
                                                             <input
                                                                 type="date"
                                                                 className="w-[110px] bg-white border border-slate-200 hover:border-slate-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 focus:outline-none rounded text-xs px-2 py-1 text-slate-800 transition-all cursor-pointer"
@@ -413,7 +431,20 @@ const NuevaSolicitudPrestamo = ({ isOpen, onOpenChange, colaboradores = [] }) =>
                                                                 aria-label={`Fecha cuota ${cuota.numero_cuota}`}
                                                             />
                                                         </TableCell>
-                                          
+                                                        {/* <-- Celda con el botón de eliminar */}
+                                                        <TableCell>
+                                                            <div className="flex justify-center">
+                                                                <Button
+                                                                    isIconOnly
+                                                                    size="sm"
+                                                                    className="bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 h-6 w-6 min-w-6"
+                                                                    onPress={() => handleEliminarCuota(index)}
+                                                                    aria-label="Eliminar cuota"
+                                                                >
+                                                                    <FiTrash2 size={12} />
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>

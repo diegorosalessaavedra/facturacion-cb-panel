@@ -65,7 +65,7 @@ const Prestamos = ({ userRole }) => {
           <span className="text-xs text-gray-500">Cargando datos...</span>
         )}
 
-        <PrestamosHeader onOpen={onOpen} />
+        <PrestamosHeader onOpen={onOpen} fetchPrestamos={handlePrestamos} />
 
         <FiltroPrestamos
           filtroEstado={filtroEstado}

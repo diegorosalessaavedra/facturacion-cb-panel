@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
+import { FiTrash2 } from "react-icons/fi"; // <-- Importamos el icono de eliminar
 
 import { handleAxiosError } from "../../../../../utils/handleAxiosError";
 import { API } from "../../../../../utils/api";
@@ -27,7 +28,8 @@ import { inputClassNames } from "../../../../../assets/classNames";
 import { onInputNumber, onInputPrice } from "../../../../../assets/onInputs";
 
 const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos }) => {
-    const { control, handleSubmit, getValues, reset } = useForm({
+    // Agregamos setValue para poder actualizar el input de Nº Cuotas desde el código
+    const { control, handleSubmit, getValues, setValue, reset } = useForm({
         defaultValues: {
             tipo_prestamo: "PRESTAMOS",
             desembolso: "",
@@ -42,7 +44,6 @@ const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos })
     const [cronograma, setCronograma] = useState([]);
     const [loadingSave, setLoadingSave] = useState(false);
 
-    // Obtenemos el nombre completo del trabajador para mostrarlo en el título y el input
     const nombreTrabajador = prestamo?.colaborador
         ? `${prestamo.colaborador.apellidos_colaborador} ${prestamo.colaborador.nombre_colaborador}`
         : "Trabajador no encontrado";
@@ -77,8 +78,6 @@ const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos })
         }
 
         const fechaBase = new Date(values.fecha_cuota_inicial + "T00:00:00");
-
-        // Guardamos las cuotas existentes para no perder sus IDs
         const cuotasExistentes = prestamo.cronograma || [];
 
         const nuevoCronograma = Array.from({ length: numCuotas }).map((_, i) => {
@@ -90,11 +89,10 @@ const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos })
             const day = String(fechaCuota.getDate()).padStart(2, "0");
             const fechaFormateada = `${year}-${month}-${day}`;
 
-            // Si ya existe una cuota en este índice, conservamos su ID y su Estado
             const cuotaOriginal = cuotasExistentes[i];
 
             return {
-                id: cuotaOriginal ? cuotaOriginal.id : null, // <-- FUNDAMENTAL: Enviar el ID
+                id: cuotaOriginal ? cuotaOriginal.id : null, 
                 numero_cuota: i + 1,
                 importe_cuota: importe.toFixed(2),
                 fecha_descuento: fechaFormateada,
@@ -112,6 +110,22 @@ const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos })
         setCronograma(nuevosDatos);
     };
 
+    // <-- NUEVA FUNCIÓN: Eliminar cuota y reordenar
+    const handleEliminarCuota = (indexToRemove) => {
+        const nuevosDatos = cronograma.filter((_, index) => index !== indexToRemove);
+        
+        // Reindexar los números de cuota para mantener la secuencia
+        const datosReindexados = nuevosDatos.map((cuota, i) => ({
+            ...cuota,
+            numero_cuota: i + 1
+        }));
+        
+        setCronograma(datosReindexados);
+        
+        // Sincronizar el input de "Nº Cuotas" en el formulario
+        setValue("numero_cuotas", String(datosReindexados.length));
+    };
+
     const submit = async (data) => {
         if (cronograma.length === 0) {
             toast.error("Debe generar el cronograma antes de guardar");
@@ -122,7 +136,7 @@ const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos })
 
         const payload = {
             prestamo: {
-                colaborador_id: prestamo.colaborador_id, // Usamos el ID original del préstamo seleccionado
+                colaborador_id: prestamo.colaborador_id, 
                 tipo_prestamo: data.tipo_prestamo,
                 fecha_solicitud: data.fecha_solicitud,
                 fecha_desembolso: data.fecha_desembolso,
@@ -185,8 +199,6 @@ const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos })
                                         className="flex flex-col gap-4"
                                         onSubmit={handleSubmit(submit)}
                                     >
-
-                                        {/* Input de solo lectura en lugar del Autocomplete */}
                                         <Input
                                             isReadOnly
                                             label="Trabajador"
@@ -381,6 +393,7 @@ const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos })
                                                 <TableColumn>Nº</TableColumn>
                                                 <TableColumn>IMPORTE (S/)</TableColumn>
                                                 <TableColumn>FECHA</TableColumn>
+                                                <TableColumn align="center">ACCIONES</TableColumn> {/* <-- Nueva columna */}
                                             </TableHeader>
                                             <TableBody
                                                 emptyContent={<span className="text-slate-500 text-sm">Aún no se ha generado un cronograma.</span>}
@@ -420,6 +433,20 @@ const ModalEditarPrestamo = ({ isOpen, onOpenChange, prestamo, fetchPrestamos })
                                                                 }
                                                                 aria-label={`Fecha cuota ${cuota.numero_cuota}`}
                                                             />
+                                                        </TableCell>
+                                                        {/* <-- Botón Eliminar fila */}
+                                                        <TableCell>
+                                                            <div className="flex justify-center">
+                                                                <Button
+                                                                    isIconOnly
+                                                                    size="sm"
+                                                                    className="bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 h-6 w-6 min-w-6"
+                                                                    onPress={() => handleEliminarCuota(index)}
+                                                                    aria-label="Eliminar cuota"
+                                                                >
+                                                                    <FiTrash2 size={12} />
+                                                                </Button>
+                                                            </div>
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}
