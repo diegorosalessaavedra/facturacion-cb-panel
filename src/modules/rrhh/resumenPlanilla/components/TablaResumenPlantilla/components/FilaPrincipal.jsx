@@ -46,8 +46,8 @@ const FilaPrincipal = ({
       const url = `${API}/prestamos/${semana_id}/${colaborador.id}`;
 
       axios.get(url, config).then((res) => {
-        if (res.data.prestamo) {
-          setPrestamo(res.data.prestamo);
+        if (res.data.pago_encontrado) {
+          setPrestamo(res.data.pago_encontrado);
         }
       });
     };
@@ -57,7 +57,11 @@ const FilaPrincipal = ({
     } else {
       fetchTotalesOperativo();
     }
+
+    fetchPrestamo()
   }, [semana_id, colaborador?.id, isOpen]);
+
+  console.log(prestamo);
 
   // --- VARIABLES DE INTERFAZ ---
   const esAdministrativo =
@@ -88,7 +92,7 @@ const FilaPrincipal = ({
   // 2. Calcular el monto en dinero (Salario Bruto * Porcentaje / 100)
   const montoPension = (salarioBruto * porcentajePension) / 100;
 
-  const descuentos = 0; // Reserva por si necesitas agregar otros descuentos más adelante
+  const descuentos = prestamo?.importe_cuota || 0; // Reserva por si necesitas agregar otros descuentos más adelante
 
   // 3. Fórmula final
 
