@@ -89,12 +89,10 @@ const FilaPrincipal = ({
 
   const porcentajePension = Number(pensionEncontrada || 0);
 
-  // 2. Calcular el monto en dinero (Salario Bruto * Porcentaje / 100)
   const montoPension = (salarioBruto * porcentajePension) / 100;
 
-  const descuentos = prestamo?.importe_cuota || 0; // Reserva por si necesitas agregar otros descuentos más adelante
+  const descuentos = prestamo?.importe_cuota || 0;
 
-  // 3. Fórmula final
 
   const montoAsignacionFamiliar = esAdministrativo
     ? asigFamiliar / totalSemanas
