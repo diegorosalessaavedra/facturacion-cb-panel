@@ -76,6 +76,9 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
       <table className="w-full border-collapse text-center">
         <thead className="sticky top-0 bg-slate-900 border-b border-slate-200 z-10 shadow-sm">
           <tr>
+             <th className="border-r border-slate-200 p-3 font-semibold uppercase text-[10px] tracking-wider text-slate-100">
+              TIPO <br /> DESEMBOLSO
+            </th>
             <th className="border-r border-slate-200 p-3 font-semibold uppercase text-[10px] tracking-wider text-slate-100">
               TRABAJADOR
             </th>
@@ -145,6 +148,9 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
                   key={prestamo.id}
                   className="border-b-1 hover:bg-slate-50 transition-colors"
                 >
+                  <td className="border-r text-[10px] border-slate-200 p-2 font-semibold text-slate-800 uppercase">
+                    {prestamo.tipo_prestamo}
+                  </td>
                   <td className="border-r text-[10px] border-slate-200 p-2 font-semibold text-slate-800 uppercase">
                     {prestamo.colaborador?.apellidos_colaborador}{" "}
                     {prestamo.colaborador?.nombre_colaborador}
