@@ -9,7 +9,6 @@ import { handleAxiosError } from "../../../../../../utils/handleAxiosError";
 const TbodyValidacion = ({
   colaborador,
   semana_id,
-  isFinalizado,
   totalSemanas,
   setSelectDatosText,
 }) => {
@@ -18,36 +17,32 @@ const TbodyValidacion = ({
 
   const [isValidado, setIsValidado] = useState(false);
   const [isPagoMasivo, setIsPagoMasivo] = useState(false);
+  const [prestamos, setPrestamos] = useState([]);
 
   const tdClass = "border-b border-slate-200 p-2 text-center h-[38px] bg-white";
 
-  // --- LÓGICA CORREGIDA DEL ARREGLO GLOBAL ---
   const actualizarArregloGlobal = (estadoMasivo, datosValidacion) => {
     setSelectDatosText((prev) => {
       const prevArray = Array.isArray(prev) ? prev : [];
 
       if (estadoMasivo) {
-        // Verificamos si ya existe el colaborador en el arreglo
         const existe = prevArray.some(
           (item) => item.colaborador.id === colaborador.id,
         );
 
         if (existe) {
-          // Si ya existe, ACTUALIZAMOS sus datos para tener la información más reciente
           return prevArray.map((item) =>
             item.colaborador.id === colaborador.id
               ? { dataValidacionTxt: datosValidacion, colaborador }
               : item,
           );
         } else {
-          // Si no existe, lo AGREGAMOS por primera vez
           return [
             ...prevArray,
             { dataValidacionTxt: datosValidacion, colaborador },
           ];
         }
       } else {
-        // Si el estadoMasivo es false, lo ELIMINAMOS del arreglo
         return prevArray.filter(
           (item) => item.colaborador.id !== colaborador.id,
         );
@@ -55,41 +50,55 @@ const TbodyValidacion = ({
     });
   };
 
-  const fetchValidacionTxt = () => {
+  useEffect(() => {
     if (!semana_id || !colaborador?.id) return;
 
-    const url = `${API}/validacion-planilla-txt/${semana_id}/${colaborador.id}`;
+    // 1. Cargar Totales según la agrupación del colaborador
+    const esAdmin = colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
+    const endpointTotales = esAdmin
+      ? `${API}/totales-asistencia-administrativo/${semana_id}/${colaborador.id}`
+      : `${API}/totales-asistencia-operativo/${semana_id}/${colaborador.id}`;
 
+    axios.get(endpointTotales, config).then((res) => {
+      if (res.data.totales?.id) {
+        setTotales(res.data.totales);
+      }
+    });
+
+    // 2. Cargar Prestamos
+    const urlPrestamos = `${API}/prestamos/${semana_id}/${colaborador.id}`;
+    axios.get(urlPrestamos, config).then((res) => {
+      if (res.data.pago_encontrados) {
+        setPrestamos(res.data.pago_encontrados);
+      }
+    });
+
+    // 3. Cargar Validación TXT
+    const urlValidacion = `${API}/validacion-planilla-txt/${semana_id}/${colaborador.id}`;
     axios
-      .get(url, config)
+      .get(urlValidacion, config)
       .then((res) => {
         const validacionData = res.data.validacion;
         setDataValidacionTxt(validacionData);
-        setTotales(res.data.totales);
 
         if (validacionData) {
           setIsValidado(validacionData.validacion);
           setIsPagoMasivo(validacionData.enviar_pago_masivo);
 
-          // Sincronizar con el arreglo global al cargar
           actualizarArregloGlobal(
             validacionData.enviar_pago_masivo,
             validacionData,
           );
         }
       })
-      .catch((err) => console.error("Error cargando validacion txt:", err));
-  };
+      .catch((err) => console.error("Error cargando validación txt:", err));
+  }, [semana_id, colaborador?.id]);
 
-  useEffect(() => {
-    fetchValidacionTxt();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [semana_id, colaborador.id]);
+  const esAdministrativo =
+    colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
 
   const salarioBruto = Number(totales?.salario_total || 0);
-  const asigFamiliar = Number(
-    colaborador?.asignacion_familiar / totalSemanas || 0,
-  );
+  const asigFamiliar = Number(colaborador?.asignacion_familiar || 0);
 
   const pensionEncontrada = [
     colaborador?.afp_integra,
@@ -102,8 +111,21 @@ const TbodyValidacion = ({
 
   const porcentajePension = Number(pensionEncontrada || 0);
   const montoPension = (salarioBruto * porcentajePension) / 100;
-  const descuentos = 0;
-  const totalPorPagar = salarioBruto + asigFamiliar - montoPension - descuentos;
+
+  const descuentos = prestamos.reduce(
+    (acc, pago) => acc + Number(pago.importe_cuota || 0),
+    0
+  );
+
+  // Asegurar divisor válido para evitar divisiones entre 0
+  const divisorSemanas = Number(totalSemanas || 1) > 0 ? Number(totalSemanas) : 4;
+
+  const montoAsignacionFamiliar = esAdministrativo
+    ? asigFamiliar / divisorSemanas
+    : asigFamiliar / 4;
+
+  const totalPorPagar =
+    salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;
 
   const handlePatch = (nuevoValidacion, nuevoPagoMasivo) => {
     if (!dataValidacionTxt?.id) {
@@ -128,7 +150,6 @@ const TbodyValidacion = ({
         setIsValidado(updatedValidacion.validacion);
         setIsPagoMasivo(updatedValidacion.enviar_pago_masivo);
 
-        // Actualizar el arreglo global tras guardar exitosamente
         actualizarArregloGlobal(
           updatedValidacion.enviar_pago_masivo,
           updatedValidacion,
@@ -136,7 +157,6 @@ const TbodyValidacion = ({
       })
       .catch((err) => {
         handleAxiosError(err);
-        // Revertir estados visuales si falla
         setIsValidado(dataValidacionTxt.validacion);
         setIsPagoMasivo(dataValidacionTxt.enviar_pago_masivo);
       });

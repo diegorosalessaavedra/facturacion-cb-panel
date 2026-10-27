@@ -56,7 +56,6 @@ const Prestamos = ({ userRole }) => {
     handlePrestamos(); // Carga inicial
   }, []);
 
-  console.log("Prestamos.jsx - prestamos:", prestamos);
 
   return (
     <main className="w-full h-screen bg-slate-50 p-4 md:pt-[90px] overflow-hidden flex flex-col">

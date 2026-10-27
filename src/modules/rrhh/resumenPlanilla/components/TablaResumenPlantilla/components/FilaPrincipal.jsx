@@ -13,7 +13,7 @@ const FilaPrincipal = ({
   totalSemanas,
 }) => {
   const [totales, setTotales] = useState(null);
-  const [prestamo, setPrestamo] = useState(null);
+  const [prestamos, setPrestamos] = useState([]);
 
   useEffect(() => {
     const fetchTotales = () => {
@@ -46,8 +46,8 @@ const FilaPrincipal = ({
       const url = `${API}/prestamos/${semana_id}/${colaborador.id}`;
 
       axios.get(url, config).then((res) => {
-        if (res.data.pago_encontrado) {
-          setPrestamo(res.data.pago_encontrado);
+        if (res.data.pago_encontrados) {
+          setPrestamos(res.data.pago_encontrados);
         }
       });
     };
@@ -61,9 +61,7 @@ const FilaPrincipal = ({
     fetchPrestamo()
   }, [semana_id, colaborador?.id, isOpen]);
 
-  console.log(prestamo);
 
-  // --- VARIABLES DE INTERFAZ ---
   const esAdministrativo =
     colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
   const nombreGrupo = colaborador?.cargo_laboral?.agrupacion_cargo || "-";
@@ -72,12 +70,10 @@ const FilaPrincipal = ({
     : "bg-orange-100 border-orange-200";
   const chipText = esAdministrativo ? "text-purple-700" : "text-orange-700";
 
-  // --- VARIABLES MATEMÁTICAS SEGURAS ---
   const salarioBruto = Number(totales?.salario_total || 0);
 
   const asigFamiliar = Number(colaborador?.asignacion_familiar);
 
-  // 1. Buscar el porcentaje de pensión que sea mayor a 0
   const pensionEncontrada = [
     colaborador?.afp_integra,
     colaborador?.afp_prima,
@@ -91,7 +87,10 @@ const FilaPrincipal = ({
 
   const montoPension = (salarioBruto * porcentajePension) / 100;
 
-  const descuentos = prestamo?.importe_cuota || 0;
+  const descuentos = prestamos.reduce(
+    (acc, pago) => acc + Number(pago.importe_cuota || 0),
+    0
+  );
 
 
   const montoAsignacionFamiliar = esAdministrativo

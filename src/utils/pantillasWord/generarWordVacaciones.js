@@ -274,7 +274,7 @@ export const generarDocumentoWordVacaciones = async (
     doc.render({
       logo: "", // La etiqueta ya fue eliminada del XML arriba; este valor no se usa
 
-      nombre: selectColaborador.nombre_colaborador || "",
+      nombre: `${selectColaborador.nombre_colaborador} ${selectColaborador.apellidos_colaborador}` || "",
       empresa:
         selectColaborador.empresa === "Granjas Peruanas"
           ? "GRANJAS PERUANAS CHICKENBABY S.A.C. - 20614310694"
