@@ -93,7 +93,7 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
         <Input
           isDisabled={isFinalizado}
           type="text"
-          placeholder="Sin número"
+          placeholder="0"
           value={numeroDestino}
           onChange={(e) => setNumeroDestino(e.target.value)}
           onBlur={patchTotales} // Se ejecuta al salir del input

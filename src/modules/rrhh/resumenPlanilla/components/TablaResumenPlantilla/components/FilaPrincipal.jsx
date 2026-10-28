@@ -84,8 +84,13 @@ const FilaPrincipal = ({
   ].find((monto) => Number(monto) > 0);
 
   const porcentajePension = Number(pensionEncontrada || 0);
+  const montoAsignacionFamiliar = esAdministrativo
+    ? asigFamiliar / totalSemanas
+    : asigFamiliar / 4;
 
-  const montoPension = (salarioBruto * porcentajePension) / 100;
+  const salarioAfp = salarioBruto + montoAsignacionFamiliar
+
+  const montoPension = (salarioAfp * porcentajePension) / 100;
 
   const descuentos = prestamos.reduce(
     (acc, pago) => acc + Number(pago.importe_cuota || 0),
@@ -93,9 +98,6 @@ const FilaPrincipal = ({
   );
 
 
-  const montoAsignacionFamiliar = esAdministrativo
-    ? asigFamiliar / totalSemanas
-    : asigFamiliar / 4; // Solo se aplica para administrativos
   const totalPorPagar =
     salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;
 
