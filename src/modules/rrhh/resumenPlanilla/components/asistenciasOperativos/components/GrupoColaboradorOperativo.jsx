@@ -32,7 +32,7 @@ const GrupoColaboradorOperativo = ({
     sumMinutos = 0,
     sumTurnos = 0,
     sumPlanilla = 0,
-    sumHrMinExtraMinutos = 0, 
+    sumHrMinExtraMinutos = 0,
     sumImporteHoras = 0,
     sumImporteMinutos = 0,
     sumBono = 0,
@@ -105,7 +105,7 @@ const GrupoColaboradorOperativo = ({
           sueldoFeriadoBruto={sueldoFeriadoBruto}
           onDataUpdate={(data) => handleUpdateDia(dia.id, data)}
           isFinalizado={isFinalizado}
-          bono_extraordinario={colaborador.bono_extraordinario || 0}
+          bono_extraordinario={colaborador?.bono_extraordinario || 0}
         />
       ))}
 

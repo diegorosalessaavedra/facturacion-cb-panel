@@ -13,9 +13,9 @@ const GrupoCompensacion = ({
   const [compensacionOperativas, setCompensacionOperativas] = useState([]);
   const [datosDias, setDatosDias] = useState({});
 
-  const sueldoFeriadoBruto = Number(colaborador.valor_diario || 0) * 2;
-  const sueldoPorDia = Number(colaborador.valor_diario || 0);
-  const valorHora = Number(colaborador.valor_por_hora || 0);
+  const sueldoFeriadoBruto = Number(colaborador?.valor_diario || 0) * 2;
+  const sueldoPorDia = Number(colaborador?.valor_diario || 0);
+  const valorHora = Number(colaborador?.valor_por_hora || 0);
 
   const topeSemanal = sueldoPorDia * 7;
 
@@ -46,7 +46,6 @@ const GrupoCompensacion = ({
   useEffect(() => {
     fetchAsistencias();
     fetchCompensacion();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [semanaPlanillaId, colaborador.id]);
 
   const handleUpdateDia = (diaId, data) => {
@@ -54,7 +53,6 @@ const GrupoCompensacion = ({
     setDatosDias((prev) => ({ ...prev, [key]: data }));
   };
 
-  // --- VARIABLES ACUMULADORAS ESTRICTAMENTE NECESARIAS ---
   let sumHoras = 0,
     sumMinutos = 0,
     sumPlanilla = 0,
@@ -62,7 +60,7 @@ const GrupoCompensacion = ({
     sumImporteMinutos = 0,
     sumBono = 0,
     sumSalario = 0,
-    sumAdicionales = 0; // Se mantiene porque se envía al componente padre
+    sumAdicionales = 0;
 
   Object.values(datosDias).forEach((r) => {
     sumHoras += Number(r.horas_enteras || 0);
@@ -75,14 +73,12 @@ const GrupoCompensacion = ({
     sumAdicionales += Number(r.adicionales || 0);
   });
 
-  // Notificar al componente padre
   useEffect(() => {
     if (onTotalesCalculados) {
       onTotalesCalculados(sumSalario, sumAdicionales, topeSemanal);
     }
   }, [sumSalario, sumAdicionales, topeSemanal, onTotalesCalculados]);
 
-  // Conversión de horas y minutos
   sumHoras += Math.floor(sumMinutos / 60);
   sumMinutos = sumMinutos % 60;
   const totalHorasString = `${String(sumHoras).padStart(2, "0")}:${String(sumMinutos).padStart(2, "0")}`;

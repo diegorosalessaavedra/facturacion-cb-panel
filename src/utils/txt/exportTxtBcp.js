@@ -1,17 +1,10 @@
-import PizZip from "pizzip";
-import Docxtemplater from "docxtemplater";
-import { saveAs } from "file-saver";
-import formatDate from "../../hooks/FormatDate";
-import { numeroALetras } from "../../assets/numeroLetras";
-
-// --- FUNCIÓN AUXILIAR PARA NORMALIZAR TEXTOS (Quitar tildes y cambiar ñ por n) ---
 const quitarTildesYenie = (str) => {
   if (!str) return "";
   return String(str)
-    .normalize("NFD")                  // Separa los caracteres de sus tildes
-    .replace(/[\u0300-\u036f]/g, "")    // Elimina las marcas de tildes
-    .replace(/ñ/g, "n")                // Reemplaza ñ minúscula
-    .replace(/Ñ/g, "N");               // Reemplaza Ñ mayúscula
+    .normalize("NFD") // Separa los caracteres de sus tildes
+    .replace(/[\u0300-\u036f]/g, "") // Elimina las marcas de tildes
+    .replace(/ñ/g, "n") // Reemplaza ñ minúscula
+    .replace(/Ñ/g, "N"); // Reemplaza Ñ mayúscula
 };
 
 // --- FUNCIONES AUXILIARES PARA ESPACIADO BCP ---
@@ -89,7 +82,7 @@ export const generarTxtBcp = (selectDatosText, glosa, subtipo) => {
       );
 
       const refBeneficiario = padRight(glosa.toUpperCase(), 40);
-      
+
       const glosaLimpia = quitarTildesYenie(glosa);
       const glosaCorta = glosaLimpia
         .replace(/[^A-Z0-9]/gi, "")
@@ -131,8 +124,8 @@ export const generarTxtBcp = (selectDatosText, glosa, subtipo) => {
     "1" +
     padLeftZeros(cantidadAbonos, 6) +
     getFechaActual() +
-    subtipo + 
-    "C" + 
+    subtipo +
+    "C" +
     "0001" +
     cuentaCargoStr +
     formatMontoStr(sumaImportes) +

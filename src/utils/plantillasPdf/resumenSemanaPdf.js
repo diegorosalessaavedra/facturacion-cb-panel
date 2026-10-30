@@ -60,7 +60,12 @@ export const generarPDFResumenPlanilla = (colaboradores, dataSemana) => {
 
       // --- LOGO CENTRADO ---
       try {
-        const logoUrl = import.meta.env.VITE_LOGO;
+        const logoUrl =
+          empresa === "Granjas Peruanas"
+            ? "/logo.png"
+            : empresa === "Multinacional Services"
+              ? "/logoM.png"
+              : "/logoDiego.png";
         const logoWidth = 20;
         const logoHeight = 17;
         const xCentered = pageWidth / 2 - logoWidth / 2;

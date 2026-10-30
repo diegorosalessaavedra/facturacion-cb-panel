@@ -7,7 +7,6 @@ import { API } from "../../../../utils/api";
 import config from "../../../../utils/getToken";
 import { handleAxiosError } from "../../../../utils/handleAxiosError";
 import { generarPDFResumenPlanilla } from "../../../../utils/plantillasPdf/resumenSemanaPdf";
-import { generarExcelResumenPlanilla } from "../../../../utils/plantillasExel/resumenSemanaExcel";
 import ModalCpSemana from "./ModalCpSemana";
 import ModalPagadoSemana from "./ModalPagadoSemana";
 
@@ -26,7 +25,9 @@ const TablaPlantilla = ({
   const [loadingId, setLoadingId] = useState(null);
   const [loadingPdfId, setLoadingPdfId] = useState(null);
 
-  const yearName = yearPlanillas?.find((y) => y.id === Number(selectYear))?.year;
+  const yearName = yearPlanillas?.find(
+    (y) => y.id === Number(selectYear),
+  )?.year;
   const mesName = mesesPlanillas?.find((y) => y.id === Number(selectMes))?.mes;
 
   // Modificado: Ahora notifica al gerente en lugar de reaperturar directamente
@@ -34,7 +35,9 @@ const TablaPlantilla = ({
     if (!idSemana) return;
 
     setLoadingId(idSemana);
-    const toastId = toast.loading("Enviando solicitud de reapertura al Gerente...");
+    const toastId = toast.loading(
+      "Enviando solicitud de reapertura al Gerente...",
+    );
 
     // Asegúrate de que esta URL coincida con la ruta que creamos en el backend para NOTIFICAR
     const url = `${API}/semanas-planilla/notificar/${idSemana}`;
@@ -42,7 +45,10 @@ const TablaPlantilla = ({
     axios
       .patch(url, {}, config) // Usando PATCH si tu backend lo requiere, o POST según lo hayas definido
       .then((res) => {
-        toast.success("Solicitud enviada correctamente. El Gerente debe aprobarla.", { id: toastId, duration: 5000 });
+        toast.success(
+          "Solicitud enviada correctamente. El Gerente debe aprobarla.",
+          { id: toastId, duration: 5000 },
+        );
         if (fetchSemanas) fetchSemanas();
       })
       .catch((err) => {
@@ -81,31 +87,31 @@ const TablaPlantilla = ({
       });
   };
 
-  const handleExcelButton = (idSemana, semana) => {
-    const toastId = toast.loading("Generando Excel...");
-    const url = `${API}/semanas-planilla/resumen/${idSemana}`;
+  // const handleExcelButton = (idSemana, semana) => {
+  //   const toastId = toast.loading("Generando Excel...");
+  //   const url = `${API}/semanas-planilla/resumen/${idSemana}`;
 
-    axios
-      .get(url, config)
-      .then((res) => {
-        const dataSemanaParaExportar = {
-          numero_semana: semana.numero_semana,
-          mes_planilla: { mes: mesName },
-          year_planilla: { year: yearName },
-          totalSemanas: semanasPlanilla.length,
-        };
+  //   axios
+  //     .get(url, config)
+  //     .then((res) => {
+  //       const dataSemanaParaExportar = {
+  //         numero_semana: semana.numero_semana,
+  //         mes_planilla: { mes: mesName },
+  //         year_planilla: { year: yearName },
+  //         totalSemanas: semanasPlanilla.length,
+  //       };
 
-        generarExcelResumenPlanilla(
-          res.data.colaboradores,
-          dataSemanaParaExportar,
-        );
-        toast.success("Excel generado exitosamente", { id: toastId });
-      })
-      .catch((err) => {
-        toast.error("Error al obtener datos para el Excel", { id: toastId });
-        handleAxiosError(err);
-      });
-  };
+  //       generarExcelResumenPlanilla(
+  //         res.data.colaboradores,
+  //         dataSemanaParaExportar,
+  //       );
+  //       toast.success("Excel generado exitosamente", { id: toastId });
+  //     })
+  //     .catch((err) => {
+  //       toast.error("Error al obtener datos para el Excel", { id: toastId });
+  //       handleAxiosError(err);
+  //     });
+  // };
 
   const handleOpenModalCp = (semana) => {
     setSelectModal("CP");
@@ -162,8 +168,6 @@ const TablaPlantilla = ({
             </tr>
           ) : (
             semanasPlanilla.map((semana) => {
-
-
               const estadoClases = getEstadoStyles(semana.estado_planilla);
 
               return (
@@ -184,8 +188,6 @@ const TablaPlantilla = ({
 
                   <td className="border-r text-[11px] border-slate-200 p-2">
                     <div className="w-full flex items-center justify-center gap-2">
-
-
                       <Link to={`/rrhh/resumen-planilla/${semana.id}`}>
                         <Button
                           className="bg-slate-900 text-slate-50 text-[10px] font-bold"
@@ -203,14 +205,13 @@ const TablaPlantilla = ({
                       >
                         PDF
                       </Button>
-                      <Button
+                      {/* <Button
                         className="bg-green-500 text-slate-900 text-[10px] font-bold"
                         size="sm"
                         onPress={() => handleExcelButton(semana.id, semana)}
                       >
                         EXCEL
-                      </Button>
-
+                      </Button> */}
 
                       <Button
                         className="bg-sky-500 text-slate-900 text-[10px] font-bold"
@@ -220,7 +221,7 @@ const TablaPlantilla = ({
                         ADJUNTAR CP
                       </Button>
 
-                      {semana.estado_planilla !== "EN PROCESO" &&
+                      {semana.estado_planilla !== "EN PROCESO" && (
                         <Button
                           color="danger"
                           variant="flat"
@@ -231,17 +232,18 @@ const TablaPlantilla = ({
                         >
                           SOLICITAR REAPERTURA
                         </Button>
-                      }
-
-                      {semana.estado_planilla !== "EN PROCESO" && semana.estado_planilla !== "PAGADO" && (
-                        <Button
-                          className="bg-emerald-600 text-slate-100 text-[10px] font-bold"
-                          size="sm"
-                          onPress={() => handleOpenModalPagado(semana)}
-                        >
-                          PAGADO
-                        </Button>
                       )}
+
+                      {semana.estado_planilla !== "EN PROCESO" &&
+                        semana.estado_planilla !== "PAGADO" && (
+                          <Button
+                            className="bg-emerald-600 text-slate-100 text-[10px] font-bold"
+                            size="sm"
+                            onPress={() => handleOpenModalPagado(semana)}
+                          >
+                            PAGADO
+                          </Button>
+                        )}
                     </div>
                   </td>
                 </tr>
@@ -250,25 +252,22 @@ const TablaPlantilla = ({
           )}
         </tbody>
       </table>
-      {
-        selectModal === "CP" &&
+      {selectModal === "CP" && (
         <ModalCpSemana
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           selectSemana={selectSemana}
           fetchSemanas={fetchSemanas}
         />
-      }
-      {
-        selectModal === "PAGADO" &&
+      )}
+      {selectModal === "PAGADO" && (
         <ModalPagadoSemana
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           selectSemana={selectSemana}
           fetchSemanas={fetchSemanas}
         />
-      }
-
+      )}
     </div>
   );
 };

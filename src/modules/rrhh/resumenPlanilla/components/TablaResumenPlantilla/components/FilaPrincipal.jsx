@@ -11,6 +11,7 @@ const FilaPrincipal = ({
   handleColaboradorClick,
   isOpen,
   totalSemanas,
+  onTotalesCalculados,
 }) => {
   const [totales, setTotales] = useState(null);
   const [prestamos, setPrestamos] = useState([]);
@@ -58,9 +59,8 @@ const FilaPrincipal = ({
       fetchTotalesOperativo();
     }
 
-    fetchPrestamo()
+    fetchPrestamo();
   }, [semana_id, colaborador?.id, isOpen]);
-
 
   const esAdministrativo =
     colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
@@ -88,19 +88,35 @@ const FilaPrincipal = ({
     ? asigFamiliar / totalSemanas
     : asigFamiliar / 4;
 
-  const salarioAfp = salarioBruto + montoAsignacionFamiliar
+  const salarioAfp = salarioBruto + montoAsignacionFamiliar;
 
   const montoPension = (salarioAfp * porcentajePension) / 100;
 
   const descuentos = prestamos.reduce(
     (acc, pago) => acc + Number(pago.importe_cuota || 0),
-    0
+    0,
   );
-
 
   const totalPorPagar =
     salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;
 
+  useEffect(() => {
+    if (onTotalesCalculados) {
+      onTotalesCalculados(colaborador.id, {
+        bruto: salarioBruto,
+        asigFam: montoAsignacionFamiliar,
+        onpAfp: montoPension,
+        descuentos: descuentos,
+        totalPagar: totalPorPagar,
+      });
+    }
+  }, [
+    salarioBruto,
+    montoAsignacionFamiliar,
+    montoPension,
+    descuentos,
+    totalPorPagar,
+  ]);
   return (
     <tr className="hover:bg-blue-50/50 transition-colors group h-[38px]">
       <td className={tdClass}>{colaborador.regimen}</td>

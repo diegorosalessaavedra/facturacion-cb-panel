@@ -23,7 +23,7 @@ const AsistenciaOperativos = ({
       size="5xl"
       classNames={{
         base: " w-full max-w-[1400px] min-h-[80vh] max-h-[90vh] flex flex-col rounded-[24px] overflow-hidden relative",
-        header: "p-4 pb-0  bg-transparent z-20 flex-shrink-0",
+        header: "p-4 pb-0  bg-transparent",
         body: "p-4 pt-0 z-10 relative flex-1 min-h-0 overflow-hidden flex flex-col",
       }}
     >

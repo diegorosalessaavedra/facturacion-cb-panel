@@ -20,10 +20,8 @@ import {
 import EditTimeModal from "./EditTimeModal";
 import { handleAxiosError } from "../../../../../../../utils/handleAxiosError";
 
-// --- FUNCIÓN HELPER PARA QUITAR SEGUNDOS ("12:28:00" -> "12:28") ---
 const formatTimeWithoutSeconds = (timeStr) => {
   if (!timeStr) return null;
-  // Corta el string para tomar solo los primeros 5 caracteres (HH:MM)
   return timeStr.substring(0, 5);
 };
 
@@ -38,8 +36,7 @@ const TrAsistenciaAdministrativa = ({
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const esFeriado = Boolean(dia?.bonificacion_feriado);
-  const valorAsistenciaFeriado = esFeriado ? "SI" : "NO";
-  const valorMontoFeriado = esFeriado ? sueldoFeriadoBruto || 0.0 : 0.0;
+  const valorAsistenciaFeriadoDefault = esFeriado ? "SI" : "NO";
 
   const aplicarReglasTurno = (datos) => {
     const cantTurnos = Number(datos.turnos || 0);
@@ -49,13 +46,21 @@ const TrAsistenciaAdministrativa = ({
     const valorImpMinutos = Number(datos.importe_minutos || 0);
     const basePlanilla = sueldoPorDia * cantTurnos;
 
+    // CORRECCIÓN: Usar el valor que viene en 'datos' (lo que seleccionó el usuario)
+    // Si no viene definido, usamos el default.
+    const feriadoSeleccionado =
+      datos.asistencia_feriado ?? valorAsistenciaFeriadoDefault;
+    const aplicaMontoFeriado = feriadoSeleccionado === "SI" && esFeriado;
+    const feriadoCalculado =
+      aplicaMontoFeriado && trabajo ? sueldoFeriadoBruto : 0;
+
     return {
       ...datos,
+      asistencia_feriado: feriadoSeleccionado,
       total_planilla: trabajo ? basePlanilla : 0,
-      asistencia_feriado: valorAsistenciaFeriado,
-      feriados: trabajo ? valorMontoFeriado : 0,
+      feriados: feriadoCalculado,
       salario: trabajo ? basePlanilla + valorImpHoras + valorImpMinutos : 0,
-      adicionales: trabajo ? Number(valorMontoFeriado) + valorBono : 0,
+      adicionales: trabajo ? Number(feriadoCalculado) + valorBono : 0,
     };
   };
 
@@ -66,7 +71,7 @@ const TrAsistenciaAdministrativa = ({
       semana_planilla_id:
         dia?.semana_plantilla_id || dia?.semana_planilla_id || null,
       colaborador_id: findColaborador?.id || null,
-      asistencia_feriado: valorAsistenciaFeriado,
+      asistencia_feriado: valorAsistenciaFeriadoDefault,
       goce_vacaciones: "NO",
       turno: "DIURNO",
       actividad_dia: "",
@@ -140,20 +145,16 @@ const TrAsistenciaAdministrativa = ({
       .then((res) => {
         if (res.data?.asistencias) {
           const { entrada, salida } = res.data.asistencias;
-          // Formateará algo como "12:28:00"
           const hEntrada = formatToPeruTime(entrada?.punch_time);
           const hSalida = formatToPeruTime(salida?.punch_time);
 
           setDatosAsistencia((prev) => {
             const newData = {
               ...prev,
-              // Guardamos en estado el valor original
               huellero_entrada: hEntrada,
               huellero_salida: hSalida,
             };
 
-            // Al pasar a hora_entrada/salida, ya lo guardamos formateado a HH:MM
-            // Así evitamos guardar "12:28:00" en el input
             if (!prev.hora_entrada)
               newData.hora_entrada = formatTimeWithoutSeconds(hEntrada);
             if (!prev.hora_salida)
@@ -208,7 +209,7 @@ const TrAsistenciaAdministrativa = ({
     setDatosAsistencia((prev) => {
       const nuevosDatos = aplicarReglasTurno({
         ...prev,
-        hora_entrada: formatTimeWithoutSeconds(nuevaEntrada), // Por si acaso también lo formateamos
+        hora_entrada: formatTimeWithoutSeconds(nuevaEntrada),
         hora_salida: formatTimeWithoutSeconds(nuevaSalida),
         ...calculos,
       });
@@ -329,35 +330,26 @@ const TrAsistenciaAdministrativa = ({
     { key: "VIAJES", label: "VIAJES" },
   ];
 
-  // --- LÓGICA DEL SEMÁFORO ACTUALIZADA ---
   const getDynamicTimeClass = (tipo) => {
-    // Usamos el helper para comparar ambos tiempos en formato HH:MM
     const actual = formatTimeWithoutSeconds(
       tipo === "entrada" ? hora_entrada : hora_salida,
     );
     const huellero = formatTimeWithoutSeconds(
       tipo === "entrada" ? huellero_entrada : huellero_salida,
     );
-
     if (!actual) return "bg-white border border-slate-200 shadow-sm";
-
-    // Ahora "12:28" sí es igual a "12:28"
     if (actual === huellero)
       return "bg-emerald-100 text-emerald-700 border border-emerald-300 shadow-sm";
-
     return "bg-orange-100 text-orange-700 border border-orange-300 shadow-sm";
   };
 
-  // --- LÓGICA DEL TOOLTIP MEJORADA ---
   const getTooltipMessage = (tipo) => {
-    // Para el mensaje, sí mostramos el original completo si queremos
     const actual = formatTimeWithoutSeconds(
       tipo === "entrada" ? hora_entrada : hora_salida,
     );
     const huellero_completo =
       tipo === "entrada" ? huellero_entrada : huellero_salida;
     const huellero_recortado = formatTimeWithoutSeconds(huellero_completo);
-
     const mensajeHuellero = huellero_completo
       ? `Hora huellero: ${huellero_completo}`
       : "No tiene registro en el huellero";
@@ -365,7 +357,6 @@ const TrAsistenciaAdministrativa = ({
     if (!actual) return `${mensajeHuellero} (Clic para agregar)`;
     if (actual === huellero_recortado)
       return `${mensajeHuellero} (Clic para editar)`;
-
     return `Editado manual. (${mensajeHuellero})`;
   };
 
@@ -378,7 +369,23 @@ const TrAsistenciaAdministrativa = ({
           {formatDateES(dia?.dia_plantilla) || "-"}
         </td>
         <td className={`${tdBlue} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>{asistencia_feriado}</div>
+          <Select
+            isDisabled={isFinalizado || !esFeriado}
+            aria-label="Asistencia Feriado"
+            name="asistencia_feriado"
+            selectedKeys={new Set([asistencia_feriado])}
+            onChange={handleSelectChange}
+            size="sm"
+            classNames={selectUIClasses}
+          >
+            {(!esFeriado ? [{ key: "NO", label: "NO" }] : opcionesSiNo).map(
+              (op) => (
+                <SelectItem key={op.key} textValue={op.label}>
+                  <p className="text-[9px] font-bold">{op.label}</p>
+                </SelectItem>
+              ),
+            )}
+          </Select>
         </td>
         <td className={`${tdBlue} min-w-[150px]`}>
           <Select
@@ -428,8 +435,6 @@ const TrAsistenciaAdministrativa = ({
             classNames={inputUIClasses}
           />
         </td>
-
-        {/* Celda Hora Entrada */}
         <td
           className={`${tdBlue} min-w-[80px] hover:brightness-95 transition cursor-pointer`}
           onClick={onOpen}
@@ -446,8 +451,6 @@ const TrAsistenciaAdministrativa = ({
             </div>
           </Tooltip>
         </td>
-
-        {/* Celda Hora Salida */}
         <td
           className={`${tdBlue} min-w-[80px] hover:brightness-95 transition cursor-pointer`}
           onClick={onOpen}
@@ -464,7 +467,6 @@ const TrAsistenciaAdministrativa = ({
             </div>
           </Tooltip>
         </td>
-
         <td className={`${tdBlue} min-w-[60px]`}>
           <div className={readOnlyTextClass}>{tardanza_minutos || "0"}</div>
         </td>

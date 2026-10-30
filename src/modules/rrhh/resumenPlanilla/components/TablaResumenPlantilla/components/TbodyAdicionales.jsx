@@ -7,16 +7,29 @@ import { API } from "../../../../../../utils/api";
 import axios from "axios";
 import { handleAxiosError } from "../../../../../../utils/handleAxiosError";
 
-const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
+const TbodyAdicionales = ({
+  colaborador,
+  semana_id,
+  isOpen,
+  isFinalizado,
+  onTotalesCalculados,
+}) => {
   const [totales, setTotales] = useState(null);
   const [numeroDestino, setNumeroDestino] = useState("");
 
   const lastSavedValue = useRef("");
 
+  // Constante auxiliar para saber si es administrativo u operativo
+  const esAdministrativo =
+    colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
+
   const fetchTotales = () => {
     if (!semana_id || !colaborador?.id) return;
 
-    const url = `${API}/totales-asistencia-administrativo/${semana_id}/${colaborador.id}`;
+    // Dinámico: decide la ruta correcta según la agrupación del trabajador
+    const url = esAdministrativo
+      ? `${API}/totales-asistencia-administrativo/${semana_id}/${colaborador.id}`
+      : `${API}/totales-asistencia-operativo/${semana_id}/${colaborador.id}`;
 
     axios
       .get(url, config)
@@ -24,25 +37,12 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
         if (res.data.totales?.id) {
           setTotales(res.data.totales);
 
-          const initialPhone = res.data.totales.numero_destino;
+          const initialPhone = res.data.totales.numero_destino || "";
           setNumeroDestino(initialPhone);
-          lastSavedValue.current = initialPhone; // Guardamos registro del valor inicial
+          lastSavedValue.current = initialPhone; // Se guarda para ambos tipos de empleado
         }
       })
       .catch((err) => console.error("Error cargando totales:", err));
-  };
-
-
-  const fetchTotalesOperativo = () => {
-    if (!semana_id || !colaborador?.id) return;
-
-    const url = `${API}/totales-asistencia-operativo/${semana_id}/${colaborador.id}`;
-
-    axios.get(url, config).then((res) => {
-      if (res.data.totales?.id) {
-        setTotales(res.data.totales);
-      }
-    });
   };
 
   const patchTotales = () => {
@@ -53,11 +53,15 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
 
     if (numeroDestino === lastSavedValue.current) return;
 
-    const url = `${API}/totales-asistencia-administrativo/${totales.id}`;
+    // Dinámico: hace el parcheo en la ruta correcta
+    const endpoint = esAdministrativo
+      ? "totales-asistencia-administrativo"
+      : "totales-asistencia-operativo";
+
+    const url = `${API}/${endpoint}/${totales.id}`;
 
     const payload = {
       numero_destino: numeroDestino,
-      numeroDestino: numeroDestino,
     };
 
     const toastId = toast.loading("Guardando número...");
@@ -66,7 +70,7 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
       .patch(url, payload, config)
       .then(() => {
         toast.success("Número de destino actualizado", { id: toastId });
-        lastSavedValue.current = numeroDestino; // Actualizamos el último valor guardado
+        lastSavedValue.current = numeroDestino;
       })
       .catch((err) => {
         handleAxiosError(err);
@@ -74,12 +78,17 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
   };
 
   useEffect(() => {
-    if (colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS") {
-      fetchTotales();
-    } else {
-      fetchTotalesOperativo();
+    fetchTotales();
+  }, [semana_id, colaborador?.id, isOpen]);
+
+  useEffect(() => {
+    if (onTotalesCalculados) {
+      onTotalesCalculados(colaborador.id, {
+        // Aseguramos que sea número para evitar concatenación de strings en el Gran Total
+        adicionales: Number(totales?.adicionales_total || 0),
+      });
     }
-  }, [semana_id, colaborador.id, isOpen]);
+  }, [totales?.adicionales_total, colaborador.id]);
 
   return (
     <tr
@@ -96,7 +105,7 @@ const TbodyAdicionales = ({ colaborador, semana_id, isOpen, isFinalizado }) => {
           placeholder="0"
           value={numeroDestino}
           onChange={(e) => setNumeroDestino(e.target.value)}
-          onBlur={patchTotales} // Se ejecuta al salir del input
+          onBlur={patchTotales}
           size="sm"
           classNames={{
             inputWrapper:

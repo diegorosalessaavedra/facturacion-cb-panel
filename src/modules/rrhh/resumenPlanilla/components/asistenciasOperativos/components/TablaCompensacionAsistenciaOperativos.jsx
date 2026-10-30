@@ -45,12 +45,13 @@ const TablaCompensacionAsistenciaOperativos = ({
             <th className={thSubGreen}>TOTAL EFECTIVO</th>
           </tr>
         </thead>
-
-        <GrupoCompensacion
-          semanaPlanillaId={semanaPlanillaId}
-          colaborador={colaborador}
-          isFinalizado={isFinalizado}
-        />
+        {colaborador && (
+          <GrupoCompensacion
+            semanaPlanillaId={semanaPlanillaId}
+            colaborador={colaborador}
+            isFinalizado={isFinalizado}
+          />
+        )}
       </table>
     </div>
   );
