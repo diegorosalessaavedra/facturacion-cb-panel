@@ -1,7 +1,24 @@
+import PizZip from "pizzip";
+import Docxtemplater from "docxtemplater";
+import { saveAs } from "file-saver";
+import formatDate from "../../hooks/FormatDate";
+import { numeroALetras } from "../../assets/numeroLetras";
+
+// --- FUNCIÓN AUXILIAR PARA NORMALIZAR TEXTOS (Quitar tildes y cambiar ñ por n) ---
+const quitarTildesYenie = (str) => {
+  if (!str) return "";
+  return String(str)
+    .normalize("NFD")                  // Separa los caracteres de sus tildes
+    .replace(/[\u0300-\u036f]/g, "")    // Elimina las marcas de tildes
+    .replace(/ñ/g, "n")                // Reemplaza ñ minúscula
+    .replace(/Ñ/g, "N");               // Reemplaza Ñ mayúscula
+};
+
 // --- FUNCIONES AUXILIARES PARA ESPACIADO BCP ---
 const padRight = (str, length) => {
-  if (!str) return " ".repeat(length);
-  return String(str).substring(0, length).padEnd(length, " ");
+  const textoLimpio = quitarTildesYenie(str);
+  if (!textoLimpio) return " ".repeat(length);
+  return textoLimpio.substring(0, length).padEnd(length, " ");
 };
 
 const padLeftZeros = (num, length) => {
@@ -63,6 +80,7 @@ export const generarTxtBcp = (selectDatosText, glosa, subtipo) => {
         15,
       );
 
+      // Se aplicará automáticamente la limpieza de tildes y 'ñ' gracias al padRight actualizado
       const nombreCompleto = padRight(
         `${colaborador.apellidos_colaborador || ""} ${colaborador.nombre_colaborador || ""}`
           .trim()
@@ -71,7 +89,9 @@ export const generarTxtBcp = (selectDatosText, glosa, subtipo) => {
       );
 
       const refBeneficiario = padRight(glosa.toUpperCase(), 40);
-      const glosaCorta = glosa
+      
+      const glosaLimpia = quitarTildesYenie(glosa);
+      const glosaCorta = glosaLimpia
         .replace(/[^A-Z0-9]/gi, "")
         .substring(0, 20)
         .toUpperCase();
@@ -111,8 +131,8 @@ export const generarTxtBcp = (selectDatosText, glosa, subtipo) => {
     "1" +
     padLeftZeros(cantidadAbonos, 6) +
     getFechaActual() +
-    subtipo + // <--- Subtipo dinámico (reemplazó a la X)
-    "C" + // <--- C fija
+    subtipo + 
+    "C" + 
     "0001" +
     cuentaCargoStr +
     formatMontoStr(sumaImportes) +
