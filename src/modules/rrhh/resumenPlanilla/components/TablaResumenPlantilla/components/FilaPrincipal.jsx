@@ -1,67 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Tooltip, Chip } from "@nextui-org/react";
-import axios from "axios";
 import { tdClass, tdLastClass, tdNameClass, renderMoney } from "./tableHelpers";
-import config from "../../../../../../utils/getToken";
-import { API } from "../../../../../../utils/api";
 
 const FilaPrincipal = ({
   colaborador,
-  semana_id,
+  totales,
+  prestamos,
   handleColaboradorClick,
-  isOpen,
   totalSemanas,
   onTotalesCalculados,
 }) => {
-  const [totales, setTotales] = useState(null);
-  const [prestamos, setPrestamos] = useState([]);
-
-  useEffect(() => {
-    const fetchTotales = () => {
-      if (!semana_id || !colaborador?.id) return;
-
-      const url = `${API}/totales-asistencia-administrativo/${semana_id}/${colaborador.id}`;
-
-      axios.get(url, config).then((res) => {
-        if (res.data.totales?.id) {
-          setTotales(res.data.totales);
-        }
-      });
-    };
-
-    const fetchTotalesOperativo = () => {
-      if (!semana_id || !colaborador?.id) return;
-
-      const url = `${API}/totales-asistencia-operativo/${semana_id}/${colaborador.id}`;
-
-      axios.get(url, config).then((res) => {
-        if (res.data.totales?.id) {
-          setTotales(res.data.totales);
-        }
-      });
-    };
-
-    const fetchPrestamo = () => {
-      if (!semana_id || !colaborador?.id) return;
-
-      const url = `${API}/prestamos/${semana_id}/${colaborador.id}`;
-
-      axios.get(url, config).then((res) => {
-        if (res.data.pago_encontrados) {
-          setPrestamos(res.data.pago_encontrados);
-        }
-      });
-    };
-
-    if (colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS") {
-      fetchTotales();
-    } else {
-      fetchTotalesOperativo();
-    }
-
-    fetchPrestamo();
-  }, [semana_id, colaborador?.id, isOpen]);
-
   const esAdministrativo =
     colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
   const nombreGrupo = colaborador?.cargo_laboral?.agrupacion_cargo || "-";

@@ -9,12 +9,10 @@ import { handleAxiosError } from "../../../../../../utils/handleAxiosError";
 
 const TbodyAdicionales = ({
   colaborador,
-  semana_id,
-  isOpen,
+  totales,
   isFinalizado,
   onTotalesCalculados,
 }) => {
-  const [totales, setTotales] = useState(null);
   const [numeroDestino, setNumeroDestino] = useState("");
 
   const lastSavedValue = useRef("");
@@ -22,28 +20,6 @@ const TbodyAdicionales = ({
   // Constante auxiliar para saber si es administrativo u operativo
   const esAdministrativo =
     colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
-
-  const fetchTotales = () => {
-    if (!semana_id || !colaborador?.id) return;
-
-    // Dinámico: decide la ruta correcta según la agrupación del trabajador
-    const url = esAdministrativo
-      ? `${API}/totales-asistencia-administrativo/${semana_id}/${colaborador.id}`
-      : `${API}/totales-asistencia-operativo/${semana_id}/${colaborador.id}`;
-
-    axios
-      .get(url, config)
-      .then((res) => {
-        if (res.data.totales?.id) {
-          setTotales(res.data.totales);
-
-          const initialPhone = res.data.totales.numero_destino || "";
-          setNumeroDestino(initialPhone);
-          lastSavedValue.current = initialPhone; // Se guarda para ambos tipos de empleado
-        }
-      })
-      .catch((err) => console.error("Error cargando totales:", err));
-  };
 
   const patchTotales = () => {
     if (!totales?.id) {
@@ -76,10 +52,6 @@ const TbodyAdicionales = ({
         handleAxiosError(err);
       });
   };
-
-  useEffect(() => {
-    fetchTotales();
-  }, [semana_id, colaborador?.id, isOpen]);
 
   useEffect(() => {
     if (onTotalesCalculados) {

@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-import FilaPrincipal from "./components/FilaPrincipal";
-import TbodyAdicionales from "./components/TbodyAdicionales";
-import TbodyValidacion from "./components/TbodyValidacion";
+import React, { useState, useEffect } from "react";
+import FilaResumenColaborador from "./components/FilaResumenColaborador"; // <-- NUEVO COMPONENTE
 
 // Helper simple para moneda
 const formatMoney = (amount) => `S/ ${Number(amount || 0).toFixed(2)}`;
@@ -17,19 +15,32 @@ const TablaResumenPlantilla = ({
   setSelectDatosText,
 }) => {
   const isFinalizado = dataSemana?.estado_planilla !== "EN PROCESO";
-
-  // ESTADO PARA ALMACENAR LOS TOTALES DE CADA COLABORADOR
   const [totalesTabla, setTotalesTabla] = useState({});
+
+  useEffect(() => {
+    setTotalesTabla((prevTotales) => {
+      const idsActuales = colaboradores?.map((c) => c.id) || [];
+      const nuevosTotales = { ...prevTotales };
+      let seModifico = false;
+
+      Object.keys(nuevosTotales).forEach((idGuardado) => {
+        if (!idsActuales.includes(Number(idGuardado))) {
+          delete nuevosTotales[idGuardado];
+          seModifico = true;
+        }
+      });
+
+      return seModifico ? nuevosTotales : prevTotales;
+    });
+  }, [colaboradores]);
 
   const handleColaboradorClick = (id) => {
     setSelectColaborador(id);
     onOpen();
   };
 
-  // FUNCIÓN PARA RECIBIR LOS DATOS DE LOS COMPONENTES HIJOS
   const handleTotalesCalculados = (colaboradorId, nuevosTotales) => {
     setTotalesTabla((prev) => {
-      // Solo actualizamos si hay cambios reales para evitar renders infinitos
       const prevData = prev[colaboradorId] || {};
       const hasChanged = Object.keys(nuevosTotales).some(
         (key) => prevData[key] !== nuevosTotales[key],
@@ -43,7 +54,6 @@ const TablaResumenPlantilla = ({
     });
   };
 
-  // CÁLCULO DEL GRAN TOTAL SUMANDO TODOS LOS REGISTROS
   const granTotal = Object.values(totalesTabla).reduce(
     (acc, curr) => ({
       bruto: acc.bruto + (curr.bruto || 0),
@@ -87,7 +97,7 @@ const TablaResumenPlantilla = ({
     "bg-blue-300 px-2 py-2 font-bold uppercase text-[9px] tracking-wider text-slate-900 text-center";
 
   const tfootClass =
-    "sticky bottom-0 z-20 bg-slate-800 shadow-[0_-2px_4px_rgba(0,0,0,0.1)] border-t-2 border-slate-300 text-[10px]";
+    "z-20 bg-slate-800 shadow-[0_-2px_4px_rgba(0,0,0,0.1)] border-t-2 border-slate-300 text-[10px]";
 
   return (
     <div className={mainWrapperClass}>
@@ -102,7 +112,6 @@ const TablaResumenPlantilla = ({
               <th className={thInfo}>DNI</th>
               <th className={thInfo}>BCO</th>
               <th className={thInfo}>Nº CUENTA BCO</th>
-
               <th className={thFinance}>
                 <span className="text-sm">+</span> BRUTO
               </th>
@@ -132,19 +141,19 @@ const TablaResumenPlantilla = ({
               </tr>
             ) : (
               colaboradores.map((colaborador) => (
-                <FilaPrincipal
-                  key={colaborador.id}
+                <FilaResumenColaborador
+                  key={`principal-${colaborador.id}`}
+                  tipoTabla="principal"
                   colaborador={colaborador}
                   semana_id={semana_id}
                   handleColaboradorClick={handleColaboradorClick}
                   isOpen={isOpen}
                   totalSemanas={totalSemanas}
-                  onTotalesCalculados={handleTotalesCalculados} // PASAMOS EL CALLBACK
+                  onTotalesCalculados={handleTotalesCalculados}
                 />
               ))
             )}
           </tbody>
-          {/* FOOTER TOTALES TABLA 1 */}
           <tfoot className={tfootClass}>
             <tr className="h-[38px]">
               <td
@@ -165,7 +174,7 @@ const TablaResumenPlantilla = ({
               <td className="text-center font-bold text-red-500 border-r border-slate-300">
                 {formatMoney(granTotal.descuentos)}
               </td>
-              <td className="text-center font-extrabold text-amber-500  rounded-br-xl">
+              <td className="text-center font-extrabold text-amber-500 rounded-br-xl">
                 {formatMoney(granTotal.totalPagar)}
               </td>
             </tr>
@@ -196,18 +205,17 @@ const TablaResumenPlantilla = ({
               </tr>
             ) : (
               colaboradores.map((colaborador) => (
-                <TbodyAdicionales
-                  key={colaborador.id}
+                <FilaResumenColaborador
+                  key={`adicionales-${colaborador.id}`}
+                  tipoTabla="adicionales"
                   colaborador={colaborador}
                   semana_id={semana_id}
-                  isOpen={isOpen}
                   isFinalizado={isFinalizado}
                   onTotalesCalculados={handleTotalesCalculados}
                 />
               ))
             )}
           </tbody>
-          {/* FOOTER TOTALES TABLA 2 */}
           <tfoot className={tfootClass}>
             <tr className="h-[38px]">
               <td className="text-center font-bold text-green-500 border-r border-slate-300 rounded-bl-xl">
@@ -242,8 +250,9 @@ const TablaResumenPlantilla = ({
               </tr>
             ) : (
               colaboradores.map((colaborador) => (
-                <TbodyValidacion
-                  key={colaborador.id}
+                <FilaResumenColaborador
+                  key={`validacion-${colaborador.id}`}
+                  tipoTabla="validacion"
                   colaborador={colaborador}
                   semana_id={semana_id}
                   isFinalizado={isFinalizado}
@@ -253,7 +262,6 @@ const TablaResumenPlantilla = ({
               ))
             )}
           </tbody>
-          {/* FOOTER VACÍO PARA ALINEAR ALTURAS */}
           <tfoot className={tfootClass}>
             <tr className="h-[38px]">
               <td colSpan={2} className="rounded-b-xl"></td>

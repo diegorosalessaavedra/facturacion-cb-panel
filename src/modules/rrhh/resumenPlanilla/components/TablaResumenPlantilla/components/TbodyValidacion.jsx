@@ -10,14 +10,14 @@ const TbodyValidacion = ({
   colaborador,
   semana_id,
   totalSemanas,
+  totales,
+  prestamos,
   setSelectDatosText,
 }) => {
   const [dataValidacionTxt, setDataValidacionTxt] = useState(null);
-  const [totales, setTotales] = useState(null);
 
   const [isValidado, setIsValidado] = useState(false);
   const [isPagoMasivo, setIsPagoMasivo] = useState(false);
-  const [prestamos, setPrestamos] = useState([]);
 
   const tdClass = "border-b border-slate-200 p-2 text-center h-[38px] bg-white";
 
@@ -53,27 +53,6 @@ const TbodyValidacion = ({
   useEffect(() => {
     if (!semana_id || !colaborador?.id) return;
 
-    // 1. Cargar Totales según la agrupación del colaborador
-    const esAdmin = colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
-    const endpointTotales = esAdmin
-      ? `${API}/totales-asistencia-administrativo/${semana_id}/${colaborador.id}`
-      : `${API}/totales-asistencia-operativo/${semana_id}/${colaborador.id}`;
-
-    axios.get(endpointTotales, config).then((res) => {
-      if (res.data.totales?.id) {
-        setTotales(res.data.totales);
-      }
-    });
-
-    // 2. Cargar Prestamos
-    const urlPrestamos = `${API}/prestamos/${semana_id}/${colaborador.id}`;
-    axios.get(urlPrestamos, config).then((res) => {
-      if (res.data.pago_encontrados) {
-        setPrestamos(res.data.pago_encontrados);
-      }
-    });
-
-    // 3. Cargar Validación TXT
     const urlValidacion = `${API}/validacion-planilla-txt/${semana_id}/${colaborador.id}`;
     axios
       .get(urlValidacion, config)
@@ -111,25 +90,23 @@ const TbodyValidacion = ({
 
   const porcentajePension = Number(pensionEncontrada || 0);
 
-  const divisorSemanas = Number(totalSemanas || 1) > 0 ? Number(totalSemanas) : 4;
-
+  const divisorSemanas =
+    Number(totalSemanas || 1) > 0 ? Number(totalSemanas) : 4;
 
   const montoAsignacionFamiliar = esAdministrativo
     ? asigFamiliar / divisorSemanas
     : asigFamiliar / 4;
 
-  const salarioAfp = salarioBruto + montoAsignacionFamiliar
+  const salarioAfp = salarioBruto + montoAsignacionFamiliar;
 
   const montoPension = (salarioAfp * porcentajePension) / 100;
 
   const descuentos = prestamos.reduce(
     (acc, pago) => acc + Number(pago.importe_cuota || 0),
-    0
+    0,
   );
 
   // Asegurar divisor válido para evitar divisiones entre 0
-
-
 
   const totalPorPagar =
     salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;

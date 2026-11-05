@@ -46,8 +46,6 @@ const TrAsistenciaAdministrativa = ({
     const valorImpMinutos = Number(datos.importe_minutos || 0);
     const basePlanilla = sueldoPorDia * cantTurnos;
 
-    // CORRECCIÓN: Usar el valor que viene en 'datos' (lo que seleccionó el usuario)
-    // Si no viene definido, usamos el default.
     const feriadoSeleccionado =
       datos.asistencia_feriado ?? valorAsistenciaFeriadoDefault;
     const aplicaMontoFeriado = feriadoSeleccionado === "SI" && esFeriado;
@@ -191,19 +189,24 @@ const TrAsistenciaAdministrativa = ({
     });
   };
 
+  // CORRECCIÓN 1: Evitar usar el estado closure desactualizado
   const handleSelectChange = (e) => {
     const { name, value } = e.target;
     if (!value) return;
-    const nuevosDatos = aplicarReglasTurno({
-      ...datosAsistencia,
-      [name]: value,
+
+    setDatosAsistencia((prev) => {
+      const nuevosDatos = aplicarReglasTurno({
+        ...prev,
+        [name]: value,
+      });
+      datosRef.current = nuevosDatos;
+      if (onDataUpdate) onDataUpdate(nuevosDatos);
+      handleSave(nuevosDatos); // Mandamos guardar inmediatamente el dato fresco
+      return nuevosDatos;
     });
-    datosRef.current = nuevosDatos;
-    setDatosAsistencia(nuevosDatos);
-    if (onDataUpdate) onDataUpdate(nuevosDatos);
-    handleSave(nuevosDatos);
   };
 
+  // CORRECCIÓN 2: Se agregó la llamada a handleSave que faltaba.
   const handleConfirmarEdicionTiempo = (nuevaEntrada, nuevaSalida) => {
     const calculos = calcularTiempos(nuevaEntrada, nuevaSalida);
     setDatosAsistencia((prev) => {
@@ -215,6 +218,7 @@ const TrAsistenciaAdministrativa = ({
       });
       datosRef.current = nuevosDatos;
       if (onDataUpdate) onDataUpdate(nuevosDatos);
+      handleSave(nuevosDatos); // Ahora sí se guarda en BD al confirmar el modal
       return nuevosDatos;
     });
   };
