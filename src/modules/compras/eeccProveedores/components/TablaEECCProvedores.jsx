@@ -17,18 +17,20 @@ const TablaEECCProvedores = ({
 }) => {
   const [dataProveedor, setDataProveedor] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // --- ESTADO PARA DETRACCIONES ---
   const [formDetracciones, setFormDetracciones] = useState({});
 
-  // 1. Efecto para obtener datos del proveedor
+  // 1. Obtener datos del proveedor
   useEffect(() => {
     if (!selectProveedor) return;
-
     let isMounted = true;
     setLoading(true);
 
-    const url = `${API}/proveedores/${selectProveedor}?${selectGastos && `gastos=${selectGastos}&${selectComercial && `comercial=${selectComercial}`}`}`;
+    const qsParams = [];
+    if (selectGastos) qsParams.push(`gastos=${selectGastos}`);
+    if (selectComercial) qsParams.push(`comercial=${selectComercial}`);
+    const queryStr = qsParams.length > 0 ? `?${qsParams.join("&")}` : "";
+
+    const url = `${API}/proveedores/${selectProveedor}${queryStr}`;
 
     axios
       .get(url, config)
@@ -45,7 +47,7 @@ const TablaEECCProvedores = ({
     };
   }, [selectProveedor, selectGastos, selectComercial]);
 
-  // 2. Efecto para inicializar el estado de los inputs de detracción
+  // 2. Inicializar el estado de los inputs de detracción
   useEffect(() => {
     if (dataProveedor?.ordenesCompra) {
       const initialData = {};
@@ -88,7 +90,7 @@ const TablaEECCProvedores = ({
         const maxRows = Math.max(1, productos.length, pagos.length);
 
         const montoDetraccion =
-          parseFloat(formDetracciones[orden.id]?.monto_detraccion) || 0;
+          Number(formDetracciones[orden.id]?.monto_detraccion) || 0;
 
         return Array.from({ length: maxRows }, (_, i) => {
           const prodOriginal = productos[i];
@@ -103,29 +105,28 @@ const TablaEECCProvedores = ({
 
             prod = {
               ...prodOriginal,
-              precioUnitario: esAnticipo
-                ? 0
-                : parseFloat(prodOriginal.precioUnitario || 0),
-              total: esAnticipo ? 0 : parseFloat(prodOriginal.total || 0),
+              precioUnitario: esAnticipo ? 0 : Number(prodOriginal.precioUnitario || 0),
+              total: esAnticipo ? 0 : Number(prodOriginal.total || 0),
             };
           }
 
           const pagoReal = pagos[i];
-
           const pago =
             pagoReal ||
             (prod ? { monto: 0, operacion: "-", ficticio: true } : undefined);
 
           let saldoFila = 0;
 
-          if (prod) saldoFila += parseFloat(prod.total || 0);
-          if (pago) saldoFila -= parseFloat(pago.monto || 0);
+          if (prod) saldoFila += Number(prod.total || 0);
+          if (pago) saldoFila -= Number(pago.monto || 0);
           if (i === 0) saldoFila -= montoDetraccion;
 
-          // El acumulador general sí debe sumar todo
-          if (prod) acumuladorFooter += parseFloat(prod.total || 0);
-          if (pago) acumuladorFooter -= parseFloat(pago.monto || 0);
+          if (prod) acumuladorFooter += Number(prod.total || 0);
+          if (pago) acumuladorFooter -= Number(pago.monto || 0);
           if (i === 0) acumuladorFooter -= montoDetraccion;
+
+          // EVITAR EL -0.00 VISUAL: Si el saldo roza el cero, forzarlo a 0 absoluto.
+          const saldoSeguroFila = Math.abs(saldoFila) < 0.01 ? 0 : saldoFila;
 
           return {
             orden,
@@ -134,13 +135,16 @@ const TablaEECCProvedores = ({
             pagoReal,
             isFirstRow: i === 0,
             maxRows,
-            saldoActual: saldoFila,
+            saldoActual: saldoSeguroFila,
             key: `${orden.id}-${i}`,
           };
         });
       });
 
-    return { rows: allRows, totalSaldo: acumuladorFooter };
+    // EVITAR EL -0.00 EN EL FOOTER
+    const totalSeguro = Math.abs(acumuladorFooter) < 0.01 ? 0 : acumuladorFooter;
+
+    return { rows: allRows, totalSaldo: totalSeguro };
   }, [dataProveedor, formDetracciones]);
 
   // --- MANEJADORES DE DETRACCIÓN ---
@@ -154,7 +158,6 @@ const TablaEECCProvedores = ({
           (o) => o.id === ordenId,
         );
 
-        // MODIFICACIÓN: Asegurarnos de que el porcentaje de detracción excluya los anticipos
         const totalOrden =
           ordenOriginal?.productos?.reduce((sum, p) => {
             const esAnticipo =
@@ -162,12 +165,12 @@ const TablaEECCProvedores = ({
               p?.producto?.nombre === "Anticipos" ||
               p?.descripcion_producto === "Regularizacion de pago" ||
               p?.producto?.nombre === "Regularizacion de pago";
-            const valorCalculado = esAnticipo ? 0 : parseFloat(p.total || 0);
+            const valorCalculado = esAnticipo ? 0 : Number(p.total || 0);
             return sum + valorCalculado;
           }, 0) || 0;
 
-        const porcentajeParsed = parseFloat(value);
-        if (!isNaN(porcentajeParsed) && porcentajeParsed >= 0) {
+        const porcentajeParsed = Number(value);
+        if (!isNaN(porcentajeParsed) && porcentajeParsed >= 0 && value !== "") {
           newMonto = Math.round(totalOrden * (porcentajeParsed / 100));
         } else {
           newMonto = "";
@@ -240,12 +243,16 @@ const TablaEECCProvedores = ({
       cancelado: { color: "bg-green-500", text: "Cancelado" },
       favor: { color: "bg-amber-500", text: "A favor" },
     };
-    const status =
-      saldo > 0
-        ? configBadge.debe
-        : saldo === 0
-          ? configBadge.cancelado
-          : configBadge.favor;
+
+    let status;
+    if (saldo === 0) { // Ya aseguramos en useMemo que si es ínfimo es 0 puro
+      status = configBadge.cancelado;
+    } else if (saldo > 0) {
+      status = configBadge.debe;
+    } else {
+      status = configBadge.favor;
+    }
+
     return (
       <td
         colSpan="2"
@@ -259,195 +266,109 @@ const TablaEECCProvedores = ({
   const tieneDetraccion = Boolean(dataProveedor?.detraccion_activo);
   const colSpanPrevioTotales = tieneDetraccion ? 13 : 8;
   const totalColSpanVacio = tieneDetraccion ? 17 : 13;
+  const nombreFmt = dataProveedor?.nombreComercial || dataProveedor?.nombreApellidos || "Sin Nombre";
 
   return (
     <div className="flex flex-col min-h-[90vh] max-h-[90vh] w-full max-w-[1800px] mx-auto bg-slate-50 shadow-xl rounded-lg overflow-hidden border border-slate-200">
       <header className="p-4 py-3 border-b border-slate-200 bg-slate-900 shrink-0">
         <h2 className="text-sm font-bold text-slate-50">
-          Proveedor:{" "}
-          <span className="font-normal text-slate-100">
-            {dataProveedor?.nombreComercial ||
-              dataProveedor?.nombreApellidos ||
-              "Sin Nombre"}
-          </span>
+          Proveedor: <span className="font-normal text-slate-100">{nombreFmt}</span>
         </h2>
       </header>
+      
       <section className="relative flex-1 min-h-0 flex flex-col p-2 bg-slate-50">
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3">
             <Spinner size="lg" />
-            <p className="text-slate-500 animate-pulse">
-              Procesando historial...
-            </p>
+            <p className="text-slate-500 animate-pulse">Procesando historial...</p>
           </div>
         ) : (
-          <div className="flex-1 w-full overflow-auto bg-white border border-slate-300 rounded-lg shadow-sm relative">
+          <div className="flex-1 w-full overflow-auto bg-white border border-slate-300 rounded-lg shadow-sm relative custom-scrollbar">
             <table className="w-full text-left border-collapse text-[11px] whitespace-nowrap">
               <thead className="sticky top-0 z-20 shadow-sm">
                 <tr>
-                  <th
-                    colSpan="8"
-                    className="bg-blue-700 text-white font-bold text-center py-3 px-2 tracking-wider border-r border-blue-800"
-                  >
+                  <th colSpan="8" className="bg-blue-700 text-white font-bold text-center py-3 px-2 tracking-wider border-r border-blue-800">
                     DETALLE DE ENVÍO
                   </th>
                   {tieneDetraccion && (
-                    <th
-                      colSpan="4"
-                      className="bg-amber-500 text-white font-bold text-center py-3 px-2 tracking-wider border-r border-amber-600"
-                    >
+                    <th colSpan="4" className="bg-amber-500 text-white font-bold text-center py-3 px-2 tracking-wider border-r border-amber-600">
                       DETRACCIONES
                     </th>
                   )}
-                  <th
-                    colSpan="5"
-                    className="bg-green-600 text-white font-bold text-center py-3 px-2 tracking-wider"
-                  >
+                  <th colSpan="5" className="bg-green-600 text-white font-bold text-center py-3 px-2 tracking-wider">
                     DETALLE DE PAGO
                   </th>
                 </tr>
                 <tr>
-                  {[
-                    "-",
-                    "Fecha",
-                    "SOLPED",
-                    "Serie Correlativo",
-                    "Descripción",
-                    "Cant.",
-                    "P.U",
-                    "Total",
-                  ].map((title, i) => (
-                    <th
-                      key={`envio-${i}`}
-                      className=" bg-blue-100 text-slate-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300"
-                    >
+                  {["-", "Fecha", "SOLPED", "Serie Correlativo", "Descripción", "Cant.", "P.U", "Total"].map((title, i) => (
+                    <th key={`envio-${i}`} className="bg-blue-100 text-slate-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300">
                       {title}
                     </th>
                   ))}
 
                   {tieneDetraccion &&
-                    ["Cód Dr", "Fecha Dr", "Porcentaje Dr", "Monto Dr"].map(
-                      (title, i) => (
-                        <th
-                          key={`detrac-${i}`}
-                          className="bg-amber-50 text-amber-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300"
-                        >
-                          {title}
-                        </th>
-                      ),
-                    )}
-
-                  {["Fecha Pago", "Monto", "Saldo", "Operación", "Banco"].map(
-                    (title, i) => (
-                      <th
-                        key={`pago-${i}`}
-                        className="bg-green-50 text-slate-800 font-bold text-center py-2 px-2 border-b border-r last:border-r-0 border-slate-300"
-                      >
+                    ["Cód Dr", "Fecha Dr", "Porcentaje Dr", "Monto Dr"].map((title, i) => (
+                      <th key={`detrac-${i}`} className="bg-amber-50 text-amber-900 font-bold text-center py-2 px-2 border-b border-r border-slate-300">
                         {title}
                       </th>
-                    ),
-                  )}
+                    ))}
+
+                  {["Fecha Pago", "Monto", "Saldo", "Operación", "Banco"].map((title, i) => (
+                    <th key={`pago-${i}`} className="bg-green-50 text-slate-800 font-bold text-center py-2 px-2 border-b border-r last:border-r-0 border-slate-300">
+                      {title}
+                    </th>
+                  ))}
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-slate-200">
                 {rows.length > 0 ? (
                   rows.map((row) => {
-                    const {
-                      orden,
-                      prod,
-                      pago,
-                      pagoReal,
-                      isFirstRow,
-                      maxRows,
-                      saldoActual,
-                      key,
-                    } = row;
+                    const { orden, prod, pago, pagoReal, isFirstRow, maxRows, saldoActual, key } = row;
 
-                    const bancoNombre =
-                      pagoReal?.banco?.banco ||
-                      pagoReal?.banco?.descripcion ||
-                      pagoReal?.banco ||
-                      "-";
+                    const bancoNombre = pagoReal?.banco?.banco || pagoReal?.banco?.descripcion || pagoReal?.banco || "-";
+                    const descripcionProd = prod?.descripcion_producto && prod.descripcion_producto !== "null" 
+                      ? prod.descripcion_producto 
+                      : prod?.producto?.nombre || "-";
 
                     return (
-                      <tr
-                        key={key}
-                        className="hover:bg-blue-50/40 transition-colors"
-                      >
-                        {isFirstRow ? (
+                      <tr key={key} className="hover:bg-blue-50/40 transition-colors">
+                        {isFirstRow && (
                           <>
-                            <td
-                              rowSpan={maxRows}
-                              className=" py-2  text-center align-middle border-r border-slate-200 bg-slate-50 min-w-[50px]"
-                            >
-                              {formDetracciones[orden.id]?.isModified ? (
+                            <td rowSpan={maxRows} className="py-2 text-center align-middle border-r border-slate-200 bg-slate-50 min-w-[50px]">
+                              {formDetracciones[orden.id]?.isModified && (
                                 <Button
                                   size="sm"
                                   color="warning"
                                   variant="solid"
                                   className="h-7 text-[10px] min-w-fit font-bold shadow-sm"
-                                  isLoading={
-                                    formDetracciones[orden.id]?.isSaving
-                                  }
+                                  isLoading={formDetracciones[orden.id]?.isSaving}
                                   onClick={() => saveDetraccion(orden.id)}
                                 >
                                   <SaveIcon size={18} />
                                 </Button>
-                              ) : null}
+                              )}
                             </td>
-
-                            <td
-                              rowSpan={maxRows}
-                              className="py-2 px-2 text-center align-middle font-medium text-slate-700 border-r border-slate-200 bg-white"
-                            >
+                            <td rowSpan={maxRows} className="py-2 px-2 text-center align-middle font-medium text-slate-700 border-r border-slate-200 bg-white">
                               {formatDate(orden.fechaEmision) || "-"}
                             </td>
-                            <td
-                              rowSpan={maxRows}
-                              className="py-2 px-2 text-center align-middle font-bold text-slate-900 border-r border-slate-200 bg-white"
-                            >
+                            <td rowSpan={maxRows} className="py-2 px-2 text-center align-middle font-bold text-slate-900 border-r border-slate-200 bg-white">
                               {`COD-000${formatWithLeadingZeros(orden?.id, 3)}`}
                             </td>
-                            <td
-                              rowSpan={maxRows}
-                              className="max-w-20 p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
-                            >
+                            <td rowSpan={maxRows} className="max-w-20 p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle">
                               <input
                                 type="text"
                                 className="w-20 border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
-                                value={
-                                  formDetracciones[orden.id]
-                                    ?.serie_correlativo || ""
-                                }
+                                value={formDetracciones[orden.id]?.serie_correlativo || ""}
                                 placeholder="serie-001"
-                                onChange={(e) =>
-                                  handleInputDetraccion(
-                                    orden.id,
-                                    "serie_correlativo",
-                                    e.target.value,
-                                  )
-                                }
+                                onChange={(e) => handleInputDetraccion(orden.id, "serie_correlativo", e.target.value)}
                               />
                             </td>
                           </>
-                        ) : null}
+                        )}
 
-                        <td
-                          className="py-2 px-2 text-left text-slate-800 min-w-[150px] truncate border-r border-slate-200 bg-white"
-                          title={
-                            (prod?.descripcion_producto &&
-                              prod?.descripcion_producto !== "null" &&
-                              prod.descripcion_producto) ||
-                            prod?.producto?.nombre ||
-                            "-"
-                          }
-                        >
-                          {(prod?.descripcion_producto &&
-                            prod?.descripcion_producto !== "null" &&
-                            prod.descripcion_producto) ||
-                            prod?.producto?.nombre ||
-                            "-"}
+                        <td className="py-2 px-2 text-left text-slate-800 min-w-[150px] truncate border-r border-slate-200 bg-white" title={descripcionProd}>
+                          {descripcionProd}
                         </td>
                         <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
                           {prod ? Number(prod.cantidad).toFixed(0) : "-"}
@@ -459,93 +380,47 @@ const TablaEECCProvedores = ({
                           {prod ? `S/ ${numberPeru(prod.total)}` : "-"}
                         </td>
 
-                        {tieneDetraccion ? (
-                          isFirstRow ? (
-                            <>
-                              <td
-                                rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
-                              >
+                        {tieneDetraccion && isFirstRow && (
+                          <>
+                            <td rowSpan={maxRows} className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle">
+                              <input
+                                className="w-[60px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
+                                placeholder="Ej: 020"
+                                value={formDetracciones[orden.id]?.codigo_detraccion || ""}
+                                onChange={(e) => handleInputDetraccion(orden.id, "codigo_detraccion", e.target.value)}
+                              />
+                            </td>
+                            <td rowSpan={maxRows} className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle">
+                              <input
+                                type="date"
+                                className="w-[110px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
+                                value={formDetracciones[orden.id]?.fecha_detraccion || ""}
+                                onChange={(e) => handleInputDetraccion(orden.id, "fecha_detraccion", e.target.value)}
+                              />
+                            </td>
+                            <td rowSpan={maxRows} className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle">
+                              <div className="flex items-center gap-1 justify-center">
                                 <input
-                                  className="w-[60px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
-                                  placeholder="Ej: 020"
-                                  value={
-                                    formDetracciones[orden.id]
-                                      ?.codigo_detraccion || ""
-                                  }
-                                  onChange={(e) =>
-                                    handleInputDetraccion(
-                                      orden.id,
-                                      "codigo_detraccion",
-                                      e.target.value,
-                                    )
-                                  }
+                                  className="w-12 border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-center bg-white"
+                                  placeholder="0"
+                                  value={formDetracciones[orden.id]?.porcentaje_detraccion || ""}
+                                  onChange={(e) => handleInputDetraccion(orden.id, "porcentaje_detraccion", e.target.value)}
                                 />
-                              </td>
-                              <td
-                                rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
-                              >
+                                <span className="text-slate-500 font-bold">%</span>
+                              </div>
+                            </td>
+                            <td rowSpan={maxRows} className="p-2 text-center border-r border-slate-300 bg-amber-50/40 align-middle relative">
+                              <div className="flex flex-col gap-2 items-end">
                                 <input
-                                  type="date"
-                                  className="w-[110px] border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 bg-white"
-                                  value={
-                                    formDetracciones[orden.id]
-                                      ?.fecha_detraccion || ""
-                                  }
-                                  onChange={(e) =>
-                                    handleInputDetraccion(
-                                      orden.id,
-                                      "fecha_detraccion",
-                                      e.target.value,
-                                    )
-                                  }
+                                  readOnly
+                                  className="w-[100px] border border-slate-200 rounded px-2 py-1.5 text-xs outline-none text-center font-bold bg-slate-100 text-slate-600 cursor-not-allowed"
+                                  placeholder="S/ 0"
+                                  value={formDetracciones[orden.id]?.monto_detraccion || ""}
                                 />
-                              </td>
-                              <td
-                                rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-200 bg-amber-50/20 align-middle"
-                              >
-                                <div className="flex items-center gap-1 justify-center">
-                                  <input
-                                    className="w-12 border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-center bg-white"
-                                    placeholder="0"
-                                    value={
-                                      formDetracciones[orden.id]
-                                        ?.porcentaje_detraccion || ""
-                                    }
-                                    onChange={(e) =>
-                                      handleInputDetraccion(
-                                        orden.id,
-                                        "porcentaje_detraccion",
-                                        e.target.value,
-                                      )
-                                    }
-                                  />
-                                  <span className="text-slate-500 font-bold">
-                                    %
-                                  </span>
-                                </div>
-                              </td>
-                              <td
-                                rowSpan={maxRows}
-                                className="p-2 text-center border-r border-slate-300 bg-amber-50/40 align-middle relative"
-                              >
-                                <div className="flex flex-col gap-2 items-end ">
-                                  <input
-                                    readOnly
-                                    className="w-[100px] border border-slate-200 rounded px-2 py-1.5 text-xs outline-none text-center font-bold bg-slate-100 text-slate-600 cursor-not-allowed"
-                                    placeholder="S/ 0"
-                                    value={
-                                      formDetracciones[orden.id]
-                                        ?.monto_detraccion || ""
-                                    }
-                                  />
-                                </div>
-                              </td>
-                            </>
-                          ) : null
-                        ) : null}
+                              </div>
+                            </td>
+                          </>
+                        )}
 
                         <td className="py-2 px-2 text-center text-slate-700 border-r border-slate-200 bg-white">
                           {pagoReal ? formatDate(pagoReal.fecha) : "-"}
@@ -553,7 +428,7 @@ const TablaEECCProvedores = ({
                         <td className="py-2 px-2 text-center font-bold text-slate-900 bg-slate-100/50 border-r border-slate-200">
                           {pago ? `S/ ${numberPeru(pago.monto)}` : "-"}
                         </td>
-                        <td className="py-2 px-2 text-center font-bold text-red-600 bg-red-50/40 border-r border-slate-300">
+                        <td className={`py-2 px-2 text-center font-bold border-r border-slate-300 ${saldoActual === 0 ? "text-slate-500 bg-slate-50" : saldoActual > 0 ? "text-red-600 bg-red-50/40" : "text-green-600 bg-green-50/40"}`}>
                           S/ {numberPeru(saldoActual)}
                         </td>
                         <td className="py-2 px-2 text-center text-slate-700 bg-white border-r border-slate-200">
@@ -567,10 +442,7 @@ const TablaEECCProvedores = ({
                   })
                 ) : (
                   <tr>
-                    <td
-                      colSpan={totalColSpanVacio}
-                      className="py-12 text-center text-slate-500 font-medium bg-white"
-                    >
+                    <td colSpan={totalColSpanVacio} className="py-12 text-center text-slate-500 font-medium bg-white">
                       No hay órdenes de compra registradas para este proveedor.
                     </td>
                   </tr>
@@ -580,10 +452,7 @@ const TablaEECCProvedores = ({
               {rows.length > 0 && (
                 <tfoot className="sticky bottom-0 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                   <tr className="bg-slate-900 border-t-2 border-slate-700 text-xs text-white">
-                    <td
-                      colSpan={colSpanPrevioTotales}
-                      className="py-3 px-2 border-r border-slate-500 bg-white"
-                    ></td>
+                    <td colSpan={colSpanPrevioTotales} className="py-3 px-2 border-r border-slate-500 bg-white"></td>
                     <td className="py-3 px-2 text-center font-bold uppercase tracking-wide border-r border-slate-500">
                       TOTALES
                     </td>
@@ -595,27 +464,26 @@ const TablaEECCProvedores = ({
                 </tfoot>
               )}
             </table>
-            <footer className=" w-full p-4 flex justify-end gap-2 shrink-0">
-              <Button
-                color="success"
-                variant="flat"
-                isDisabled={rows.length === 0}
-                onClick={() => {
-                  descargarExcelProveedor(
-                    rows,
-                    totalSaldo,
-                    dataProveedor?.nombreComercial ||
-                      dataProveedor?.nombreApellidos ||
-                      "Sin_Nombre",
-                    formDetracciones,
-                    tieneDetraccion,
-                  );
-                }}
-              >
-                Exportar Excel
-              </Button>
-            </footer>
           </div>
+        )}
+        {!loading && rows.length > 0 && (
+          <footer className="w-full p-4 flex justify-end gap-2 shrink-0">
+            <Button
+              color="success"
+              variant="flat"
+              onPress={() => {
+                descargarExcelProveedor(
+                  rows,
+                  totalSaldo,
+                  nombreFmt,
+                  formDetracciones,
+                  tieneDetraccion,
+                );
+              }}
+            >
+              Exportar Excel
+            </Button>
+          </footer>
         )}
       </section>
     </div>

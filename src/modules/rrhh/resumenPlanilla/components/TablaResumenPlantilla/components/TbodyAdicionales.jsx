@@ -13,11 +13,11 @@ const TbodyAdicionales = ({
   isFinalizado,
   onTotalesCalculados,
 }) => {
-  const [numeroDestino, setNumeroDestino] = useState("");
+  const [numeroDestino, setNumeroDestino] = useState(totales?.numero_destino || "");
 
   const lastSavedValue = useRef("");
 
-  // Constante auxiliar para saber si es administrativo u operativo
+
   const esAdministrativo =
     colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
 
@@ -29,7 +29,6 @@ const TbodyAdicionales = ({
 
     if (numeroDestino === lastSavedValue.current) return;
 
-    // Dinámico: hace el parcheo en la ruta correcta
     const endpoint = esAdministrativo
       ? "totales-asistencia-administrativo"
       : "totales-asistencia-operativo";

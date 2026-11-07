@@ -28,7 +28,6 @@ const Prestamos = ({ userRole }) => {
       .then((res) => {
         setColaboradores(res.data.colaboradores);
       })
-      .catch((err) => console.log(err));
   };
 
   const handlePrestamos = () => {

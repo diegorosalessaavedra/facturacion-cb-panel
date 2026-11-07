@@ -36,13 +36,11 @@ const EECCProveedores = () => {
   }, []);
 
   const handleFindProductos = useCallback(() => {
-    // "Costos y gastos" -> productos
     const url = `${API}/productos/mis-productos?tipo_producto=Costos y gastos&status=Activo`;
     axios.get(url, config).then((res) => setProductos(res.data.misProductos));
   }, []);
 
   const handleFindProductos2 = useCallback(() => {
-    // "Comercialización y servicios" -> productos2
     const url = `${API}/productos/mis-productos?tipo_producto=Comercialización y servicios&status=Activo`;
     axios.get(url, config).then((res) => setProductos2(res.data.misProductos));
   }, []);
@@ -98,9 +96,9 @@ const EECCProveedores = () => {
               label="Status Saldo"
               labelPlacement="outside"
               variant="bordered"
-              selectionMode="single" // Cambiado a single por lógica de negocio
-              selectedKeys={selectSaldo} // ✅ Corregido
-              onSelectionChange={setSelectSaldo} // ✅ Corregido
+              selectionMode="single"
+              selectedKeys={selectSaldo}
+              onSelectionChange={setSelectSaldo}
               radius="sm"
               size="sm"
               classNames={selectClassNames}
@@ -111,10 +109,14 @@ const EECCProveedores = () => {
               <SelectItem key="DEUDA" textValue="DEUDA">
                 DEUDA
               </SelectItem>
+              <SelectItem key="CANCELADO" textValue="CANCELADO">
+                CANCELADO
+              </SelectItem>
               <SelectItem key="A FAVOR" textValue="A FAVOR">
                 A FAVOR
               </SelectItem>
             </Select>
+
             <Autocomplete
               aria-label="Seleccione un Proveedor"
               label="Seleccione un Proveedor"
@@ -135,24 +137,36 @@ const EECCProveedores = () => {
               {proveedores
                 .filter((p) => {
                   const statusFiltro = Array.from(selectSaldo)[0];
+                  // Convertimos a número real antes de evaluar
+                  const saldoNum = Number(p.saldo || 0);
 
-                  if (statusFiltro === "DEUDA") return p.saldo > 0;
-                  if (statusFiltro === "A FAVOR") return p.saldo < 0;
+                  if (statusFiltro === "DEUDA") return saldoNum > 0;
+                  if (statusFiltro === "A FAVOR") return saldoNum < 0;
+                  // Manejamos un rango ínfimo para evitar errores de coma flotante (ej: 0.00001)
+                  if (statusFiltro === "CANCELADO") return Math.abs(saldoNum) < 0.01;
 
-                  return true;
+                  return true; // TODOS
                 })
-                .map((item) => (
-                  <AutocompleteItem
-                    key={item.id}
-                    value={item.id}
-                    textValue={`${item.nombreComercial || item.nombreApellidos} - ${item.numeroDoc} - S/${Number(item.saldo).toFixed(2)}`}
-                  >
-                    <p className="text-[11px]">
-                      {item.nombreComercial || item.nombreApellidos} -{" "}
-                      {item.numeroDoc} - S/{Number(item.saldo).toFixed(2)}{" "}
-                    </p>
-                  </AutocompleteItem>
-                ))}
+                .map((item) => {
+                  const nombre = item.nombreComercial || item.nombreApellidos;
+                  const saldoFormateado = Number(item.saldo || 0).toFixed(2);
+                  const textoCompleto = `${nombre} - ${item.numeroDoc} - S/ ${saldoFormateado}`;
+
+                  return (
+                    <AutocompleteItem
+                      key={item.id.toString()}
+                      value={item.id.toString()}
+                      textValue={textoCompleto}
+                    >
+                      <p className="text-[11px] font-medium text-slate-700">
+                        {nombre} <span className="text-slate-400">|</span> {item.numeroDoc} <span className="text-slate-400">|</span> 
+                        <span className={`font-bold ml-1 ${Number(item.saldo) > 0 ? "text-red-500" : Number(item.saldo) < 0 ? "text-green-500" : "text-slate-500"}`}>
+                          S/ {saldoFormateado}
+                        </span>
+                      </p>
+                    </AutocompleteItem>
+                  );
+                })}
             </Autocomplete>
 
             <Select
@@ -208,10 +222,8 @@ const EECCProveedores = () => {
             </Select>
           </section>
 
-          {/* 3. Preparamos las props antes de enviarlas a la tabla */}
           {selectProveedor &&
             (() => {
-              // Filtramos "TODOS" de los Sets (si el usuario seleccionó ítems específicos)
               const arrComercial = Array.from(selectComercial).filter(
                 (id) => id !== "TODOS",
               );
@@ -219,7 +231,6 @@ const EECCProveedores = () => {
                 (id) => id !== "TODOS",
               );
 
-              // Convertimos a string o devolvemos "TODOS" por defecto
               const stringComercial =
                 arrComercial.length > 0 ? arrComercial.join(",") : "TODOS";
               const stringGastos =
