@@ -134,10 +134,7 @@ const ResumenPlanilla = lazy(
 const ReaperturarSemanaPlanilla = lazy(
   () => import("./modules/rrhh/resumenPlanilla/ReaperturarSemanaPlanilla"),
 );
-const Prestamos = lazy(
-  () => import("./modules/rrhh/prestamos/Prestamos"),
-);
-
+const Prestamos = lazy(() => import("./modules/rrhh/prestamos/Prestamos"));
 
 // RRHH
 
@@ -376,7 +373,7 @@ function App() {
             path="/clientes/tus-proveedores"
             element={
               <ProtectedRouteWrapper userRole={userRole}>
-                <TusProveedores />
+                <TusProveedores userRole={userRole} />
               </ProtectedRouteWrapper>
             }
           />
@@ -546,7 +543,7 @@ function App() {
             path="/rrhh/prestamos"
             element={
               <ProtectedRouteWrapper userRole={userRole}>
-                <Prestamos  userRole={userRole}/>
+                <Prestamos userRole={userRole} />
               </ProtectedRouteWrapper>
             }
           />

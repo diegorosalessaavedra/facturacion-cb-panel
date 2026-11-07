@@ -10,7 +10,7 @@ import ModalEditarProveedor from "./components/ModalEditarProveedor/ModalEditarP
 import FiltrarClientes from "../tusClientes/components/FiltrarClientes";
 import { handleAxiosError } from "../../../utils/handleAxiosError";
 
-const TusProveedores = () => {
+const TusProveedores = ({ userRole }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState(true);
   const [proveedores, setProveedores] = useState([]);
@@ -89,6 +89,7 @@ const TusProveedores = () => {
             onOpen={onOpen}
             setSelectModal={setSelectModal}
             setSelectProveedor={setSelectProveedor}
+            userRole={userRole}
           />
         </div>
       </div>

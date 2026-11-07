@@ -20,6 +20,7 @@ const TablaTusProveedores = ({
   onOpen,
   setSelectModal,
   setSelectProveedor,
+  userRole,
 }) => {
   return (
     <div className="w-full flex flex-col relative">
@@ -134,28 +135,29 @@ const TablaTusProveedores = ({
                         <FaEdit className="text-lg" />
                       </Button>
                     </Tooltip>
-
-                    <Tooltip
-                      content="Eliminar"
-                      color="danger"
-                      showArrow
-                      size="sm"
-                    >
-                      <Button
-                        isIconOnly
+                    {(userRole === "GERENTE" || userRole === "CONTADOR") && (
+                      <Tooltip
+                        content="Eliminar"
+                        color="danger"
+                        showArrow
                         size="sm"
-                        variant="light"
-                        // El slate-400 cambia a rojo solo al pasar el mouse por precaución UX
-                        className="text-red-500"
-                        onPress={() => {
-                          setSelectModal("eliminar");
-                          setSelectProveedor(proveedor);
-                          onOpen();
-                        }}
                       >
-                        <FaTrashAlt className="text-base" />
-                      </Button>
-                    </Tooltip>
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="light"
+                          // El slate-400 cambia a rojo solo al pasar el mouse por precaución UX
+                          className="text-red-500"
+                          onPress={() => {
+                            setSelectModal("eliminar");
+                            setSelectProveedor(proveedor);
+                            onOpen();
+                          }}
+                        >
+                          <FaTrashAlt className="text-base" />
+                        </Button>
+                      </Tooltip>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
