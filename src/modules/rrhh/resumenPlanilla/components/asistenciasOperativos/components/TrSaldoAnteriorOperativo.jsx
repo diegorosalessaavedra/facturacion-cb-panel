@@ -119,7 +119,7 @@ const TrSaldoAnteriorOperativo = ({
       </td>
 
       <td
-        colSpan={17}
+        colSpan={18}
         className="border-r border-b border-slate-200 text-right pr-4 font-bold text-red-600 text-[10px] uppercase"
       >
         Saldo Anterior

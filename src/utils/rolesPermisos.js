@@ -237,8 +237,14 @@ export const ROUTE_PERMISSIONS = {
   "/rrhh/calendario-planilla": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
   "/rrhh/planilla": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
   "/rrhh/resumen-planilla/:id": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
-  "/rrhh/resumen-planilla/reaperturar/:id": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/rrhh/resumen-planilla/reaperturar/:id": [
+    ROLES.GERENTE,
+    ROLES.CONTADOR,
+    ROLES.RRHH,
+  ],
   "/rrhh/prestamos": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/rrhh/5ta": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
+  "/rrhh/proyecciones-5ta/:id": [ROLES.GERENTE, ROLES.CONTADOR, ROLES.RRHH],
 
   // Rutas de RRHH
 

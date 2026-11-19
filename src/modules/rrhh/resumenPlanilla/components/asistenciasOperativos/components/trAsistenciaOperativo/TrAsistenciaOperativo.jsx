@@ -234,7 +234,8 @@ const TrAsistenciaOperativo = ({
       semana_planilla_id:
         dia?.semana_plantilla_id || dia?.semana_planilla_id || null,
       colaborador_id: findColaborador?.id || null,
-      asistencia_feriado: esFeriado ? "SI" : "NO", // Valor por defecto
+      asistencia_feriado: esFeriado ? "SI" : "NO",
+      goce_vacaciones: "NO",
       turno: "DIURNO",
       actividad_dia: "",
       entrada: "",
@@ -370,6 +371,7 @@ const TrAsistenciaOperativo = ({
 
   const {
     asistencia_feriado,
+    goce_vacaciones,
     turno,
     actividad_dia,
     entrada,
@@ -428,6 +430,23 @@ const TrAsistenciaOperativo = ({
                 </SelectItem>
               ),
             )}
+          </Select>
+        </td>
+        <td className={`${tdBlue} min-w-[50px] `}>
+          <Select
+            isDisabled={isFinalizado}
+            aria-label="Goce de vacaciones"
+            name="goce_vacaciones"
+            selectedKeys={new Set([goce_vacaciones])}
+            onChange={handleSelectChange}
+            size="sm"
+            classNames={selectUIClasses}
+          >
+            {opcionesFeriado.map((op) => (
+              <SelectItem key={op.key} textValue={op.label}>
+                <p className="text-[9px]">{op.label}</p>
+              </SelectItem>
+            ))}
           </Select>
         </td>
 

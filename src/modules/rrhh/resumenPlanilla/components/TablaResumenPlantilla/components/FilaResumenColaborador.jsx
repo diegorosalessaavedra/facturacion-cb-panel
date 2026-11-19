@@ -17,13 +17,15 @@ const FilaResumenColaborador = ({
   onTotalesCalculados,
   isFinalizado,
   setSelectDatosText,
+  mes_id,
 }) => {
   const [totales, setTotales] = useState(null);
   const [prestamos, setPrestamos] = useState([]);
+  const [periodo5ta, setPeriodo5ta] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!semana_id || !colaborador?.id) return;
+    if (!semana_id || !colaborador?.id || !mes_id) return;
     let isMounted = true;
     setLoading(true);
 
@@ -34,18 +36,23 @@ const FilaResumenColaborador = ({
       : `${API}/totales-asistencia-operativo/${semana_id}/${colaborador.id}`;
 
     const urlPrestamos = `${API}/prestamos/${semana_id}/${colaborador.id}`;
+    const urlPeriodo = `${API}/rrhh/periodos-5ta/${mes_id}/${colaborador.id}`;
 
     // Hacemos las 2 peticiones al mismo tiempo
     Promise.all([
       axios.get(endpointTotales, config).catch(() => ({ data: {} })),
       axios.get(urlPrestamos, config).catch(() => ({ data: {} })),
-    ]).then(([resTotales, resPrestamos]) => {
+      axios.get(urlPeriodo, config).catch(() => ({ data: {} })),
+    ]).then(([resTotales, resPrestamos, resPeriodo]) => {
       if (isMounted) {
         if (resTotales.data?.totales) {
           setTotales(resTotales.data.totales);
         }
         if (resPrestamos.data?.pago_encontrados) {
           setPrestamos(resPrestamos.data.pago_encontrados);
+        }
+        if (resPeriodo.data?.periodo) {
+          setPeriodo5ta(resPeriodo.data.periodo);
         }
         setLoading(false);
       }
@@ -54,9 +61,8 @@ const FilaResumenColaborador = ({
     return () => {
       isMounted = false;
     };
-  }, [semana_id, colaborador.id, isOpen]);
+  }, [semana_id, colaborador.id, mes_id, isOpen]);
 
-  // Si aún está cargando, puedes mostrar una fila vacía o un esqueleto para no romper el layout
   if (loading) {
     return (
       <tr>
@@ -65,24 +71,24 @@ const FilaResumenColaborador = ({
     );
   }
 
-  // Renderiza el componente hijo correspondiente y le inyecta "totales" y "prestamos" ya cargados
   switch (tipoTabla) {
     case "principal":
       return (
         <FilaPrincipal
           colaborador={colaborador}
-          totales={totales} // <--- Prop inyectada
-          prestamos={prestamos} // <--- Prop inyectada
+          totales={totales}
+          prestamos={prestamos}
           handleColaboradorClick={handleColaboradorClick}
           totalSemanas={totalSemanas}
           onTotalesCalculados={onTotalesCalculados}
+          periodo5ta={periodo5ta}
         />
       );
     case "adicionales":
       return (
         <TbodyAdicionales
           colaborador={colaborador}
-          totales={totales} // <--- Prop inyectada
+          totales={totales}
           isFinalizado={isFinalizado}
           onTotalesCalculados={onTotalesCalculados}
         />
@@ -91,8 +97,8 @@ const FilaResumenColaborador = ({
       return (
         <TbodyValidacion
           colaborador={colaborador}
-          totales={totales} // <--- Prop inyectada
-          prestamos={prestamos} // <--- Prop inyectada
+          totales={totales}
+          prestamos={prestamos}
           semana_id={semana_id}
           isFinalizado={isFinalizado}
           totalSemanas={totalSemanas}

@@ -9,6 +9,7 @@ const FilaPrincipal = ({
   handleColaboradorClick,
   totalSemanas,
   onTotalesCalculados,
+  periodo5ta,
 }) => {
   const esAdministrativo =
     colaborador?.cargo_laboral?.agrupacion_cargo === "ADMINISTRATIVOS";
@@ -44,9 +45,14 @@ const FilaPrincipal = ({
     (acc, pago) => acc + Number(pago.importe_cuota || 0),
     0,
   );
+  const descuentos_5ta = periodo5ta?.retencion_5ta || 0;
 
   const totalPorPagar =
-    salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;
+    salarioBruto +
+    montoAsignacionFamiliar -
+    montoPension -
+    descuentos -
+    descuentos_5ta;
 
   useEffect(() => {
     if (onTotalesCalculados) {
@@ -56,6 +62,7 @@ const FilaPrincipal = ({
         onpAfp: montoPension,
         descuentos: descuentos,
         totalPagar: totalPorPagar,
+        descuentos_5ta: descuentos_5ta,
       });
     }
   }, [
@@ -114,6 +121,7 @@ const FilaPrincipal = ({
         </Tooltip>
       </td>
       <td className={tdClass}>{renderMoney(descuentos)}</td>
+      <td className={tdClass}>{renderMoney(descuentos_5ta)}</td>
       <td className={tdLastClass}>{renderMoney(totalPorPagar)}</td>
     </tr>
   );

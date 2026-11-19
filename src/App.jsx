@@ -135,6 +135,10 @@ const ReaperturarSemanaPlanilla = lazy(
   () => import("./modules/rrhh/resumenPlanilla/ReaperturarSemanaPlanilla"),
 );
 const Prestamos = lazy(() => import("./modules/rrhh/prestamos/Prestamos"));
+const Uit = lazy(() => import("./modules/rrhh/uit/Uit"));
+const Proyecciones5ta = lazy(
+  () => import("./modules/rrhh/proyecciones5ta/Proyecciones5ta"),
+);
 
 // RRHH
 
@@ -544,6 +548,23 @@ function App() {
             element={
               <ProtectedRouteWrapper userRole={userRole}>
                 <Prestamos userRole={userRole} />
+              </ProtectedRouteWrapper>
+            }
+          />
+          <Route
+            path="/rrhh/5ta"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <Uit userRole={userRole} />
+              </ProtectedRouteWrapper>
+            }
+          />
+
+          <Route
+            path="/rrhh/proyecciones-5ta/:id"
+            element={
+              <ProtectedRouteWrapper userRole={userRole}>
+                <Proyecciones5ta userRole={userRole} />
               </ProtectedRouteWrapper>
             }
           />

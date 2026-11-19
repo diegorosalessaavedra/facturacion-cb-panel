@@ -87,6 +87,7 @@ const TrAsistenciaAdministrativa = ({
       importe_horas: 0.0,
       importe_minutos: 0.0,
       bono: 0.0,
+      otros: 0.0,
       feriados: 0.0,
       salario: 0.0,
       adicionales: 0.0,
@@ -318,6 +319,7 @@ const TrAsistenciaAdministrativa = ({
     importe_horas,
     importe_minutos,
     bono,
+    otros,
     feriados,
     salario,
     adicionales,
@@ -391,7 +393,7 @@ const TrAsistenciaAdministrativa = ({
             )}
           </Select>
         </td>
-        <td className={`${tdBlue} min-w-[150px]`}>
+        <td className={`${tdBlue} min-w-[50px]`}>
           <Select
             isDisabled={isFinalizado}
             aria-label="Goce de vacaciones"

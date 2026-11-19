@@ -1,17 +1,17 @@
 import { Button, Link, useDisclosure } from "@nextui-org/react";
 import React, { useState } from "react";
-import { FiEdit, FiTrash2 } from "react-icons/fi"; 
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { toast } from "sonner"; // <-- Importar toast para notificaciones
 import ModalSubirSustento from "./crudPrestamo/ModalSubirSustento";
 import ModalEditarPrestamo from "./crudPrestamo/ModalEditarPrestamo";
-import ModalEliminarPrestamo from "./crudPrestamo/ModalEliminarPrestamo"; 
+import ModalEliminarPrestamo from "./crudPrestamo/ModalEliminarPrestamo";
 import ModalAutorizarPrestamo from "./crudPrestamo/ModalAutorizarPrestamo";
 import ModalVerCronograma from "./ModalVerCronograma";
 import { generarDocumentoWordPrestamo } from "../../../../utils/pantillasWord/generarWordPrestamo";
 import formatDate from "../../../../hooks/FormatDate";
+import ModalSubirFormato from "./crudPrestamo/ModalSubirFormato";
 
-
-const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) => { 
+const TablaPrestamos = ({ prestamos, fetchPrestamos, userRole }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectModal, setSelectModal] = useState("");
   const [selectPrestamo, setSelectPrestamo] = useState(null);
@@ -25,6 +25,12 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
   const handleSubirSustento = (prestamo) => {
     setSelectPrestamo(prestamo);
     setSelectModal("subirSustento");
+    onOpen();
+  };
+
+  const handleSubirFormato = (prestamo) => {
+    setSelectPrestamo(prestamo);
+    setSelectModal("subirFormato");
     onOpen();
   };
 
@@ -76,7 +82,7 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
       <table className="w-full border-collapse text-center">
         <thead className="sticky top-0 bg-slate-900 border-b border-slate-200 z-10 shadow-sm">
           <tr>
-             <th className="border-r border-slate-200 p-3 font-semibold uppercase text-[10px] tracking-wider text-slate-100">
+            <th className="border-r border-slate-200 p-3 font-semibold uppercase text-[10px] tracking-wider text-slate-100">
               TIPO <br /> DESEMBOLSO
             </th>
             <th className="border-r border-slate-200 p-3 font-semibold uppercase text-[10px] tracking-wider text-slate-100">
@@ -107,7 +113,7 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
               ESTADO PRESTAMO
             </th>
             <th className="border-r border-slate-200 p-3 font-semibold uppercase text-[10px] tracking-wider text-slate-100">
-              DESCARGAR FORMATO
+              FORMATOS
             </th>
             <th className="border-r border-slate-200 p-3 font-semibold uppercase text-[10px] tracking-wider text-slate-100">
               ADJUNTAR SUSTENTO
@@ -189,9 +195,11 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
                       VER
                     </Button>
                   </td>
-                  
+
                   <td className="border-r border-slate-200 p-2">
-                    {prestamo.estado_prestamo === "PENDIENTE" && userRole === "GERENTE" && prestamo.archivo_adjunto !== null ? (
+                    {prestamo.estado_prestamo === "PENDIENTE" &&
+                    userRole === "GERENTE" &&
+                    prestamo.archivo_adjunto !== null ? (
                       <button
                         onClick={() => handleAutorizarPrestamo(prestamo)}
                         className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all hover:opacity-80 cursor-pointer ${estadoClases}`}
@@ -207,14 +215,21 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
                     )}
                   </td>
 
-                  <td className="border-r border-slate-200 p-2">
+                  <td className="border-r border-slate-200 p-2 flex gap-2">
                     {/* <-- BOTÓN ACTUALIZADO PARA EJECUTAR LA DESCARGA */}
                     <Button
-                      className="bg-amber-400 hover:bg-amber-500 text-slate-900 text-[10px] font-bold h-7"
+                      className="min-h-10 bg-slate-800  text-slate-100 text-[10px] font-bold h-7"
                       size="sm"
                       onPress={() => handleDescargarFormato(prestamo)}
                     >
-                      VER
+                      DESCARGAR <br /> FOR.
+                    </Button>
+                    <Button
+                      className="min-h-10 bg-purple-800  text-slate-100 text-[10px] font-bold h-7"
+                      size="sm"
+                      onPress={() => handleSubirFormato(prestamo)}
+                    >
+                      CARGAR <br /> FOR.
                     </Button>
                   </td>
 
@@ -239,7 +254,7 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
                       >
                         <FiEdit size={14} />
                       </Button>
-                      
+
                       <Button
                         isIconOnly
                         className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 h-7 w-7 min-w-7"
@@ -268,6 +283,15 @@ const TablaPrestamos = ({ prestamos, fetchPrestamos, colaboradores, userRole }) 
 
       {selectModal === "subirSustento" && (
         <ModalSubirSustento
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          prestamo={selectPrestamo}
+          fetchPrestamos={fetchPrestamos}
+        />
+      )}
+
+      {selectModal === "subirFormato" && (
+        <ModalSubirFormato
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           prestamo={selectPrestamo}

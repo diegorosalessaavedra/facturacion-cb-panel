@@ -110,7 +110,7 @@ const GrupoColaboradorOperativo = ({
       ))}
 
       <tr className="bg-slate-800 font-bold text-[10px] text-slate-50 text-center">
-        <td colSpan={6} className="border-r border-slate-300 p-2 text-right">
+        <td colSpan={7} className="border-r border-slate-300 p-2 text-right">
           TOTALES
         </td>
         <td className="border-r border-slate-300 p-1">{totalHorasString}</td>

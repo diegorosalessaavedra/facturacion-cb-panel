@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import FilaResumenColaborador from "./components/FilaResumenColaborador"; // <-- NUEVO COMPONENTE
+import FilaResumenColaborador from "./components/FilaResumenColaborador";
 
 // Helper simple para moneda
 const formatMoney = (amount) => `S/ ${Number(amount || 0).toFixed(2)}`;
@@ -60,6 +60,7 @@ const TablaResumenPlantilla = ({
       asigFam: acc.asigFam + (curr.asigFam || 0),
       onpAfp: acc.onpAfp + (curr.onpAfp || 0),
       descuentos: acc.descuentos + (curr.descuentos || 0),
+      descuentos_5ta: acc.descuentos_5ta + (curr.descuentos_5ta || 0),
       totalPagar: acc.totalPagar + (curr.totalPagar || 0),
       adicionales: acc.adicionales + (curr.adicionales || 0),
     }),
@@ -68,13 +69,14 @@ const TablaResumenPlantilla = ({
       asigFam: 0,
       onpAfp: 0,
       descuentos: 0,
+      descuentos_5ta: 0,
       totalPagar: 0,
       adicionales: 0,
     },
   );
 
   const mainWrapperClass = `flex flex-col xl:flex-row items-start gap-2 w-full mt-4 pb-4 max-h-[600px] overflow-y-auto overflow-x-auto custom-scrollbar transition-all duration-300 ${
-    isFinalizado && "opacity-80"
+    isFinalizado ? "opacity-80" : ""
   }`;
 
   const tableContainerClass =
@@ -86,7 +88,7 @@ const TablaResumenPlantilla = ({
   const thFinance =
     "bg-green-600 border-r border-green-700 px-2 py-2 font-bold uppercase text-[10px] tracking-wider text-slate-100 whitespace-nowrap text-center";
   const thTotal =
-    "bg-amber-600 px-2 py-2 font-extrabold uppercase text-[9px] tracking-wider text-white whitespace-nowrap text-center shadow-inner";
+    "bg-amber-500 px-2 py-2 font-extrabold uppercase text-[9px] tracking-wider text-white whitespace-nowrap text-center shadow-inner";
   const thExtra =
     "bg-slate-900 border-r border-slate-900 px-2 py-2 font-bold uppercase text-[9px] tracking-wider text-slate-100 whitespace-nowrap text-center";
   const thExtraLast =
@@ -102,8 +104,8 @@ const TablaResumenPlantilla = ({
   return (
     <div className={mainWrapperClass}>
       {/* --- TABLA 1: DATOS PRINCIPALES --- */}
-      <div className={`flex-1 w-full ${tableContainerClass}`}>
-        <table className="w-full border-collapse relative">
+      <div className={`shrink-0 w-fit ${tableContainerClass}`}>
+        <table className="w-fit border-collapse relative">
           <thead className="sticky top-0 z-20 shadow-sm">
             <tr className="h-[43px]">
               <th className={`${thInfo} rounded-tl-xl`}>REGIMEN</th>
@@ -124,6 +126,9 @@ const TablaResumenPlantilla = ({
               <th className={thFinance}>
                 <span className="text-sm">-</span> DESCUENTOS
               </th>
+              <th className={thFinance}>
+                <span className="text-sm">-</span> DESCUENTO 5TA
+              </th>
               <th className={`${thTotal} rounded-tr-xl`}>
                 <span className="text-sm">=</span> TOTAL POR PAGAR
               </th>
@@ -133,7 +138,7 @@ const TablaResumenPlantilla = ({
             {!colaboradores || colaboradores.length === 0 ? (
               <tr>
                 <td
-                  colSpan={11}
+                  colSpan={12}
                   className="text-center h-[60px] p-3 text-slate-500 bg-slate-50 text-sm font-medium"
                 >
                   No hay colaboradores registrados.
@@ -146,6 +151,7 @@ const TablaResumenPlantilla = ({
                   tipoTabla="principal"
                   colaborador={colaborador}
                   semana_id={semana_id}
+                  mes_id={dataSemana?.mes_plantilla_id}
                   handleColaboradorClick={handleColaboradorClick}
                   isOpen={isOpen}
                   totalSemanas={totalSemanas}
@@ -173,6 +179,9 @@ const TablaResumenPlantilla = ({
               </td>
               <td className="text-center font-bold text-red-500 border-r border-slate-300">
                 {formatMoney(granTotal.descuentos)}
+              </td>
+              <td className="text-center font-bold text-red-500 border-r border-slate-300">
+                {formatMoney(granTotal.descuentos_5ta)}
               </td>
               <td className="text-center font-extrabold text-amber-500 rounded-br-xl">
                 {formatMoney(granTotal.totalPagar)}
@@ -210,6 +219,7 @@ const TablaResumenPlantilla = ({
                   tipoTabla="adicionales"
                   colaborador={colaborador}
                   semana_id={semana_id}
+                  mes_id={dataSemana?.mes_plantilla_id}
                   isFinalizado={isFinalizado}
                   onTotalesCalculados={handleTotalesCalculados}
                 />
@@ -231,7 +241,7 @@ const TablaResumenPlantilla = ({
       <div className={`shrink-0 w-[180px] ${tableContainerClass}`}>
         <table className="w-full border-collapse relative">
           <thead className="sticky top-0 z-20 shadow-sm">
-            <tr className="h-[35px]">
+            <tr className="h-[43px]">
               <th className={`${thBlue} rounded-tl-xl`}>VALIDACIÓN</th>
               <th className={`${thBlueLast} rounded-tr-xl`}>
                 ENVIAR A PAGO MASIVO
@@ -255,6 +265,7 @@ const TablaResumenPlantilla = ({
                   tipoTabla="validacion"
                   colaborador={colaborador}
                   semana_id={semana_id}
+                  mes_id={dataSemana?.mes_plantilla_id}
                   isFinalizado={isFinalizado}
                   totalSemanas={totalSemanas}
                   setSelectDatosText={setSelectDatosText}

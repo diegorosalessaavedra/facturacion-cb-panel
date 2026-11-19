@@ -67,15 +67,22 @@ const TablaAsistenciaAdministrativos = ({
               <th className={thSubBlue}>COLABORADOR</th>
               <th className={thSubBlue}>DÍA</th>
               <th className={thSubBlue}>FERIADO</th>
-              <th className={thSubBlue}>GOCE VACACIONES</th>
+              <th className={thSubBlue}>
+                GOCE <br /> VACACIONES
+              </th>
               <th className={thSubBlue}>TURNO</th>
               <th className={thSubBlue}>ACTIVIDAD</th>
               <th className={thSubBlue}>ENTRADA</th>
               <th className={thSubBlue}>SALIDA</th>
               <th className={thSubBlue}>TARDANZA (Min)</th>
               <th className={thSubBlue}>TOTAL HR Y MIN</th>
-              <th className={thSubBlue}>HORAS ENTERAS</th>
-              <th className={thSubBlue}>MINUTOS ENTERAS</th>
+              <th className={thSubBlue}>
+                HORAS <br /> ENTERAS
+              </th>
+              <th className={thSubBlue}>
+                MINUTOS <br />
+                ENTERAS
+              </th>
               <th className={thSubBlue}>TURNOS</th>
               <th className={thSubGreen}>TOTAL PLANILLA</th>
               <th className={thSubGreen}>HR Y MIN EXTRA</th>
@@ -83,6 +90,7 @@ const TablaAsistenciaAdministrativos = ({
               <th className={thSubGreen}>IMPORTE MINUTOS</th>
               <th className={thSubGreen}>BONO</th>
               <th className={thSubGreen}>FERIADO</th>
+              <th className={thSubGreen}>OTROS</th>
               <th className={thSubYellow}>SALARIO</th>
               <th className={thSubYellowLast}>ADICIONALES</th>
             </tr>
