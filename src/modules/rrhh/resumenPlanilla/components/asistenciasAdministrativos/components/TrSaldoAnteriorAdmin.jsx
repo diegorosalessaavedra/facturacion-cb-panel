@@ -121,7 +121,7 @@ const TrSaldoAnteriorAdmin = ({
       </td>
 
       <td
-        colSpan={18}
+        colSpan={19}
         className="border-r border-b border-slate-200 text-right pr-4 font-bold text-red-600 text-[10px] uppercase"
       >
         Saldo Anterior

@@ -144,7 +144,7 @@ const TrDominicalAdmin = ({
         </div>
       </td>
       <td
-        colSpan={5}
+        colSpan={6}
         className="border-r border-b border-teal-200 bg-teal-50/40"
       ></td>
       <td className="border-r border-b border-amber-200 p-1 bg-amber-50/40 text-[10px] text-center font-bold text-slate-600">

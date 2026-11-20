@@ -127,7 +127,7 @@ const GrupoColaboradorAdministrativo = ({
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumPlanilla.toFixed(2)}
         </td>
-        <td colSpan={4} className="border-r border-slate-300 p-1"></td>
+        <td colSpan={5} className="border-r border-slate-300 p-1"></td>
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumFeriados.toFixed(2)}
         </td>

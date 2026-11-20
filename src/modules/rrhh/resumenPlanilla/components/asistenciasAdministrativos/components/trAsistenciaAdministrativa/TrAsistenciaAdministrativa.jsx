@@ -542,11 +542,11 @@ const TrAsistenciaAdministrativa = ({
         <td className={`${tdGreen} min-w-[70px]`}>
           <Input
             isDisabled={isFinalizado}
-            aria-label="Bono"
+            aria-label="otros"
             type="text"
             onInput={onInputPrice}
-            name="bono"
-            value={bono || ""}
+            name="otros"
+            value={otros || ""}
             onChange={handleChange}
             onBlur={() => handleSave()}
             size="sm"
