@@ -56,13 +56,15 @@ const TablaResumenPlantilla = ({
 
   const granTotal = Object.values(totalesTabla).reduce(
     (acc, curr) => ({
-      bruto: acc.bruto + (curr.bruto || 0),
-      asigFam: acc.asigFam + (curr.asigFam || 0),
-      onpAfp: acc.onpAfp + (curr.onpAfp || 0),
-      descuentos: acc.descuentos + (curr.descuentos || 0),
-      descuentos_5ta: acc.descuentos_5ta + (curr.descuentos_5ta || 0),
-      totalPagar: acc.totalPagar + (curr.totalPagar || 0),
-      adicionales: acc.adicionales + (curr.adicionales || 0),
+      bruto: acc.bruto + Number(curr.bruto || 0),
+      asigFam: acc.asigFam + Number(curr.asigFam || 0),
+      onpAfp: acc.onpAfp + Number(curr.onpAfp || 0),
+      descuentos: acc.descuentos + Number(curr.descuentos || 0),
+      descuentos_5ta: acc.descuentos_5ta + Number(curr.descuentos_5ta || 0),
+      descuentos_tardanza:
+        acc.descuentos_tardanza + Number(curr.descuentos_tardanza || 0),
+      totalPagar: acc.totalPagar + Number(curr.totalPagar || 0),
+      adicionales: acc.adicionales + Number(curr.adicionales || 0),
     }),
     {
       bruto: 0,
@@ -70,6 +72,7 @@ const TablaResumenPlantilla = ({
       onpAfp: 0,
       descuentos: 0,
       descuentos_5ta: 0,
+      descuentos_tardanza: 0,
       totalPagar: 0,
       adicionales: 0,
     },
@@ -127,7 +130,10 @@ const TablaResumenPlantilla = ({
                 <span className="text-sm">-</span> DESCUENTOS
               </th>
               <th className={thFinance}>
-                <span className="text-sm">-</span> DESCUENTO 5TA
+                <span className="text-sm">-</span> DESC 5TA
+              </th>
+              <th className={thFinance}>
+                <span className="text-sm">-</span> DESC TARDANZA
               </th>
               <th className={`${thTotal} rounded-tr-xl`}>
                 <span className="text-sm">=</span> TOTAL POR PAGAR
@@ -138,7 +144,7 @@ const TablaResumenPlantilla = ({
             {!colaboradores || colaboradores.length === 0 ? (
               <tr>
                 <td
-                  colSpan={12}
+                  colSpan={13}
                   className="text-center h-[60px] p-3 text-slate-500 bg-slate-50 text-sm font-medium"
                 >
                   No hay colaboradores registrados.
@@ -154,6 +160,7 @@ const TablaResumenPlantilla = ({
                   mes_id={dataSemana?.mes_plantilla_id}
                   handleColaboradorClick={handleColaboradorClick}
                   isOpen={isOpen}
+                  isFinalizado={isFinalizado}
                   totalSemanas={totalSemanas}
                   onTotalesCalculados={handleTotalesCalculados}
                 />
@@ -182,6 +189,9 @@ const TablaResumenPlantilla = ({
               </td>
               <td className="text-center font-bold text-red-500 border-r border-slate-300">
                 {formatMoney(granTotal.descuentos_5ta)}
+              </td>
+              <td className="text-center font-bold text-red-500 border-r border-slate-300">
+                {formatMoney(granTotal.descuentos_tardanza)}
               </td>
               <td className="text-center font-extrabold text-amber-500 rounded-br-xl">
                 {formatMoney(granTotal.totalPagar)}

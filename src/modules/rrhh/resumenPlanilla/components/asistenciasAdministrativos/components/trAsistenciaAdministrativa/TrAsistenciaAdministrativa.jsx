@@ -540,6 +540,20 @@ const TrAsistenciaAdministrativa = ({
           />
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
+          <Input
+            isDisabled={isFinalizado}
+            aria-label="Bono"
+            type="text"
+            onInput={onInputPrice}
+            name="bono"
+            value={bono || ""}
+            onChange={handleChange}
+            onBlur={() => handleSave()}
+            size="sm"
+            classNames={inputUIClasses}
+          />
+        </td>
+        <td className={`${tdGreen} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
             {Number(feriados || 0).toFixed(2)}
           </div>

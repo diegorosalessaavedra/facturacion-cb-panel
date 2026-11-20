@@ -82,6 +82,7 @@ const FilaResumenColaborador = ({
           totalSemanas={totalSemanas}
           onTotalesCalculados={onTotalesCalculados}
           periodo5ta={periodo5ta}
+          isFinalizado={isFinalizado}
         />
       );
     case "adicionales":
