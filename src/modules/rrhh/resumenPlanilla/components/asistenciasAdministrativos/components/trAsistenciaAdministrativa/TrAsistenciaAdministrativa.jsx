@@ -120,19 +120,97 @@ const TrAsistenciaAdministrativa = ({
             ...datosCalculoLimpio
           } = calculo_asistencia_administrativo || {};
 
-          const newData = aplicarReglasTurno({
-            ...datosAsistencia,
-            ...datosPrincipales,
-            ...datosCalculoLimpio,
+          setDatosAsistencia((prev) => {
+            const newData = aplicarReglasTurno({
+              ...prev,
+              ...datosPrincipales,
+              ...datosCalculoLimpio,
+              // Conservamos el huellero si ya cargó antes
+              huellero_entrada: prev.huellero_entrada,
+              huellero_salida: prev.huellero_salida,
+            });
+            datosRef.current = newData;
+            return newData;
           });
 
-          setDatosAsistencia(newData);
-          if (onDataUpdate) onDataUpdate(newData);
+          if (onDataUpdate) onDataUpdate(datosRef.current);
         } else {
-          if (onDataUpdate) onDataUpdate(datosAsistencia);
+          if (onDataUpdate) onDataUpdate(datosRef.current);
         }
       })
       .catch(console.error);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const updated = aplicarReglasTurno({
+      ...datosRef.current,
+      [name]: value,
+    });
+    datosRef.current = updated;
+    setDatosAsistencia(updated);
+    if (onDataUpdate) onDataUpdate(updated);
+  };
+
+  const handleSelectChange = (e) => {
+    const { name, value } = e.target;
+    if (!value) return;
+
+    const nuevosDatos = aplicarReglasTurno({
+      ...datosRef.current,
+      [name]: value,
+    });
+    datosRef.current = nuevosDatos;
+    setDatosAsistencia(nuevosDatos);
+    if (onDataUpdate) onDataUpdate(nuevosDatos);
+    handleSave(nuevosDatos);
+  };
+
+  const handleConfirmarEdicionTiempo = (nuevaEntrada, nuevaSalida) => {
+    const calculos = calcularTiempos(nuevaEntrada, nuevaSalida);
+    const nuevosDatos = aplicarReglasTurno({
+      ...datosRef.current,
+      hora_entrada: formatTimeWithoutSeconds(nuevaEntrada),
+      hora_salida: formatTimeWithoutSeconds(nuevaSalida),
+      ...calculos,
+    });
+    datosRef.current = nuevosDatos;
+    setDatosAsistencia(nuevosDatos);
+    if (onDataUpdate) onDataUpdate(nuevosDatos);
+    handleSave(nuevosDatos);
+  };
+
+  const handleSave = (datosAEnviar = datosRef.current) => {
+    const payload = { ...datosAEnviar };
+    delete payload.huellero_entrada;
+    delete payload.huellero_salida;
+
+    for (const key in payload) {
+      if (payload[key] === "") payload[key] = null;
+    }
+
+    const mySeq = ++saveSeqRef.current;
+    const toastId = toast.loading("Guardando...");
+    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/${payload.id || "0"}`;
+
+    axios
+      .post(url, payload, config)
+      .then((res) => {
+        toast.success("Guardado", { id: toastId });
+        const newId = res.data?.data?.id ?? payload.id;
+        if (mySeq !== saveSeqRef.current) return;
+        if (newId && newId !== datosRef.current.id) {
+          setDatosAsistencia((prev) => {
+            const updated = { ...prev, id: newId };
+            datosRef.current = updated;
+            return updated;
+          });
+        }
+      })
+      .catch((err) => {
+        toast.dismiss(toastId);
+        handleAxiosError(err);
+      });
   };
 
   const handleAsistenciaHuellero = () => {
@@ -177,52 +255,7 @@ const TrAsistenciaAdministrativa = ({
   useEffect(() => {
     handleAsistencia();
     handleAsistenciaHuellero();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setDatosAsistencia((prev) => {
-      const updated = aplicarReglasTurno({ ...prev, [name]: value });
-      datosRef.current = updated;
-      if (onDataUpdate) onDataUpdate(updated);
-      return updated;
-    });
-  };
-
-  // CORRECCIÓN 1: Evitar usar el estado closure desactualizado
-  const handleSelectChange = (e) => {
-    const { name, value } = e.target;
-    if (!value) return;
-
-    setDatosAsistencia((prev) => {
-      const nuevosDatos = aplicarReglasTurno({
-        ...prev,
-        [name]: value,
-      });
-      datosRef.current = nuevosDatos;
-      if (onDataUpdate) onDataUpdate(nuevosDatos);
-      handleSave(nuevosDatos); // Mandamos guardar inmediatamente el dato fresco
-      return nuevosDatos;
-    });
-  };
-
-  // CORRECCIÓN 2: Se agregó la llamada a handleSave que faltaba.
-  const handleConfirmarEdicionTiempo = (nuevaEntrada, nuevaSalida) => {
-    const calculos = calcularTiempos(nuevaEntrada, nuevaSalida);
-    setDatosAsistencia((prev) => {
-      const nuevosDatos = aplicarReglasTurno({
-        ...prev,
-        hora_entrada: formatTimeWithoutSeconds(nuevaEntrada),
-        hora_salida: formatTimeWithoutSeconds(nuevaSalida),
-        ...calculos,
-      });
-      datosRef.current = nuevosDatos;
-      if (onDataUpdate) onDataUpdate(nuevosDatos);
-      handleSave(nuevosDatos); // Ahora sí se guarda en BD al confirmar el modal
-      return nuevosDatos;
-    });
-  };
 
   const calcularTiempos = (entrada, salida) => {
     let tardanza_minutos = 0,
@@ -251,35 +284,6 @@ const TrAsistenciaAdministrativa = ({
       horas_enteras,
       minutos_enteros,
     };
-  };
-
-  const handleSave = (datosAEnviar = datosRef.current) => {
-    const payload = { ...datosAEnviar };
-    delete payload.huellero_entrada;
-    delete payload.huellero_salida;
-
-    for (const key in payload) {
-      if (payload[key] === "") payload[key] = null;
-    }
-    const mySeq = ++saveSeqRef.current;
-    const toastId = toast.loading("Guardando...");
-    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/${payload.id || "0"}`;
-
-    axios
-      .post(url, payload, config)
-      .then((res) => {
-        toast.success("Guardado", { id: toastId });
-        const newId = res.data?.data?.id ?? payload.id;
-        if (mySeq !== saveSeqRef.current) return;
-        if (newId && newId !== datosRef.current.id) {
-          setDatosAsistencia((prev) => {
-            const updated = { ...prev, id: newId };
-            datosRef.current = updated;
-            return updated;
-          });
-        }
-      })
-      .catch(handleAxiosError);
   };
 
   const inputUIClasses = {
