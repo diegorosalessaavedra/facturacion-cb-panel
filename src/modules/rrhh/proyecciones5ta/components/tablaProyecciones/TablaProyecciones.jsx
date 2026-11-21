@@ -23,7 +23,7 @@ import {
 import TablaPeriodos5ta from "./components/TablaPeriodos5ta";
 import TablaTramos5ta from "./components/TablaTramos5ta";
 
-const TablaProyecciones = ({ uit, selectColaborador }) => {
+const TablaProyecciones = ({ uit, selectColaborador, visualizar }) => {
   const [periodos, setPeriodos] = useState([]);
   const [tramos, setTramos] = useState([]);
   const [existeEnBd, setExisteEnBd] = useState(false);
@@ -202,7 +202,7 @@ const TablaProyecciones = ({ uit, selectColaborador }) => {
     const deduccion7Uit = Number((montoUit * 7).toFixed(2));
     const rentaImponible = Math.max(
       0,
-      Number((ingresoTotal + totalRetencionPeriodos).toFixed(2)),
+      Number((ingresoTotal - deduccion7Uit).toFixed(2)),
     );
     const retencionAnual = tramos.reduce(
       (acc, t) => acc + (Number(t.renta_5ta) || 0),
@@ -377,6 +377,7 @@ const TablaProyecciones = ({ uit, selectColaborador }) => {
                   totales={totales}
                   onChangeRemu={handleChangeRemu}
                   onChangeRetencion={handleChangeRetencion}
+                  visualizar={visualizar}
                 />
               </div>
             </div>
@@ -396,6 +397,7 @@ const TablaProyecciones = ({ uit, selectColaborador }) => {
                   tramos={tramos}
                   totales={totales}
                   onChangeTramo={handleChangeTramo}
+                  visualizar={visualizar}
                 />
               </div>
             </div>
@@ -408,6 +410,7 @@ const TablaProyecciones = ({ uit, selectColaborador }) => {
                   Observaciones
                 </label>
                 <input
+                  disabled={(visualizar = { visualizar })}
                   type="text"
                   value={observaciones}
                   onChange={(e) => setObservaciones(e.target.value)}
@@ -422,17 +425,19 @@ const TablaProyecciones = ({ uit, selectColaborador }) => {
                 </p>
 
                 <div className="flex items-center justify-end gap-2.5">
-                  <Button
-                    size="sm"
-                    radius="lg"
-                    color="danger"
-                    variant="flat"
-                    startContent={<FiTrash2 size={14} />}
-                    onPress={handleLimpiar}
-                    className="font-semibold"
-                  >
-                    Limpiar
-                  </Button>
+                  {!visualizar && (
+                    <Button
+                      size="sm"
+                      radius="lg"
+                      color="danger"
+                      variant="flat"
+                      startContent={<FiTrash2 size={14} />}
+                      onPress={handleLimpiar}
+                      className="font-semibold"
+                    >
+                      Limpiar
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     radius="lg"

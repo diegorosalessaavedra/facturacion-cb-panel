@@ -1,11 +1,12 @@
 import { formatearMontoPe } from "../../../../../../assets/formats";
-import { onInputNumber } from "../../../../../../assets/onInputs";
+import { onInputPrice } from "../../../../../../assets/onInputs";
 
 const TablaPeriodos5ta = ({
   periodos,
   totales,
   onChangeRemu,
   onChangeRetencion,
+  visualizar,
 }) => {
   return (
     <table className="w-full border-collapse text-xs bg-white">
@@ -61,9 +62,10 @@ const TablaPeriodos5ta = ({
                     S/
                   </span>
                   <input
+                    disabled={visualizar}
                     type="text"
                     value={p.remu_bruta}
-                    onInput={onInputNumber}
+                    onInput={onInputPrice}
                     onChange={(e) => onChangeRemu(index, e.target.value)}
                     placeholder="0.00"
                     className="w-full text-right text-xs font-bold text-slate-800 bg-transparent outline-none tabular-nums"
@@ -79,9 +81,10 @@ const TablaPeriodos5ta = ({
                       S/
                     </span>
                     <input
+                      disabled={visualizar}
                       type="text"
                       value={p.retencion_5ta}
-                      onInput={onInputNumber}
+                      onInput={onInputPrice}
                       onChange={(e) => onChangeRetencion(index, e.target.value)}
                       placeholder="0.00"
                       className="w-full text-right text-xs font-bold text-slate-800 bg-transparent outline-none tabular-nums"

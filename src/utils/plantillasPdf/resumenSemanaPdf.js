@@ -63,7 +63,7 @@ export const generarPDFResumenPlanilla = (colaboradores, dataSemana) => {
         const logoUrl =
           empresa === "Granjas Peruanas"
             ? "/logo.png"
-            : empresa === "Multinacional Services"
+            : empresa === "Multinacional Service"
               ? "/logoM.png"
               : "/logoDiego.png";
         const logoWidth = 20;

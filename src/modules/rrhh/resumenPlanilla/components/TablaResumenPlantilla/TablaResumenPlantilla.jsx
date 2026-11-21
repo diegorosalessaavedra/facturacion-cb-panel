@@ -127,10 +127,10 @@ const TablaResumenPlantilla = ({
                 <span className="text-sm">-</span> ONP - AFP
               </th>
               <th className={thFinance}>
-                <span className="text-sm">-</span> DESCUENTOS
+                <span className="text-sm">-</span> DESC 5TA
               </th>
               <th className={thFinance}>
-                <span className="text-sm">-</span> DESC 5TA
+                <span className="text-sm">-</span> DESCUENTOS
               </th>
               <th className={thFinance}>
                 <span className="text-sm">-</span> DESC TARDANZA

@@ -74,13 +74,13 @@ export const generarDocumentoWordPrestamo = async (prestamo) => {
       empresa:
         prestamo.colaborador?.empresa === "Granjas Peruanas"
           ? "GRANJAS PERUANAS CHICKENBABY"
-          : prestamo.colaborador?.empresa === "Multinacional Services"
+          : prestamo.colaborador?.empresa === "Multinacional Service"
             ? "MULTINACIONAL SERVICE CORP S.A.C."
             : "DIEGO ALONSO ROSALES SAAVEDRA" || "",
       ruc:
         prestamo.colaborador?.empresa === "Granjas Peruanas"
           ? "20614310694"
-          : prestamo.colaborador?.empresa === "Multinacional Services"
+          : prestamo.colaborador?.empresa === "Multinacional Service"
             ? "20606198826"
             : "10436760693" || "",
 

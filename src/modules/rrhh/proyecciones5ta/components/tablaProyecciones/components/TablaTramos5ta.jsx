@@ -1,7 +1,7 @@
 import { formatearMontoPe } from "../../../../../../assets/formats";
-import { onInputNumber } from "../../../../../../assets/onInputs";
+import { onInputPrice } from "../../../../../../assets/onInputs";
 
-const TablaTramos5ta = ({ tramos, totales, onChangeTramo }) => {
+const TablaTramos5ta = ({ tramos, totales, onChangeTramo, visualizar }) => {
   return (
     <table className="w-full border-collapse text-xs bg-white">
       <thead className="bg-slate-900 text-white">
@@ -53,9 +53,10 @@ const TablaTramos5ta = ({ tramos, totales, onChangeTramo }) => {
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-amber-300/90 hover:border-amber-400 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-400/20 shadow-2xs transition-all">
                 <span className="text-[11px] font-bold text-amber-600">S/</span>
                 <input
+                  disabled={visualizar}
                   type="text"
                   value={t.renta_5ta}
-                  onInput={onInputNumber}
+                  onInput={onInputPrice}
                   onChange={(e) =>
                     onChangeTramo(index, "renta_5ta", e.target.value)
                   }
@@ -70,9 +71,10 @@ const TablaTramos5ta = ({ tramos, totales, onChangeTramo }) => {
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-amber-300/90 hover:border-amber-400 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-400/20 shadow-2xs transition-all">
                 <span className="text-[11px] font-bold text-amber-600">S/</span>
                 <input
+                  disabled={visualizar}
                   type="text"
                   value={t.distribucion_tramos}
-                  onInput={onInputNumber}
+                  onInput={onInputPrice}
                   onChange={(e) =>
                     onChangeTramo(index, "distribucion_tramos", e.target.value)
                   }
@@ -92,7 +94,9 @@ const TablaTramos5ta = ({ tramos, totales, onChangeTramo }) => {
           >
             Retención Anual
           </td>
-          <td className="px-4 py-3 bg-emerald-500/50 text-slate-900 tabular-nums">
+          <td
+            className={`px-4 py-3 ${totales.totalRetencionPeriodos === totales.retencionAnual ? "bg-green-600/50" : "bg-red-600/50"} text-slate-900 tabular-nums`}
+          >
             <div className="flex items-center justify-between">
               <span className=" font-semibold">S/</span>
               <span>{formatearMontoPe(totales.retencionAnual)}</span>

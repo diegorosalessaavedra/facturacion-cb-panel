@@ -320,7 +320,7 @@ const TablaTramos = ({ selectUit, selectModal }) => {
                 startContent={<FiTrendingUp size={14} />}
                 className="bg-white hover:bg-slate-100 text-slate-700 border-slate-200 font-semibold shadow-xs"
               >
-                Proyecciones 5ta
+                Gestionar Pro. 5ta
               </Button>
             </Link>
           )}

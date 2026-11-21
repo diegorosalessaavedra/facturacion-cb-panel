@@ -6,16 +6,16 @@ const Proyecciones5taHeader = ({ onOpen }) => {
           <img
             className="w-12 h-12 object-contain"
             src="/logo.jpg"
-            alt="logo empresa" // Texto alternativo más descriptivo
+            alt="Logo de la empresa"
           />
         </div>
         <div>
           <h1 className="text-xl font-bold text-slate-50 tracking-tight flex items-center gap-2">
-            Proyecciónes 5ta
+            Proyecciones de 5ta Categoría
           </h1>
-          <p className="text-slate-200 text-sm">
-            Gestiona los adelantos y solicitudes de descuentos del personal.{" "}
-            {/* Texto profesional */}
+          <p className="text-slate-300 text-sm">
+            Calcula y gestiona las retenciones anuales de renta de tus
+            colaboradores.
           </p>
         </div>
       </div>

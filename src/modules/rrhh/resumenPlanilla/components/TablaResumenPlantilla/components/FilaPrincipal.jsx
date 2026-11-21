@@ -58,7 +58,8 @@ const FilaPrincipal = ({
     (acc, pago) => acc + Number(pago.importe_cuota || 0),
     0,
   );
-  const descuentos_5ta = Number(periodo5ta?.retencion_5ta || 0);
+
+  const descuentos_5ta = Number(periodo5ta?.retencion_5ta || 0) / totalSemanas;
   const descuentos_tardanza = Number(tardanza || 0);
 
   const totalPorPagar =
@@ -170,8 +171,8 @@ const FilaPrincipal = ({
           <div className="w-full cursor-help">{renderMoney(montoPension)}</div>
         </Tooltip>
       </td>
-      <td className={tdClass}>{renderMoney(descuentos)}</td>
       <td className={tdClass}>{renderMoney(descuentos_5ta)}</td>
+      <td className={tdClass}>{renderMoney(descuentos)}</td>
       <td className={tdClass}>
         <Input
           isDisabled={isFinalizado || !totales?.id}

@@ -85,10 +85,10 @@ const EditarEducacionCargoLaboral = ({ register, selectColaborador }) => {
               Granjas Peruanas
             </SelectItem>
             <SelectItem
-              key="Multinacional Services"
-              value="Multinacional Services"
+              key="Multinacional Service"
+              value="Multinacional Service"
             >
-              Multinacional Services
+              Multinacional Service
             </SelectItem>
             <SelectItem key="Diego Rosales" value="Diego Rosales">
               Diego Rosales

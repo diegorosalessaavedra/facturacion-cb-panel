@@ -15,7 +15,7 @@ const FiltroResumenPlanilla = ({
 
   // 1. Cálculos seguros para el total y la suma
   const totalSeleccionados = selectDatosText?.length || 0;
-  
+
   const sumaTotal = (selectDatosText || []).reduce((acumulador, item) => {
     return acumulador + Number(item?.dataValidacionTxt?.monto || 0);
   }, 0);
@@ -52,10 +52,10 @@ const FiltroResumenPlanilla = ({
             <p className="text-[11px]">GRANJAS PERUANAS</p>
           </SelectItem>
           <SelectItem
-            key="Multinacional Services"
-            textValue="MULTINACIONAL SERVICES"
+            key="Multinacional Service"
+            textValue="MULTINACIONAL SERVICE"
           >
-            <p className="text-[11px]">MULTINACIONAL SERVICES</p>
+            <p className="text-[11px]">MULTINACIONAL SERVICE</p>
           </SelectItem>
           <SelectItem key="Diego Rosales" textValue="DIEGO ROSALES">
             <p className="text-[11px]">DIEGO ROSALES</p>
@@ -92,7 +92,6 @@ const FiltroResumenPlanilla = ({
 
       {/* Lado Derecho: Resumen y Botón TXT */}
       <div className="flex items-center gap-4">
-        
         {/* Tarjeta de Resumen con Indicativos */}
         <div className="flex items-center bg-white border border-slate-200 rounded-lg shadow-sm h-[40px] overflow-hidden">
           {/* Indicativo de TOTAL */}
@@ -104,7 +103,7 @@ const FiltroResumenPlanilla = ({
               {totalSeleccionados}
             </span>
           </div>
-          
+
           {/* Indicativo de MONTO */}
           <div className="flex items-center gap-1.5 px-3 h-full">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -123,7 +122,7 @@ const FiltroResumenPlanilla = ({
           size="sm"
           className="font-bold tracking-wide flex items-center gap-2 h-[35px]"
           onPress={onOpen}
-          isDisabled={totalSeleccionados === 0} 
+          isDisabled={totalSeleccionados === 0}
         >
           <FileText size={16} />
           TXT BCP

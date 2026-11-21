@@ -10,7 +10,7 @@ import Proyecciones5taHeader from "./components/Proyecciones5taHeader";
 import DatosTrabajadorUit from "./components/DatosTrabajadorUit";
 import TablaProyecciones from "./components/tablaProyecciones/TablaProyecciones";
 
-const Proyecciones5ta = ({ userRole }) => {
+const Proyecciones5ta = ({}) => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [uit, setUit] = useState(null);
@@ -79,6 +79,7 @@ const Proyecciones5ta = ({ userRole }) => {
               <TablaProyecciones
                 uit={uit}
                 selectColaborador={selectColaborador}
+                visualizar={false}
               />
             </div>
           )}

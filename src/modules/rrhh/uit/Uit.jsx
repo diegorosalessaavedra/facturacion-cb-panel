@@ -11,6 +11,7 @@ import TablaTramos from "./components/TablaTramos";
 import ModalNuevaUit from "./components/crudUit/ModalNuevaUit";
 import ModalEditarUit from "./components/crudUit/ModalEditarUit";
 import UitHeader from "./components/UitTaHeader";
+import Proyectar5ta from "./components/Proyectar5ta";
 
 const Uit = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -37,10 +38,10 @@ const Uit = () => {
   }, []);
 
   return (
-    <main className="w-full min-h-screen bg-slate-50/80 px-4 py-6 md:px-6 md:pt-[90px] flex flex-col">
-      <div className="max-w-[1400px] w-full mx-auto flex flex-col gap-5">
-        {/* Cabecera del módulo */}
-        <div className="flex items-center justify-between gap-4">
+    <main className="w-full h-screen overflow-hidden bg-slate-50/80 px-4 py-6 md:px-6 md:pt-[90px] flex flex-col">
+      <div className="max-w-[1400px] w-full flex-1 min-h-0 mx-auto flex flex-col gap-5">
+        {/* Cabecera del módulo (fija arriba) */}
+        <div className="flex items-center justify-between gap-4 shrink-0">
           <UitHeader />
 
           {loading && (
@@ -53,39 +54,46 @@ const Uit = () => {
           )}
         </div>
 
-        {/* Contenido principal: maestro (UITs) + detalle (Tramos) */}
-        <section className="mx-auto flex  items-start gap-6 w-full max-w-5xl p-4 bg-white rounded-2xl">
-          {/* Columna izquierda: Tabla UIT */}
-          <div className="w-full lg:w-auto shrink-0">
-            <TablaUit
-              uits={uits}
-              setSelectModal={setSelectModal}
-              onOpen={onOpen}
-              setSelectUit={setSelectUit}
-            />
+        {/* Contenido principal con scroll */}
+        <section className="mx-auto flex flex-col items-start gap-6 w-full max-w-5xl flex-1 min-h-0 overflow-y-auto p-4 bg-white rounded-2xl shadow-sm border border-slate-200/60">
+          <div className="flex flex-col lg:flex-row items-start gap-6 w-full shrink-0">
+            <div className="w-full lg:w-auto shrink-0">
+              <TablaUit
+                uits={uits}
+                setSelectModal={setSelectModal}
+                onOpen={onOpen}
+                setSelectUit={setSelectUit}
+              />
+            </div>
+
+            {/* Columna derecha: Tabla Tramos o estado vacío */}
+            <div className="w-full flex-1 min-w-0">
+              {selectUit ? (
+                <TablaTramos selectModal={selectModal} selectUit={selectUit} />
+              ) : (
+                <div className="w-full max-w-[720px] mt-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white/60 py-16 px-6 flex flex-col items-center justify-center text-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+                    <FiLayers size={22} />
+                  </div>
+                  <div className="max-w-xs">
+                    <h4 className="text-sm font-bold text-slate-700">
+                      Ninguna UIT seleccionada
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Haz clic en el ícono del ojo en cualquier año de la tabla
+                      para visualizar o configurar sus tramos.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Columna derecha: Tabla Tramos o estado vacío */}
-          <div className="w-full flex-1 min-w-0">
-            {selectUit ? (
-              <TablaTramos selectModal={selectModal} selectUit={selectUit} />
-            ) : (
-              <div className="w-full max-w-[720px] mt-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white/60 py-16 px-6 flex flex-col items-center justify-center text-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
-                  <FiLayers size={22} />
-                </div>
-                <div className="max-w-xs">
-                  <h4 className="text-sm font-bold text-slate-700">
-                    Ninguna UIT seleccionada
-                  </h4>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Haz clic en el ícono del ojo en cualquier año de la tabla
-                    para visualizar o configurar sus tramos.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+          {selectUit && (
+            <div className="w-full shrink-0 pb-4">
+              <Proyectar5ta visualizar={true} uit={selectUit} />
+            </div>
+          )}
         </section>
       </div>
 
