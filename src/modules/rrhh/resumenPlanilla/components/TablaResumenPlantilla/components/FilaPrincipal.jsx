@@ -173,7 +173,7 @@ const FilaPrincipal = ({
       </td>
       <td className={tdClass}>{renderMoney(descuentos_5ta)}</td>
       <td className={tdClass}>{renderMoney(descuentos)}</td>
-      <td className={tdClass}>
+      <td className={`${tdClass}  max-w-[120px]`}>
         <Input
           isDisabled={isFinalizado || !totales?.id}
           type="text"

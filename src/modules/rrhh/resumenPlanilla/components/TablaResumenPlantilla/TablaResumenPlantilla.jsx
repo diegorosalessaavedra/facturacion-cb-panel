@@ -132,7 +132,7 @@ const TablaResumenPlantilla = ({
               <th className={thFinance}>
                 <span className="text-sm">-</span> DESCUENTOS
               </th>
-              <th className={thFinance}>
+              <th className={`${thFinance} max-w-[120px]`}>
                 <span className="text-sm">-</span> DESCUENTO <br /> TARDANZA
               </th>
               <th className={`${thTotal} rounded-tr-xl`}>

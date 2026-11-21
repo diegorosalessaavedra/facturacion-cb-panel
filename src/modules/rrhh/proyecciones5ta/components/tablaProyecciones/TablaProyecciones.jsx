@@ -156,11 +156,6 @@ const TablaProyecciones = ({ uit, selectColaborador, visualizar }) => {
       };
     });
 
-    const retencionAnual = nuevosTramos.reduce(
-      (acc, t) => acc + (Number(t.renta_5ta) || 0),
-      0,
-    );
-
     setPeriodos(
       nuevosPeriodos.map((p) => ({
         ...p,
