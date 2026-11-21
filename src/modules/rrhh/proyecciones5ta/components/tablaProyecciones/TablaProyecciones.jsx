@@ -156,22 +156,16 @@ const TablaProyecciones = ({ uit, selectColaborador, visualizar }) => {
       };
     });
 
-    // const retencionAnual = nuevosTramos.reduce(
-    //   (acc, t) => acc + (Number(t.renta_5ta) || 0),
-    //   0,
-    // );
-    // const retencionMensual = Number((retencionAnual / 12).toFixed(2));
+    const retencionAnual = nuevosTramos.reduce(
+      (acc, t) => acc + (Number(t.renta_5ta) || 0),
+      0,
+    );
 
-    // setPeriodos(
-    //   nuevosPeriodos.map((p) => ({
-    //     ...p,
-    //     retencion_5ta: p.aplicaRetencion
-    //       ? retencionMensual > 0
-    //         ? retencionMensual.toFixed(2)
-    //         : ""
-    //       : "",
-    //   })),
-    // );
+    setPeriodos(
+      nuevosPeriodos.map((p) => ({
+        ...p,
+      })),
+    );
     setTramos(nuevosTramos);
   };
 
@@ -361,6 +355,7 @@ const TablaProyecciones = ({ uit, selectColaborador, visualizar }) => {
           </div>
         ) : (
           <div className="p-5 bg-white flex flex-col gap-6">
+            {/* Sección 1: Periodos */}
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
