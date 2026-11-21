@@ -4,7 +4,7 @@ import { formatDateES } from "../../../../../../utils/formatDateTime";
 import axios from "axios";
 import config from "../../../../../../utils/getToken";
 import { toast } from "sonner";
-import { onInputPrice } from "../../../../../../assets/onInputs";
+import { onInputNumber, onInputPrice } from "../../../../../../assets/onInputs";
 
 const TrDominicalAdmin = ({
   colaborador_id,
@@ -128,7 +128,7 @@ const TrDominicalAdmin = ({
         <Input
           isDisabled={isFinalizado}
           type="text"
-          onInput={onInputPrice}
+          onInput={onInputNumber}
           name="turnos"
           value={dominicalData.turnos || ""}
           onChange={handleChange}

@@ -89,8 +89,8 @@ const TablaAsistenciaAdministrativos = ({
               <th className={thSubGreen}>IMPORTE HORAS</th>
               <th className={thSubGreen}>IMPORTE MINUTOS</th>
               <th className={thSubGreen}>BONO</th>
-              <th className={thSubGreen}>OTROS</th>
               <th className={thSubGreen}>FERIADO</th>
+              <th className={thSubGreen}>OTROS</th>
               <th className={thSubYellow}>SALARIO</th>
               <th className={thSubYellowLast}>ADICIONALES</th>
             </tr>

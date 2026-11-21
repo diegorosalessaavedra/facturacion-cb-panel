@@ -544,6 +544,11 @@ const TrAsistenciaAdministrativa = ({
           />
         </td>
         <td className={`${tdGreen} min-w-[70px]`}>
+          <div className={readOnlyTextClass}>
+            {Number(feriados || 0).toFixed(2)}
+          </div>
+        </td>
+        <td className={`${tdGreen} min-w-[70px]`}>
           <Input
             isDisabled={isFinalizado}
             aria-label="otros"
@@ -556,11 +561,6 @@ const TrAsistenciaAdministrativa = ({
             size="sm"
             classNames={inputUIClasses}
           />
-        </td>
-        <td className={`${tdGreen} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>
-            {Number(feriados || 0).toFixed(2)}
-          </div>
         </td>
         <td className={`${tdYellow} min-w-[70px]`}>
           <div className={readOnlyTextClass}>
