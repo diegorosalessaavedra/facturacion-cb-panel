@@ -182,6 +182,7 @@ const FilaPrincipal = ({
           onChange={(e) => setTardanza(e.target.value)}
           onBlur={patchTotales}
           size="sm"
+          startContent={<span className="text-slate-400">S/</span>}
           classNames={{
             inputWrapper:
               "min-h-[25px] h-[25px] px-2 bg-transparent shadow-none hover:bg-slate-100 data-[focus=true]:bg-white data-[focus=true]:shadow-sm data-[focus=true]:border-slate-300 transition-all border border-transparent rounded-md",
