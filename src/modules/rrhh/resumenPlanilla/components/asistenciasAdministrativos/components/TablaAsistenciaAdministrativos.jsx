@@ -22,7 +22,7 @@ const TablaAsistenciaAdministrativos = ({
           prev.adicionales === adicionales &&
           prev.topeSemanal === topeSemanal
         ) {
-          return prev; // Si los datos son iguales, aborta la actualización (rompe el bucle)
+          return prev;
         }
         return { salario, adicionales, topeSemanal };
       });
@@ -47,8 +47,8 @@ const TablaAsistenciaAdministrativos = ({
     "bg-amber-100 border-b border-amber-300 p-3 font-bold uppercase text-[9px] tracking-wider text-amber-950 whitespace-nowrap";
 
   return (
-    <div className="flex flex-col  gap-6 items-start mt-4">
-      {/* TABLA GRANDE (Izquierda) */}
+    <div className="flex flex-col gap-6 items-start mt-4">
+      {/* TABLA GRANDE */}
       <div className="flex overflow-auto border border-slate-300 rounded-xl bg-white shadow-md custom-scrollbar w-full">
         <table className="w-full border-collapse text-center">
           <thead className="sticky top-0 z-20 shadow-sm">
@@ -106,7 +106,7 @@ const TablaAsistenciaAdministrativos = ({
         </table>
       </div>
 
-      {/* TABLA PEQUEÑA DE TOTALES (Derecha) */}
+      {/* TABLA PEQUEÑA DE TOTALES */}
       <div className="shrink-0 w-full xl:w-auto overflow-x-auto shadow-md">
         <TablaTotalesAsistenciaAdministrativos
           semanaPlanillaId={dias?.[0]?.semana_plantilla_id}

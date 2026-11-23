@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import TrSaldoAnteriorAdmin from "./TrSaldoAnteriorAdmin";
 import TrAsistenciaAdministrativa from "./trAsistenciaAdministrativa/TrAsistenciaAdministrativa";
 import TrDominicalAdmin from "./TrDominicalAdmin";
@@ -15,7 +15,6 @@ const GrupoColaboradorAdministrativo = ({
 
   dias?.forEach((dia) => {
     const fechaObj = new Date(`${dia.fecha || dia.dia_plantilla}T00:00:00`);
-
     if (fechaObj.getDay() === 0) {
       diaDomingo = dia;
     } else {
@@ -23,24 +22,30 @@ const GrupoColaboradorAdministrativo = ({
     }
   });
 
-  const totalFilas = 1 + diasLaborables.length + 1 + 1;
-  const sueldoMensual = colaborador?.sueldos?.[0]?.sueldo || 0;
+  const totalFilas = 1 + diasLaborables.length + (diaDomingo ? 1 : 0) + 1;
+  const sueldoMensual = Number(colaborador?.sueldos?.[0]?.sueldo || 0);
   const divisorSemanas = totalSemanas > 0 ? totalSemanas : 1;
   const divisorDias = dias?.length > 0 ? dias.length : 1;
-  const calculoBruto = sueldoMensual / divisorSemanas / divisorDias;
+  const sueldoPorDia = Number(sueldoMensual / divisorSemanas / divisorDias);
   const sueldoFeriadoBruto = Number(sueldoMensual / 30) * 2;
-  const sueldoPorDia = Number(calculoBruto);
-
-  // NUEVO: Calculamos el límite del sueldo semanal (ej. 7 días * 100 = 700)
-  const topeSemanal = sueldoPorDia * 7;
+  const topeSemanal = Number((sueldoPorDia * 7).toFixed(2));
 
   const [datosDias, setDatosDias] = useState({});
   const [datosDominical, setDatosDominical] = useState({});
   const [datosSaldo, setDatosSaldo] = useState({});
 
-  const handleUpdateDia = (diaId, data) => {
+  const semanaId = dias?.[0]?.semana_plantilla_id || null;
+
+  // Limpiar totales locales si cambia el colaborador o la semana
+  useEffect(() => {
+    setDatosDias({});
+    setDatosDominical({});
+    setDatosSaldo({});
+  }, [colaborador?.id, semanaId]);
+
+  const handleUpdateDia = useCallback((diaId, data) => {
     setDatosDias((prev) => ({ ...prev, [diaId]: data }));
-  };
+  }, []);
 
   let sumTardanza = 0,
     sumHoras = 0,
@@ -51,7 +56,10 @@ const GrupoColaboradorAdministrativo = ({
     sumSalario = 0,
     sumAdicionales = 0;
 
-  Object.values(datosDias).forEach((r) => {
+  // Sumamos estrictamente los días laborables visibles
+  diasLaborables.forEach((dia) => {
+    const r = datosDias[dia.id];
+    if (!r) return;
     sumTardanza += Number(r.tardanza_minutos || 0);
     sumHoras += Number(r.horas_enteras || 0);
     sumMinutos += Number(r.minutos_enteros || 0);
@@ -62,15 +70,21 @@ const GrupoColaboradorAdministrativo = ({
     sumAdicionales += Number(r.adicionales || 0);
   });
 
-  sumTurnos += Number(datosDominical.turnos || 0);
-  sumPlanilla += Number(datosDominical.total_planilla || 0);
-  sumSalario += Number(datosDominical.salario || 0);
-  sumAdicionales += Number(datosDominical.adicionales || 0);
+  if (diaDomingo) {
+    sumTurnos += Number(datosDominical.turnos || 0);
+    sumPlanilla += Number(datosDominical.total_planilla || 0);
+    sumSalario += Number(datosDominical.salario || 0);
+    sumAdicionales += Number(datosDominical.adicionales || 0);
+  }
 
   sumSalario += Number(datosSaldo.salario || 0);
   sumAdicionales += Number(datosSaldo.adicionales || 0);
 
-  // NUEVO: Enviamos los totales al padre para que la tabla pequeña los procese
+  sumPlanilla = Number(sumPlanilla.toFixed(2));
+  sumFeriados = Number(sumFeriados.toFixed(2));
+  sumSalario = Number(sumSalario.toFixed(2));
+  sumAdicionales = Number(sumAdicionales.toFixed(2));
+
   useEffect(() => {
     if (onTotalesCalculados) {
       onTotalesCalculados(sumSalario, sumAdicionales, topeSemanal);
@@ -86,14 +100,14 @@ const GrupoColaboradorAdministrativo = ({
       <TrSaldoAnteriorAdmin
         colaborador={colaborador}
         rowSpan={totalFilas}
-        semanaPlanillaId={dias?.[0]?.semana_plantilla_id || null}
+        semanaPlanillaId={semanaId}
         onDataUpdate={setDatosSaldo}
         isFinalizado={isFinalizado}
       />
 
       {diasLaborables.map((dia) => (
         <TrAsistenciaAdministrativa
-          key={dia.id}
+          key={`${colaborador?.id}-${dia.id}`}
           dia={dia}
           findColaborador={colaborador}
           sueldoPorDia={sueldoPorDia}
@@ -105,6 +119,7 @@ const GrupoColaboradorAdministrativo = ({
 
       {diaDomingo && (
         <TrDominicalAdmin
+          key={`${colaborador?.id}-domingo-${diaDomingo.id}`}
           colaborador_id={colaborador?.id}
           diaDomingo={diaDomingo}
           sueldoPorDia={sueldoPorDia}
@@ -127,10 +142,11 @@ const GrupoColaboradorAdministrativo = ({
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumPlanilla.toFixed(2)}
         </td>
-        <td colSpan={5} className="border-r border-slate-300 p-1"></td>
+        <td colSpan={4} className="border-r border-slate-300 p-1"></td>
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumFeriados.toFixed(2)}
         </td>
+        <td className="border-r border-slate-300 p-1"></td>
         <td className="border-r border-slate-300 p-1 text-amber-400">
           S/ {sumSalario.toFixed(2)}
         </td>

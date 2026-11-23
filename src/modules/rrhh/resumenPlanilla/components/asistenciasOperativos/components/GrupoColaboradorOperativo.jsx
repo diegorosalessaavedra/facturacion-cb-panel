@@ -37,6 +37,7 @@ const GrupoColaboradorOperativo = ({
     sumImporteMinutos = 0,
     sumBono = 0,
     sumFeriados = 0,
+    sumOtros = 0,
     sumSalario = 0,
     sumAdicionales = 0;
 
@@ -56,8 +57,8 @@ const GrupoColaboradorOperativo = ({
     sumImporteHoras += Number(r.importe_horas || 0);
     sumImporteMinutos += Number(r.importe_minutos || 0);
     sumBono += Number(r.bono || 0);
-
     sumFeriados += Number(r.feriados || 0);
+    sumOtros += Number(r.otros || 0);
     sumSalario += Number(r.salario || 0);
     sumAdicionales += Number(r.adicionales || 0);
   });
@@ -136,6 +137,9 @@ const GrupoColaboradorOperativo = ({
         </td>
         <td className="border-r border-slate-300 p-1 text-teal-400">
           S/ {sumFeriados.toFixed(2)}
+        </td>
+        <td className="border-r border-slate-300 p-1 text-teal-400">
+          S/ {sumOtros.toFixed(2)}
         </td>
         <td className="border-r border-slate-300 p-1 text-amber-400">
           S/ {sumSalario.toFixed(2)}

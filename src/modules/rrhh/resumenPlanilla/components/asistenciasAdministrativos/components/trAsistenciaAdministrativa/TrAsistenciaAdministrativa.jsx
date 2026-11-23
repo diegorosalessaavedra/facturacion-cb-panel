@@ -38,27 +38,44 @@ const TrAsistenciaAdministrativa = ({
   const esFeriado = Boolean(dia?.bonificacion_feriado);
   const valorAsistenciaFeriadoDefault = esFeriado ? "SI" : "NO";
 
+  const esLocador = findColaborador?.regimen === "LOCADORES";
+
   const aplicarReglasTurno = (datos) => {
     const cantTurnos = Number(datos.turnos || 0);
     const trabajo = cantTurnos > 0;
     const valorBono = Number(datos.bono || 0);
+    const valorOtros = Number(datos.otros || 0);
+
     const valorImpHoras = Number(datos.importe_horas || 0);
     const valorImpMinutos = Number(datos.importe_minutos || 0);
-    const basePlanilla = sueldoPorDia * cantTurnos;
+    const basePlanilla = Number((sueldoPorDia * cantTurnos).toFixed(2));
 
     const feriadoSeleccionado =
       datos.asistencia_feriado ?? valorAsistenciaFeriadoDefault;
     const aplicaMontoFeriado = feriadoSeleccionado === "SI" && esFeriado;
     const feriadoCalculado =
-      aplicaMontoFeriado && trabajo ? sueldoFeriadoBruto : 0;
+      aplicaMontoFeriado && trabajo ? Number(sueldoFeriadoBruto.toFixed(2)) : 0;
+
+    const salarioBase = trabajo
+      ? basePlanilla + valorImpHoras + valorImpMinutos
+      : 0;
+    const adicionalesBase = trabajo
+      ? feriadoCalculado + valorBono + valorOtros
+      : 0;
+
+    const salarioFinal = esLocador
+      ? Number((salarioBase + adicionalesBase).toFixed(2))
+      : Number(salarioBase.toFixed(2));
+
+    const adicionalesFinal = esLocador ? 0 : Number(adicionalesBase.toFixed(2));
 
     return {
       ...datos,
       asistencia_feriado: feriadoSeleccionado,
       total_planilla: trabajo ? basePlanilla : 0,
       feriados: feriadoCalculado,
-      salario: trabajo ? basePlanilla + valorImpHoras + valorImpMinutos : 0,
-      adicionales: trabajo ? Number(feriadoCalculado) + valorBono : 0,
+      salario: salarioFinal,
+      adicionales: adicionalesFinal,
     };
   };
 
@@ -95,12 +112,49 @@ const TrAsistenciaAdministrativa = ({
     }),
   );
 
+  const onDataUpdateRef = useRef(onDataUpdate);
+  useEffect(() => {
+    onDataUpdateRef.current = onDataUpdate;
+  }, [onDataUpdate]);
+
   const datosRef = useRef(datosAsistencia);
   useEffect(() => {
     datosRef.current = datosAsistencia;
+    if (onDataUpdateRef.current) {
+      onDataUpdateRef.current(datosAsistencia);
+    }
   }, [datosAsistencia]);
 
   const saveSeqRef = useRef(0);
+
+  const calcularTiempos = (entrada, salida) => {
+    let tardanza_minutos = 0,
+      horas_enteras = 0,
+      minutos_enteros = 0,
+      total_horas_minutos = "";
+    if (entrada) {
+      const [entHora, entMin] = entrada.split(":").map(Number);
+      const refTotalMinutos = 9 * 60;
+      const entTotalMinutos = entHora * 60 + entMin;
+      tardanza_minutos = Math.max(0, entTotalMinutos - refTotalMinutos);
+
+      if (salida) {
+        const [salHora, salMin] = salida.split(":").map(Number);
+        let diffMinutos = salHora * 60 + salMin - entTotalMinutos;
+        if (diffMinutos < 0) diffMinutos += 24 * 60;
+        diffMinutos = Math.max(0, diffMinutos - 60);
+        horas_enteras = Math.floor(diffMinutos / 60);
+        minutos_enteros = diffMinutos % 60;
+        total_horas_minutos = `${String(horas_enteras).padStart(2, "0")}:${String(minutos_enteros).padStart(2, "0")}`;
+      }
+    }
+    return {
+      tardanza_minutos,
+      total_horas_minutos,
+      horas_enteras,
+      minutos_enteros,
+    };
+  };
 
   const handleAsistencia = () => {
     if (!dia?.id || !findColaborador?.id) return;
@@ -120,97 +174,18 @@ const TrAsistenciaAdministrativa = ({
             ...datosCalculoLimpio
           } = calculo_asistencia_administrativo || {};
 
-          setDatosAsistencia((prev) => {
-            const newData = aplicarReglasTurno({
+          setDatosAsistencia((prev) =>
+            aplicarReglasTurno({
               ...prev,
               ...datosPrincipales,
               ...datosCalculoLimpio,
-              // Conservamos el huellero si ya cargó antes
               huellero_entrada: prev.huellero_entrada,
               huellero_salida: prev.huellero_salida,
-            });
-            datosRef.current = newData;
-            return newData;
-          });
-
-          if (onDataUpdate) onDataUpdate(datosRef.current);
-        } else {
-          if (onDataUpdate) onDataUpdate(datosRef.current);
+            }),
+          );
         }
       })
       .catch(console.error);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    const updated = aplicarReglasTurno({
-      ...datosRef.current,
-      [name]: value,
-    });
-    datosRef.current = updated;
-    setDatosAsistencia(updated);
-    if (onDataUpdate) onDataUpdate(updated);
-  };
-
-  const handleSelectChange = (e) => {
-    const { name, value } = e.target;
-    if (!value) return;
-
-    const nuevosDatos = aplicarReglasTurno({
-      ...datosRef.current,
-      [name]: value,
-    });
-    datosRef.current = nuevosDatos;
-    setDatosAsistencia(nuevosDatos);
-    if (onDataUpdate) onDataUpdate(nuevosDatos);
-    handleSave(nuevosDatos);
-  };
-
-  const handleConfirmarEdicionTiempo = (nuevaEntrada, nuevaSalida) => {
-    const calculos = calcularTiempos(nuevaEntrada, nuevaSalida);
-    const nuevosDatos = aplicarReglasTurno({
-      ...datosRef.current,
-      hora_entrada: formatTimeWithoutSeconds(nuevaEntrada),
-      hora_salida: formatTimeWithoutSeconds(nuevaSalida),
-      ...calculos,
-    });
-    datosRef.current = nuevosDatos;
-    setDatosAsistencia(nuevosDatos);
-    if (onDataUpdate) onDataUpdate(nuevosDatos);
-    handleSave(nuevosDatos);
-  };
-
-  const handleSave = (datosAEnviar = datosRef.current) => {
-    const payload = { ...datosAEnviar };
-    delete payload.huellero_entrada;
-    delete payload.huellero_salida;
-
-    for (const key in payload) {
-      if (payload[key] === "") payload[key] = null;
-    }
-
-    const mySeq = ++saveSeqRef.current;
-    const toastId = toast.loading("Guardando...");
-    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/${payload.id || "0"}`;
-
-    axios
-      .post(url, payload, config)
-      .then((res) => {
-        toast.success("Guardado", { id: toastId });
-        const newId = res.data?.data?.id ?? payload.id;
-        if (mySeq !== saveSeqRef.current) return;
-        if (newId && newId !== datosRef.current.id) {
-          setDatosAsistencia((prev) => {
-            const updated = { ...prev, id: newId };
-            datosRef.current = updated;
-            return updated;
-          });
-        }
-      })
-      .catch((err) => {
-        toast.dismiss(toastId);
-        handleAxiosError(err);
-      });
   };
 
   const handleAsistenciaHuellero = () => {
@@ -241,11 +216,7 @@ const TrAsistenciaAdministrativa = ({
               newData.hora_entrada,
               newData.hora_salida,
             );
-            const finalData = aplicarReglasTurno({ ...newData, ...calculos });
-
-            datosRef.current = finalData;
-            if (onDataUpdate) onDataUpdate(finalData);
-            return finalData;
+            return aplicarReglasTurno({ ...newData, ...calculos });
           });
         }
       })
@@ -255,35 +226,72 @@ const TrAsistenciaAdministrativa = ({
   useEffect(() => {
     handleAsistencia();
     handleAsistenciaHuellero();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dia?.id, findColaborador?.id]);
 
-  const calcularTiempos = (entrada, salida) => {
-    let tardanza_minutos = 0,
-      horas_enteras = 0,
-      minutos_enteros = 0,
-      total_horas_minutos = "";
-    if (entrada) {
-      const [entHora, entMin] = entrada.split(":").map(Number);
-      const refTotalMinutos = 9 * 60;
-      const entTotalMinutos = entHora * 60 + entMin;
-      tardanza_minutos = Math.max(0, entTotalMinutos - refTotalMinutos);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const updated = aplicarReglasTurno({
+      ...datosRef.current,
+      [name]: value,
+    });
+    datosRef.current = updated;
+    setDatosAsistencia(updated);
+  };
 
-      if (salida) {
-        const [salHora, salMin] = salida.split(":").map(Number);
-        let diffMinutos = salHora * 60 + salMin - entTotalMinutos;
-        if (diffMinutos < 0) diffMinutos += 24 * 60;
-        diffMinutos = Math.max(0, diffMinutos - 60);
-        horas_enteras = Math.floor(diffMinutos / 60);
-        minutos_enteros = diffMinutos % 60;
-        total_horas_minutos = `${String(horas_enteras).padStart(2, "0")}:${String(minutos_enteros).padStart(2, "0")}`;
-      }
+  const handleSelectChange = (e) => {
+    const { name, value } = e.target;
+    if (!value) return;
+
+    const nuevosDatos = aplicarReglasTurno({
+      ...datosRef.current,
+      [name]: value,
+    });
+    datosRef.current = nuevosDatos;
+    setDatosAsistencia(nuevosDatos);
+    handleSave(nuevosDatos);
+  };
+
+  const handleConfirmarEdicionTiempo = (nuevaEntrada, nuevaSalida) => {
+    const calculos = calcularTiempos(nuevaEntrada, nuevaSalida);
+    const nuevosDatos = aplicarReglasTurno({
+      ...datosRef.current,
+      hora_entrada: formatTimeWithoutSeconds(nuevaEntrada),
+      hora_salida: formatTimeWithoutSeconds(nuevaSalida),
+      ...calculos,
+    });
+    datosRef.current = nuevosDatos;
+    setDatosAsistencia(nuevosDatos);
+    handleSave(nuevosDatos);
+  };
+
+  const handleSave = (datosAEnviar = datosRef.current) => {
+    const payload = { ...datosAEnviar };
+    delete payload.huellero_entrada;
+    delete payload.huellero_salida;
+
+    for (const key in payload) {
+      if (payload[key] === "") payload[key] = null;
     }
-    return {
-      tardanza_minutos,
-      total_horas_minutos,
-      horas_enteras,
-      minutos_enteros,
-    };
+
+    const mySeq = ++saveSeqRef.current;
+    const toastId = toast.loading("Guardando...");
+    const url = `${import.meta.env.VITE_URL_API}/asistencia-administrativo/${payload.id || "0"}`;
+
+    axios
+      .post(url, payload, config)
+      .then((res) => {
+        toast.success("Guardado", { id: toastId });
+        const newId = res.data?.data?.id ?? payload.id;
+        if (mySeq !== saveSeqRef.current) return;
+        if (newId && newId !== datosRef.current.id) {
+          setDatosAsistencia((prev) => ({ ...prev, id: newId }));
+        }
+      })
+      .catch((err) => {
+        toast.dismiss(toastId);
+        handleAxiosError(err);
+      });
   };
 
   const inputUIClasses = {

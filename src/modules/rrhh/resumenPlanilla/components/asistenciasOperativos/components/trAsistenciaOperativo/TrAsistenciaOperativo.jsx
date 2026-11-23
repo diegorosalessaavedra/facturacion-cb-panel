@@ -42,16 +42,16 @@ const TrAsistenciaOperativo = ({
   bono_extraordinario,
 }) => {
   const esFeriado = Boolean(dia?.bonificacion_feriado);
+  const esLocador = findColaborador?.regimen === "LOCADORES";
 
   const aplicarReglasTurno = (datos) => {
-    // --- NUEVA REGLA: SELECCIÓN DE FERIADO ---
+    // --- SELECCIÓN DE FERIADO ---
     let finalAsistenciaFeriado = "NO";
     if (esFeriado) {
-      // Si es feriado, tomamos lo que el usuario haya seleccionado, por defecto "SI"
       finalAsistenciaFeriado = datos.asistencia_feriado || "SI";
     }
 
-    // --- REGLA: AUTOMATIZACIÓN DEL BONO BASE ---
+    // --- AUTOMATIZACIÓN DEL BONO BASE ---
     let valorBonoBase = Number(datos.bono || 0);
 
     if (datos.turno === "NOCTURNO ATO" || datos.turno === "VIAJES") {
@@ -66,7 +66,6 @@ const TrAsistenciaOperativo = ({
     }
 
     const vHora = Number(valorHora || 0);
-    const vMinuto = vHora / 60;
 
     // --- 1. LÓGICA DE CÁLCULO DE HORAS ---
     let valTotalHoras = datos.total_horas_minutos || "";
@@ -120,7 +119,7 @@ const TrAsistenciaOperativo = ({
       }
     }
 
-    // --- 2. LÓGICA DE TURNOS Y HORAS EXTRAS SEGÚN REGLAS ---
+    // --- 2. LÓGICA DE TURNOS Y HORAS EXTRAS ---
     let turnosCalculados = 0;
     let horasExtrasEnteras = 0;
     let minutosExtras = 0;
@@ -172,12 +171,12 @@ const TrAsistenciaOperativo = ({
     const hrMinExtraStr =
       dEntrada && dSalida ? textoHrsExtraCalculado : datos.hr_min_extra || "";
 
-    // --- NUEVO: CÁLCULO DEL BONO TOTAL MULTIPLICADO POR TURNOS ---
     const valorBonoTotal = valorBonoBase * turnosFinal;
 
-    // --- 3. LÓGICA FINANCIERA ACTUALIZADA ---
+    // --- 3. LÓGICA FINANCIERA ---
     const trabajo = turnosFinal > 0;
-    const basePlanilla = sueldoPorDia * turnosFinal;
+    const basePlanilla = Number((sueldoPorDia * turnosFinal).toFixed(2));
+    const valorOtros = Number(datos.otros || 0);
 
     const calculoImporteHoras = horasExtrasEnteras * vHora;
     const calculoImporteMinutos = minutosExtras >= 40 ? vHora : 0;
@@ -192,27 +191,38 @@ const TrAsistenciaOperativo = ({
         ? calculoImporteMinutos
         : Number(datos.importe_minutos || 0);
 
-    // NUEVO: Validación de importe de feriados según el Select (SI / NO)
     let valorFeriados = datos.feriados;
     if (finalAsistenciaFeriado === "NO") {
-      valorFeriados = 0; // Si se elige NO o no es feriado, el valor es 0
+      valorFeriados = 0;
     } else if (
       valorFeriados === undefined ||
       valorFeriados === null ||
       valorFeriados === ""
     ) {
-      valorFeriados = trabajo ? Number(sueldoFeriadoBruto || 0) : 0;
+      valorFeriados = trabajo
+        ? Number(Number(sueldoFeriadoBruto || 0).toFixed(2))
+        : 0;
     }
 
-    // Sumamos Importe Horas, Minutos, Feriados y Bono Total únicamente a los Adicionales
-    const calculoAdicionales = trabajo
-      ? Number(valorFeriados) + valorBonoTotal + valorImpHoras + valorImpMinutos
+    const salarioBase = trabajo ? basePlanilla : 0;
+    const adicionalesBase = trabajo
+      ? Number(valorFeriados || 0) +
+        valorBonoTotal +
+        valorImpHoras +
+        valorImpMinutos +
+        valorOtros
       : 0;
+
+    const salarioFinal = esLocador
+      ? Number((salarioBase + adicionalesBase).toFixed(2))
+      : Number(salarioBase.toFixed(2));
+
+    const adicionalesFinal = esLocador ? 0 : Number(adicionalesBase.toFixed(2));
 
     return {
       ...datos,
-      asistencia_feriado: finalAsistenciaFeriado, // Guardamos la selección
-      bono: valorBonoTotal > 0 ? valorBonoTotal.toFixed(2) : "", // Asignamos el bono total calculado
+      asistencia_feriado: finalAsistenciaFeriado,
+      bono: valorBonoTotal > 0 ? valorBonoTotal.toFixed(2) : "",
       total_horas_minutos: valTotalHoras,
       horas_enteras: valHoras,
       minutos_enteros: valMinutos,
@@ -222,8 +232,8 @@ const TrAsistenciaOperativo = ({
       importe_minutos: valorImpMinutos ? valorImpMinutos.toFixed(2) : "0.00",
       total_planilla: trabajo ? basePlanilla : 0,
       feriados: valorFeriados,
-      salario: trabajo ? basePlanilla : 0,
-      adicionales: calculoAdicionales,
+      salario: salarioFinal,
+      adicionales: adicionalesFinal,
     };
   };
 
@@ -249,15 +259,25 @@ const TrAsistenciaOperativo = ({
       importe_horas: "0.00",
       importe_minutos: "0.00",
       bono: 0.0,
+      feriados: 0.0,
+      otros: 0.0,
       salario: 0.0,
       adicionales: 0.0,
       estado: "PENDIENTE DE ENVIAR",
     }),
   );
 
+  const onDataUpdateRef = useRef(onDataUpdate);
+  useEffect(() => {
+    onDataUpdateRef.current = onDataUpdate;
+  }, [onDataUpdate]);
+
   const datosRef = useRef(datosAsistencia);
   useEffect(() => {
     datosRef.current = datosAsistencia;
+    if (onDataUpdateRef.current) {
+      onDataUpdateRef.current(datosAsistencia);
+    }
   }, [datosAsistencia]);
 
   const saveSeqRef = useRef(0);
@@ -277,16 +297,13 @@ const TrAsistenciaOperativo = ({
             ...datosCalculoLimpio
           } = calculo_asistencia_operativo || {};
 
-          const newData = aplicarReglasTurno({
-            ...datosAsistencia,
-            ...datosPrincipales,
-            ...datosCalculoLimpio,
-          });
-
-          setDatosAsistencia(newData);
-          if (onDataUpdate) onDataUpdate(newData);
-        } else {
-          if (onDataUpdate) onDataUpdate(datosAsistencia);
+          setDatosAsistencia((prev) =>
+            aplicarReglasTurno({
+              ...prev,
+              ...datosPrincipales,
+              ...datosCalculoLimpio,
+            }),
+          );
         }
       })
       .catch(console.error);
@@ -295,28 +312,28 @@ const TrAsistenciaOperativo = ({
   useEffect(() => {
     handleAsistencia();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dia?.id, findColaborador?.id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setDatosAsistencia((prev) => {
-      const updated = aplicarReglasTurno({ ...prev, [name]: value });
-      datosRef.current = updated;
-      if (onDataUpdate) onDataUpdate(updated);
-      return updated;
+    const updated = aplicarReglasTurno({
+      ...datosRef.current,
+      [name]: value,
     });
+    datosRef.current = updated;
+    setDatosAsistencia(updated);
   };
 
   const handleSelectChange = (e) => {
     const { name, value } = e.target;
     if (!value) return;
+
     const nuevosDatos = aplicarReglasTurno({
-      ...datosAsistencia,
+      ...datosRef.current,
       [name]: value,
     });
     datosRef.current = nuevosDatos;
     setDatosAsistencia(nuevosDatos);
-    if (onDataUpdate) onDataUpdate(nuevosDatos);
     handleSave(nuevosDatos);
   };
 
@@ -328,6 +345,7 @@ const TrAsistenciaOperativo = ({
     for (const key in payload) {
       if (payload[key] === "") payload[key] = null;
     }
+
     const mySeq = ++saveSeqRef.current;
     const toastId = toast.loading("Guardando...");
     const url = `${import.meta.env.VITE_URL_API}/asistencia-operativo/${
@@ -341,14 +359,13 @@ const TrAsistenciaOperativo = ({
         const newId = res.data?.data?.id ?? payload.id;
         if (mySeq !== saveSeqRef.current) return;
         if (newId && newId !== datosRef.current.id) {
-          setDatosAsistencia((prev) => {
-            const updated = { ...prev, id: newId };
-            datosRef.current = updated;
-            return updated;
-          });
+          setDatosAsistencia((prev) => ({ ...prev, id: newId }));
         }
       })
-      .catch(handleAxiosError);
+      .catch((err) => {
+        toast.dismiss(toastId);
+        handleAxiosError(err);
+      });
   };
 
   const inputUIClasses = {
@@ -386,6 +403,7 @@ const TrAsistenciaOperativo = ({
     importe_minutos,
     bono,
     feriados,
+    otros,
     salario,
     adicionales,
   } = datosAsistencia;
@@ -403,196 +421,219 @@ const TrAsistenciaOperativo = ({
   ];
 
   return (
-    <>
-      <tr className="group hover:bg-slate-50 transition-colors">
-        <td
-          className={`${tdBlue} uppercase text-[9px] whitespace-nowrap align-middle min-w-[180px]`}
+    <tr className="group hover:bg-slate-50 transition-colors">
+      <td
+        className={`${tdBlue} uppercase text-[9px] whitespace-nowrap align-middle min-w-[180px]`}
+      >
+        {formatDateES(dia?.dia_plantilla) || "-"}
+      </td>
+
+      <td className={`${tdBlue} min-w-[70px]`}>
+        <Select
+          isDisabled={isFinalizado || !esFeriado}
+          aria-label="Asistencia Feriado"
+          name="asistencia_feriado"
+          selectedKeys={new Set([asistencia_feriado])}
+          onChange={handleSelectChange}
+          size="sm"
+          classNames={selectUIClasses}
         >
-          {formatDateES(dia?.dia_plantilla) || "-"}
-        </td>
-
-        {/* NUEVO: Celda de Feriado transformada en Select */}
-        <td className={`${tdBlue} min-w-[70px]`}>
-          <Select
-            isDisabled={isFinalizado || !esFeriado} // Se bloquea si no es un día feriado real
-            aria-label="Asistencia Feriado"
-            name="asistencia_feriado"
-            selectedKeys={new Set([asistencia_feriado])}
-            onChange={handleSelectChange}
-            size="sm"
-            classNames={selectUIClasses}
-          >
-            {/* Si no es feriado, solo muestra "NO". Si lo es, muestra "SI" y "NO" */}
-            {(!esFeriado ? [{ key: "NO", label: "NO" }] : opcionesFeriado).map(
-              (op) => (
-                <SelectItem key={op.key} textValue={op.label}>
-                  <p className="text-[9px] font-bold">{op.label}</p>
-                </SelectItem>
-              ),
-            )}
-          </Select>
-        </td>
-        <td className={`${tdBlue} min-w-[50px] `}>
-          <Select
-            isDisabled={isFinalizado}
-            aria-label="Goce de vacaciones"
-            name="goce_vacaciones"
-            selectedKeys={new Set([goce_vacaciones])}
-            onChange={handleSelectChange}
-            size="sm"
-            classNames={selectUIClasses}
-          >
-            {opcionesFeriado.map((op) => (
+          {(!esFeriado ? [{ key: "NO", label: "NO" }] : opcionesFeriado).map(
+            (op) => (
               <SelectItem key={op.key} textValue={op.label}>
-                <p className="text-[9px]">{op.label}</p>
+                <p className="text-[9px] font-bold">{op.label}</p>
               </SelectItem>
-            ))}
-          </Select>
-        </td>
+            ),
+          )}
+        </Select>
+      </td>
 
-        <td className={`${tdBlue} min-w-[150px]`}>
-          <Select
-            isDisabled={isFinalizado}
-            aria-label="Turno"
-            name="turno"
-            selectedKeys={new Set([turno])}
-            onChange={handleSelectChange}
-            size="sm"
-            classNames={selectUIClasses}
-          >
-            {opcionesTurno.map((op) => (
-              <SelectItem key={op.key} textValue={op.label}>
-                <p className="text-[9px]">{op.label}</p>
-              </SelectItem>
-            ))}
-          </Select>
-        </td>
-        <td className={`${tdBlue} min-w-[120px]`}>
-          <Input
-            isDisabled={isFinalizado}
-            aria-label="Actividad del día"
-            type="text"
-            name="actividad_dia"
-            value={actividad_dia || ""}
-            onChange={handleChange}
-            onBlur={() => handleSave()}
-            placeholder="..."
-            size="sm"
-            classNames={inputUIClasses}
-          />
-        </td>
+      <td className={`${tdBlue} min-w-[50px]`}>
+        <Select
+          isDisabled={isFinalizado}
+          aria-label="Goce de vacaciones"
+          name="goce_vacaciones"
+          selectedKeys={new Set([goce_vacaciones])}
+          onChange={handleSelectChange}
+          size="sm"
+          classNames={selectUIClasses}
+        >
+          {opcionesFeriado.map((op) => (
+            <SelectItem key={op.key} textValue={op.label}>
+              <p className="text-[9px]">{op.label}</p>
+            </SelectItem>
+          ))}
+        </Select>
+      </td>
 
-        {/* Celda Hora y Fecha Entrada */}
-        <td className={`${tdBlue} min-w-[140px]`}>
-          <Input
-            isDisabled={isFinalizado}
-            aria-label="Entrada"
-            type="datetime-local"
-            name="entrada"
-            value={formatForDateTimeLocal(entrada)}
-            onChange={handleChange}
-            onBlur={() => handleSave()}
-            size="sm"
-            classNames={inputUIClasses}
-          />
-        </td>
+      <td className={`${tdBlue} min-w-[150px]`}>
+        <Select
+          isDisabled={isFinalizado}
+          aria-label="Turno"
+          name="turno"
+          selectedKeys={new Set([turno])}
+          onChange={handleSelectChange}
+          size="sm"
+          classNames={selectUIClasses}
+        >
+          {opcionesTurno.map((op) => (
+            <SelectItem key={op.key} textValue={op.label}>
+              <p className="text-[9px]">{op.label}</p>
+            </SelectItem>
+          ))}
+        </Select>
+      </td>
 
-        {/* Celda Hora y Fecha Salida */}
-        <td className={`${tdBlue} min-w-[140px]`}>
-          <Input
-            isDisabled={isFinalizado}
-            aria-label="Salida"
-            type="datetime-local"
-            name="salida"
-            value={formatForDateTimeLocal(salida)}
-            onChange={handleChange}
-            onBlur={() => handleSave()}
-            size="sm"
-            classNames={inputUIClasses}
-          />
-        </td>
+      <td className={`${tdBlue} min-w-[120px]`}>
+        <Input
+          isDisabled={isFinalizado}
+          aria-label="Actividad del día"
+          type="text"
+          name="actividad_dia"
+          value={actividad_dia || ""}
+          onChange={handleChange}
+          onBlur={() => handleSave()}
+          placeholder="..."
+          size="sm"
+          classNames={inputUIClasses}
+        />
+      </td>
 
-        <td className={`${tdBlue} min-w-[80px]`}>
-          <div className={readOnlyTextClass}>{total_horas_minutos || "-"}</div>
-        </td>
-        <td className={`${tdBlue} min-w-[60px]`}>
-          <div className={readOnlyTextClass}>{horas_enteras || "0"}</div>
-        </td>
-        <td className={`${tdBlue} min-w-[60px]`}>
-          <div className={readOnlyTextClass}>{minutos_enteros || "0"}</div>
-        </td>
-        <td className={`${tdGreen} min-w-[60px]`}>
-          <Input
-            isDisabled={isFinalizado}
-            aria-label="Turnos"
-            type="text"
-            onInput={onInputNumber}
-            name="turnos"
-            value={turnos || ""}
-            onChange={handleChange}
-            onBlur={() => handleSave()}
-            size="sm"
-            classNames={inputUIClasses}
-          />
-        </td>
-        <td className={`${tdGreen} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>
-            S/ {Number(total_planilla || 0).toFixed(2)}
-          </div>
-        </td>
-        <td className={`${tdGreen} min-w-[80px]`}>
-          <div
-            className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
-          >
-            {hr_min_extra || "-"}
-          </div>
-        </td>
-        <td className={`${tdGreen} min-w-[70px]`}>
-          <div
-            className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
-          >
-            S/ {importe_horas === "0.00" ? "-" : importe_horas}
-          </div>
-        </td>
-        <td className={`${tdGreen} min-w-[70px]`}>
-          <div
-            className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
-          >
-            S/ {importe_minutos === "0.00" ? "-" : importe_minutos}
-          </div>
-        </td>
-        <td className={`${tdGreen} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>
-            S/ {Number(bono || 0).toFixed(2)}
-          </div>
-        </td>
-        <td className={`${tdGreen} min-w-[70px]`}>
-          <Input
-            isDisabled={isFinalizado}
-            aria-label="Feriados"
-            type="text"
-            onInput={onInputPrice}
-            name="feriados"
-            value={feriados || ""}
-            onChange={handleChange}
-            onBlur={() => handleSave()}
-            size="sm"
-            startContent={<span className="text-[10px] font-bold">S/</span>}
-            classNames={inputUIClasses}
-          />
-        </td>
-        <td className={`${tdYellow} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>
-            S/ {Number(salario || 0).toFixed(2)}
-          </div>
-        </td>
-        <td className={`${tdYellowLast} min-w-[70px]`}>
-          <div className={readOnlyTextClass}>
-            S/ {Number(adicionales || 0).toFixed(2)}
-          </div>
-        </td>
-      </tr>
-    </>
+      <td className={`${tdBlue} min-w-[140px]`}>
+        <Input
+          isDisabled={isFinalizado}
+          aria-label="Entrada"
+          type="datetime-local"
+          name="entrada"
+          value={formatForDateTimeLocal(entrada)}
+          onChange={handleChange}
+          onBlur={() => handleSave()}
+          size="sm"
+          classNames={inputUIClasses}
+        />
+      </td>
+
+      <td className={`${tdBlue} min-w-[140px]`}>
+        <Input
+          isDisabled={isFinalizado}
+          aria-label="Salida"
+          type="datetime-local"
+          name="salida"
+          value={formatForDateTimeLocal(salida)}
+          onChange={handleChange}
+          onBlur={() => handleSave()}
+          size="sm"
+          classNames={inputUIClasses}
+        />
+      </td>
+
+      <td className={`${tdBlue} min-w-[80px]`}>
+        <div className={readOnlyTextClass}>{total_horas_minutos || "-"}</div>
+      </td>
+
+      <td className={`${tdBlue} min-w-[60px]`}>
+        <div className={readOnlyTextClass}>{horas_enteras || "0"}</div>
+      </td>
+
+      <td className={`${tdBlue} min-w-[60px]`}>
+        <div className={readOnlyTextClass}>{minutos_enteros || "0"}</div>
+      </td>
+
+      <td className={`${tdGreen} min-w-[60px]`}>
+        <Input
+          isDisabled={isFinalizado}
+          aria-label="Turnos"
+          type="text"
+          onInput={onInputNumber}
+          name="turnos"
+          value={turnos || ""}
+          onChange={handleChange}
+          onBlur={() => handleSave()}
+          size="sm"
+          classNames={inputUIClasses}
+        />
+      </td>
+
+      <td className={`${tdGreen} min-w-[70px]`}>
+        <div className={readOnlyTextClass}>
+          S/ {Number(total_planilla || 0).toFixed(2)}
+        </div>
+      </td>
+
+      <td className={`${tdGreen} min-w-[80px]`}>
+        <div
+          className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
+        >
+          {hr_min_extra || "-"}
+        </div>
+      </td>
+
+      <td className={`${tdGreen} min-w-[70px]`}>
+        <div
+          className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
+        >
+          S/ {importe_horas === "0.00" ? "-" : importe_horas}
+        </div>
+      </td>
+
+      <td className={`${tdGreen} min-w-[70px]`}>
+        <div
+          className={`${readOnlyTextClass} bg-white border border-slate-200 shadow-sm`}
+        >
+          S/ {importe_minutos === "0.00" ? "-" : importe_minutos}
+        </div>
+      </td>
+
+      <td className={`${tdGreen} min-w-[70px]`}>
+        <div className={readOnlyTextClass}>
+          S/ {Number(bono || 0).toFixed(2)}
+        </div>
+      </td>
+
+      <td className={`${tdGreen} min-w-[70px]`}>
+        <Input
+          isDisabled={isFinalizado}
+          aria-label="Feriados"
+          type="text"
+          onInput={onInputPrice}
+          name="feriados"
+          value={feriados || ""}
+          onChange={handleChange}
+          onBlur={() => handleSave()}
+          size="sm"
+          startContent={<span className="text-[10px] font-bold">S/</span>}
+          classNames={inputUIClasses}
+        />
+      </td>
+
+      <td className={`${tdGreen} min-w-[70px]`}>
+        <Input
+          isDisabled={isFinalizado}
+          aria-label="Otros"
+          type="text"
+          onInput={onInputPrice}
+          name="otros"
+          value={otros || ""}
+          onChange={handleChange}
+          onBlur={() => handleSave()}
+          size="sm"
+          startContent={<span className="text-[10px] font-bold">S/</span>}
+          classNames={inputUIClasses}
+        />
+      </td>
+
+      <td className={`${tdYellow} min-w-[70px]`}>
+        <div className={readOnlyTextClass}>
+          S/ {Number(salario || 0).toFixed(2)}
+        </div>
+      </td>
+
+      <td className={`${tdYellowLast} min-w-[70px]`}>
+        <div className={readOnlyTextClass}>
+          S/ {Number(adicionales || 0).toFixed(2)}
+        </div>
+      </td>
+    </tr>
   );
 };
 
