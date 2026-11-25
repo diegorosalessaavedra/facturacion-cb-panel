@@ -12,7 +12,7 @@ const Proyectar5ta = ({ uit, visualizar }) => {
 
   const handleFindColaboradores = async () => {
     try {
-      const url = `${API}/rrhh/colaboradores`;
+      const url = `${API}/rrhh/colaboradores/5ta/${uit.id}`;
       const res = await axios.get(url, config);
       setColaboradores(res.data.colaboradores || []);
     } catch (err) {
@@ -22,7 +22,7 @@ const Proyectar5ta = ({ uit, visualizar }) => {
 
   useEffect(() => {
     handleFindColaboradores();
-  }, []);
+  }, [uit]);
 
   return (
     <div className=" mx-auto w-full max-w-[1100px] p-4 rounded-2xl bg-white flex flex-col items-center gap-4 flex-1 min-h-0 overflow-y-auto pb-8">
