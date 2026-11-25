@@ -41,7 +41,7 @@ const FiltrosFlujo = ({
     { value: "5", label: "JUNIO" },
     { value: "6", label: "JULIO" },
     { value: "7", label: "AGOSTO" },
-    { value: "8", label: "SETIEMBRE" },
+    { value: "8", label: "SEPTIEMBRE" },
     { value: "9", label: "OCTUBRE" },
     { value: "10", label: "NOVIEMBRE" },
     { value: "11", label: "DICIEMBRE" },

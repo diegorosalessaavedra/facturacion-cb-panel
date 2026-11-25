@@ -52,11 +52,7 @@ const ModalTxtPlanilla = ({
       // Aseguramos que glosa sea un string antes de usar toUpperCase
       const glosaSegura = String(glosa || "").toUpperCase();
 
-      generarTxtBcp(
-        selectDatosText,
-        glosaSegura, 
-        subtipoSeleccionado,
-      );
+      generarTxtBcp(selectDatosText, glosaSegura, subtipoSeleccionado);
       toast.success("Archivo TXT generado exitosamente.");
       onOpenChange(false);
     } catch (error) {
@@ -85,7 +81,6 @@ const ModalTxtPlanilla = ({
                 onSelectionChange={setSubtipo}
                 isRequired
               >
-
                 <SelectItem key="G" value="G">
                   G - GRATIFICACIÓN
                 </SelectItem>
@@ -105,7 +100,7 @@ const ModalTxtPlanilla = ({
 
               <Input
                 label="Glosa / Descripción"
-                placeholder="Ej. PAGO DE HABERES 02 SEM SETIEMBRE 2026"
+                placeholder="Ej. PAGO DE HABERES 02 SEM SEPTIEMBRE 2026"
                 variant="bordered"
                 value={glosa}
                 onChange={(e) => setGlosa(String(e.target.value).toUpperCase())}

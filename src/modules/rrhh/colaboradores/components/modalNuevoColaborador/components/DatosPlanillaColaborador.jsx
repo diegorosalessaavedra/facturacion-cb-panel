@@ -51,7 +51,7 @@ const DatosPlanillaColaborador = ({ register }) => {
             {...register("asignacion_familiar")}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
           <Input
             className="w-full"
@@ -64,7 +64,7 @@ const DatosPlanillaColaborador = ({ register }) => {
             {...register("afp_integra")}
             radius="sm"
             size="sm"
-            onInput={onInputNumber}
+            onInput={onInputPrice}
           />
         </div>
 
