@@ -13,6 +13,8 @@ const TbodyValidacion = ({
   totales,
   prestamos,
   setSelectDatosText,
+  tardanza,
+  periodo5ta,
 }) => {
   const [dataValidacionTxt, setDataValidacionTxt] = useState(null);
 
@@ -105,11 +107,18 @@ const TbodyValidacion = ({
     (acc, pago) => acc + Number(pago.importe_cuota || 0),
     0,
   );
+  const descuentos_5ta = Number(periodo5ta?.retencion_5ta || 0) / totalSemanas;
+  const descuentos_tardanza = Number(tardanza || 0);
 
   // Asegurar divisor válido para evitar divisiones entre 0
 
   const totalPorPagar =
-    salarioBruto + montoAsignacionFamiliar - montoPension - descuentos;
+    salarioBruto +
+    montoAsignacionFamiliar -
+    montoPension -
+    descuentos -
+    descuentos_5ta -
+    descuentos_tardanza;
 
   const handlePatch = (nuevoValidacion, nuevoPagoMasivo) => {
     if (!dataValidacionTxt?.id) {

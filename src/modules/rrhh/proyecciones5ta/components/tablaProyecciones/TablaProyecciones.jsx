@@ -16,12 +16,13 @@ import config from "../../../../../utils/getToken";
 import { handleAxiosError } from "../../../../../utils/handleAxiosError";
 import { API } from "../../../../../utils/api";
 import { formatearMontoPe } from "../../../../../assets/formats";
+
+import TablaPeriodos5ta from "./components/TablaPeriodos5ta";
+import TablaTramos5ta from "./components/TablaTramos5ta";
 import {
   construirPeriodosBase,
   construirTramosBase,
-} from "./components/proyeccionHelpers";
-import TablaPeriodos5ta from "./components/TablaPeriodos5ta";
-import TablaTramos5ta from "./components/TablaTramos5ta";
+} from "./components/ProyeccionHelpers";
 
 const TablaProyecciones = ({ uit, selectColaborador, visualizar }) => {
   const [periodos, setPeriodos] = useState([]);

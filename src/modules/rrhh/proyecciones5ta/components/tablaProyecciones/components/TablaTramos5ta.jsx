@@ -95,7 +95,7 @@ const TablaTramos5ta = ({ tramos, totales, onChangeTramo, visualizar }) => {
             Retención Anual
           </td>
           <td
-            className={`px-4 py-3 ${totales.totalRetencionPeriodos === totales.retencionAnual ? "bg-green-600/50" : "bg-red-600/50"} text-slate-900 tabular-nums`}
+            className={`px-4 py-3 ${Number(totales.totalRetencionPeriodos).toFixed(2) === Number(totales.retencionAnual).toFixed(2) ? "bg-green-600/50" : "bg-red-600/50"} text-slate-900 tabular-nums`}
           >
             <div className="flex items-center justify-between">
               <span className=" font-semibold">S/</span>

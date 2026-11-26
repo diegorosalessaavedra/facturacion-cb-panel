@@ -103,6 +103,8 @@ const FilaResumenColaborador = ({
           semana_id={semana_id}
           isFinalizado={isFinalizado}
           totalSemanas={totalSemanas}
+          tardanza={totales?.descuento_tardanza}
+          periodo5ta={periodo5ta}
           setSelectDatosText={setSelectDatosText}
         />
       );
