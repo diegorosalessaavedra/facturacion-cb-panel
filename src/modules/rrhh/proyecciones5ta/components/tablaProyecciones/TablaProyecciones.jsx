@@ -22,7 +22,7 @@ import TablaTramos5ta from "./components/TablaTramos5ta";
 import {
   construirPeriodosBase,
   construirTramosBase,
-} from "./components/ProyeccionHelpers";
+} from "./components/proyeccionHelpers";
 
 const TablaProyecciones = ({ uit, selectColaborador, visualizar }) => {
   const [periodos, setPeriodos] = useState([]);
