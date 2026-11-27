@@ -49,8 +49,8 @@ const TablaColaboradores = ({
           color="default"
           isStriped
           classNames={{
-            base: "min-w-full  h-[70vh]  p-4 ",
-            wrapper: "p-0",
+            base: "min-w-full p-4",
+            wrapper: "p-0 max-h-[calc(100vh-290px)] overflow-y-auto",
           }}
           radius="sm"
           isCompact={true}
