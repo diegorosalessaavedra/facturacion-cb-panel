@@ -6,12 +6,17 @@ import {
   ModalContent,
   ModalHeader,
   Input,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import config from "../../../../utils/getToken";
-import { inputClassNames } from "../../../../assets/classNames";
+import {
+  inputClassNames,
+  selectClassNames,
+} from "../../../../assets/classNames";
 
 const ModalNuevaCargaLaboral = ({
   isOpen,
